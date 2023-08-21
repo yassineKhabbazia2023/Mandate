@@ -1,0 +1,6 @@
+﻿CREATE TABLE [Mandate].[Collection]
+(
+	[Id] UNIQUEIDENTIFIER NOT NULL,
+
+	CONSTRAINT [PK_Collection] PRIMARY KEY ([Id])
+)

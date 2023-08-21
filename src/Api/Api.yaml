@@ -1,0 +1,166 @@
+﻿openapi: '3.0.0'
+info:
+  version: '1.0.0'
+  title: 'KPMG Pulse Mandate API'
+  description: 'Mandate API of the KPMG Pulse Platform'
+servers:
+  - url: '/api'
+tags:
+
+security:
+  - 'JWT': []
+paths:
+  /bank/checkBbanValidity:
+    get:
+      tags:
+      - Bank
+      summary: Validate a French BBAN
+      description: Validate a French BBAN
+      operationId: 'ValidateBban'
+      parameters:
+      - in: query
+        name: bban
+        description: 'Concatenated fields of the BBAN, including Check Digits.'
+        schema:
+          type: string
+        required: true
+        example: '10000000011234567890189'
+      responses:
+        '200':
+          description: Results of the BBAN validation.
+          content:
+            application/json:
+              schema:
+                description: Result of the BBAN validation.
+                type: object
+                required:
+                  - valid
+                properties:
+                  valid:
+                    description: Indicating whether if the BBAN is valid.
+                    type: boolean
+  /bank/{bankCode}:
+    get:
+      tags:
+      - Bank
+      summary: Get reference data for a bank
+      description: Get reference data for a bank
+      operationId: 'GetBankDetails'
+      parameters:
+      - in: path
+        name: bankCode
+        description: 'The bank code (first parameter of the French BBAN) to be queried'
+        schema:
+          type: string
+        required: true
+        example: '12345'
+      responses:
+        '200':
+          description: Reference data for the bank.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankDetail'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 'Bank not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                'BankNotFound':
+                  value:
+                    errorType: 'BankNotFound'
+                    logReference: '12345'
+                    message: 'The ''xxxx'' bank code has not been found'
+  /health:
+    get:
+      tags:
+      - 'Health'
+      summary: 'Gets the status of the API.'
+      operationId: 'GetHealth'
+      responses:
+        '200':
+          description: 'The status of the API.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    description: 'Global status of the API'
+                    $ref:  "#/components/schemas/HealthStatus"
+                    example: Healthy
+                  sqlDatabase:
+                    description: 'Information of the SQL database'
+                    type: object
+                    properties:
+                      status:
+                        description: 'Status of the SQL database'
+                        $ref:  "#/components/schemas/HealthStatus"
+                        example: Healthy
+
+components:
+  securitySchemes:
+    'JWT':
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    UnauthorizedError:
+      description: Bearer token is missing or invalid
+  schemas:
+    BankDetail: 
+      description: 'Reference data for a bank.'
+      type: object
+      properties:
+        code: 
+          description: 'Bank code, as defined in a French BBAN'
+          type: string
+          example: '12345'
+        name: 
+          description: 'Bank name'
+          type: string
+          example: 'Banque postale'
+        jeDeclare: 
+          $ref: '#/components/schemas/BankJdcDetail'
+    BankJdcDetail: 
+      description: 'Data specific to JeDeclare.com.'
+      type: object
+      properties:
+        isPartner: 
+          description: 'Defines if the bank is a JDC partner'
+          type: boolean
+          example: true
+        isScrapable: 
+          description: 'Defines if JDC can use scrapping with the bank'
+          type: boolean
+          example: true
+    Error:
+      type: object
+      description: 'Represents an error when calling the Mandate API.'
+      required:
+        - errorType
+        - logReference
+        - message
+      properties:
+        errorType:
+          description: 'Identifier of the error.'
+          type: string
+          example: 'InvalidCompanyCode'
+        logReference:
+          description: 'Reference of the detailed log in Azure Insight.'
+          type: string
+          example: '12345abcd'
+        message:
+          description: 'Error message. Can be displayed on client side.'
+          type: string
+          example: 'The specified company identifier is incorrect.'
+    HealthStatus:
+      description: 'Represents the status of the health of the API.'
+      type: string
+      enum:
+        - Healthy
+        - Unhealthy

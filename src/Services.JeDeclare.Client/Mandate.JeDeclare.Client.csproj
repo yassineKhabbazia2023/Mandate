@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+		<AssemblyName>KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client</AssemblyName>
+		<RootNamespace>KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client</RootNamespace>
+	</PropertyGroup>
+
+</Project>

@@ -10,6 +10,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="Kpmg.Constellation.Net.Http" Version="1.2.1.2" />
+	  <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\Services.JeDeclare.Client\Mandate.JeDeclare.Client.csproj" />
 	</ItemGroup>
 

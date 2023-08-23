@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
@@ -8,5 +8,12 @@
 		<AssemblyName>KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests</AssemblyName>
 		<RootNamespace>KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests</RootNamespace>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Tools\Mandate.Tools.Tests.csproj" />
+		<ProjectReference Include="..\..\src\Services.Mongo.Implementation\Mandate.Mongo.Implementation.csproj" />
+		<ProjectReference Include="..\..\src\Services.Sql.Implementation\Mandate.Sql.Implementation.csproj" />
+		<ProjectReference Include="..\..\src\Adapters\Mandate.Adapters.csproj" />
+	</ItemGroup>
 
 </Project>

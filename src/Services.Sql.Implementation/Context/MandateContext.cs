@@ -54,7 +54,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseSqlServer(this.options.Value.ConnectionString, sqlOptions => { sqlOptions.EnableRetryOnFailure(); });
+            optionsBuilder.UseSqlServer(this.options.Value.ConnectionString, sqlOptions => { sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(3), null); });
         }
     }
 }

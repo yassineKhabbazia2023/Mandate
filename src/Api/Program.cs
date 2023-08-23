@@ -9,6 +9,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using Azure.Identity;
     using Azure.Security.KeyVault.Secrets;
     using Kpmg.AspNetCore.Authentication.ConstellationIdentityService;
+    using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
+    using KPMG.Pulse.Back.Accounting.Mandate.Application;
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.Data.SqlClient;
@@ -103,7 +106,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             builder.Services.AddConstellationHttpClient();
 
+            builder.Services.AddMandateSql(opt => opt.ConnectionString = builder.Configuration["MandateDbConnectionString"]);
             builder.Services.AddMandateApplication();
+            builder.Services.AddMandateAdapters();
 
             var app = builder.Build();
 

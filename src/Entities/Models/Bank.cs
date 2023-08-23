@@ -9,5 +9,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         public string Code { get; }
 
         public string Name { get; }
+
+        public string Group { get; }
     }
 }

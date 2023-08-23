@@ -4,6 +4,7 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 {
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
 
     public class SqlMandateRepository : IMandateRepository
@@ -33,6 +34,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
             await Task.CompletedTask;
             throw new NotImplementedException();
+        }
+
+        public async Task<RefBankDb> GetRefBankByCodeAsync(string bankCode)
+        {
+            using var context = new MandateContext(this.options);
+            var banks = context.RefBank.AsNoTracking().Where(r => r.BankCode == bankCode);
+            if (!await banks.AnyAsync().ConfigureAwait(false))
+            {
+                throw BankCodeNotFoundException.FromId(bankCode);
+            }
+            else
+            {
+                return await banks.SingleAsync().ConfigureAwait(false);
+            }
         }
     }
 }

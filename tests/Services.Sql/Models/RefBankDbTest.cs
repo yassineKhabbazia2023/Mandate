@@ -21,7 +21,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             entity.BankCommercialName.Should().BeNull();
             entity.BankCategory.Should().BeNull();
             entity.BankGroup.Should().BeNull();
-            entity.IsScrapable.Should().BeFalse();
+            entity.IsJdcScrapable.Should().BeFalse();
             entity.IsJdcPartner.Should().BeFalse();
             entity.HasReleveAgreement.Should().BeNull();
             entity.HasLiasseAgreement.Should().BeNull();
@@ -39,7 +39,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
                 BankCommercialName = "bcn",
                 BankCategory = "bca",
                 BankGroup = "bg",
-                IsScrapable = true,
+                IsJdcScrapable = true,
                 IsJdcPartner = true,
                 HasReleveAgreement = false,
                 HasLiasseAgreement = false,
@@ -52,7 +52,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             entity.BankCommercialName.Should().Be("bcn");
             entity.BankCategory.Should().Be("bca");
             entity.BankGroup.Should().Be("bg");
-            entity.IsScrapable.Should().BeTrue();
+            entity.IsJdcScrapable.Should().BeTrue();
             entity.IsJdcPartner.Should().BeTrue();
             entity.HasReleveAgreement.Should().BeFalse();
             entity.HasLiasseAgreement.Should().BeFalse();

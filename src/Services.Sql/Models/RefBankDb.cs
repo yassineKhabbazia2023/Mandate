@@ -18,7 +18,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 
         public string? BankGroup { get; set; } = null!;
 
-        public bool IsScrapable { get; set; } = false;
+        public bool IsJdcScrapable { get; set; } = false;
 
         public bool IsJdcPartner { get; set; } = false;
 

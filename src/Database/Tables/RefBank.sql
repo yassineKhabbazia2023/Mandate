@@ -4,7 +4,7 @@
 	[BankCode] NVARCHAR(MAX) NOT NULL,
 	[BankName] NVARCHAR(MAX) NULL,
 	[BankGroup] NVARCHAR(MAX) NULL,
-	[IsScrapable] BIT NOT NULL DEFAULT 0,
+	[IsJdcScrapable] BIT NOT NULL DEFAULT 0,
 	[IsJdcPartner] BIT NOT NULL DEFAULT 0,
 	[HasReleveAgreement] BIT NULL,
 	[HasLiasseAgreement] BIT NULL,

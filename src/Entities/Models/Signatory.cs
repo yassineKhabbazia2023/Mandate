@@ -6,11 +6,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public class Signatory
     {
-        public Signatory(string? title, string? firstName, string? lastName, Address? address)
+        public Signatory(string? title, string? firstName, string? lastName, string? email, Address? address)
         {
             this.Title = title;
             this.FirstName = firstName;
             this.LastName = lastName;
+            this.Email = email;
             this.Address = address;
         }
 
@@ -19,6 +20,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         public string? FirstName { get; }
 
         public string? LastName { get; }
+
+        public string? Email { get; }
 
         public Address? Address { get; }
     }

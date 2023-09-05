@@ -28,10 +28,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             throw new NotImplementedException();
         }
 
-        public async Task<IReadOnlyList<CollectionDb>> FindCollectionsAsync(CollectionQuery query)
+        public async Task<IReadOnlyList<CollectionDb>> SearchCollectionsAsync(CollectionQuery query)
         {
-            using var context = new MandateContext(this.options);
-
             await Task.CompletedTask;
             throw new NotImplementedException();
         }

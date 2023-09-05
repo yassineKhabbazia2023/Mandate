@@ -18,6 +18,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 
         public string? LastName { get; set; } = null!;
 
+        public string? Email { get; set; } = null!;
+
         public string? Street { get; set; } = null!;
 
         public string? Complements { get; set; } = null!;

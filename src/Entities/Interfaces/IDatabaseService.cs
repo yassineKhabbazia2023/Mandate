@@ -7,5 +7,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
     public interface IDatabaseService
     {
         Task<Company> GetCompanyBySiretAsync(string siret);
+
+        Task<Bank> GetBankByCodeAsync(string bankCode);
+
     }
 }

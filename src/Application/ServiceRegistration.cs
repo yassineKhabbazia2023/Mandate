@@ -16,6 +16,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             }
 
             services.AddScoped<IBbanManager, BbanManager>();
+            services.AddScoped<IBankManager, BankManager>();
 
             return services;
         }

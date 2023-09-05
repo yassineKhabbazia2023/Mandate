@@ -1,35 +1,33 @@
-﻿// <copyright file="CompanyTest.cs" company="KPMG">
+﻿// <copyright file="CollectionTest.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
 {
-    public class CompanyTest
+    public class CollectionTest
     {
         [Fact]
         public void Constructor()
         {
-            var entity = new Company(
+            var entity = new Collection(
                 new PredictableGuid().NewGuid(),
-                "name",
-                "siret",
-                "ibsAccountNumber",
-                "jdcDossierId",
-                EntityFactory.Signatory);
+                EntityFactory.Company,
+                EntityFactory.Bban,
+                new DateTime(2023, 8, 30, 0, 0, 0, DateTimeKind.Utc),
+                CollectionStatus.Active);
 
             // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(6);
+            entity.GetType().GetProperties().Length.Should().Be(5);
 
             // Make sure propeties don't have setters
             entity.GetType().GetProperties().Should().AllSatisfy(p => p.CanWrite.Should().BeFalse());
 
             // Test all properties ; number of tests below should match the number of propeties above
             entity.Id.Should().Be(Guid.Parse("00000001-0000-0000-0000-000000000000"));
-            entity.Name.Should().Be("name");
-            entity.SiretNumber.Should().Be("siret");
-            entity.ErpId.Should().Be("ibsAccountNumber");
-            entity.BankServicesProviderId.Should().Be("jdcDossierId");
-            entity.Signatory.Should().NotBeNull();
+            entity.Company.Should().NotBeNull();
+            entity.Bban.Should().NotBeNull();
+            entity.CreationDate.Should().Be(new DateTime(2023, 8, 30, 0, 0, 0, DateTimeKind.Utc));
+            entity.Status.Should().Be(CollectionStatus.Active);
         }
     }
 }

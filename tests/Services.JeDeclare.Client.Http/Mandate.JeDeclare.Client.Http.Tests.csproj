@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
@@ -10,7 +10,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Include="Mandate.Services.JeDeclare.Client.Http.csproj" />
+	  <ProjectReference Include="..\..\src\Services.JeDeclare.Client.Http\Mandate.JeDeclare.Client.Http.csproj" />
 	</ItemGroup>
 
 </Project>

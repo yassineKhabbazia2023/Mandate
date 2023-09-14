@@ -6,7 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
 {
     using System.Xml.Serialization;
 
-    [XmlType(Namespace = SerializationHelper.Namespace)]
+    [XmlRoot("carte", Namespace = SerializationHelper.Namespace)]
     public class Carte
     {
         [XmlElement(ElementName = "id")]

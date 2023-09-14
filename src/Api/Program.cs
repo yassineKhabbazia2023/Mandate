@@ -11,6 +11,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using Kpmg.AspNetCore.Authentication.ConstellationIdentityService;
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
+    using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -109,6 +110,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             builder.Services.AddMandateSql(opt => opt.ConnectionString = builder.Configuration["MandateDbConnectionString"]);
             builder.Services.AddMandateApplication();
             builder.Services.AddMandateAdapters();
+
+            builder.Services.AddMandateJeDeclare(opt =>
+            {
+                opt.BaseUri = new Uri(builder.Configuration["MandateJeDeclareBaseUri"]);
+                opt.Login = builder.Configuration["MandateJeDeclareLogin"];
+                opt.Password = builder.Configuration["MandateJeDeclarePassword"];
+            });
 
             var app = builder.Build();
 

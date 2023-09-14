@@ -8,6 +8,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
     {
         Task<ListeReleves> GetAllConfigurationFromFolderAsync(string jdcCompteId, string jdcFolderId);
 
-        // TODO : https://dev.azure.com/kpmgfr/Constellation/_git/Constellation?path=/KPMG.Constellation.Bankin.Services/JeDeclare/Interface/IJeDeclareService.cs&version=GBbank-develop&_a=contents
+        Task<byte[]> GetSignedMandatPdfAsync(string jdcCompteId, string jdcFolderId, string jdcRibId);
+
+        Task<byte[]> GetMandatPdfAsync(string jdcCompteId, string jdcFolderId, string jdcRibId);
+
+        Task<DossierClient> CreateFolderAsync(string jdcCompteId, DossierClient folderClient);
+
+        Task<Rib> AddRibToFolderAsync(string jdcCompteId, string jdcFolderId, Rib ribClient);
+
+        Task<Releve> CreateCollecteConfigurationAsync(string jdcCompteId, string jdcFolderId, Releve releve);
+
+        Task<bool> UpdateCollecteConfigurationAsync(string jdcCompteId, string jdcFolderId, Releve releve);
+
+        Task<string> UploadSignedMandat(string jdcCompteId, string jdcFolderId, string jdcRibId, byte[] mandat);
+
+        Task<bool> CheckSignedMandatExists(string jdcCompteId, string jdcFolderId, string jdcRibId);
+
     }
 }

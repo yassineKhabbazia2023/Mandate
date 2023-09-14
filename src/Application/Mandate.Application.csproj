@@ -10,6 +10,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<EmbeddedResource Include="License\Aspose.Total.lic" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Aspose.PDF" Version="23.8.0" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\Entities\Mandate.csproj" />
 	</ItemGroup>
 

@@ -2,10 +2,13 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate
+namespace KPMG.Pulse.Back.Accounting.Mandate.Client
 {
+    using Newtonsoft.Json;
+
     public class Signatory
     {
+        [JsonConstructor]
         public Signatory(string? title, string? firstName, string? lastName, string? email, Address? address)
         {
             this.Title = title;

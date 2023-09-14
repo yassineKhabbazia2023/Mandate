@@ -6,6 +6,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public interface IBankManager
     {
-
+        Task<Bank> GetByCodeAsync(string bankCode);
     }
 }

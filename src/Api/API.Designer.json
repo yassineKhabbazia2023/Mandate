@@ -117,6 +117,244 @@
         }
       }
     },
+    "/company/{erpId}": {
+      "get": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Get reference data for the company",
+        "description": "Get reference data for the company",
+        "operationId": "GetCompanyByErpNumber",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "erpId",
+            "description": "The account number of the company to be queried",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "12345"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reference data for the Company.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Company"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "CompanyForbidden": {
+                    "value": {
+                      "errorType": "CompanyForbidden",
+                      "logReference": "12345",
+                      "message": "The 'erpNumber' must be part of your portfolio and have active engagement"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Company not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "CompanyNotFound": {
+                    "value": {
+                      "errorType": "CompanyNotFound",
+                      "logReference": "12345",
+                      "message": "The 'erpNumber' account number has not been found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mandate/collection": {
+      "get": {
+        "tags": [
+          "Mandate"
+        ],
+        "summary": "Get reference data for mandate",
+        "description": "Get reference data for mandate",
+        "operationId": "GetCollectionsAsync",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "skip",
+            "description": "skip",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "example": 0
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "example": 20
+          },
+          {
+            "in": "query",
+            "name": "searchTerm",
+            "description": "searchTerm",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "example": "1000265308"
+          },
+          {
+            "in": "query",
+            "name": "creationDateStart",
+            "description": "CreationDateStart",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "example": "2023-09-01"
+          },
+          {
+            "in": "query",
+            "name": "creationDateEnd",
+            "description": "CreationDateEnd",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "example": "2023-09-01"
+          },
+          {
+            "in": "query",
+            "name": "modificationDateStart",
+            "description": "modificationDateStart",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "example": "2023-09-01"
+          },
+          {
+            "in": "query",
+            "name": "modificationDateEnd",
+            "description": "modificationDateEnd",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "example": "2023-09-01"
+          },
+          {
+            "in": "query",
+            "name": "statusCodes",
+            "description": "StatusCodes",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sortCriteria",
+            "description": "sortCriteria",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ErpId",
+                "Name",
+                "AccountNumber",
+                "BankName",
+                "CreationDate",
+                "ModificationDate",
+                "Status"
+              ]
+            },
+            "required": false,
+            "example": null
+          },
+          {
+            "in": "query",
+            "name": "sortOrder",
+            "description": "sortOrder",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Ascending",
+                "Descending"
+              ]
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reference data for mandate.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MandateCollection"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "Account not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "AccountNotFound": {
+                    "value": {
+                      "errorType": "AccountNotFound",
+                      "logReference": "12345",
+                      "message": "The 'erpNumber' account number has not been found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "tags": [
@@ -203,6 +441,148 @@
             "description": "Defines if JDC can use scrapping with the bank",
             "type": "boolean",
             "example": true
+          }
+        }
+      },
+      "Address": {
+        "description": "Data specific to the address.",
+        "type": "object",
+        "properties": {
+          "street": {
+            "description": "Defines the signatory street address.",
+            "type": "string",
+            "example": "RUE DU COMMERCE"
+          },
+          "addressComplement": {
+            "description": "Defines the signatory address complements.",
+            "type": "string",
+            "example": null
+          },
+          "zipCode": {
+            "description": "Defines the signatory address zip code.",
+            "type": "string",
+            "example": "59590"
+          },
+          "city": {
+            "description": "Defines the signatory address city.",
+            "type": "string",
+            "example": "RAISMES"
+          },
+          "country": {
+            "description": "Defines the signatory address country.",
+            "type": "string",
+            "example": "FRANCE"
+          }
+        }
+      },
+      "Signatory": {
+        "description": "Data specific to the signatory.",
+        "type": "object",
+        "properties": {
+          "title": {
+            "description": "Defines the signatory sex.",
+            "type": "string",
+            "example": "M"
+          },
+          "firstName": {
+            "description": "Defines the signatory first name.",
+            "type": "string",
+            "example": "maroo"
+          },
+          "lastName": {
+            "description": "Defines the signatory Last name.",
+            "type": "string",
+            "example": "elleuch"
+          },
+          "email": {
+            "description": "Defines the signatory email.",
+            "type": "string",
+            "example": "elleuch@email.com"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          }
+        }
+      },
+      "Company": {
+        "description": "Data specific to the account.",
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Defines the account identifier.",
+            "type": "string",
+            "format": "uuid",
+            "example": "e4ec92f2-a375-4574-b6de-235a9fe13028"
+          },
+          "name": {
+            "description": "Defines the account leagal name.",
+            "type": "string",
+            "example": "JEAN LÉVAGE"
+          },
+          "siretNumber": {
+            "description": "Defines the siret number of the account.",
+            "type": "string",
+            "example": "40902900600031"
+          },
+          "erpId": {
+            "description": "Defines the account number of the account.",
+            "type": "string",
+            "example": "1000265308"
+          },
+          "signatory": {
+            "$ref": "#/components/schemas/Signatory"
+          }
+        }
+      },
+      "MandateCollection": {
+        "description": "Data specific to the mandate.",
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Defines the mandate identifier.",
+            "type": "string",
+            "format": "uuid",
+            "example": "e4ec92f2-a375-4574-b6de-235a9fe13028"
+          },
+          "erpId": {
+            "description": "Defines the account number of the company.",
+            "type": "string",
+            "example": "1000265308"
+          },
+          "companyName": {
+            "description": "Defines the account legal name.",
+            "type": "string",
+            "example": "JEAN LÉVAGE"
+          },
+          "accountNumber": {
+            "description": "Defines the bank account number of the mandate IBAN.",
+            "type": "string",
+            "example": "66842913356"
+          },
+          "bankName": {
+            "description": "Defines the name of the bank attached to the mandate.",
+            "type": "string",
+            "example": "SOGE"
+          },
+          "creationDate": {
+            "description": "Defines the creation date of the mandate.",
+            "type": "string",
+            "example": "2023-08-14T13:12:31.926Z"
+          },
+          "ModificationDate": {
+            "description": "Defines the last update date of the mandate.",
+            "type": "string",
+            "example": "2023-08-14T13:12:31.926Z"
+          },
+          "statusCode": {
+            "description": "Defines the jdc side status code of the collection mandate.",
+            "type": "string",
+            "example": "99"
+          },
+          "statusName": {
+            "description": "Defines the status name of the mandate.",
+            "type": "string",
+            "example": "Actif"
           }
         }
       },

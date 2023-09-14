@@ -12,7 +12,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 
         public DateTime? CreationDateEnd { get; set; }
 
-        public List<int> StatusCodes { get; set; } = null!;
+        public DateTime? ModificationDateStart { get; set; }
+
+        public DateTime? ModificationDateEnd { get; set; }
+
+        public List<int>? StatusCodes { get; set; } = null!;
 
         public int? Limit { get; set; }
 

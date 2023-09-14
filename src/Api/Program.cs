@@ -191,7 +191,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         private static async Task<string> GetToken(string authority, string resource, string scope)
         {
             var authContext = new Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext(authority);
-            var result = await authContext.AcquireTokenAsync(resource, clientCredential);
+            var result = await authContext.AcquireTokenAsync(resource, clientCredential).ConfigureAwait(false);
             if (result == null)
             {
                 throw new InvalidOperationException("Failed to obtain the access token");

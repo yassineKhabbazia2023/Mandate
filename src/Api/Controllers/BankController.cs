@@ -4,7 +4,9 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
+    using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
@@ -13,11 +15,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     [AllowAnonymous]
     public class BankController : ControllerBase
     {
+        private readonly ILogger<BankController> logger;
         private readonly IBbanManager bbanManager;
+        private readonly IBankManager bankManager;
 
-        public BankController(IBbanManager bbanManager)
+        public BankController(ILogger<BankController> logger, IBbanManager bbanManager, IBankManager bankManager)
         {
+            this.logger = logger;
             this.bbanManager = bbanManager;
+            this.bankManager = bankManager;
         }
 
         [HttpGet("checkBbanValidity")]
@@ -34,9 +40,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [HttpGet("{bankCode}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BankDetail))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetBankDetails([FromRoute] string bankCode)
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetBankDetails([FromRoute] string bankCode)
         {
-            return this.Ok();
+            try
+            {
+                var result = await this.bankManager.GetByCodeAsync(bankCode);
+                return this.Ok(result.ToBankDetail());
+            }
+            catch (BankCodeNotFoundException ex)
+            {
+                return this.NotFound(/* TODO */);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", 0 /* TODO */, nameof(this.GetBankDetails));
+                throw;
+            }
         }
     }
 }

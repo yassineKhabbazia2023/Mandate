@@ -44,11 +44,72 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.HasDefaultSchema("Mandate");
 
             modelBuilder.Entity<CompanyDb>().HasKey(c => c.Id);
-            // TODO
+            modelBuilder.Entity<CompanyDb>().HasOne(c => c.CompanyPersonal)
+                .WithOne(cp => cp.Company)
+                .HasForeignKey<CompanyPersonalDb>(cp => cp.CompanyId)
+                .IsRequired();
+            modelBuilder.Entity<CompanyDb>().HasOne(c => c.JeDeclareFolder)
+                .WithOne(jdf => jdf.Company)
+                .HasForeignKey<JeDeclareFolderDb>(jdf => jdf.CompanyId);
+            modelBuilder.Entity<CompanyDb>().Property(c => c.Name).HasMaxLength(50).IsRequired(false);
+            modelBuilder.Entity<CompanyDb>().Property(c => c.SiretNumber).HasMaxLength(50).IsRequired(true);
+            modelBuilder.Entity<CompanyDb>().Property(c => c.ErpId).HasMaxLength(50).IsRequired(false);
+            modelBuilder.Entity<CompanyDb>().Property(c => c.BankServicesProviderId).HasMaxLength(50).IsRequired(false);
+
+            modelBuilder.Entity<CompanyPersonalDb>().HasKey(cp => cp.Id);
+            modelBuilder.Entity<CompanyPersonalDb>().Property(cp => cp.Title).HasMaxLength(50).IsRequired(false);
+            modelBuilder.Entity<CompanyPersonalDb>().Property(cp => cp.FirstName).HasMaxLength(50).IsRequired(false);
+            modelBuilder.Entity<CompanyPersonalDb>().Property(cp => cp.LastName).HasMaxLength(50).IsRequired(false);
+            modelBuilder.Entity<CompanyPersonalDb>().Property(cp => cp.Street).HasMaxLength(50).IsRequired(false);
+            modelBuilder.Entity<CompanyPersonalDb>().Property(cp => cp.City).HasMaxLength(50).IsRequired(false);
+            modelBuilder.Entity<CompanyPersonalDb>().Property(cp => cp.Country).HasMaxLength(50).IsRequired(false);
+            modelBuilder.Entity<CompanyPersonalDb>().Property(cp => cp.ZipCode).HasMaxLength(50).IsRequired(false);
+            modelBuilder.Entity<CompanyPersonalDb>().Property(cp => cp.Email).HasMaxLength(50).IsRequired(false);
+            modelBuilder.Entity<CompanyPersonalDb>().Property(cp => cp.Complements).HasMaxLength(50).IsRequired(false);
+
+            modelBuilder.Entity<JeDeclareFolderDb>().HasKey(cp => cp.Id);
+            modelBuilder.Entity<JeDeclareFolderDb>().Property(cp => cp.JdcDossierId).HasMaxLength(50).IsRequired(false);
+
+            modelBuilder.Entity<CollectionDb>().HasKey(c => c.Id);
+            modelBuilder.Entity<CollectionDb>().HasOne(s => s.Company).WithMany(c => c.Collections).HasForeignKey(s => s.CompanyId);
+            modelBuilder.Entity<CollectionDb>().Property(cp => cp.BranchCode).HasMaxLength(5).IsRequired(false);
+            modelBuilder.Entity<CollectionDb>().Property(cp => cp.AccountNumber).HasMaxLength(11).IsRequired(false);
+            modelBuilder.Entity<CollectionDb>().Property(cp => cp.CheckDigits).HasMaxLength(2).IsRequired(false);
+            modelBuilder.Entity<CollectionDb>().Property(cp => cp.RejectReason).HasMaxLength(50).IsRequired(false);
+            modelBuilder.Entity<CollectionDb>().Property(cp => cp.LinkType).IsRequired(false);
+            modelBuilder.Entity<CollectionDb>().HasOne(c => c.JeDeclareCollection)
+                .WithOne(jdc => jdc.Collection)
+                .HasForeignKey<JeDeclareCollectionDb>(jdc => jdc.CollectionId)
+                .IsRequired(false);
+            modelBuilder.Entity<CollectionDb>().HasOne(c => c.Bank).WithMany().HasForeignKey(c => c.BankCode);
 
             modelBuilder.Entity<StatusDb>().HasKey(s => s.Id);
             modelBuilder.Entity<StatusDb>().HasOne(s => s.Collection).WithMany(c => c.Statuses).HasForeignKey(s => s.CollectionId);
             modelBuilder.Entity<StatusDb>().HasOne(s => s.RefStatusCode).WithMany().HasForeignKey(s => s.StatusCode);
+            modelBuilder.Entity<StatusDb>().Property(cp => cp.StatusCode).IsRequired(true);
+            modelBuilder.Entity<StatusDb>().Property(cp => cp.IsCurrent).IsRequired(true);
+            modelBuilder.Entity<StatusDb>().Property(cp => cp.StatusDate).IsRequired(false);
+            modelBuilder.Entity<StatusDb>().Property(cp => cp.MandateFile).IsRequired(false);
+            modelBuilder.Entity<StatusDb>().Property(cp => cp.CreatedBy).HasMaxLength(50).IsRequired(false);
+
+            modelBuilder.Entity<JeDeclareCollectionDb>().HasKey(jdc => jdc.Id);
+            modelBuilder.Entity<JeDeclareCollectionDb>().Property(cp => cp.JdcReleveId).HasMaxLength(50).IsRequired(false);
+            modelBuilder.Entity<JeDeclareCollectionDb>().Property(cp => cp.JdcRibId).HasMaxLength(50).IsRequired(false);
+
+            modelBuilder.Entity<RefStatusCodeDb>().HasKey(s => s.StatusCode);
+            modelBuilder.Entity<RefStatusCodeDb>().Property(s => s.StatusName).HasMaxLength(50).IsRequired(true);
+
+            modelBuilder.Entity<RefBankDb>().HasKey(b => b.Id);
+            modelBuilder.Entity<RefBankDb>().Property(s => s.BankCode).HasMaxLength(50).IsRequired(true);
+            modelBuilder.Entity<RefBankDb>().Property(s => s.BankName).HasMaxLength(50).IsRequired(false);
+            modelBuilder.Entity<RefBankDb>().Property(s => s.BankCommercialName).HasMaxLength(50).IsRequired(false);
+            modelBuilder.Entity<RefBankDb>().Property(s => s.BankCategory).HasMaxLength(50).IsRequired(false);
+            modelBuilder.Entity<RefBankDb>().Property(s => s.BankGroup).HasMaxLength(50).IsRequired(false);
+            modelBuilder.Entity<RefBankDb>().Property(s => s.IsJdcScrapable).IsRequired(true);
+            modelBuilder.Entity<RefBankDb>().Property(s => s.IsJdcPartner).IsRequired(true);
+            modelBuilder.Entity<RefBankDb>().Property(s => s.HasReleveAgreement).IsRequired(false);
+            modelBuilder.Entity<RefBankDb>().Property(s => s.HasLiasseAgreement).IsRequired(false);
+            modelBuilder.Entity<RefBankDb>().Property(s => s.AllowsDemat).IsRequired(false);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

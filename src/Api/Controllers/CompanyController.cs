@@ -4,9 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Controllers
 {
-    using Address = KPMG.Pulse.Back.Accounting.Mandate.Client.Address;
-    using Company = KPMG.Pulse.Back.Accounting.Mandate.Client.Company;
-    using Signatory = KPMG.Pulse.Back.Accounting.Mandate.Client.Signatory;
     using Microsoft.AspNetCore.Mvc;
 
     [Route("api/company")]
@@ -25,9 +22,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Controllers
         {
             await Task.CompletedTask;
             this.logger.LogInformation($"x = {erpId}");
-            Address address = new ("street", "complement", "zipcode", "city", "contry");
-            Signatory signatory = new ("M", "maroo", "elleuch", "email@emaul.com", address);
-            Company company = new (Guid.NewGuid(), "MK 2000", "50339868700015", "1999072765", signatory);
+            Client.Address address = new ("street", "complement", "zipcode", "city", "contry");
+            Client.Signatory signatory = new ("M", "maroo", "elleuch", "email@emaul.com", address);
+            Client.Company company = new (Guid.NewGuid(), "MK 2000", "50339868700015", "1999072765", signatory);
             return this.Ok(company);
         }
     }

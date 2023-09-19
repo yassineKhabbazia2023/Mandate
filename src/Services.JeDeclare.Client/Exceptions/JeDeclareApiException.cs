@@ -4,7 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
 {
-    using System.Net;
     using System.Runtime.Serialization;
 
     [Serializable]
@@ -24,7 +23,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
         {
         }
 
-        public JeDeclareApiException(SerializationInfo info, StreamingContext context)
+        protected JeDeclareApiException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

@@ -16,6 +16,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         Task<RefBankDb> GetRefBankByCodeAsync(string bankCode);
 
         /// <summary>
+        /// Finds a pdf template in the reference table.
+        /// </summary>
+        /// <param name="bankCode">The bank code to retrieve (first paramater of the French BBAN).</param>
+        /// <returns>The pdf template file</returns>
+        Task<byte[]> GetPdfTemplateByCodeAsync(string bankCode);
+
+        /// <summary>
         /// Searches Collection and Company tables to find entries that match a set of criteria.
         /// </summary>
         /// <param name="query">An object that encapsulates the query parameters, including pagination and search terms.</param>

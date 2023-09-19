@@ -13,10 +13,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
                 "12345",
                 "54321",
                 "12345678901",
-                "01");
+                "01",
+                EntityFactory.Bank);
 
             // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(4);
+            entity.GetType().GetProperties().Length.Should().Be(5);
 
             // Make sure propeties don't have setters
             entity.GetType().GetProperties().Should().AllSatisfy(p => p.CanWrite.Should().BeFalse());
@@ -26,6 +27,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
             entity.BranchCode.Should().Be("54321");
             entity.AccountNumber.Should().Be("12345678901");
             entity.CheckDigits.Should().Be("01");
+            entity.Bank.Should().NotBeNull();
         }
     }
 }

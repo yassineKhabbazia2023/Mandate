@@ -4,6 +4,7 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
 {
+    using Aspose.Pdf.Text;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.Abstractions;
 
@@ -47,10 +48,25 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
                     "12345",
                     "67890",
                     "12345678901",
-                    "87"),
+                    "87",
+                    new Bank(
+                        "12345",
+                        "Crédit viticole",
+                        "bankGroup",
+                        EntityFactory.BankAgreement)),
                 null,
                 CollectionStatus.ToDo);
-            var res = await asposeHelper.GeneratePdfFromTemplateAsync(collectionSource);
+            var generatedPdf = await asposeHelper.GeneratePdfFromTemplateAsync(collectionSource);
+
+            using var ms = new MemoryStream(generatedPdf);
+            using var asposeDoc = new Aspose.Pdf.Document(ms);
+            var tfa = new TextFragmentAbsorber("{");
+            asposeDoc.Pages.Accept(tfa);
+            var tfc = tfa.TextFragments;
+
+            // all templated strings in the pdf file should have been replaced at this point
+            tfc.Count.Should().Be(0);
+            databaseService.VerifyAll();
         }
     }
 }

@@ -15,7 +15,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             entity.GetType().GetProperties().Length.Should().Be(11);
 
             // Test all properties ; number of tests below should match the number of propeties above
-            entity.Id.Should().Be(Guid.Empty);
             entity.BankCode.Should().Be(string.Empty);
             entity.BankName.Should().BeNull();
             entity.BankCommercialName.Should().BeNull();
@@ -26,6 +25,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             entity.HasReleveAgreement.Should().BeNull();
             entity.HasLiasseAgreement.Should().BeNull();
             entity.AllowsDemat.Should().BeNull();
+            entity.JdcPartnership.Should().Be(0);
         }
 
         [Fact]
@@ -33,7 +33,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
         {
             var entity = new RefBankDb()
             {
-                Id = new PredictableGuid().NewGuid(),
                 BankCode = "bc",
                 BankName = "bn",
                 BankCommercialName = "bcn",
@@ -44,9 +43,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
                 HasReleveAgreement = false,
                 HasLiasseAgreement = false,
                 AllowsDemat = false,
+                JdcPartnership = (JdcPartnership)2,
             };
 
-            entity.Id.Should().Be(Guid.Parse("00000001-0000-0000-0000-000000000000"));
             entity.BankCode.Should().Be("bc");
             entity.BankName.Should().Be("bn");
             entity.BankCommercialName.Should().Be("bcn");
@@ -57,6 +56,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             entity.HasReleveAgreement.Should().BeFalse();
             entity.HasLiasseAgreement.Should().BeFalse();
             entity.AllowsDemat.Should().BeFalse();
+            entity.JdcPartnership.Should().Be(JdcPartnership.NonPartner);
         }
     }
 }

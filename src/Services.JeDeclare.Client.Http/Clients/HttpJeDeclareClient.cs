@@ -27,9 +27,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             using var client = this.factory.Create();
             var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/releve";
 
-            var response = await client.GetAsync(requestUri);
+            var response = await client.GetAsync(requestUri).ConfigureAwait(false);
 
-            var responseBody = await response.Content.ReadAsStringAsync();
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -42,7 +42,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             this.logger.LogError(
                 exception,
-                "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - Message : '{eroorMessage}'",
+                "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - Message : '{errorMessage}'",
                 nameof(HttpJeDeclareClient),
                 nameof(this.GetAllConfigurationFromFolderAsync),
                 response.StatusCode,
@@ -59,9 +59,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/rib/{jdcRibId}/mandatSigne";
 
-            var response = await client.GetAsync(requestUri);
+            var response = await client.GetAsync(requestUri).ConfigureAwait(false);
 
-            var result = await response.Content.ReadAsStringAsync();
+            var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -72,7 +72,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             this.logger.LogError(
                 exception,
-                "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - jdcRibId : '{jdcRibId}' - Message : '{eroorMessage}'",
+                "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - jdcRibId : '{jdcRibId}' - Message : '{errorMessage}'",
                 nameof(HttpJeDeclareClient),
                 nameof(this.GetSignedMandatPdfAsync),
                 response.StatusCode,
@@ -91,9 +91,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/rib/{jdcRibId}/mandat";
 
-            var response = await client.GetAsync(requestUri);
+            var response = await client.GetAsync(requestUri).ConfigureAwait(false);
 
-            var responseBody = await response.Content.ReadAsStringAsync();
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -108,7 +108,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             this.logger.LogError(
                 exception,
-                "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - jdcRibId : '{jdcRibId}' - Message : '{eroorMessage}'",
+                "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - jdcRibId : '{jdcRibId}' - Message : '{errorMessage}'",
                 nameof(HttpJeDeclareClient),
                 nameof(this.GetMandatPdfAsync),
                 response.StatusCode,
@@ -133,9 +133,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                Encoding.UTF8,
                "text/xml");
 
-            var response = await client.PostAsync(requestUri, content);
+            var response = await client.PostAsync(requestUri, content).ConfigureAwait(false);
 
-            var responseBody = await response.Content.ReadAsStringAsync();
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (response.StatusCode == HttpStatusCode.Created)
             {
                 var folder = responseBody.Deserialize<DossierClient>();
@@ -146,7 +146,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             this.logger.LogError(
             exception,
-            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - serializedFolder : '{serializedFolder}' - Message : '{eroorMessage}'",
+            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - serializedFolder : '{serializedFolder}' - Message : '{errorMessage}'",
             nameof(HttpJeDeclareClient),
             nameof(this.CreateFolderAsync),
             response.StatusCode,
@@ -170,9 +170,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                 Encoding.UTF8,
                 "text/xml");
 
-            var response = await client.PostAsync(requestUri, content);
+            var response = await client.PostAsync(requestUri, content).ConfigureAwait(false);
 
-            var responseBody = await response.Content.ReadAsStringAsync();
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (response.StatusCode == HttpStatusCode.Created)
             {
                 var ribSaved = responseBody.Deserialize<Rib>();
@@ -183,7 +183,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             this.logger.LogError(
             exception,
-            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - serializedrib : '{serializedRib}' - Message : '{eroorMessage}'",
+            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - serializedrib : '{serializedRib}' - Message : '{errorMessage}'",
             nameof(HttpJeDeclareClient),
             nameof(this.AddRibToFolderAsync),
             response.StatusCode,
@@ -208,9 +208,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                Encoding.UTF8,
                "text/xml");
 
-            var response = await client.PostAsync(requestUri, content);
+            var response = await client.PostAsync(requestUri, content).ConfigureAwait(false);
 
-            var responseBody = await response.Content.ReadAsStringAsync();
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             if (response.StatusCode == HttpStatusCode.Created)
             {
@@ -222,7 +222,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             this.logger.LogError(
             exception,
-            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - serializedreleve : '{serializedReleve}' - Message : '{eroorMessage}'",
+            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - serializedreleve : '{serializedReleve}' - Message : '{errorMessage}'",
             nameof(HttpJeDeclareClient),
             nameof(this.CreateCollecteConfigurationAsync),
             response.StatusCode,
@@ -247,20 +247,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                Encoding.UTF8,
                "text/xml");
 
-            var response = await client.PutAsync(requestUri, content);
+            var response = await client.PutAsync(requestUri, content).ConfigureAwait(false);
 
             if (response.StatusCode == HttpStatusCode.Created)
             {
                 return true;
             }
 
-            var responseBody = await response.Content.ReadAsStringAsync();
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             var exception = new JeDeclareApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
 
             this.logger.LogError(
             exception,
-            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - serializedreleve : '{serializedReleve}' - Message : '{eroorMessage}'",
+            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - serializedreleve : '{serializedReleve}' - Message : '{errorMessage}'",
             nameof(HttpJeDeclareClient),
             nameof(this.UpdateCollecteConfigurationAsync),
             response.StatusCode,
@@ -284,9 +284,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                serializedMandatFile,
                Encoding.UTF8);
 
-            var response = await client.PostAsync(requestUri, content);
+            var response = await client.PostAsync(requestUri, content).ConfigureAwait(false);
 
-            var responseBody = await response.Content.ReadAsStringAsync();
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 return responseBody;
@@ -296,7 +296,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             this.logger.LogError(
             exception,
-            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - jdcRibId : '{jdcRibId}' - Message : '{eroorMessage}'",
+            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - jdcRibId : '{jdcRibId}' - Message : '{errorMessage}'",
             nameof(HttpJeDeclareClient),
             nameof(this.UploadSignedMandat),
             response.StatusCode,
@@ -316,7 +316,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-            var response = await client.SendAsync(request);
+            var response = await client.SendAsync(request).ConfigureAwait(false);
 
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
@@ -324,13 +324,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                 return true;
             }
 
-            var responseBody = await response.Content.ReadAsStringAsync();
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             var exception = new JeDeclareApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
 
             this.logger.LogError(
             exception,
-            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - jdcRibId : '{jdcRibId}' - Message : '{eroorMessage}'",
+            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - jdcRibId : '{jdcRibId}' - Message : '{errorMessage}'",
             nameof(HttpJeDeclareClient),
             nameof(this.CheckSignedMandatExists),
             response.StatusCode,

@@ -47,5 +47,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 return await banks.SingleAsync().ConfigureAwait(false);
             }
         }
+
+        public async Task<byte[]> GetPdfTemplateByCodeAsync(string bankCode)
+        {
+            using var context = new MandateContext(this.options);
+            var template = context.RefPdfTemplate.AsNoTracking().Where(r => r.BankCode == bankCode);
+            if (!await template.AnyAsync().ConfigureAwait(false))
+            {
+                throw BankCodeNotFoundException.FromId(bankCode);
+            }
+            else
+            {
+                var refPdfTemplate = await template.SingleAsync().ConfigureAwait(false);
+                return refPdfTemplate.PdfFile;
+            }
+        }
     }
 }

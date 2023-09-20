@@ -67,5 +67,12 @@
     <Build Include="Security\Schemas\Mandate.sql" />
     <Build Include="Tables\Collection.sql" />
     <Build Include="Tables\RefBank.sql" />
+    <Build Include="Tables\Company.sql" />
+    <Build Include="Tables\CompanyPersonal.sql" />
+    <Build Include="Tables\JeDeclareCollection.sql" />
+    <Build Include="Tables\JeDeclareFolder.sql" />
+    <Build Include="Tables\RefPdfTemplate.sql" />
+    <Build Include="Tables\RefStatusCode.sql" />
+    <Build Include="Tables\Status.sql" />
   </ItemGroup>
 </Project>

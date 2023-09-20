@@ -31,9 +31,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public async Task<byte[]> GetPdfTemplateByBankCodeAsync(string bankCode)
         {
-            // TODO
-            await Task.CompletedTask;
-            throw new NotImplementedException();
+            return await this.mandateRepository.GetPdfTemplateByCodeAsync(bankCode).ConfigureAwait(false);
         }
     }
 }

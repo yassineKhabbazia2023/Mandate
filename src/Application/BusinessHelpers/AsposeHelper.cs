@@ -28,15 +28,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             }
 
             var bankCode = source.Bban.BankCode;
-            var template = await this.databaseService.GetPdfTemplateByBankCodeAsync(bankCode);
+            var template = await this.databaseService.GetPdfTemplateByBankCodeAsync(bankCode).ConfigureAwait(false);
             using var ms = new MemoryStream(template);
             using var pdfDocument = new Aspose.Pdf.Document(ms);
 
-            // TODO : {bankName}
             this.ReplaceInDocument(pdfDocument, "{bankCode}", source.Bban.BankCode);
             this.ReplaceInDocument(pdfDocument, "{branchCode}", source.Bban.BranchCode);
             this.ReplaceInDocument(pdfDocument, "{accountNumber}", source.Bban.AccountNumber);
             this.ReplaceInDocument(pdfDocument, "{checkDigits}", source.Bban.CheckDigits);
+            if (source.Bban.Bank != null)
+            {
+                this.ReplaceInDocument(pdfDocument, "{bankName}", source.Bban.Bank.Name ?? string.Empty);
+            }
+
             if (source.Company != null)
             {
                 this.ReplaceInDocument(pdfDocument, "{companyName}", source.Company.Name ?? string.Empty);
@@ -68,25 +72,24 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
             using var msOut = new MemoryStream();
             pdfDocument.Save(msOut);
-            pdfDocument.Save("c:/work/git/ccou.pdf"); // TODO
             return msOut.ToArray();
-        }
-
-        private void ReplaceInDocument(Aspose.Pdf.Document pdfDocument, string oldValue, string newValue)
-        {
-            var tfa1 = new TextFragmentAbsorber(oldValue);
-            pdfDocument.Pages.Accept(tfa1);
-            var tfc1 = tfa1.TextFragments;
-            foreach (TextFragment tf in tfc1)
-            {
-                tf.Text = tf.Text.Replace(oldValue, newValue);
-            }
         }
 
         public async Task<byte[]> DeleteFirstPageFromPdf(byte[] sourcePdf)
         {
             await Task.CompletedTask;
             throw new NotImplementedException();
+        }
+
+        private void ReplaceInDocument(Aspose.Pdf.Document pdfDocument, string oldValue, string newValue)
+        {
+            var tfa = new TextFragmentAbsorber(oldValue);
+            pdfDocument.Pages.Accept(tfa);
+            var tfc = tfa.TextFragments;
+            foreach (TextFragment tf in tfc)
+            {
+                tf.Text = tf.Text.Replace(oldValue, newValue);
+            }
         }
     }
 }

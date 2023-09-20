@@ -6,8 +6,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 {
     public class RefBankDb
     {
-        public Guid Id { get; set; } = Guid.Empty;
-
         public string BankCode { get; set; } = string.Empty;
 
         public string? BankName { get; set; } = null!;
@@ -27,5 +25,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         public bool? HasLiasseAgreement { get; set; } = null!;
 
         public bool? AllowsDemat { get; set; } = null!;
+
+        public JdcPartnership JdcPartnership { get; set; } = 0;
     }
 }

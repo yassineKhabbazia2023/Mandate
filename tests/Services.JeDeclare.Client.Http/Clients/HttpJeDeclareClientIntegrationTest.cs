@@ -4,10 +4,12 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 {
+    using System.Diagnostics.CodeAnalysis;
     using Kpmg.Constellation.Net.Http;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
 
+    [ExcludeFromCodeCoverage]
     public class HttpJeDeclareClientIntegrationTest
     {
         [Fact(Skip = "test jedeclare api")]
@@ -160,7 +162,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 Client = new Client
                 {
                     Id = "idT",
-                    RaisonSocial = "raisonSocialeT",
+                    RaisonSociale = "raisonSocialeT",
                     Siret = new Siret
                     {
                         Siren = "804327252",
@@ -188,7 +190,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             result.ExploitationDonnees.Should().BeTrue();
             result.Client.Should().NotBeNull();
             result.Client.Id.Should().NotBeEmpty();
-            result.Client.RaisonSocial.Should().NotBeEmpty();
+            result.Client.RaisonSociale.Should().NotBeEmpty();
             result.Client.Responsable.Name.Should().NotBeEmpty();
             result.Client.Responsable.Mail.Should().NotBeEmpty();
             result.Client.Responsable.Adresse.Rue.Should().NotBeEmpty();

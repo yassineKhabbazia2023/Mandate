@@ -4,9 +4,9 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 {
-    public enum JdcPartnership : short
+    public enum JdcPartnership : byte
     {
-        NoNScrappable = 0,
+        NonScrappable = 0,
         Scrappable = 1,
         NonPartner = 2,
         Partner = 3,

@@ -12,7 +12,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Tests
             var jeDeclareClient = new Client
             {
                 Id = "idT",
-                RaisonSocial = "raisonSocialeT",
+                RaisonSociale = "raisonSocialeT",
                 Siret = new Siret
                 {
                     Siren = "sirenT",
@@ -99,7 +99,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Tests
             jedeclareFolder.Client.Id.Should().Be("idT");
             jedeclareFolder.Client.Siret.Siren.Should().Be("sirenT");
             jedeclareFolder.Client.Siret.Nic.Should().Be("nicT");
-            jedeclareFolder.Client.RaisonSocial.Should().Be("raisonSocialeT");
+            jedeclareFolder.Client.RaisonSociale.Should().Be("raisonSocialeT");
             jedeclareFolder.Client.Responsable.Name.Should().Be("nameT");
             jedeclareFolder.Client.Responsable.Mail.Should().Be("mail.toto@gmail.com");
             jedeclareFolder.Client.Responsable.Adresse.Rue.Should().Be("rueT");

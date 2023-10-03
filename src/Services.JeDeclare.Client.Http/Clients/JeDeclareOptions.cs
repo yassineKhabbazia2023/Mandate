@@ -15,12 +15,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
         private const string UriSlash = "/";
 
         /// <summary>
-        /// The endpoint URL to the <c>Social API</c>.
+        /// The endpoint URL to the <c>JeDeclare API</c>.
         /// </summary>
-        private Uri baseUri = null;
+        private Uri baseUri = null!;
 
         /// <summary>
-        /// Gets or sets the URL under which <c>MyPulse Social Service</c> is deployed.
+        /// Gets or sets the URL under which <c>JeDeclare Service</c> is deployed.
         /// </summary>
         public Uri BaseUri
         {
@@ -33,7 +33,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                 }
                 else
                 {
-                    this.baseUri = value;
+                    this.baseUri = value!;
                 }
             }
         }

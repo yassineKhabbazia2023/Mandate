@@ -266,7 +266,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 Client = new Client
                 {
                     Id = "idT",
-                    RaisonSocial = "raisonSocialeT",
+                    RaisonSociale = "raisonSocialeT",
                     Siret = new Siret
                     {
                         Siren = "sirenT",
@@ -328,7 +328,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             result.ExploitationDonnees.Should().BeTrue();
             result.Client.Id.Should().Be("idT");
-            result.Client.RaisonSocial.Should().Be("raisonSocialeT");
+            result.Client.RaisonSociale.Should().Be("raisonSocialeT");
             result.Client.Responsable.Name.Should().Be("nameT");
             result.Client.Responsable.Mail.Should().Be("mail.toto@gmail.com");
             result.Client.Responsable.Adresse.Pays.Should().Be("paysT");
@@ -351,7 +351,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 Client = new Client
                 {
                     Id = "idT",
-                    RaisonSocial = "raisonSocialeT",
+                    RaisonSociale = "raisonSocialeT",
                     Siret = new Siret
                     {
                         Siren = "sirenT",

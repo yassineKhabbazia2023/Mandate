@@ -108,15 +108,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             builder.Services.AddConstellationHttpClient();
 
             builder.Services.AddMandateSql(opt => opt.ConnectionString = builder.Configuration["MandateDbConnectionString"]);
-            builder.Services.AddMandateApplication();
-            builder.Services.AddMandateAdapters();
-
             builder.Services.AddMandateJeDeclare(opt =>
             {
                 opt.BaseUri = new Uri(builder.Configuration["MandateJeDeclareBaseUri"]);
                 opt.Login = builder.Configuration["MandateJeDeclareLogin"];
                 opt.Password = builder.Configuration["MandateJeDeclarePassword"];
             });
+
+            builder.Services.AddMandateApplication();
+            builder.Services.AddMandateAdapters();
 
             var app = builder.Build();
 

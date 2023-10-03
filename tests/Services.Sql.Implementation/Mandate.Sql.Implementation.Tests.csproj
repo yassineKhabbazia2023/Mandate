@@ -9,4 +9,20 @@
 		<RootNamespace>KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests</RootNamespace>
 	</PropertyGroup>
 
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SqlServer.DacFx" Version="162.1.142-preview" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Tools\Mandate.Tools.Tests.csproj" />
+		<ProjectReference Include="..\..\src\Services.Sql.Implementation\Mandate.Sql.Implementation.csproj" />
+		<ProjectReference Include="..\..\src\Database\Mandate.Sql.Database.sqlproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="..\..\src\Database\bin\$(Configuration)\Mandate.Sql.Database.dacpac" Link="Mandate.Sql.Database.dacpac">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
 </Project>

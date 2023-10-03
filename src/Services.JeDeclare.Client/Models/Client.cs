@@ -16,7 +16,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
         public Siret Siret { get; set; } = null!;
 
         [XmlElement(ElementName = "rs")]
-        public string RaisonSocial { get; set; } = null!;
+        public string RaisonSociale { get; set; } = null!;
 
         [XmlElement(ElementName = "responsable")]
         public Responsable Responsable { get; set; } = null!;

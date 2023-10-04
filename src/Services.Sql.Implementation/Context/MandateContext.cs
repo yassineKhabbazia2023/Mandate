@@ -108,7 +108,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<RefPdfTemplateDb>().Property(s => s.PdfFile).IsRequired(true);
 
             modelBuilder.Entity<RefStatusCodeDb>().HasKey(s => s.StatusCode);
-            modelBuilder.Entity<RefStatusCodeDb>().Property(s => s.StatusName).HasMaxLength(100).IsUnicode(true).IsRequired(true);
+            modelBuilder.Entity<RefStatusCodeDb>().Property(s => s.PulseCode).IsRequired(true);
+            modelBuilder.Entity<RefStatusCodeDb>().Property(s => s.StatusNameFr).HasMaxLength(100).IsUnicode(true).IsRequired(true);
+            modelBuilder.Entity<RefStatusCodeDb>().Property(s => s.StatusNameEn).HasMaxLength(100).IsUnicode(true).IsRequired(true);
 
             modelBuilder.Entity<StatusDb>().HasKey(s => s.Id);
             modelBuilder.Entity<StatusDb>().HasOne(s => s.Collection).WithMany(c => c.Statuses).HasForeignKey(s => s.CollectionId);

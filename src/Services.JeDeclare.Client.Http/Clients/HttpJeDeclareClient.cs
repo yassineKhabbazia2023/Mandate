@@ -314,14 +314,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/rib/{jdcRibId}/mandatSigne";
 
-            var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+            var request = new HttpRequestMessage(HttpMethod.Head, requestUri);
 
             var response = await client.SendAsync(request).ConfigureAwait(false);
 
-            if (response.StatusCode == HttpStatusCode.NoContent)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                // To verify algo in original jedeclareservice code
                 return true;
+            }
+            else if (response.IsSuccessStatusCode)
+            {
+                return false;
             }
 
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);

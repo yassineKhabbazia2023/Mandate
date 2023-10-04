@@ -10,7 +10,7 @@ tags:
 security:
   - 'JWT': []
 paths:
-  /bank/checkBbanValidity:
+  /bank/check-bban-validity:
     get:
       tags:
       - Bank
@@ -123,7 +123,7 @@ paths:
                     errorType: 'CompanyNotFound'
                     logReference: '12345'
                     message: 'The ''erpNumber'' account number has not been found'
-  /mandate/collection:
+  /mandate:
     get:
       tags:
       - Mandate
@@ -209,9 +209,7 @@ paths:
           content:
             application/json:
               schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/MandateCollection'
+                $ref: '#/components/schemas/PagedMandate'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -336,18 +334,18 @@ components:
         address:
           $ref: '#/components/schemas/Address'
     Company: 
-      description: 'Data specific to the account.'
+      description: 'Data specific to the company.'
       type: object
       properties:
         id: 
-          description: 'Defines the account identifier.'
+          description: 'Defines the company identifier.'
           type: string
           format: uuid
           example: 'e4ec92f2-a375-4574-b6de-235a9fe13028'
         name:
-          description: 'Defines the account leagal name.'
+          description: 'Defines the company legal name.'
           type: string
-          example: 'JEAN LÉVAGE'
+          example: 'Weyland Corporation'
         siretNumber:
           description: 'Defines the siret number of the account.'
           type: string
@@ -358,7 +356,45 @@ components:
           example: '1000265308'
         signatory:
           $ref: '#/components/schemas/Signatory'
-    MandateCollection: 
+    PagedMandate:
+      description: 'Contains one page of results + query metadata'
+      type: object
+      properties:
+        counters: 
+          $ref: '#/components/schemas/PagedCounters'
+        data: 
+          type: array
+          items:
+            $ref: '#/components/schemas/MandateSummary'
+    PagedCounters:
+      description: 'Contains query metadata for a paged result'
+      type: object
+      properties:
+        all: 
+          description: 'Total number of matching mandates.'
+          type: integer
+          example: 32
+        status10: 
+          description: 'Total number of mandates with status = 10 (Incident).'
+          type: integer
+          example: 1
+        status20: 
+          description: 'Total number of mandates with status = 20 (ToDo).'
+          type: integer
+          example: 3
+        status30: 
+          description: 'Total number of mandates with status = 30 (InProgress).'
+          type: integer
+          example: 4
+        status40: 
+          description: 'Total number of mandates with status = 40 (Active).'
+          type: integer
+          example: 24
+        status50: 
+          description: 'Total number of mandates with status = 50 (Inactive).'
+          type: integer
+          example: 0
+    MandateSummary: 
       description: 'Data specific to the mandate.'
       type: object
       properties:
@@ -368,37 +404,33 @@ components:
           format: uuid
           example: 'e4ec92f2-a375-4574-b6de-235a9fe13028'
         erpId:
-          description: 'Defines the account number of the company.'
+          description: 'Defines the identifier of the company in the ERP.'
           type: string
           example: '1000265308'
         companyName:
-          description: 'Defines the account legal name.'
+          description: 'Defines the company legal name.'
           type: string
-          example: 'JEAN LÉVAGE'
+          example: 'Weyland Corporation'
         accountNumber:
-          description: 'Defines the bank account number of the mandate IBAN.'
+          description: 'Defines the bank account number of the mandate BBAN.'
           type: string
           example: '66842913356'
         bankName:
           description: 'Defines the name of the bank attached to the mandate.'
           type: string
-          example: 'SOGE'
+          example: 'Crédit Agricole'
         creationDate:
           description: 'Defines the creation date of the mandate.'
           type: string
           example: '2023-08-14T13:12:31.926Z' 
-        ModificationDate:
+        modificationDate:
           description: 'Defines the last update date of the mandate.'
           type: string
           example: '2023-08-14T13:12:31.926Z' 
         statusCode:
           description: 'Defines the jdc side status code of the collection mandate.'
           type: string
-          example: '99' 
-        statusName:
-          description: 'Defines the status name of the mandate.'
-          type: string
-          example: 'Actif'
+          example: '40' 
     Error:
       type: object
       description: 'Represents an error when calling the Mandate API.'

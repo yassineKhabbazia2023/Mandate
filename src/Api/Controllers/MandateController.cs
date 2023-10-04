@@ -9,8 +9,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using Microsoft.AspNetCore.Mvc;
 
     [ApiController]
-    [Route("api/[Controller]")]
-    [Authorize]
+    [Route("api/mandate")]
     public class MandateController : ControllerBase
     {
         private readonly ILogger<MandateController> logger;
@@ -22,7 +21,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             this.mandateManager = mandateManager;
         }
 
-        [HttpGet("collection")]
+        [HttpGet]
         public async Task<IActionResult> GetCollectionsAsync([FromQuery] CollectionQuery query)
         {
             await Task.CompletedTask;

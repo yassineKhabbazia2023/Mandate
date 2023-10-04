@@ -4,6 +4,7 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 {
+    using System.Data;
     using System.Diagnostics;
     using Microsoft.Data.SqlClient;
     using Microsoft.SqlServer.Dac;
@@ -34,6 +35,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             this.Dispose(disposing: false);
         }
 
+        internal static string ConnectionString
+        {
+            get
+            {
+                return connectionString;
+            }
+        }
+
         public void Dispose()
         {
             this.Dispose(disposing: true);
@@ -55,11 +64,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             return database;
         }
 
-        internal static void DropDatabase(SqlServerDatabase database)
+        internal static async Task DropDatabase(SqlServerDatabase database)
         {
-            database.ExecuteNonQuery("ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE", DatabaseName);
-            database.ExecuteNonQuery("USE master");
-            database.ExecuteNonQuery("DROP DATABASE[{0}]", DatabaseName);
+            await database.ExecuteNonQueryAsync($"ALTER DATABASE [{DatabaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE").ConfigureAwait(false);
+            await database.ExecuteNonQueryAsync("USE master").ConfigureAwait(false);
+            await database.ExecuteNonQueryAsync($"DROP DATABASE [{DatabaseName}]").ConfigureAwait(false);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -101,7 +110,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 throw new Exception($"Couldn't execute SqlLocalDb with arguments '{arguments}'");
             }
-
         }
 
         private static void Connect(SqlServerDatabase database)

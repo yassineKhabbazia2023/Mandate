@@ -9,47 +9,31 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
     using System.Globalization;
     using Microsoft.Data.SqlClient;
 
-    internal sealed class SqlServerDatabase : IDisposable
+    internal sealed class SqlServerDatabase : IAsyncDisposable
     {
-        private readonly string connectionString;
         private SqlConnection connection;
 
         internal SqlServerDatabase(string connectionString)
         {
-            this.connectionString = connectionString;
             this.connection = new SqlConnection(connectionString);
             this.connection.Open();
         }
 
-        public string ConnectionString
-        {
-            get
-            {
-                return this.connectionString;
-            }
-        }
-
-        public void Dispose()
+        public async ValueTask DisposeAsync()
         {
             if (this.connection != null)
             {
-                SqlServerFixture.DropDatabase(this);
+                await SqlServerFixture.DropDatabase(this).ConfigureAwait(false);
                 this.connection.Dispose();
                 this.connection = null!;
             }
         }
 
-        public int ExecuteNonQuery(string sqlCommand, params object[] arguments)
+        public async Task<int> ExecuteNonQueryAsync(string sqlCommand, params SqlParameter[] arguments)
         {
             using var command = this.connection.CreateCommand();
-            command.CommandText = string.Format(CultureInfo.InvariantCulture, sqlCommand, arguments);
-            return command.ExecuteNonQuery();
-        }
-
-        public async Task<int> ExecuteNonQueryAsync(string sqlCommand, params object[] arguments)
-        {
-            using var command = this.connection.CreateCommand();
-            command.CommandText = string.Format(CultureInfo.InvariantCulture, sqlCommand, arguments);
+            command.CommandText = sqlCommand;
+            command.Parameters.AddRange(arguments);
             return await command.ExecuteNonQueryAsync().ConfigureAwait(false);
         }
 
@@ -57,9 +41,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         {
             using var adapter = new SqlDataAdapter(query, this.connection);
             var dataTable = new DataTable();
-
             adapter.Fill(dataTable);
-
             return dataTable;
         }
     }

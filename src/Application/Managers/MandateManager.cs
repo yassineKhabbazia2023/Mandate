@@ -4,11 +4,20 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
+    using KPMG.Pulse.Back.Accounting.Mandate.Models;
+
     public class MandateManager : IMandateManager
     {
-        public Task<IEnumerable<Collection>> GetAllCollections()
+        private readonly IDatabaseService databaseService;
+
+        public MandateManager(IDatabaseService databaseService)
         {
-            throw new NotImplementedException();
+            this.databaseService = databaseService;
+        }
+
+        public async Task<IEnumerable<Collection>> GetAllCollections(CollectionQueryDto query)
+        {
+            return await this.databaseService.GetAllCollections(query).ConfigureAwait(false);
         }
     }
 }

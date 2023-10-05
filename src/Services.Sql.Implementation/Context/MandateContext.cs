@@ -102,6 +102,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<RefBankDb>().Property(s => s.HasLiasseAgreement).IsRequired(false);
             modelBuilder.Entity<RefBankDb>().Property(s => s.AllowsDemat).IsRequired(false);
             modelBuilder.Entity<RefBankDb>().Property(s => s.JdcPartnership).IsRequired(true);
+            modelBuilder.Entity<RefBankDb>().Property(s => s.EbicsCardId).HasMaxLength(50).IsRequired(false);
 
             modelBuilder.Entity<RefPdfTemplateDb>().HasKey(s => s.BankCode);
             modelBuilder.Entity<RefPdfTemplateDb>().Property(s => s.BankCode).IsFixedLength(true).HasMaxLength(5).IsRequired(true);

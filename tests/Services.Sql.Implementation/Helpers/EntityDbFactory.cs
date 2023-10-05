@@ -43,6 +43,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             HasLiasseAgreement = null,
             AllowsDemat = true,
             JdcPartnership = (JdcPartnership)2,
+            EbicsCardId = null,
         };
 
         public static RefStatusCodeDb RefStatusCodeDb => new()

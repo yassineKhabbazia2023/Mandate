@@ -4,7 +4,8 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+    using KPMG.Pulse.Back.Accounting.Mandate.Models;
+    using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
@@ -22,12 +23,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCollectionsAsync([FromQuery] CollectionQuery query)
+        public async Task<IActionResult> GetCollectionsAsync([FromQuery] CollectionQueryDto query)
         {
-            await Task.CompletedTask;
-            this.logger.LogInformation($"{query}");
-            await this.mandateManager.GetAllCollections();
-            return this.Ok();
+            try
+            {
+                this.logger.LogInformation($"{query}");
+                var result = await this.mandateManager.GetAllCollections(query);
+                return this.Ok(result.Select(r => r.ToMandateDetail()));
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError($"{ex.Message}");
+                throw;
+            }
         }
     }
 }

@@ -11,6 +11,7 @@
 	[HasLiasseAgreement] BIT NULL,
 	[AllowsDemat] BIT NULL,
 	[JdcPartnership] TINYINT NOT NULL DEFAULT 0,
+	[EbicsCardId] VARCHAR(50) NULL,
 
 	CONSTRAINT [PK_RefBank] PRIMARY KEY ([BankCode])
 )

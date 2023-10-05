@@ -2,6 +2,8 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using System.Diagnostics;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
     public class SqlAdapter : IDatabaseService
@@ -32,6 +34,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         public async Task<byte[]> GetPdfTemplateByBankCodeAsync(string bankCode)
         {
             return await this.mandateRepository.GetPdfTemplateByCodeAsync(bankCode).ConfigureAwait(false);
+        }
+
+        public async Task<IEnumerable<Collection>> GetAllCollections(Models.CollectionQueryDto query)
+        {
+            return (await this.mandateRepository.SearchCollectionsAsync(query.ToModel())).Select(i => i.ToModel());
+
+            //Console.WriteLine(coll);
+            //return null;
+
+            //return coll.ToModel();
+            //throw new NotImplementedException();
         }
     }
 }

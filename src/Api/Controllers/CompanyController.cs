@@ -4,10 +4,12 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
-    [Route("api/company")]
     [ApiController]
+    [Route("api/company")]
+    [Authorize]
     public class CompanyController : ControllerBase
     {
         private readonly ILogger<CompanyController> logger;

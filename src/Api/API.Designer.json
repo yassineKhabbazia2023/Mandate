@@ -10,195 +10,33 @@
       "url": "/api"
     }
   ],
-  "tags": null,
+  "tags": [
+    {
+      "name": "Mandate"
+    },
+    {
+      "name": "Bank"
+    },
+    {
+      "name": "Company"
+    },
+    {
+      "name": "Health"
+    }
+  ],
   "security": [
     {
       "JWT": []
     }
   ],
   "paths": {
-    "/bank/check-bban-validity": {
-      "get": {
-        "tags": [
-          "Bank"
-        ],
-        "summary": "Validate a French BBAN",
-        "description": "Validate a French BBAN",
-        "operationId": "ValidateBban",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "bban",
-            "description": "Concatenated fields of the BBAN, including Check Digits.",
-            "schema": {
-              "type": "string"
-            },
-            "required": true,
-            "example": "10000000011234567890189"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Results of the BBAN validation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "Result of the BBAN validation.",
-                  "type": "object",
-                  "required": [
-                    "valid"
-                  ],
-                  "properties": {
-                    "valid": {
-                      "description": "Indicating whether if the BBAN is valid.",
-                      "type": "boolean"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/bank/{bankCode}": {
-      "get": {
-        "tags": [
-          "Bank"
-        ],
-        "summary": "Get reference data for a bank",
-        "description": "Get reference data for a bank",
-        "operationId": "GetBankDetails",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "bankCode",
-            "description": "The bank code (first parameter of the French BBAN) to be queried",
-            "schema": {
-              "type": "string"
-            },
-            "required": true,
-            "example": "12345"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Reference data for the bank.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BankDetail"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "description": "Bank not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "BankNotFound": {
-                    "value": {
-                      "errorType": "BankNotFound",
-                      "logReference": "12345",
-                      "message": "The 'xxxx' bank code has not been found"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/company/{erpId}": {
-      "get": {
-        "tags": [
-          "Company"
-        ],
-        "summary": "Get reference data for the company",
-        "description": "Get reference data for the company",
-        "operationId": "GetCompanyByErpNumber",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "erpId",
-            "description": "The account number of the company to be queried",
-            "schema": {
-              "type": "string"
-            },
-            "required": true,
-            "example": "12345"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Reference data for the Company.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Company"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "CompanyForbidden": {
-                    "value": {
-                      "errorType": "CompanyForbidden",
-                      "logReference": "12345",
-                      "message": "The 'erpNumber' must be part of your portfolio and have active engagement"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Company not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "CompanyNotFound": {
-                    "value": {
-                      "errorType": "CompanyNotFound",
-                      "logReference": "12345",
-                      "message": "The 'erpNumber' account number has not been found"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/mandate": {
       "get": {
         "tags": [
           "Mandate"
         ],
-        "summary": "Get reference data for mandate",
-        "description": "Get reference data for mandate",
+        "summary": "Get a list of filtered mandates",
+        "description": "Get a list of filtered mandates",
         "operationId": "GetCollectionsAsync",
         "parameters": [
           {
@@ -281,6 +119,7 @@
                 "type": "integer"
               }
             },
+            "explode": true,
             "required": false
           },
           {
@@ -318,7 +157,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Reference data for mandate.",
+            "description": "Reference data for mandate",
             "content": {
               "application/json": {
                 "schema": {
@@ -329,20 +168,322 @@
           },
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Mandate"
+        ],
+        "summary": "Creates a new mandate",
+        "description": "Creates a new mandate",
+        "operationId": "PostMandateAsync",
+        "parameters": null,
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MandateCreation"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Entry was successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Unique identifier of the created entry",
+                  "type": "object",
+                  "required": [
+                    "id"
+                  ],
+                  "properties": {
+                    "id": {
+                      "description": "Unique identifier of the created entry",
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "e4ec92f2-a375-4574-b6de-235a9fe13028"
+                    }
+                  }
+                }
+              }
+            }
           },
-          "404": {
-            "description": "Account not found",
+          "400": {
+            "description": "The query contains invalid arguments",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 },
                 "examples": {
-                  "AccountNotFound": {
+                  "InvalidRequestBody": {
                     "value": {
-                      "errorType": "AccountNotFound",
+                      "errorType": "InvalidRequestBody",
                       "logReference": "12345",
-                      "message": "The 'erpNumber' account number has not been found"
+                      "message": "The code field is required."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "CompanyForbidden": {
+                    "value": {
+                      "errorType": "CompanyForbidden",
+                      "logReference": "12345",
+                      "message": "The 'erpId' must be part of your portfolio and have active engagement"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Elements of the query are not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "CompanyNotFound": {
+                    "value": {
+                      "errorType": "CompanyNotFound",
+                      "logReference": "12345",
+                      "message": "The 'erpId' account number has not been found"
+                    }
+                  },
+                  "BankNotFound": {
+                    "value": {
+                      "errorType": "BankNotFound",
+                      "logReference": "12345",
+                      "message": "The 'xxxx' bank code has not been found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mandate/{mandateId}/unsigned": {
+      "get": {
+        "tags": [
+          "Mandate"
+        ]
+      }
+    },
+    "/bank/{bankCode}": {
+      "get": {
+        "tags": [
+          "Bank"
+        ],
+        "summary": "Get reference data for a bank",
+        "description": "Get reference data for a bank",
+        "operationId": "GetBankDetails",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "bankCode",
+            "description": "The bank code (first parameter of the French BBAN) to be queried",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "12345"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reference data for the bank.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "Bank not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "BankNotFound": {
+                    "value": {
+                      "errorType": "BankNotFound",
+                      "logReference": "12345",
+                      "message": "The 'xxxx' bank code has not been found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bank/check-bban-validity": {
+      "get": {
+        "tags": [
+          "Bank"
+        ],
+        "summary": "Validate a French BBAN",
+        "description": "Validate a French BBAN",
+        "operationId": "ValidateBban",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "bankCode",
+            "description": "The bank code of the BBAN (first parameter)",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "12345"
+          },
+          {
+            "in": "query",
+            "name": "branchCode",
+            "description": "The branch code of the BBAN (second parameter)",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "67890"
+          },
+          {
+            "in": "query",
+            "name": "accountNumber",
+            "description": "The account number of the BBAN (third parameter)",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "12345678901"
+          },
+          {
+            "in": "query",
+            "name": "checkDigits",
+            "description": "The check digits of the BBAN (last parameter)",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "23"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Results of the BBAN validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Result of the BBAN validation.",
+                  "type": "object",
+                  "required": [
+                    "valid"
+                  ],
+                  "properties": {
+                    "valid": {
+                      "description": "Indicating whether if the BBAN is valid.",
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/company/{erpId}": {
+      "get": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Get reference data for a company",
+        "description": "Get reference data for a company",
+        "operationId": "GetCompanyByErpNumber",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "erpId",
+            "description": "The identifier of the company to be queried",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "12345"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reference data for the Company.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Company"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "CompanyForbidden": {
+                    "value": {
+                      "errorType": "CompanyForbidden",
+                      "logReference": "12345",
+                      "message": "The 'erpId' must be part of your portfolio and have active engagement"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Company not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "CompanyNotFound": {
+                    "value": {
+                      "errorType": "CompanyNotFound",
+                      "logReference": "12345",
+                      "message": "The 'erpId' account number has not been found"
                     }
                   }
                 }
@@ -357,11 +498,11 @@
         "tags": [
           "Health"
         ],
-        "summary": "Gets the status of the API.",
+        "summary": "Gets the status of the API",
         "operationId": "GetHealth",
         "responses": {
           "200": {
-            "description": "The status of the API.",
+            "description": "The status of the API",
             "content": {
               "application/json": {
                 "schema": {
@@ -406,8 +547,39 @@
       }
     },
     "schemas": {
+      "Address": {
+        "description": "Data specific to the address",
+        "type": "object",
+        "properties": {
+          "street": {
+            "description": "Defines the signatory street address",
+            "type": "string",
+            "example": "RUE DU COMMERCE"
+          },
+          "addressComplement": {
+            "description": "Defines the signatory address complements",
+            "type": "string",
+            "example": null
+          },
+          "zipCode": {
+            "description": "Defines the signatory address zip code",
+            "type": "string",
+            "example": "59590"
+          },
+          "city": {
+            "description": "Defines the signatory address city",
+            "type": "string",
+            "example": "RAISMES"
+          },
+          "country": {
+            "description": "Defines the signatory address country",
+            "type": "string",
+            "example": "FRANCE"
+          }
+        }
+      },
       "BankDetail": {
-        "description": "Reference data for a bank.",
+        "description": "Reference data for a bank",
         "type": "object",
         "properties": {
           "code": {
@@ -426,7 +598,7 @@
         }
       },
       "BankJdcDetail": {
-        "description": "Data specific to JeDeclare.com.",
+        "description": "Data specific to JeDeclare.com",
         "type": "object",
         "properties": {
           "isPartner": {
@@ -441,93 +613,204 @@
           }
         }
       },
-      "Address": {
-        "description": "Data specific to the address.",
+      "Bban": {
+        "description": "French BBAN (RIB)",
         "type": "object",
         "properties": {
-          "street": {
-            "description": "Defines the signatory street address.",
+          "bankCode": {
+            "description": "The bank code of the BBAN (first parameter)",
             "type": "string",
-            "example": "RUE DU COMMERCE"
+            "required": true,
+            "example": "12345"
           },
-          "addressComplement": {
-            "description": "Defines the signatory address complements.",
+          "branchCode": {
+            "description": "The branch code of the BBAN (second parameter)",
             "type": "string",
-            "example": null
+            "required": true,
+            "example": "67890"
           },
-          "zipCode": {
-            "description": "Defines the signatory address zip code.",
+          "accountNumber": {
+            "description": "The account number of the BBAN (third parameter)",
             "type": "string",
-            "example": "59590"
+            "required": true,
+            "example": "12345678901"
           },
-          "city": {
-            "description": "Defines the signatory address city.",
+          "checkDigits": {
+            "description": "The check digits of the BBAN (last parameter)",
             "type": "string",
-            "example": "RAISMES"
-          },
-          "country": {
-            "description": "Defines the signatory address country.",
-            "type": "string",
-            "example": "FRANCE"
+            "required": true,
+            "example": "23"
           }
         }
       },
-      "Signatory": {
-        "description": "Data specific to the signatory.",
+      "Company": {
+        "description": "Data specific to the company",
         "type": "object",
         "properties": {
-          "title": {
-            "description": "Defines the signatory sex.",
+          "id": {
+            "description": "Defines the company identifier",
             "type": "string",
-            "example": "M"
+            "format": "uuid",
+            "example": "e4ec92f2-a375-4574-b6de-235a9fe13028"
           },
-          "firstName": {
-            "description": "Defines the signatory first name.",
+          "name": {
+            "description": "Defines the company legal name",
             "type": "string",
-            "example": "maroo"
+            "example": "Weyland Corporation"
           },
-          "lastName": {
-            "description": "Defines the signatory Last name.",
+          "siretNumber": {
+            "description": "Defines the siret number of the account",
             "type": "string",
-            "example": "elleuch"
+            "example": "40902900600031"
           },
-          "email": {
-            "description": "Defines the signatory email.",
+          "erpId": {
+            "description": "Defines the identifier of the company",
             "type": "string",
-            "example": "elleuch@email.com"
+            "example": "1000265308"
+          },
+          "signatory": {
+            "$ref": "#/components/schemas/Signatory"
           },
           "address": {
             "$ref": "#/components/schemas/Address"
           }
         }
       },
-      "Company": {
-        "description": "Data specific to the company.",
+      "Error": {
+        "type": "object",
+        "description": "Represents an error when calling the Mandate API",
+        "required": [
+          "errorType",
+          "logReference",
+          "message"
+        ],
+        "properties": {
+          "errorType": {
+            "description": "Identifier of the error",
+            "type": "string",
+            "example": "InvalidCompanyCode"
+          },
+          "logReference": {
+            "description": "Reference of the detailed log in Azure Insight",
+            "type": "string",
+            "example": "12345abcd"
+          },
+          "message": {
+            "description": "Error message. Can be displayed on client side",
+            "type": "string",
+            "example": "The specified company identifier is incorrect"
+          }
+        }
+      },
+      "HealthStatus": {
+        "description": "Represents the status of the health of the API",
+        "type": "string",
+        "enum": [
+          "Healthy",
+          "Unhealthy"
+        ]
+      },
+      "MandateCreation": {
+        "description": "Data needed to create a new mandate",
         "type": "object",
         "properties": {
-          "id": {
-            "description": "Defines the company identifier.",
-            "type": "string",
-            "format": "uuid",
-            "example": "e4ec92f2-a375-4574-b6de-235a9fe13028"
-          },
-          "name": {
-            "description": "Defines the company legal name.",
-            "type": "string",
-            "example": "Weyland Corporation"
-          },
-          "siretNumber": {
-            "description": "Defines the siret number of the account.",
-            "type": "string",
-            "example": "40902900600031"
-          },
           "erpId": {
-            "description": "Defines the account number of the account.",
+            "description": "Defines the identifier of the company",
             "type": "string",
+            "required": true,
             "example": "1000265308"
           },
           "signatory": {
             "$ref": "#/components/schemas/Signatory"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "bban": {
+            "$ref": "#/components/schemas/Bban"
+          }
+        }
+      },
+      "MandateSummary": {
+        "description": "Data specific to the mandate",
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Defines the mandate identifier",
+            "type": "string",
+            "format": "uuid",
+            "example": "e4ec92f2-a375-4574-b6de-235a9fe13028"
+          },
+          "erpId": {
+            "description": "Defines the identifier of the company in the ERP",
+            "type": "string",
+            "example": "1000265308"
+          },
+          "companyName": {
+            "description": "Defines the company legal name",
+            "type": "string",
+            "example": "Weyland Corporation"
+          },
+          "accountNumber": {
+            "description": "Defines the bank account number of the mandate BBAN",
+            "type": "string",
+            "example": "66842913356"
+          },
+          "bankName": {
+            "description": "Defines the name of the bank attached to the mandate",
+            "type": "string",
+            "example": "Crédit Agricole"
+          },
+          "creationDate": {
+            "description": "Defines the creation date of the mandate",
+            "type": "string",
+            "example": "2023-08-14T13:12:31.926Z"
+          },
+          "modificationDate": {
+            "description": "Defines the last update date of the mandate",
+            "type": "string",
+            "example": "2023-08-14T13:12:31.926Z"
+          },
+          "statusCode": {
+            "description": "Defines the jdc side status code of the collection mandate",
+            "type": "string",
+            "example": "40"
+          }
+        }
+      },
+      "PagedCounters": {
+        "description": "Contains query metadata for a paged result",
+        "type": "object",
+        "properties": {
+          "all": {
+            "description": "Total number of matching mandates",
+            "type": "integer",
+            "example": 32
+          },
+          "status10": {
+            "description": "Total number of mandates with status = 10 (Incident)",
+            "type": "integer",
+            "example": 1
+          },
+          "status20": {
+            "description": "Total number of mandates with status = 20 (ToDo)",
+            "type": "integer",
+            "example": 3
+          },
+          "status30": {
+            "description": "Total number of mandates with status = 30 (InProgress)",
+            "type": "integer",
+            "example": 4
+          },
+          "status40": {
+            "description": "Total number of mandates with status = 40 (Active)",
+            "type": "integer",
+            "example": 24
+          },
+          "status50": {
+            "description": "Total number of mandates with status = 50 (Inactive)",
+            "type": "integer",
+            "example": 0
           }
         }
       },
@@ -546,122 +829,31 @@
           }
         }
       },
-      "PagedCounters": {
-        "description": "Contains query metadata for a paged result",
+      "Signatory": {
+        "description": "Data specific to the signatory",
         "type": "object",
         "properties": {
-          "all": {
-            "description": "Total number of matching mandates.",
-            "type": "integer",
-            "example": 32
+          "title": {
+            "description": "Defines the signatory title",
+            "type": "string",
+            "example": "M"
           },
-          "status10": {
-            "description": "Total number of mandates with status = 10 (Incident).",
-            "type": "integer",
-            "example": 1
+          "firstName": {
+            "description": "Defines the signatory first name",
+            "type": "string",
+            "example": "maroo"
           },
-          "status20": {
-            "description": "Total number of mandates with status = 20 (ToDo).",
-            "type": "integer",
-            "example": 3
+          "lastName": {
+            "description": "Defines the signatory Last name",
+            "type": "string",
+            "example": "elleuch"
           },
-          "status30": {
-            "description": "Total number of mandates with status = 30 (InProgress).",
-            "type": "integer",
-            "example": 4
-          },
-          "status40": {
-            "description": "Total number of mandates with status = 40 (Active).",
-            "type": "integer",
-            "example": 24
-          },
-          "status50": {
-            "description": "Total number of mandates with status = 50 (Inactive).",
-            "type": "integer",
-            "example": 0
+          "email": {
+            "description": "Defines the signatory email",
+            "type": "string",
+            "example": "elleuch@email.com"
           }
         }
-      },
-      "MandateSummary": {
-        "description": "Data specific to the mandate.",
-        "type": "object",
-        "properties": {
-          "id": {
-            "description": "Defines the mandate identifier.",
-            "type": "string",
-            "format": "uuid",
-            "example": "e4ec92f2-a375-4574-b6de-235a9fe13028"
-          },
-          "erpId": {
-            "description": "Defines the identifier of the company in the ERP.",
-            "type": "string",
-            "example": "1000265308"
-          },
-          "companyName": {
-            "description": "Defines the company legal name.",
-            "type": "string",
-            "example": "Weyland Corporation"
-          },
-          "accountNumber": {
-            "description": "Defines the bank account number of the mandate BBAN.",
-            "type": "string",
-            "example": "66842913356"
-          },
-          "bankName": {
-            "description": "Defines the name of the bank attached to the mandate.",
-            "type": "string",
-            "example": "Crédit Agricole"
-          },
-          "creationDate": {
-            "description": "Defines the creation date of the mandate.",
-            "type": "string",
-            "example": "2023-08-14T13:12:31.926Z"
-          },
-          "modificationDate": {
-            "description": "Defines the last update date of the mandate.",
-            "type": "string",
-            "example": "2023-08-14T13:12:31.926Z"
-          },
-          "statusCode": {
-            "description": "Defines the jdc side status code of the collection mandate.",
-            "type": "string",
-            "example": "40"
-          }
-        }
-      },
-      "Error": {
-        "type": "object",
-        "description": "Represents an error when calling the Mandate API.",
-        "required": [
-          "errorType",
-          "logReference",
-          "message"
-        ],
-        "properties": {
-          "errorType": {
-            "description": "Identifier of the error.",
-            "type": "string",
-            "example": "InvalidCompanyCode"
-          },
-          "logReference": {
-            "description": "Reference of the detailed log in Azure Insight.",
-            "type": "string",
-            "example": "12345abcd"
-          },
-          "message": {
-            "description": "Error message. Can be displayed on client side.",
-            "type": "string",
-            "example": "The specified company identifier is incorrect."
-          }
-        }
-      },
-      "HealthStatus": {
-        "description": "Represents the status of the health of the API.",
-        "type": "string",
-        "enum": [
-          "Healthy",
-          "Unhealthy"
-        ]
       }
     }
   }

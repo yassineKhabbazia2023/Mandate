@@ -11,6 +11,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
     [ApiController]
     [Route("api/mandate")]
+    [Authorize]
     public class MandateController : ControllerBase
     {
         private readonly ILogger<MandateController> logger;

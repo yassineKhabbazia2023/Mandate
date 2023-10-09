@@ -9,4 +9,9 @@
 		<RootNamespace>KPMG.Pulse.Back.Accounting.Mandate.Formio.Client</RootNamespace>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="Kpmg.Constellation.Net.Http" Version="1.59.1-develop" />
+	  <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
+	</ItemGroup>
+
 </Project>

@@ -19,8 +19,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
                 Guid.Empty,
                 null,
                 null,
-                null,
-                CollectionStatus.ToDo);
+                DateTime.Now,
+                DateTime.Now,
+                new Status(CollectionStatus.ToDo, "todo"));
             Func<Task> act1 = () => asposeHelper.GeneratePdfFromTemplateAsync(collectionSource);
             await act1.Should().ThrowExactlyAsync<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'source')");
 
@@ -72,8 +73,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
                         "Crédit viticole",
                         "bankGroup",
                         EntityFactory.BankAgreement)),
-                null,
-                CollectionStatus.ToDo);
+                DateTime.Now,
+                DateTime.Now,
+                new Status(CollectionStatus.ToDo, "todo"));
             var generatedPdf = await asposeHelper.GeneratePdfFromTemplateAsync(collectionSource);
 
             using var ms = new MemoryStream(generatedPdf);

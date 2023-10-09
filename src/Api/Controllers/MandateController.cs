@@ -4,12 +4,13 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+    using KPMG.Pulse.Back.Accounting.Mandate.Models;
+    using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
     [ApiController]
-    [Route("api/[Controller]")]
+    [Route("api/mandate")]
     [Authorize]
     public class MandateController : ControllerBase
     {
@@ -22,13 +23,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             this.mandateManager = mandateManager;
         }
 
-        [HttpGet("collection")]
-        public async Task<IActionResult> GetCollectionsAsync([FromQuery] CollectionQuery query)
+        [HttpGet]
+        public async Task<IActionResult> GetCollectionsAsync([FromQuery] CollectionQueryDto query)
         {
-            await Task.CompletedTask;
-            this.logger.LogInformation($"{query}");
-            await this.mandateManager.GetAllCollections();
-            return this.Ok();
+            try
+            {
+                this.logger.LogInformation($"{query}");
+                var result = await this.mandateManager.GetAllCollections(query);
+                return this.Ok(result.Select(r => r.ToMandateDetail()));
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError($"{ex.Message}");
+                throw;
+            }
         }
     }
 }

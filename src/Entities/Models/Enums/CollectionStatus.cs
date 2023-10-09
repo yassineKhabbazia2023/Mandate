@@ -6,9 +6,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public enum CollectionStatus : byte
     {
-        ToDo = 10,
+        Incident = 10,
 
-        Rejected = 20,
+        ToDo = 20,
 
         InProgress = 30,
 

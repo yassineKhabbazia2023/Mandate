@@ -8,6 +8,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
     {
         public int StatusCode { get; set; }
 
-        public string StatusName { get; set; } = null!;
+        public int PulseCode { get; set; }
+
+        public string StatusNameFr { get; set; } = null!;
+
+        public string StatusNameEn { get; set; } = null!;
     }
 }

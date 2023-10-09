@@ -102,13 +102,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<RefBankDb>().Property(s => s.HasLiasseAgreement).IsRequired(false);
             modelBuilder.Entity<RefBankDb>().Property(s => s.AllowsDemat).IsRequired(false);
             modelBuilder.Entity<RefBankDb>().Property(s => s.JdcPartnership).IsRequired(true);
+            modelBuilder.Entity<RefBankDb>().Property(s => s.EbicsCardId).HasMaxLength(50).IsRequired(false);
 
             modelBuilder.Entity<RefPdfTemplateDb>().HasKey(s => s.BankCode);
             modelBuilder.Entity<RefPdfTemplateDb>().Property(s => s.BankCode).IsFixedLength(true).HasMaxLength(5).IsRequired(true);
             modelBuilder.Entity<RefPdfTemplateDb>().Property(s => s.PdfFile).IsRequired(true);
 
             modelBuilder.Entity<RefStatusCodeDb>().HasKey(s => s.StatusCode);
-            modelBuilder.Entity<RefStatusCodeDb>().Property(s => s.StatusName).HasMaxLength(100).IsUnicode(true).IsRequired(true);
+            modelBuilder.Entity<RefStatusCodeDb>().Property(s => s.PulseCode).IsRequired(true);
+            modelBuilder.Entity<RefStatusCodeDb>().Property(s => s.StatusNameFr).HasMaxLength(100).IsUnicode(true).IsRequired(true);
+            modelBuilder.Entity<RefStatusCodeDb>().Property(s => s.StatusNameEn).HasMaxLength(100).IsUnicode(true).IsRequired(true);
 
             modelBuilder.Entity<StatusDb>().HasKey(s => s.Id);
             modelBuilder.Entity<StatusDb>().HasOne(s => s.Collection).WithMany(c => c.Statuses).HasForeignKey(s => s.CollectionId);

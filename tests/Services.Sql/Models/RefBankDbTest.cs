@@ -12,7 +12,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             var entity = new RefBankDb();
 
             // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(11);
+            entity.GetType().GetProperties().Length.Should().Be(12);
 
             // Test all properties ; number of tests below should match the number of propeties above
             entity.BankCode.Should().Be(string.Empty);
@@ -26,6 +26,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             entity.HasLiasseAgreement.Should().BeNull();
             entity.AllowsDemat.Should().BeNull();
             entity.JdcPartnership.Should().Be(0);
+            entity.EbicsCardId.Should().BeNull();
         }
 
         [Fact]

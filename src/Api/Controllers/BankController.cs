@@ -26,7 +26,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             this.bankManager = bankManager;
         }
 
-        [HttpGet("checkBbanValidity")]
+        [HttpGet("check-bban-validity")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ValidationResult))]
         public IActionResult ValidateBban([FromQuery] string bban)
         {

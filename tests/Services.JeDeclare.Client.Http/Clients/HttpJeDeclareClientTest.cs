@@ -82,7 +82,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 {
                     url.Should().Be($"compte/19581575/dossierClient/21570139/releve");
                 })
-                .ReturnsAsync(httpResponseMessage);
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
@@ -137,7 +138,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
         }
 
         [Fact]
-        public void GetAllConfigurationFromFolderAsync_CaseThrowApiException()
+        public async Task GetAllConfigurationFromFolderAsync_CaseThrowApiException()
         {
             var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
@@ -150,7 +151,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 {
                     url.Should().Be($"compte/19581575/dossierClient/21570139/releve");
                 })
-                .ReturnsAsync(httpResponseMessage);
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
 
             client.Setup(c => c.Dispose())
                 .Verifiable();
@@ -170,9 +172,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
 
-            Func<Task> act = () => jeDeclareClient.GetAllConfigurationFromFolderAsync("19581575", "21570139");
+            Func<Task> act = async () => await jeDeclareClient.GetAllConfigurationFromFolderAsync("19581575", "21570139");
 
-            act.Should().ThrowExactlyAsync<JeDeclareApiException>()
+            await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message returned by jeDeclareApi'");
 
             client.VerifyAll();
@@ -190,7 +192,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 {
                     url.Should().Be($"compte/19581575/dossierClient/21570139/rib/1234/mandatSigne");
                 })
-                .ReturnsAsync(httpResponseMessage);
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
@@ -217,7 +220,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
         }
 
         [Fact]
-        public void GetSignedMandatPdfAsync_CaseThrowApiException()
+        public async Task GetSignedMandatPdfAsync_CaseThrowApiException()
         {
             var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
@@ -230,7 +233,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 {
                     url.Should().Be($"compte/19581575/dossierClient/21570139/rib/1234/mandatSigne");
                 })
-                .ReturnsAsync(httpResponseMessage);
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
@@ -249,9 +253,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
 
-            Func<Task> act = () => jeDeclareClient.GetSignedMandatPdfAsync("19581575", "21570139", "1234");
+            Func<Task> act = async () => await jeDeclareClient.GetSignedMandatPdfAsync("19581575", "21570139", "1234");
 
-            act.Should().ThrowExactlyAsync<JeDeclareApiException>()
+            await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'Error message'");
 
             client.VerifyAll();
@@ -305,7 +309,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                     url.Should().Be($"compte/19581575/dossierClient");
                     content.Should().BeEquivalentTo(httpContent);
                 })
-                .ReturnsAsync(httpResponseMessage);
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
@@ -344,7 +349,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
         }
 
         [Fact]
-        public void CreateFolderAsync_CaseThrowJeDeclareApiException()
+        public async Task CreateFolderAsync_CaseThrowJeDeclareApiException()
         {
             var newFolder = new DossierClient
             {
@@ -390,8 +395,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                     url.Should().Be($"compte/19581575/dossierClient");
                     content.Should().BeEquivalentTo(httpContent);
                 })
-                .ReturnsAsync(httpResponseMessage);
-
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
@@ -410,9 +415,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
 
-            Func<Task> act = () => jeDeclareClient.CreateFolderAsync("19581575", newFolder);
+            Func<Task> act = async () => await jeDeclareClient.CreateFolderAsync("19581575", newFolder);
 
-            act.Should().ThrowExactlyAsync<JeDeclareApiException>()
+            await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message returned by jeDeclareApi'");
 
             client.VerifyAll();
@@ -451,7 +456,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                     url.Should().Be($"compte/19581575/dossierClient/98765/rib");
                     content.Should().BeEquivalentTo(httpContent);
                 })
-                .ReturnsAsync(httpResponseMessage);
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
@@ -487,7 +493,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
         }
 
         [Fact]
-        public void AddRibToFolderAsync_CaseThrowJeDeclareApiException()
+        public async Task AddRibToFolderAsync_CaseThrowJeDeclareApiException()
         {
             var newRib = new Rib()
             {
@@ -518,7 +524,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                     url.Should().Be($"compte/19581575/dossierClient/98765/rib");
                     content.Should().BeEquivalentTo(httpContent);
                 })
-                .ReturnsAsync(httpResponseMessage);
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
@@ -537,9 +544,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
 
-            Func<Task> act = () => jeDeclareClient.AddRibToFolderAsync("19581575", "98765", newRib);
+            Func<Task> act = async () => await jeDeclareClient.AddRibToFolderAsync("19581575", "98765", newRib);
 
-            act.Should().ThrowExactlyAsync<JeDeclareApiException>()
+            await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'Error Message'");
 
             client.VerifyAll();
@@ -614,7 +621,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                     url.Should().Be($"compte/19581575/dossierClient/98765/releve");
                     content.Should().BeEquivalentTo(httpContent);
                 })
-                .ReturnsAsync(httpResponseMessage);
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
@@ -667,7 +675,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
         }
 
         [Fact]
-        public void CreateCollecteConfigurationAsync_CaseThrowJeDeclareApiException()
+        public async Task CreateCollecteConfigurationAsync_CaseThrowJeDeclareApiException()
         {
             var destinataire = new Destinataire()
             {
@@ -734,7 +742,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                     url.Should().Be($"compte/19581575/dossierClient/98765/releve");
                     content.Should().BeEquivalentTo(httpContent);
                 })
-                .ReturnsAsync(httpResponseMessage);
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
@@ -753,9 +762,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
 
-            Func<Task> act = () => jeDeclareClient.CreateCollecteConfigurationAsync("19581575", "98765", newReleve);
+            Func<Task> act = async () => await jeDeclareClient.CreateCollecteConfigurationAsync("19581575", "98765", newReleve);
 
-            act.Should().ThrowExactlyAsync<JeDeclareApiException>()
+            await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message'");
 
             client.VerifyAll();
@@ -830,7 +839,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                     url.Should().Be($"compte/19581575/dossierClient/98765/releve/999945");
                     content.Should().BeEquivalentTo(httpContent);
                 })
-                .ReturnsAsync(httpResponseMessage);
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
@@ -858,7 +868,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
         }
 
         [Fact]
-        public void UpdateCollecteConfigurationAsync_CaseThrowJeDeclareApiException()
+        public async Task UpdateCollecteConfigurationAsync_CaseThrowJeDeclareApiException()
         {
             var destinataire = new Destinataire()
             {
@@ -925,7 +935,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                     url.Should().Be($"compte/19581575/dossierClient/98765/releve/999945");
                     content.Should().BeEquivalentTo(httpContent);
                 })
-                .ReturnsAsync(httpResponseMessage);
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
@@ -944,9 +955,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
 
-            Func<Task> act = () => jeDeclareClient.UpdateCollecteConfigurationAsync("19581575", "98765", newReleve);
+            Func<Task> act = async () => await jeDeclareClient.UpdateCollecteConfigurationAsync("19581575", "98765", newReleve);
 
-            act.Should().ThrowExactlyAsync<JeDeclareApiException>()
+            await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message'");
 
             client.VerifyAll();
@@ -973,7 +984,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                     url.Should().Be($"compte/19581575/dossierClient/98765/rib/999945/mandatSigne");
                     content.Should().BeEquivalentTo(httpContent);
                 })
-                .ReturnsAsync(httpResponseMessage);
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
@@ -1001,7 +1013,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
         }
 
         [Fact]
-        public void UploadSignedMandat_CaseThrowJeDeclareApiException()
+        public async Task UploadSignedMandat_CaseThrowJeDeclareApiException()
         {
             var mandatString = "test mandat string";
             var mandat = Encoding.UTF8.GetBytes(mandatString);
@@ -1011,7 +1023,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 Content = new StringContent("error message"),
             };
 
-            var httpContent = new StringContent("dGVzdCBtYW5kYXQgc3RyaW5n", Encoding.UTF8, "application/json");
+            var httpContent = new StringContent("dGVzdCBtYW5kYXQgc3RyaW5n", Encoding.UTF8);
 
             var client = new Mock<IHttpClient>(MockBehavior.Strict);
             client.Setup(c => c.PostAsync(It.IsAny<string>(), It.IsAny<HttpContent>()))
@@ -1020,7 +1032,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                     url.Should().Be($"compte/19581575/dossierClient/98765/rib/999945/mandatSigne");
                     content.Should().BeEquivalentTo(httpContent);
                 })
-                .ReturnsAsync(httpResponseMessage);
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
@@ -1039,9 +1052,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
 
-            Func<Task> act = () => jeDeclareClient.UploadSignedMandat("19581575", "98765", "999945", mandat);
+            Func<Task> act = async () => await jeDeclareClient.UploadSignedMandat("19581575", "98765", "999945", mandat);
 
-            act.Should().ThrowExactlyAsync<JeDeclareApiException>()
+            await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message'");
 
             client.VerifyAll();
@@ -1051,18 +1064,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
         [Fact]
         public async Task CheckSignedMandatExists_CaseOK()
         {
-            var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.NoContent);
-
-            var httpContent = new StringContent("dGVzdCBtYW5kYXQgc3RyaW5n", Encoding.UTF8, "application/json");
+            var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
 
             var client = new Mock<IHttpClient>(MockBehavior.Strict);
             client.Setup(c => c.SendAsync(It.IsAny<HttpRequestMessage>()))
                 .Callback<HttpRequestMessage>(req =>
                 {
-                    req.Method.Should().Be(HttpMethod.Get);
+                    req.Method.Should().Be(HttpMethod.Head);
                     req.RequestUri.Should().Be("compte/19581575/dossierClient/98765/rib/999945/mandatSigne");
                 })
-                .ReturnsAsync(httpResponseMessage);
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
@@ -1090,26 +1102,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
         }
 
         [Fact]
-        public void CheckSignedMandatExists_CaseThrowJeDeclareApiException()
+        public async Task CheckSignedMandatExists_CaseThrowJeDeclareApiException()
         {
-            var mandatString = "test mandat string";
-            var mandat = Encoding.ASCII.GetBytes(mandatString);
-
             var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
                 Content = new StringContent("error message"),
             };
 
-            var httpContent = new StringContent("dGVzdCBtYW5kYXQgc3RyaW5n", Encoding.UTF8, "application/json");
-
             var client = new Mock<IHttpClient>(MockBehavior.Strict);
             client.Setup(c => c.SendAsync(It.IsAny<HttpRequestMessage>()))
                 .Callback<HttpRequestMessage>(req =>
                 {
-                    req.Method.Should().Be(HttpMethod.Get);
+                    req.Method.Should().Be(HttpMethod.Head);
                     req.RequestUri.Should().Be("compte/19581575/dossierClient/98765/rib/999945/mandatSigne");
                 })
-                .ReturnsAsync(httpResponseMessage);
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
@@ -1128,9 +1136,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
 
-            Func<Task> act = () => jeDeclareClient.CheckSignedMandatExists("19581575", "98765", "999945");
+            Func<Task> act = async () => await jeDeclareClient.CheckSignedMandatExists("19581575", "98765", "999945");
 
-            act.Should().ThrowExactlyAsync<JeDeclareApiException>()
+            await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message'");
 
             client.VerifyAll();

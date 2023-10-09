@@ -11,6 +11,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         AccountNumber,
         BankName,
         CreationDate,
+        ModificationDate,
         Status,
     }
 }

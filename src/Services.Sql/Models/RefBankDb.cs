@@ -27,5 +27,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         public bool? AllowsDemat { get; set; } = null!;
 
         public JdcPartnership JdcPartnership { get; set; } = 0;
+
+        public string? EbicsCardId { get; set; } = null!;
     }
 }

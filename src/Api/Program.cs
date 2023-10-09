@@ -11,6 +11,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using Kpmg.AspNetCore.Authentication.ConstellationIdentityService;
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
+    using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
     using Microsoft.AspNetCore.Authorization;
@@ -113,6 +114,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 opt.BaseUri = new Uri(builder.Configuration["MandateJeDeclareBaseUri"]);
                 opt.Login = builder.Configuration["MandateJeDeclareLogin"];
                 opt.Password = builder.Configuration["MandateJeDeclarePassword"];
+            });
+
+            builder.Services.AddMandateFormio(opt =>
+            {
+                opt.BaseUri = new Uri(builder.Configuration["MandateFormioBaseUri"]);
+                opt.FormioApiKey = builder.Configuration["MandateFormioApiKey"];
             });
 
             builder.Services.AddMandateApplication();

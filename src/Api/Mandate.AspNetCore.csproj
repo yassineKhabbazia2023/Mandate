@@ -25,6 +25,7 @@
 		<ProjectReference Include="..\Adapters\Mandate.Adapters.csproj" />
 		<ProjectReference Include="..\Application\Mandate.Application.csproj" />
 		<ProjectReference Include="..\Client\Mandate.Client.csproj" />
+		<ProjectReference Include="..\Services.Formio.Client.Http\Mandate.Formio.Client.Http.csproj" />
 		<ProjectReference Include="..\Services.JeDeclare.Client.Http\Mandate.JeDeclare.Client.Http.csproj" />
 		<ProjectReference Include="..\Services.Mongo.Implementation\Mandate.Mongo.Implementation.csproj" />
 		<ProjectReference Include="..\Services.Sql.Implementation\Mandate.Sql.Implementation.csproj" />

@@ -4,8 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.Models;
-
     public class MandateManager : IMandateManager
     {
         private readonly IDatabaseService databaseService;
@@ -15,9 +13,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             this.databaseService = databaseService;
         }
 
-        public async Task<IEnumerable<Collection>> GetAllCollections(CollectionQueryDto query)
+        public async Task<IEnumerable<Collection>> GetAllCollectionsAsync(CollectionQueryDto query)
         {
-            return await this.databaseService.GetAllCollections(query).ConfigureAwait(false);
+            return await this.databaseService.GetAllCollectionsAsync(query).ConfigureAwait(false);
         }
     }
 }

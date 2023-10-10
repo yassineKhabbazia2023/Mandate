@@ -2,8 +2,6 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-using System.Diagnostics;
-
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
     public class SqlAdapter : IDatabaseService
@@ -20,8 +18,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             var companyDb = await this.mandateRepository.GetCompanyBySiretAsync(siret).ConfigureAwait(false);
 
             var address = new Address(companyDb.CompanyPersonal?.Street, companyDb.CompanyPersonal?.Complements, companyDb.CompanyPersonal?.ZipCode, companyDb.CompanyPersonal?.City, companyDb.CompanyPersonal?.Country);
-            var signatory = new Signatory(companyDb.CompanyPersonal?.Title, companyDb.CompanyPersonal?.FirstName, companyDb.CompanyPersonal?.LastName, companyDb.CompanyPersonal?.Email, address);
-            var company = new Company(companyDb.Id, companyDb.Name, companyDb.SiretNumber, companyDb.ErpId, companyDb.BankServicesProviderId, signatory);
+            var signatory = new Signatory(companyDb.CompanyPersonal?.Title, companyDb.CompanyPersonal?.FirstName, companyDb.CompanyPersonal?.LastName, companyDb.CompanyPersonal?.Email);
+            var company = new Company(companyDb.Id, companyDb.Name, companyDb.SiretNumber, companyDb.ErpId, companyDb.BankServicesProviderId, signatory, address);
             return company;
         }
 
@@ -36,15 +34,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return await this.mandateRepository.GetPdfTemplateByCodeAsync(bankCode).ConfigureAwait(false);
         }
 
-        public async Task<IEnumerable<Collection>> GetAllCollections(Models.CollectionQueryDto query)
+        public async Task<IEnumerable<Collection>> GetAllCollectionsAsync(CollectionQueryDto query)
         {
-            return (await this.mandateRepository.SearchCollectionsAsync(query.ToModel())).Select(i => i.ToModel());
-
-            //Console.WriteLine(coll);
-            //return null;
-
-            //return coll.ToModel();
-            //throw new NotImplementedException();
+            return (await this.mandateRepository.SearchCollectionsAsync(query.ToSql())).Select(i => i.ToModel());
         }
     }
 }

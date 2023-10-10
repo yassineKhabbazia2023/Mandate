@@ -4,10 +4,8 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.Models;
-
     public interface IMandateManager
     {
-        Task<IEnumerable<Collection>> GetAllCollections(CollectionQueryDto query);
+        Task<IEnumerable<Collection>> GetAllCollectionsAsync(CollectionQueryDto query);
     }
 }

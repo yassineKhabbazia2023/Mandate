@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "version": "1.0.0",
+    "version": "1.0.1",
     "title": "KPMG Pulse Mandate API",
     "description": "Mandate API of the KPMG Pulse Platform"
   },
@@ -178,7 +178,6 @@
         "summary": "Creates a new mandate",
         "description": "Creates a new mandate",
         "operationId": "PostMandateAsync",
-        "parameters": null,
         "requestBody": {
           "content": {
             "application/json": {
@@ -285,7 +284,237 @@
       "get": {
         "tags": [
           "Mandate"
-        ]
+        ],
+        "summary": "Downloads an unsigned mandate",
+        "description": "Downloads an unsigned mandate",
+        "operationId": "DownloadUnsigned",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mandateId",
+            "description": "The mandate identifier (UUID) given by /mandate",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "example": "e4ec92f2-a375-4574-b6de-235a9fe13028"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The unsigned mandate file (PDF format)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "CompanyForbidden": {
+                    "value": {
+                      "errorType": "CompanyForbidden",
+                      "logReference": "12345",
+                      "message": "The mandate belongs to a company that must be part of your portfolio and have active engagement"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mandate not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "MandateNotFound": {
+                    "value": {
+                      "errorType": "MandateNotFound",
+                      "logReference": "12345",
+                      "message": "The mandate with identifier 'mandateId' has not been found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mandate/{mandateId}/signed": {
+      "get": {
+        "tags": [
+          "Mandate"
+        ],
+        "summary": "Downloads a signed mandate",
+        "description": "Downloads a signed mandate",
+        "operationId": "DownloadSigned",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mandateId",
+            "description": "The mandate identifier (UUID) given by /mandate",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "example": "e4ec92f2-a375-4574-b6de-235a9fe13028"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The signed mandate file (PDF format)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "CompanyForbidden": {
+                    "value": {
+                      "errorType": "CompanyForbidden",
+                      "logReference": "12345",
+                      "message": "The mandate belongs to a company that must be part of your portfolio and have active engagement"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mandate not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "MandateNotFound": {
+                    "value": {
+                      "errorType": "MandateNotFound",
+                      "logReference": "12345",
+                      "message": "The mandate with identifier 'mandateId' has not been found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Mandate"
+        ],
+        "summary": "Uploads a signed mandate",
+        "description": "Uploads a signed mandate",
+        "operationId": "UploadSigned",
+        "requestBody": {
+          "content": {
+            "application/pdf": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Upload was successful"
+          },
+          "400": {
+            "description": "Invalid mandate status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "InvalidMandateStatus": {
+                    "value": {
+                      "errorType": "InvalidMandateStatus",
+                      "logReference": "12345",
+                      "message": "The mandate status doesn't currently allow a file upload"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "CompanyForbidden": {
+                    "value": {
+                      "errorType": "CompanyForbidden",
+                      "logReference": "12345",
+                      "message": "The mandate belongs to a company that must be part of your portfolio and have active engagement"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mandate not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "MandateNotFound": {
+                    "value": {
+                      "errorType": "MandateNotFound",
+                      "logReference": "12345",
+                      "message": "The mandate with identifier 'mandateId' has not been found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/bank/{bankCode}": {
@@ -349,8 +578,8 @@
         "tags": [
           "Bank"
         ],
-        "summary": "Validate a French BBAN",
-        "description": "Validate a French BBAN",
+        "summary": "Validates a French BBAN",
+        "description": "Validates a French BBAN",
         "operationId": "ValidateBban",
         "parameters": [
           {
@@ -423,8 +652,8 @@
         "tags": [
           "Company"
         ],
-        "summary": "Get reference data for a company",
-        "description": "Get reference data for a company",
+        "summary": "Gets reference data for a company",
+        "description": "Gets reference data for a company",
         "operationId": "GetCompanyByErpNumber",
         "parameters": [
           {

@@ -23,10 +23,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Controllers
         public async Task<IActionResult> GetCompanyByErpNumber([FromRoute] string erpId = "")
         {
             await Task.CompletedTask;
-            this.logger.LogInformation($"x = {erpId}");
-            Client.Address address = new ("street", "complement", "zipcode", "city", "contry");
-            Client.Signatory signatory = new ("M", "maroo", "elleuch", "email@emaul.com", address);
-            Client.Company company = new (Guid.NewGuid(), "MK 2000", "50339868700015", "1999072765", signatory);
+            this.logger.LogInformation($"x = {erpId}"); // TODO
+            Client.Address address = new ("11 rue Street", "complement", "75014", "Paris", "France");
+            Client.Signatory signatory = new ("M", "maroo", "elleuch", "email@email.com");
+            Client.Company company = new (Guid.NewGuid(), "MK 2000", "50339868700015", "1999072765", signatory, address);
             return this.Ok(company);
         }
     }

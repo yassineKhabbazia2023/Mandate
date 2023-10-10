@@ -9,7 +9,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
     public static class EntityDbFactory
     {
-        public static CollectionDb CollectionDb => new()
+        public static CollectionDb CollectionDb => new ()
         {
             Id = new PredictableGuid(101).NewGuid(),
             CompanyId = new PredictableGuid(102).NewGuid(),
@@ -21,7 +21,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             RejectReason = "reason1",
         };
 
-        public static CompanyDb CompanyDb => new()
+        public static CompanyDb CompanyDb => new ()
         {
             Id = new PredictableGuid(102).NewGuid(),
             Name = "cn1",
@@ -30,7 +30,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             BankServicesProviderId = null,
         };
 
-        public static RefBankDb RefBankDb => new()
+        public static RefBankDb RefBankDb => new ()
         {
             BankCode = "12345",
             BankName = "bn1",
@@ -46,7 +46,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             EbicsCardId = null,
         };
 
-        public static RefStatusCodeDb RefStatusCodeDb => new()
+        public static RefStatusCodeDb RefStatusCodeDb => new ()
         {
             StatusCode = -1,
             PulseCode = 100,
@@ -54,7 +54,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             StatusNameEn = "In progress",
         };
 
-        public static StatusDb StatusDb => new()
+        public static StatusDb StatusDb => new ()
         {
             Id = new PredictableGuid(103).NewGuid(),
             CollectionId = new PredictableGuid(101).NewGuid(),

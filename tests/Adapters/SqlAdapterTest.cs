@@ -4,42 +4,34 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.Models;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests;
 
     public class SqlAdapterTest
     {
         [Fact]
-        public void GetAllCollections()
+        public async Task GetAllCollections()
         {
-            Guid id = Guid.NewGuid();
-
-            CollectionQueryDto queryDto = new CollectionQueryDto()
-            {
-                CreationDateEnd = new DateTime(2023, 10, 1),
-                CreationDateStart = new DateTime(2023, 10, 2),
-                Limit = 10,
-                ModificationDateStart = new DateTime(2023, 10, 3),
-                ModificationDateEnd = new DateTime(2023, 10, 4),
-                SearchTerm = "companyName",
-                Skip = 0,
-                SortCriteria = Mandate.CollectionSortCriteria.ModificationDate,
-                SortOrder = Mandate.SortOrder.Ascending,
-                StatusCodes = new List<int> { 1, 2 },
-            };
+            var status = EntityDbFactory.StatusDb;
+            status.RefStatusCode = EntityDbFactory.RefStatusCodeDb;
+            var coll = EntityDbFactory.CollectionDb;
+            coll.Company = EntityDbFactory.CompanyDb;
+            coll.Bank = EntityDbFactory.RefBankDb;
+            coll.Statuses = new List<StatusDb>() { status };
 
             var mandateRepository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            mandateRepository.Setup(r => r.SearchCollectionsAsync(It.IsAny<CollectionQuery>()))
+                .ReturnsAsync(new List<CollectionDb>() { coll })
+                .Verifiable();
 
             SqlAdapter adapter = new SqlAdapter(mandateRepository.Object);
 
-            var res = adapter.GetAllCollections(queryDto);
+            var res = await adapter.GetAllCollectionsAsync(new CollectionQueryDto());
 
-            var expected = new List<Collection>()
-            {
-                new Collection(id, null, null, new DateTime(2023, 10, 3), new DateTime(2023, 10, 4), null),
-            };
-
-            res.Should().BeEquivalentTo(expected);
+            res.Should().NotBeNull();
+            res.Count().Should().Be(1);
+            res.Single().Should().BeEquivalentTo(coll.ToModel());
+            mandateRepository.VerifyAll();
         }
     }
 }

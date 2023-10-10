@@ -9,18 +9,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
     public class Company
     {
         [JsonConstructor]
-        public Company(
-            Guid id,
-            string? name,
-            string siretNumber,
-            string? erpId,
-            Signatory? signatory)
+        public Company(Guid id, string? name, string siretNumber, string? erpId, Signatory? signatory, Address? address)
         {
             this.Id = id;
             this.Name = name;
             this.SiretNumber = siretNumber;
             this.ErpId = erpId;
             this.Signatory = signatory;
+            this.Address = address;
         }
 
         public Guid Id { get; }
@@ -32,5 +28,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
         public string? ErpId { get; }
 
         public Signatory? Signatory { get; }
+
+        public Address? Address { get; }
     }
 }

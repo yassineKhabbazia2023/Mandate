@@ -13,11 +13,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
                 "Mme",
                 "First",
                 "Last",
-                "first.last@outlook.com",
-                EntityFactory.Address);
+                "first.last@outlook.com");
 
             // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(5);
+            entity.GetType().GetProperties().Length.Should().Be(4);
 
             // Make sure propeties don't have setters
             entity.GetType().GetProperties().Should().AllSatisfy(p => p.CanWrite.Should().BeFalse());
@@ -27,7 +26,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
             entity.FirstName.Should().Be("First");
             entity.LastName.Should().Be("Last");
             entity.Email.Should().Be("first.last@outlook.com");
-            entity.Address.Should().NotBeNull();
         }
     }
 }

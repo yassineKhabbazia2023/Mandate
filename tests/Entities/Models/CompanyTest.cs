@@ -15,10 +15,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
                 "siret",
                 "ibsAccountNumber",
                 "jdcDossierId",
-                EntityFactory.Signatory);
+                EntityFactory.Signatory,
+                EntityFactory.Address);
 
             // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(6);
+            entity.GetType().GetProperties().Length.Should().Be(7);
 
             // Make sure propeties don't have setters
             entity.GetType().GetProperties().Should().AllSatisfy(p => p.CanWrite.Should().BeFalse());
@@ -30,6 +31,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
             entity.ErpId.Should().Be("ibsAccountNumber");
             entity.BankServicesProviderId.Should().Be("jdcDossierId");
             entity.Signatory.Should().NotBeNull();
+            entity.Address.Should().NotBeNull();
         }
     }
 }

@@ -28,9 +28,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
         [HttpGet("check-bban-validity")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ValidationResult))]
-        public IActionResult ValidateBban([FromQuery] string bban)
+        public IActionResult ValidateBban([FromQuery] string bankCode, [FromQuery] string branchCode, [FromQuery] string accountNumber, [FromQuery] string checkDigits)
         {
-            var result = this.bbanManager.IsValid(bban);
+            var bban = new Bban(bankCode, branchCode, accountNumber, checkDigits);
+            var result = this.bbanManager.IsValid(bban.ToModel());
 
             var validationResult = new ValidationResult(result);
 

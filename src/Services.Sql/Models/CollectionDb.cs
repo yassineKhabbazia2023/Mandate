@@ -16,15 +16,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 
         public List<StatusDb> Statuses { get; set; } = null!;
 
-        public string? BankCode { get; set; } = null!;
+        public string BankCode { get; set; } = null!;
 
         public RefBankDb? Bank { get; set; } = null!;
 
-        public string? BranchCode { get; set; } = null!;
+        public string BranchCode { get; set; } = null!;
 
-        public string? AccountNumber { get; set; } = null!;
+        public string AccountNumber { get; set; } = null!;
 
-        public string? CheckDigits { get; set; } = null!;
+        public string CheckDigits { get; set; } = null!;
 
         public int? LinkType { get; set; } = null!;
 

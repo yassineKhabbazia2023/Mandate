@@ -12,23 +12,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
             var bbanManager = new BbanManager();
 
             bbanManager.IsValid(null!).Should().BeFalse();
-            bbanManager.IsValid("x").Should().BeFalse();
 
-            bbanManager.IsValid("00000000000000000000097").Should().BeTrue();
-            bbanManager.IsValid("00000000000000000000098").Should().BeFalse();
+            bbanManager.IsValid(new Bban("00000", "00000", "00000000000", "97", null)).Should().BeTrue();
+            bbanManager.IsValid(new Bban("00000", "00000", "00000000000", "98", null)).Should().BeFalse();
 
             // source : https://fr.wikipedia.org/wiki/Cl%C3%A9_RIB
-            bbanManager.IsValid("12345123451234567891A16").Should().BeTrue();
-            bbanManager.IsValid("12345123451234567891A17").Should().BeFalse();
+            bbanManager.IsValid(new Bban("12345", "12345", "1234567891A", "16", null)).Should().BeTrue();
+            bbanManager.IsValid(new Bban("12345", "12345", "1234567891A", "17", null)).Should().BeFalse();
 
             // source : https://www.iban.fr/exemple.html
-            bbanManager.IsValid("30001007941234567890185").Should().BeTrue();
-            bbanManager.IsValid("30001007941234567890186").Should().BeFalse();
+            bbanManager.IsValid(new Bban("30001", "00794", "12345678901", "85", null)).Should().BeTrue();
+            bbanManager.IsValid(new Bban("30001", "00794", "12345678901", "86", null)).Should().BeFalse();
 
             // source : http://serge.mehl.free.fr/exos/cle_RIB.html
-            bbanManager.IsValid("15038012091341531M02593").Should().BeTrue();
-            bbanManager.IsValid("15038012091341531M02594").Should().BeFalse();
+            bbanManager.IsValid(new Bban("15038", "01209", "1341531M025", "93", null)).Should().BeTrue();
+            bbanManager.IsValid(new Bban("15038", "01209", "1341531M025", "94", null)).Should().BeFalse();
         }
-
     }
 }

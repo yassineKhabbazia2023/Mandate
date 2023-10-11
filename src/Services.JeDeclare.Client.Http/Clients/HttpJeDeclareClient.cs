@@ -347,7 +347,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
         private byte[] DeleteFirstPageMandatPdf(MemoryStream mandat)
         {
-            // TO DO Aspose
+            // TODO Aspose
            throw new NotImplementedException();
         }
     }

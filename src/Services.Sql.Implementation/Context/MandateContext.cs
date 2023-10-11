@@ -47,10 +47,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
             modelBuilder.Entity<CollectionDb>().HasKey(c => c.Id);
             modelBuilder.Entity<CollectionDb>().HasOne(s => s.Company).WithMany(c => c.Collections).HasForeignKey(s => s.CompanyId);
-            modelBuilder.Entity<CollectionDb>().Property(cp => cp.BankCode).IsFixedLength(true).HasMaxLength(5).IsRequired(false);
-            modelBuilder.Entity<CollectionDb>().Property(cp => cp.BranchCode).IsFixedLength(true).HasMaxLength(5).IsRequired(false);
-            modelBuilder.Entity<CollectionDb>().Property(cp => cp.AccountNumber).IsFixedLength(true).HasMaxLength(11).IsRequired(false);
-            modelBuilder.Entity<CollectionDb>().Property(cp => cp.CheckDigits).IsFixedLength(true).HasMaxLength(2).IsRequired(false);
+            modelBuilder.Entity<CollectionDb>().Property(cp => cp.BankCode).IsFixedLength(true).HasMaxLength(5).IsRequired(true);
+            modelBuilder.Entity<CollectionDb>().Property(cp => cp.BranchCode).IsFixedLength(true).HasMaxLength(5).IsRequired(true);
+            modelBuilder.Entity<CollectionDb>().Property(cp => cp.AccountNumber).IsFixedLength(true).HasMaxLength(11).IsRequired(true);
+            modelBuilder.Entity<CollectionDb>().Property(cp => cp.CheckDigits).IsFixedLength(true).HasMaxLength(2).IsRequired(true);
             modelBuilder.Entity<CollectionDb>().Property(cp => cp.RejectReason).HasMaxLength(100).IsUnicode(true).IsRequired(false);
             modelBuilder.Entity<CollectionDb>().Property(cp => cp.LinkType).IsRequired(false);
             modelBuilder.Entity<CollectionDb>().HasOne(c => c.JeDeclareCollection)

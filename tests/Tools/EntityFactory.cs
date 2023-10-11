@@ -14,8 +14,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         public static Bban Bban => new ("12345", "54321", "12345678901", "01", Bank);
 
-        public static Company Company => new (new PredictableGuid().NewGuid(), "Raison Sociale", "siret", "ibsAccountNumber", "jdcDossierId", Signatory);
+        public static Company Company => new (new PredictableGuid().NewGuid(), "Raison Sociale", "siret", "ibsAccountNumber", "jdcDossierId", Signatory, Address);
 
-        public static Signatory Signatory => new ("Mme", "First", "Last", "first.last@outlook.com", Address);
+        public static Signatory Signatory => new ("Mme", "First", "Last", "first.last@outlook.com");
     }
 }

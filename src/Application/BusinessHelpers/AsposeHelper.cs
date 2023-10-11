@@ -52,21 +52,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                     sbSignatory.Append(source.Company.Signatory.FirstName ?? string.Empty).Append(' ');
                     sbSignatory.Append(source.Company.Signatory.LastName ?? string.Empty);
                     this.ReplaceInDocument(pdfDocument, "{signatory}", sbSignatory.ToString());
-                    if (source.Company.Signatory.Address != null)
-                    {
-                        var sbAddress = new StringBuilder();
-                        sbAddress.Append(source.Company.Signatory.Address.Street ?? string.Empty);
-                        if (!string.IsNullOrWhiteSpace(source.Company.Signatory.Address.Complements))
-                        {
-                            sbAddress.Append("  -  ").Append(source.Company.Signatory.Address.Complements ?? string.Empty);
-                        }
+                }
 
-                        sbAddress.Append("  -  ");
-                        sbAddress.Append(source.Company.Signatory.Address.ZipCode ?? string.Empty).Append(' ');
-                        sbAddress.Append(source.Company.Signatory.Address.City ?? string.Empty).Append("  -  ");
-                        sbAddress.Append(source.Company.Signatory.Address.Country ?? string.Empty);
-                        this.ReplaceInDocument(pdfDocument, "{companyAddress}", sbAddress.ToString());
+                if (source.Company.Address != null)
+                {
+                    var sbAddress = new StringBuilder();
+                    sbAddress.Append(source.Company.Address.Street ?? string.Empty);
+                    if (!string.IsNullOrWhiteSpace(source.Company.Address.Complements))
+                    {
+                        sbAddress.Append("  -  ").Append(source.Company.Address.Complements ?? string.Empty);
                     }
+
+                    sbAddress.Append("  -  ");
+                    sbAddress.Append(source.Company.Address.ZipCode ?? string.Empty).Append(' ');
+                    sbAddress.Append(source.Company.Address.City ?? string.Empty).Append("  -  ");
+                    sbAddress.Append(source.Company.Address.Country ?? string.Empty);
+                    this.ReplaceInDocument(pdfDocument, "{companyAddress}", sbAddress.ToString());
                 }
             }
 

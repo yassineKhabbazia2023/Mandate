@@ -1,16 +1,15 @@
-﻿// <copyright file="ApplicationModelAdapterTest.cs" company="KPMG">
+﻿// <copyright file="SqlExtensionsTest.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.Models;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
 
-    public class ApplicationModelAdapterTest
+    public class SqlExtensionsTest
     {
         [Fact]
-        public void ToModelTest()
+        public void ToSqlTest()
         {
             CollectionQueryDto queryDto = new CollectionQueryDto()
             {
@@ -26,7 +25,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 StatusCodes = new List<int> { 1, 2 },
             };
 
-            var res = queryDto.ToModel();
+            var res = queryDto.ToSql();
 
             res.Should().BeEquivalentTo(new CollectionQuery
             {

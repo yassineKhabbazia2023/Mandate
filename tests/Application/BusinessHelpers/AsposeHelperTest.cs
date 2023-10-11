@@ -56,13 +56,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
                         "Mme",
                         "Jane",
                         "Doe",
-                        string.Empty,
-                        new Address(
-                            "36 rue de Liège",
-                            "étage 5",
-                            "75008",
-                            "Paris",
-                            "France"))),
+                        string.Empty),
+                    new Address(
+                        "36 rue de Liège",
+                        "étage 5",
+                        "75008",
+                        "Paris",
+                        "France")),
                 new Bban(
                     "12345",
                     "67890",

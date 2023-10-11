@@ -6,6 +6,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public interface IBbanManager
     {
-        bool IsValid(string bban);
+        bool IsValid(Bban bban);
     }
 }

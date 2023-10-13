@@ -24,6 +24,5 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
         public string? LastName { get; }
 
         public string? Email { get; }
-
     }
 }

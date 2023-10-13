@@ -1,22 +1,12 @@
-﻿// <copyright file="CollectionQueryDto.cs" company="KPMG">
+﻿// <copyright file="CollectionQuery.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate
+namespace KPMG.Pulse.Back.Accounting.Mandate.Client
 {
-    public class CollectionQueryDto
+    public class CollectionQuery
     {
-        public CollectionQueryDto(
-            string? searchTerm,
-            DateTime? creationDateStart,
-            DateTime? creationDateEnd,
-            DateTime? modificationDateStart,
-            DateTime? modificationDateEnd,
-            List<int>? statusCodes,
-            int? limit,
-            int? skip,
-            SortOrder sortOrder,
-            CollectionSortCriteria sortCriteria)
+        public CollectionQuery(string? searchTerm, DateTime? creationDateStart, DateTime? creationDateEnd, DateTime? modificationDateStart, DateTime? modificationDateEnd, List<int>? statusCodes, int? limit, int? skip, string? sortOrder, string? sortCriteria)
         {
             this.SearchTerm = searchTerm;
             this.CreationDateStart = creationDateStart;
@@ -46,8 +36,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         public int? Skip { get; }
 
-        public SortOrder SortOrder { get; }
+        public string? SortOrder { get; }
 
-        public CollectionSortCriteria SortCriteria { get; }
+        public string? SortCriteria { get; }
     }
 }

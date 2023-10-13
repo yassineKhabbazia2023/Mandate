@@ -12,8 +12,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
             this.StatusName = statusName;
         }
 
-        public CollectionStatus StatusCode { get; set; }
+        public CollectionStatus StatusCode { get; }
 
-        public string StatusName { get; set; }
+        public string StatusName { get; }
     }
 }

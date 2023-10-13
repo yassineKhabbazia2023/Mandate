@@ -8,6 +8,9 @@
   "servers": [
     {
       "url": "/api"
+    },
+    {
+      "url": "/mandate/api"
     }
   ],
   "tags": [
@@ -440,6 +443,19 @@
         "summary": "Uploads a signed mandate",
         "description": "Uploads a signed mandate",
         "operationId": "UploadSigned",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mandateId",
+            "description": "The mandate identifier (UUID) given by /mandate",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "example": "e4ec92f2-a375-4574-b6de-235a9fe13028"
+          }
+        ],
         "requestBody": {
           "content": {
             "application/pdf": {

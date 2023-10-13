@@ -23,12 +23,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCollectionsAsync([FromQuery] CollectionQueryDto query)
+        public async Task<IActionResult> GetCollectionsAsync([FromQuery] string? searchTerm, [FromQuery] DateTime? creationDateStart, [FromQuery] DateTime? creationDateEnd, [FromQuery] DateTime? modificationDateStart, [FromQuery] DateTime? modificationDateEnd, [FromQuery] List<int>? statusCodes, [FromQuery] int? limit, [FromQuery] int? skip, [FromQuery] string? sortOrder, [FromQuery] string? sortCriteria)
         {
             try
             {
-                this.logger.LogInformation($"{query}");
-                var result = await this.mandateManager.GetAllCollectionsAsync(query);
+                var collectionQuery = new Client.CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria);
+                this.logger.LogInformation($"{collectionQuery}");
+                var result = await this.mandateManager.GetAllCollectionsAsync(collectionQuery.ToModel());
                 return this.Ok(result.Select(r => r.ToMandateCollection()));
             }
             catch (Exception ex)

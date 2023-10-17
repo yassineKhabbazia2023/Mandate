@@ -13,6 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
                 "code",
                 "name",
                 "group",
+                string.Empty,
                 EntityFactory.BankAgreement);
 
             // Make sure we don't forget propeties

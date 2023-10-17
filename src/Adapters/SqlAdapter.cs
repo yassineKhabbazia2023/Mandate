@@ -38,5 +38,35 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             return (await this.mandateRepository.SearchCollectionsAsync(query.ToSql())).Select(i => i.ToModel());
         }
+
+        public Task<JeDeclareFolder> CreateFolderAsync(string jdcDossierId, Guid companyId)
+        {
+            // Creation JeDeclare Folder
+            throw new NotImplementedException();
+        }
+
+        public Task<Collection> CreateCollection(MandateCreationDto mandateCreation)
+        {
+            // Creation mandate collection
+            throw new NotImplementedException();
+        }
+
+        public Task<Status> CreateStatus(Guid collectionId, Status status)
+        {
+            // Création d'un status relié a une collecte
+            throw new NotImplementedException();
+        }
+
+        public Task<JeDeclareCollection> CreateJeDeclareCollection(Guid collectionId, string jdcReleveId, string jdcRibId)
+        {
+            // Création de JeDeclare Collection
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> CheckCollecteConfigExist(Bban bban)
+        {
+            // Vérifier si le rib existe déja dans la base
+            throw new NotImplementedException();
+        }
     }
 }

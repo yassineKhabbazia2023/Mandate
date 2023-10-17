@@ -72,6 +72,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
                         "12345",
                         "Crédit viticole",
                         "bankGroup",
+                        string.Empty,
                         EntityFactory.BankAgreement)),
                 DateTime.Now,
                 DateTime.Now,

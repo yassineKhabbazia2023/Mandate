@@ -18,7 +18,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Adapters\Mandate.Adapters.csproj" />
 		<ProjectReference Include="..\Entities\Mandate.csproj" />
+		<ProjectReference Include="..\Services.JeDeclare.Client\Mandate.JeDeclare.Client.csproj" />
 	</ItemGroup>
 
 </Project>

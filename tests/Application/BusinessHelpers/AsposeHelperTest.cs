@@ -19,6 +19,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
                 Guid.Empty,
                 null,
                 null,
+                null,
                 DateTime.Now,
                 DateTime.Now,
                 new Status(CollectionStatus.ToDo, "todo"));
@@ -46,6 +47,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
 
             var collectionSource = new Collection(
                 Guid.Empty,
+                null,
                 new Company(
                     Guid.Empty,
                     "Société test",
@@ -64,6 +66,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
                         "Paris",
                         "France")),
                 new Bban(
+                    "9876",
                     "12345",
                     "67890",
                     "12345678901",

@@ -21,7 +21,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         public string? Group { get; }
 
-        public string? EbicsCardId { get; set; }
+        public string? EbicsCardId { get; }
 
         public BankAgreement JdcAgreement { get; }
     }

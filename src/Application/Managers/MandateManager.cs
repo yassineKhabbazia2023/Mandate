@@ -4,47 +4,32 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
-    using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
-    using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+    using KPMG.Pulse.Back.Accounting.Mandate.Interfaces;
 
     public class MandateManager : IMandateManager
     {
         private readonly IDatabaseService databaseService;
         private readonly ICompanyManager companyManager;
-        private readonly IJeDeclareClient jeDeclareProvider;
-        private readonly string historyDateEnabledBanks = string.Empty;
+        private readonly IJeDeclareService jeDeclareService;
 
-        public MandateManager(IDatabaseService databaseService, ICompanyManager companyManager, IJeDeclareClient jeDeclareProvider)
+        public MandateManager(IDatabaseService databaseService, ICompanyManager companyManager, IJeDeclareService jeDeclareService)
         {
             this.databaseService = databaseService;
             this.companyManager = companyManager;
-            this.jeDeclareProvider = jeDeclareProvider;
+            this.jeDeclareService = jeDeclareService;
         }
 
         public async Task<Collection> CreateMandate(MandateCreationDto mandateCreation)
         {
             Company company = await this.companyManager.GetCompanyByErpId(mandateCreation.ErpId);
 
-            if (company == null)
-            {
-                throw CompanyNotFoundException.FromId(mandateCreation.ErpId);
-            }
-
             Bank bank = await this.databaseService.GetBankByCodeAsync(mandateCreation.Bban.BankCode);
 
-            if (bank == null)
-            {
-                throw BankCodeNotFoundException.FromId(mandateCreation.Bban.BankCode);
-            }
-
-            DossierClient dossierClient =
-                await this.jeDeclareProvider.CreateFolderAsync(
-                    string.Empty,
-                    company.ToDossierClient());
+            Company dossierClient =
+                await this.jeDeclareService.CreateFolderAsync(company);
 
             // Création du dossier coté SQL
-            await this.databaseService.CreateFolderAsync(dossierClient.Client?.Id!, company.Id);
+            await this.databaseService.CreateFolderAsync(dossierClient.BankServicesProviderId!, company.Id);
 
             // Verification du bank partenaire ou non partenaire
             if (!bank.JdcAgreement.IsJdcPartner && string.IsNullOrWhiteSpace(bank.EbicsCardId))
@@ -59,10 +44,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             }
 
             // Création du rib coté jeDeclare
-            var rib = await this.jeDeclareProvider.AddRibToFolderAsync(
-                string.Empty,
-                dossierClient.Client?.Id!,
-                mandateCreation.ToRibClient());
+            Bban rib = await this.jeDeclareService.AddRibToFolderAsync(
+                dossierClient.BankServicesProviderId,
+                mandateCreation);
 
             // Création de la collecte
             Collection collection = await this.databaseService.CreateCollection(mandateCreation);
@@ -72,19 +56,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             await this.databaseService.CreateStatus(collection.Id, initStatus);
 
             // création de la collecte coté jeDeclare
-            Releve createdReleve = await this.jeDeclareProvider.CreateCollecteConfigurationAsync(
-                string.Empty,
-                dossierClient.Client?.Id!,
-                rib.ConstructReleve(bank.Code, bank.EbicsCardId, this.historyDateEnabledBanks));
+            Collection createdReleve = await this.jeDeclareService.CreateCollecteConfigurationAsync(
+                dossierClient.BankServicesProviderId!,
+                rib);
 
             // crétaion JeDeclareCollection coté sql
-            await this.databaseService.CreateJeDeclareCollection(collection.Id, createdReleve.Id!, createdReleve.Id!);
+            await this.databaseService.CreateJeDeclareCollection(collection.Id, createdReleve.CollectionServicesProviderId, createdReleve.Bban.BbanServicesProviderId);
 
             // Creation mandate Status 10
             Status createdStatus = new Status(CollectionStatus.InProgress, "Actif");
             await this.databaseService.CreateStatus(collection.Id, createdStatus);
 
-            return createdReleve.ToModel(company, bank, collection);
+            return createdReleve;
         }
 
         public async Task<IEnumerable<Collection>> GetAllCollectionsAsync(CollectionQueryDto query)

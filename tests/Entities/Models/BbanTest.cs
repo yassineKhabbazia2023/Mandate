@@ -10,6 +10,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
         public void Constructor()
         {
             var entity = new Bban(
+                "6789",
                 "12345",
                 "54321",
                 "12345678901",
@@ -17,12 +18,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
                 EntityFactory.Bank);
 
             // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(5);
+            entity.GetType().GetProperties().Length.Should().Be(6);
 
             // Make sure propeties don't have setters
             entity.GetType().GetProperties().Should().AllSatisfy(p => p.CanWrite.Should().BeFalse());
 
             // Test all properties ; number of tests below should match the number of propeties above
+            entity.BbanServicesProviderId.Should().Be("6789");
             entity.BankCode.Should().Be("12345");
             entity.BranchCode.Should().Be("54321");
             entity.AccountNumber.Should().Be("12345678901");

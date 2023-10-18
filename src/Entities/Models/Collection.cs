@@ -6,9 +6,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public class Collection
     {
-        public Collection(Guid id, Company? company, Bban? bban, DateTime creationDate, DateTime modificationDate, Status status)
+        public Collection(Guid id, string? collectionServicesProviderId, Company? company, Bban? bban, DateTime creationDate, DateTime modificationDate, Status status)
         {
             this.Id = id;
+            this.CollectionServicesProviderId = collectionServicesProviderId;
             this.Company = company;
             this.Bban = bban;
             this.CreationDate = creationDate;
@@ -17,6 +18,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         }
 
         public Guid Id { get; }
+
+        public string? CollectionServicesProviderId { get; }
 
         public Company? Company { get; }
 

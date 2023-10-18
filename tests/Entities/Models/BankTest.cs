@@ -13,11 +13,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
                 "code",
                 "name",
                 "group",
-                string.Empty,
+                "carteId",
                 EntityFactory.BankAgreement);
 
             // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(4);
+            entity.GetType().GetProperties().Length.Should().Be(5);
 
             // Make sure propeties don't have setters
             entity.GetType().GetProperties().Should().AllSatisfy(p => p.CanWrite.Should().BeFalse());
@@ -26,6 +26,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
             entity.Code.Should().Be("code");
             entity.Name.Should().Be("name");
             entity.Group.Should().Be("group");
+            entity.EbicsCardId.Should().Be("carteId");
             entity.JdcAgreement.Should().NotBeNull();
         }
     }

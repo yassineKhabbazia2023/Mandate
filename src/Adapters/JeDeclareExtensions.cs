@@ -22,6 +22,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
         }
 
+        // déplacer vers infra jeDeclare
         public static Releve ConstructReleve(this Rib source, string? bankCode, string? ebicsCardId, string historyDateEnabledBanks)
         {
             Releve releve = new Releve()
@@ -55,6 +56,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             Client client = new Client()
             {
+                Id = company.BankServicesProviderId!,
                 RaisonSociale = company.Name!,
                 Siret = new Siret()
                 {
@@ -84,13 +86,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         public static Collection ToModel(this Releve source, Mandate.Company company, Bank bank, Collection sourceCollection)
         {
             Bban bban = new Bban(
+                source.Rib?.Id!,
                 source.Rib?.Etablissement!,
                 source.Rib?.Guichet!,
                 source.Rib?.NumCompte!,
                 source.Rib?.Cle!,
                 bank);
 
-            Collection collection = new Collection(sourceCollection.Id, company, bban, DateTime.Now, DateTime.Now, sourceCollection.Status);
+            Collection collection = new Collection(sourceCollection.Id, source.Id, company, bban, DateTime.Now, DateTime.Now, sourceCollection.Status);
 
             return collection;
         }

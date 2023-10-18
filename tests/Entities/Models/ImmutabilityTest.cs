@@ -4,14 +4,12 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
 {
-    using System.Reflection;
-
     public class ImmutabilityTest
     {
         [Fact]
         public void AllImmutable()
         {
-            var types = typeof(Company).Assembly.GetTypes().Where(a => a.IsClass && a.Namespace == "KPMG.Pulse.Back.Accounting.Mandate");
+            var types = typeof(Company).Assembly.GetTypes().Where(a => a.IsClass && a.Namespace == "KPMG.Pulse.Back.Accounting.Mandate" && !a.IsSubclassOf(typeof(Exception)));
             foreach (var type in types)
             {
                 var props = type.GetProperties();

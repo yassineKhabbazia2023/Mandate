@@ -19,7 +19,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             this.jeDeclareService = jeDeclareService;
         }
 
-        public async Task<Collection> CreateMandate(MandateCreationDto mandateCreation)
+        public async Task<Guid> CreateMandate(MandateCreationDto mandateCreation)
         {
             Company company = await this.companyManager.GetCompanyByErpId(mandateCreation.ErpId);
 
@@ -46,13 +46,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             // Création du rib coté jeDeclare
             Bban rib = await this.jeDeclareService.AddRibToFolderAsync(
                 dossierClient.BankServicesProviderId,
-                mandateCreation);
+                mandateCreation.Bban,
+                mandateCreation.Signatory);
 
             // Création de la collecte
-            Collection collection = await this.databaseService.CreateCollection(mandateCreation);
+            Collection collection = await this.databaseService.CreateCollection(mandateCreation.ErpId, company.Id, mandateCreation.Bban);
 
             // Creation du Status -1
-            Status initStatus = new Status(CollectionStatus.ToDo, "En cours");
+            Status initStatus = new Status(CollectionStatus.ToDo, "En Cours");
             await this.databaseService.CreateStatus(collection.Id, initStatus);
 
             // création de la collecte coté jeDeclare
@@ -60,14 +61,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 dossierClient.BankServicesProviderId!,
                 rib);
 
+            // modification collect pour LinkType
+            await this.databaseService.UpdateCollection(collection.Id, createdReleve);
+
             // crétaion JeDeclareCollection coté sql
-            await this.databaseService.CreateJeDeclareCollection(collection.Id, createdReleve.CollectionServicesProviderId, createdReleve.Bban.BbanServicesProviderId);
+            await this.databaseService.CreateJeDeclareCollection(collection.Id, createdReleve?.CollectionServicesProviderId!, rib?.BbanServicesProviderId!);
 
             // Creation mandate Status 10
             Status createdStatus = new Status(CollectionStatus.InProgress, "Actif");
             await this.databaseService.CreateStatus(collection.Id, createdStatus);
 
-            return createdReleve;
+            return collection.Id!;
         }
 
         public async Task<IEnumerable<Collection>> GetAllCollectionsAsync(CollectionQueryDto query)

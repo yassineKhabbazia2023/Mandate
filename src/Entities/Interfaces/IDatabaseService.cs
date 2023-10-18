@@ -14,7 +14,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<IEnumerable<Collection>> GetAllCollectionsAsync(CollectionQueryDto query);
 
-        Task<Collection> CreateCollection(MandateCreationDto mandateCreation);
+        Task<Collection> CreateCollection(string erpId, Guid companyId, Bban bban);
 
         Task<JeDeclareFolder> CreateFolderAsync(string jdcDossierId, Guid companyId);
 
@@ -23,5 +23,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         Task<JeDeclareCollection> CreateJeDeclareCollection(Guid collectionId, string jdcReleveId, string jdcRibId);
 
         Task<bool> CheckCollecteConfigExist(Bban bban);
+
+        Task<Collection> UpdateCollection(Guid id, Collection collection);
     }
 }

@@ -8,6 +8,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
     {
         Task<IEnumerable<Collection>> GetAllCollectionsAsync(CollectionQueryDto query);
 
-        Task<Collection> CreateMandate(MandateCreationDto mandateCreation);
+        Task<Guid> CreateMandate(MandateCreationDto mandateCreation);
     }
 }

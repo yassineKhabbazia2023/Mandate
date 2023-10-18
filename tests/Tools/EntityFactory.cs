@@ -12,7 +12,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         public static BankAgreement BankAgreement => new(true, false, true);
 
-        public static Bban Bban => new("12345", "54321", "12345678901", "01", Bank);
+        public static Bban Bban => new("6789", "12345", "54321", "12345678901", "01", Bank);
 
         public static Company Company => new(new PredictableGuid().NewGuid(), "Raison Sociale", "siret", "ibsAccountNumber", "jdcDossierId", Signatory, Address);
 

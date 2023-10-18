@@ -2,7 +2,7 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Managers
+namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
     internal class CompanyManager : ICompanyManager
     {

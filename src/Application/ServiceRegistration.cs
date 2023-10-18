@@ -4,7 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.Application.Managers;
     using Microsoft.Extensions.DependencyInjection;
 
     public static class ServiceRegistration

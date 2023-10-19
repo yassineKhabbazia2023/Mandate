@@ -2,7 +2,7 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
+namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests
 {
     public class AddressTest
     {
@@ -21,7 +21,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
 
             // Test all properties ; number of tests below should match the number of propeties above
             entity.Street.Should().Be("street");
-            entity.Complements.Should().Be("complements");
+            entity.AddressComplement.Should().Be("complements");
             entity.ZipCode.Should().Be("75001");
             entity.City.Should().Be("Paris");
             entity.Country.Should().Be("France");

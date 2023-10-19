@@ -1,4 +1,4 @@
-﻿// <copyright file="MandateCollection.cs" company="KPMG">
+﻿// <copyright file="CollectionSummary.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -6,10 +6,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
 {
     using Newtonsoft.Json;
 
-    public class MandateCollection
+    public class CollectionSummary
     {
         [JsonConstructor]
-        public MandateCollection(
+        public CollectionSummary(
             Guid id,
             string erpId,
             string companyName,
@@ -17,8 +17,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             string accountNumber,
             DateTime creationDate,
             DateTime modificationDate,
-            int statusCode,
-            string statusName)
+            int statusCode)
         {
             this.Id = id;
             this.ErpId = erpId;
@@ -28,7 +27,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             this.CreationDate = creationDate;
             this.ModificationDate = modificationDate;
             this.StatusCode = statusCode;
-            this.StatusName = statusName;
         }
 
         public Guid Id { get; }
@@ -46,7 +44,5 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
         public DateTime ModificationDate { get; }
 
         public int StatusCode { get; }
-
-        public string StatusName { get; }
     }
 }

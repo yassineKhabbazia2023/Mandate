@@ -2,7 +2,7 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests.Helpers
+namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 {
     using Microsoft.Extensions.Diagnostics.HealthChecks;
 

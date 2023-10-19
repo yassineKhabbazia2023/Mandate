@@ -2,7 +2,7 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
+namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests
 {
     using System.Reflection;
 
@@ -11,7 +11,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
         [Fact]
         public void AllImmutable()
         {
-            var types = typeof(Company).Assembly.GetTypes().Where(a => a.IsClass && a.Namespace == "KPMG.Pulse.Back.Accounting.Mandate");
+            var types = typeof(Company).Assembly.GetTypes().Where(a => a.IsClass && a.Namespace == "KPMG.Pulse.Back.Accounting.Mandate.Client");
             foreach (var type in types)
             {
                 var props = type.GetProperties();

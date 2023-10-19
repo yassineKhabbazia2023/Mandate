@@ -2,7 +2,7 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
+namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests
 {
     public class BbanTest
     {
@@ -13,18 +13,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
                 "12345",
                 "54321",
                 "12345678901",
-                "01",
-                EntityFactory.Bank);
+                "01");
 
             // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(5);
+            entity.GetType().GetProperties().Length.Should().Be(4);
 
             // Test all properties ; number of tests below should match the number of propeties above
             entity.BankCode.Should().Be("12345");
             entity.BranchCode.Should().Be("54321");
             entity.AccountNumber.Should().Be("12345678901");
             entity.CheckDigits.Should().Be("01");
-            entity.Bank.Should().NotBeNull();
         }
     }
 }

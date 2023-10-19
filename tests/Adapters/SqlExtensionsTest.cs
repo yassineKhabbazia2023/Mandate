@@ -12,11 +12,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public void ToSqlTest()
         {
             CollectionQueryDto queryDto = new CollectionQueryDto(
-                creationDateEnd: new DateTime(2023, 10, 1),
-                creationDateStart: new DateTime(2023, 10, 2),
+                creationDateEnd: new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                creationDateStart: new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
                 limit: 10,
-                modificationDateStart: new DateTime(2023, 10, 3),
-                modificationDateEnd: new DateTime(2023, 10, 4),
+                modificationDateStart: new DateTime(2023, 10, 3, 0, 0, 0, DateTimeKind.Utc),
+                modificationDateEnd: new DateTime(2023, 10, 4, 0, 0, 0, DateTimeKind.Utc),
                 searchTerm: "companyName",
                 skip: 0,
                 sortCriteria: Mandate.CollectionSortCriteria.ModificationDate,
@@ -27,11 +27,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             res.Should().BeEquivalentTo(new CollectionQuery
             {
-                CreationDateEnd = new DateTime(2023, 10, 1),
-                CreationDateStart = new DateTime(2023, 10, 2),
+                CreationDateEnd = new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                CreationDateStart = new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
                 Limit = 10,
-                ModificationDateStart = new DateTime(2023, 10, 3),
-                ModificationDateEnd = new DateTime(2023, 10, 4),
+                ModificationDateStart = new DateTime(2023, 10, 3, 0, 0, 0, DateTimeKind.Utc),
+                ModificationDateEnd = new DateTime(2023, 10, 4, 0, 0, 0, DateTimeKind.Utc),
                 SearchTerm = "companyName",
                 Skip = 0,
                 SortCriteria = CollectionSortCriteria.ModificationDate,

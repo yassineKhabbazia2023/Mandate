@@ -12,9 +12,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return new Client.BankDetail(source.Code, source.Name, bankJdcDetail);
         }
 
-        public static Client.MandateCollection ToMandateCollection(this Collection source)
+        public static Client.CollectionSummary ToCollectionSummary(this Collection source)
         {
-            return new Client.MandateCollection(
+            return new Client.CollectionSummary(
                     id: source.Id,
                     erpId: source.Company?.ErpId!,
                     companyName: source.Company?.Name!,
@@ -22,8 +22,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                     accountNumber: source.Bban?.AccountNumber!,
                     creationDate: source.CreationDate,
                     modificationDate: source.ModificationDate,
-                    statusCode: (int)source.Status.StatusCode,
-                    statusName: source.Status?.StatusName!);
+                    statusCode: (int)source.Status.StatusCode);
         }
 
         public static Bban ToModel(this Client.Bban source)

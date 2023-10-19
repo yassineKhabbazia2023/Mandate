@@ -17,12 +17,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             this.Email = email;
         }
 
+        [JsonProperty("title")]
         public string? Title { get; }
 
+        [JsonProperty("firstName")]
         public string? FirstName { get; }
 
+        [JsonProperty("lastName")]
         public string? LastName { get; }
 
+        [JsonProperty("email")]
         public string? Email { get; }
     }
 }

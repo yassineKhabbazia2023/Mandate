@@ -2,7 +2,7 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Tests.Models
+namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Tests
 {
     public class SiretTest
     {

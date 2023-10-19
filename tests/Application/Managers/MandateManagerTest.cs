@@ -89,7 +89,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object);
 
-            MandateCreationDto mandate = new MandateCreationDto("1000332927", signatory, adress, bban);
+            MandateCreation mandate = new MandateCreation("1000332927", signatory, adress, bban);
 
             var result = await mandateManager.CreateMandate(mandate).ConfigureAwait(false);
             result.Should().Be(createdCollectionSQL.Id);
@@ -130,7 +130,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object);
 
-            MandateCreationDto mandate = new MandateCreationDto("1000332927", signatory, adress, bban);
+            MandateCreation mandate = new MandateCreation("1000332927", signatory, adress, bban);
 
             Func<Task> acttion = () => mandateManager.CreateMandate(mandate);
             await acttion.Should().ThrowExactlyAsync<ApplicationException>()
@@ -182,12 +182,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object);
 
-            MandateCreationDto mandate = new MandateCreationDto("1000332927", signatory, adress, bban);
+            MandateCreation mandate = new MandateCreation("1000332927", signatory, adress, bban);
 
             Func<Task> acttion = () => mandateManager.CreateMandate(mandate);
             await acttion.Should().ThrowExactlyAsync<ApplicationException>()
-                .WithMessage("Il existe une configuration de collecte pour ce RIB code-02408-00011269964-58.");
-            
+                .WithMessage("Il existe une configuration de collecte pour ce RIB code-02408-00011269900-58.");
+
             jeDeclareService.VerifyAll();
             databaseService.VerifyAll();
             companyManager.VerifyAll();

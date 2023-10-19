@@ -26,6 +26,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
         internal DbSet<CompanyDb> Company { get; set; } = null!;
 
+        internal DbSet<CollaboratorDb> Collabborator { get; set; } = null!;
+
+        internal DbSet<CompanyCollaboratorDb> CompanyCollabborator { get; set; } = null!;
+
         internal DbSet<CompanyPersonalDb> CompanyPersonal { get; set; } = null!;
 
         internal DbSet<JeDeclareCollectionDb> JeDeclareCollection { get; set; } = null!;
@@ -121,6 +125,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<StatusDb>().Property(cp => cp.StatusDate).IsRequired(false);
             modelBuilder.Entity<StatusDb>().Property(cp => cp.MandateFile).IsRequired(false);
             modelBuilder.Entity<StatusDb>().Property(cp => cp.CreatedBy).HasMaxLength(100).IsUnicode(true).IsRequired(false);
+
+            // Configure the composite primary key for the CompanyCollaborator table
+            modelBuilder.Entity<CompanyCollaboratorDb>()
+                .HasKey(cc => new { cc.CompanyId, cc.CollaboratorId });
+
+            // Configure the many-to-many relationship
+            modelBuilder.Entity<CompanyCollaboratorDb>()
+                .HasOne(cc => cc.Company)
+                .WithMany(c => c.CompanyCollaborators)
+                .HasForeignKey(cc => cc.CompanyId);
+
+            modelBuilder.Entity<CompanyCollaboratorDb>()
+                .HasOne(cc => cc.Collaborator)
+                .WithMany(c => c.CompanyCollaborators)
+                .HasForeignKey(cc => cc.CollaboratorId);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

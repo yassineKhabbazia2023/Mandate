@@ -34,7 +34,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Verifiable();
 
             databaseService.Setup(ds => ds.CreateFolderAsync("12345", new Guid("00000000-0000-0000-0000-000000000001")))
-                .ReturnsAsync(It.Is<JeDeclareFolder>(f => f != null))
+                .ReturnsAsync(It.Is<Company>(f => f != null))
                 .Verifiable();
 
             databaseService.Setup(ds =>
@@ -74,8 +74,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(It.Is<Collection>(c => c != null))
                 .Verifiable();
 
-            databaseService.Setup(ds => ds.CreateJeDeclareCollection(createdCollectionSQL.Id, createdCollectionJdc.CollectionServicesProviderId, createdBban.BbanServicesProviderId))
-                .ReturnsAsync(It.Is<JeDeclareCollection>(jdc => jdc != null))
+            databaseService.Setup(ds => ds.InsertServicesProviderIds(createdCollectionSQL.Id, createdCollectionJdc.CollectionServicesProviderId, createdBban.BbanServicesProviderId))
+                .ReturnsAsync(It.Is<Collection>(jdc => jdc != null))
                 .Verifiable();
 
             var statusCreated = TestHelper.GetStatus(CollectionStatus.InProgress, "Actif");
@@ -125,7 +125,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Verifiable();
 
             databaseService.Setup(ds => ds.CreateFolderAsync("12345", new Guid("00000000-0000-0000-0000-000000000001")))
-                .ReturnsAsync(It.Is<JeDeclareFolder>(f => f != null))
+                .ReturnsAsync(It.Is<Company>(f => f != null))
                 .Verifiable();
 
             var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object);
@@ -167,7 +167,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Verifiable();
 
             databaseService.Setup(ds => ds.CreateFolderAsync("12345", new Guid("00000000-0000-0000-0000-000000000001")))
-                .ReturnsAsync(It.Is<JeDeclareFolder>(f => f != null))
+                .ReturnsAsync(It.Is<Company>(f => f != null))
                 .Verifiable();
 
             databaseService.Setup(ds =>

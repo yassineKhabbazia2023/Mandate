@@ -4,9 +4,9 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate
 {
-    public class MandateCreationDto
+    public class MandateCreation
     {
-        public MandateCreationDto(string erpId, Signatory signatory, Address address, Bban bban)
+        public MandateCreation(string erpId, Signatory signatory, Address address, Bban bban)
         {
             this.ErpId = erpId;
             this.Signatory = signatory;

@@ -16,11 +16,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<Collection> CreateCollection(string erpId, Guid companyId, Bban bban);
 
-        Task<JeDeclareFolder> CreateFolderAsync(string jdcDossierId, Guid companyId);
+        Task<Company> CreateFolderAsync(string bankServicesProviderId, Guid companyId);
 
         Task<Status> CreateStatus(Guid collectionId, Status status);
 
-        Task<JeDeclareCollection> CreateJeDeclareCollection(Guid collectionId, string jdcReleveId, string jdcRibId);
+        Task<Collection> InsertServicesProviderIds(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId);
 
         Task<bool> CheckCollecteConfigExist(Bban bban);
 

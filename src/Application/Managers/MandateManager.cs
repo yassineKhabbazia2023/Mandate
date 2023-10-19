@@ -19,17 +19,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             this.jeDeclareService = jeDeclareService;
         }
 
-        public async Task<Guid> CreateMandate(MandateCreationDto mandateCreation)
+        public async Task<Guid> CreateMandate(MandateCreation mandateCreation)
         {
             Company company = await this.companyManager.GetCompanyByErpId(mandateCreation.ErpId);
 
             Bank bank = await this.databaseService.GetBankByCodeAsync(mandateCreation.Bban.BankCode);
 
-            Company dossierClient =
-                await this.jeDeclareService.CreateFolderAsync(company);
+            Company dossierClient = await this.jeDeclareService.CreateFolderAsync(company);
 
             // Création du dossier coté SQL
-            await this.databaseService.CreateFolderAsync(dossierClient.BankServicesProviderId!, company.Id);
+            await this.databaseService.CreateFolderAsync(dossierClient.BankServicesProviderId!, dossierClient.Id);
 
             // Verification du bank partenaire ou non partenaire
             if (!bank.JdcAgreement.IsJdcPartner && string.IsNullOrWhiteSpace(bank.EbicsCardId))
@@ -50,7 +49,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 mandateCreation.Signatory);
 
             // Création de la collecte
-            Collection collection = await this.databaseService.CreateCollection(mandateCreation.ErpId, company.Id, mandateCreation.Bban);
+            Collection collection = await this.databaseService.CreateCollection(mandateCreation.ErpId, dossierClient.Id, mandateCreation.Bban);
 
             // Creation du Status -1
             Status initStatus = new Status(CollectionStatus.ToDo, "En Cours");
@@ -65,7 +64,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             await this.databaseService.UpdateCollection(collection.Id, createdReleve);
 
             // crétaion JeDeclareCollection coté sql
-            await this.databaseService.CreateJeDeclareCollection(collection.Id, createdReleve?.CollectionServicesProviderId!, rib?.BbanServicesProviderId!);
+            await this.databaseService.InsertServicesProviderIds(collection.Id, createdReleve?.CollectionServicesProviderId!, rib?.BbanServicesProviderId!);
 
             // Creation mandate Status 10
             Status createdStatus = new Status(CollectionStatus.InProgress, "Actif");

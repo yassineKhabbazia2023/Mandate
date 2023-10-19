@@ -8,7 +8,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
     public static class JeDeclareExtensions
     {
-        public static Rib ToRibClient(this MandateCreationDto source)
+        public static Rib ToRibClient(this MandateCreation source)
         {
             return new Rib()
             {

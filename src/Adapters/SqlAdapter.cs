@@ -39,15 +39,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return (await this.mandateRepository.SearchCollectionsAsync(query.ToSql())).Select(i => i.ToModel());
         }
 
-        public Task<JeDeclareFolder> CreateFolderAsync(string jdcDossierId, Guid companyId)
+        public Task<Company> CreateFolderAsync(string bankServicesProviderId, Guid companyId)
         {
             // Creation JeDeclare Folder
-            throw new NotImplementedException();
-        }
-
-        public Task<Collection> CreateCollection(MandateCreationDto mandateCreation)
-        {
-            // Creation mandate collection
             throw new NotImplementedException();
         }
 
@@ -57,7 +51,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             throw new NotImplementedException();
         }
 
-        public Task<JeDeclareCollection> CreateJeDeclareCollection(Guid collectionId, string jdcReleveId, string jdcRibId)
+        public Task<Collection> InsertServicesProviderIds(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId)
         {
             // Création de JeDeclare Collection
             throw new NotImplementedException();
@@ -66,6 +60,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         public Task<bool> CheckCollecteConfigExist(Bban bban)
         {
             // Vérifier si le rib existe déja dans la base
+            throw new NotImplementedException();
+        }
+
+        public Task<Collection> CreateCollection(string erpId, Guid companyId, Bban bban)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Collection> UpdateCollection(Guid id, Collection collection)
+        {
             throw new NotImplementedException();
         }
     }

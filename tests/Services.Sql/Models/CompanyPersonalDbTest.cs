@@ -17,6 +17,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             entity.GetType().GetProperties().Length.Should().Be(12);
 
             // Test all properties ; number of tests below should match the number of propeties above
+            entity.Id.Should().BeEmpty();
+            entity.CompanyId.Should().BeEmpty();
             entity.Company.Should().BeNull("because it is initialized as null");
             entity.Title.Should().BeNull();
             entity.FirstName.Should().BeNull();

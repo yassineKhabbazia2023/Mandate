@@ -5,5 +5,6 @@
 	[FirstName] NVARCHAR(255) NULL,
 	[LastName] NVARCHAR(255) NULL,
 
-	CONSTRAINT [PK_Collaborator] PRIMARY KEY ([Id])
+	CONSTRAINT [PK_Collaborator] PRIMARY KEY ([Id]),
+	CONSTRAINT [UQ_Collaborator_Email] UNIQUE ([Email])
 )

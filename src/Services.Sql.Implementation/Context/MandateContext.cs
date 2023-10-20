@@ -22,7 +22,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             this.options = options;
         }
 
+        internal DbSet<CollaboratorDb> Collaborator { get; set; } = null!;
+
         internal DbSet<CollectionDb> Collection { get; set; } = null!;
+
+        internal DbSet<CompanyCollaboratorDb> CompanyCollaborator { get; set; } = null!;
 
         internal DbSet<CompanyDb> Company { get; set; } = null!;
 
@@ -45,6 +49,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             base.OnModelCreating(modelBuilder);
             modelBuilder.HasDefaultSchema("Mandate");
 
+            modelBuilder.Entity<CollaboratorDb>().HasKey(c => c.Id);
+            modelBuilder.Entity<CollaboratorDb>().Property(c => c.Email).HasMaxLength(255).IsRequired(true);
+            modelBuilder.Entity<CollaboratorDb>().Property(c => c.FirstName).HasMaxLength(255).IsUnicode(true).IsRequired(false);
+            modelBuilder.Entity<CollaboratorDb>().Property(c => c.LastName).HasMaxLength(255).IsUnicode(true).IsRequired(false);
+            modelBuilder.Entity<CollaboratorDb>().HasMany(c => c.CompanyCollaborators).WithOne(cc => cc.Collaborator).HasForeignKey(cc => cc.CollaboratorId);
+
             modelBuilder.Entity<CollectionDb>().HasKey(c => c.Id);
             modelBuilder.Entity<CollectionDb>().HasOne(s => s.Company).WithMany(c => c.Collections).HasForeignKey(s => s.CompanyId);
             modelBuilder.Entity<CollectionDb>().Property(cp => cp.BankCode).IsFixedLength(true).HasMaxLength(5).IsRequired(true);
@@ -59,6 +69,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 .IsRequired(false);
             modelBuilder.Entity<CollectionDb>().HasOne(c => c.Bank).WithMany().HasForeignKey(c => c.BankCode);
 
+            // Configure the composite primary key for the CompanyCollaborator table
+            modelBuilder.Entity<CompanyCollaboratorDb>().Property(cc => cc.CompanyId).IsRequired(true);
+            modelBuilder.Entity<CompanyCollaboratorDb>().Property(cc => cc.CollaboratorId).IsRequired(true);
+            modelBuilder.Entity<CompanyCollaboratorDb>()
+                .HasKey(cc => new { cc.CompanyId, cc.CollaboratorId });
+            // Configure the many-to-many relationship
+            modelBuilder.Entity<CompanyCollaboratorDb>()
+                .HasOne(cc => cc.Company)
+                .WithMany(c => c.CompanyCollaborators)
+                .HasForeignKey(cc => cc.CompanyId);
+            modelBuilder.Entity<CompanyCollaboratorDb>()
+                .HasOne(cc => cc.Collaborator)
+                .WithMany(c => c.CompanyCollaborators)
+                .HasForeignKey(cc => cc.CollaboratorId);
+
             modelBuilder.Entity<CompanyDb>().HasKey(c => c.Id);
             modelBuilder.Entity<CompanyDb>().HasOne(c => c.CompanyPersonal)
                 .WithOne(cp => cp.Company)
@@ -71,6 +96,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<CompanyDb>().Property(c => c.SiretNumber).IsFixedLength(true).HasMaxLength(14).IsRequired(true);
             modelBuilder.Entity<CompanyDb>().Property(c => c.ErpId).HasMaxLength(50).IsRequired(false);
             modelBuilder.Entity<CompanyDb>().Property(c => c.BankServicesProviderId).HasMaxLength(50).IsRequired(false);
+            modelBuilder.Entity<CompanyDb>().HasMany(c => c.CompanyCollaborators).WithOne(cc => cc.Company).HasForeignKey(cc => cc.CompanyId);
 
             modelBuilder.Entity<CompanyPersonalDb>().HasKey(cp => cp.Id);
             modelBuilder.Entity<CompanyPersonalDb>().Property(cp => cp.Title).HasMaxLength(10).IsUnicode(true).IsRequired(false);

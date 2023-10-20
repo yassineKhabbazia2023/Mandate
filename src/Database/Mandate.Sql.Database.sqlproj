@@ -74,5 +74,7 @@
     <Build Include="Tables\RefPdfTemplate.sql" />
     <Build Include="Tables\RefStatusCode.sql" />
     <Build Include="Tables\Status.sql" />
+    <Build Include="Tables\Collaborator.sql" />
+    <Build Include="Tables\CompanyCollaborator.sql" />
   </ItemGroup>
 </Project>

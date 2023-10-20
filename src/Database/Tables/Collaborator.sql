@@ -1,8 +1,7 @@
 ﻿CREATE TABLE [Mandate].[Collaborator]
 (
 	[Id] UNIQUEIDENTIFIER NOT NULL,
-	[Email] NVARCHAR(255) NULL, 
-	[Title] NVARCHAR(255) NULL,
+	[Email] NVARCHAR(255) NOT NULL,
 	[FirstName] NVARCHAR(255) NULL,
 	[LastName] NVARCHAR(255) NULL,
 

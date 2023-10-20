@@ -32,13 +32,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
         public void Values()
         {
             // Arrange & Act
-            var id = Guid.NewGuid();
+            PredictableGuid generator = new PredictableGuid();
+            Guid comapnyId = generator.NewGuid();
+            Guid collaboratorId = generator.NewGuid();
             var entity = new CompanyDb()
             {
-                Id = id,
+                Id = comapnyId,
                 CompanyPersonal = new CompanyPersonalDb
                 {
-                    CompanyId = Guid.Parse("3f8f025b-85a4-464f-9d8a-5be9ed5d375b"),
+                    CompanyId = comapnyId,
                     Title = "Mr.",
                     FirstName = "John",
                     LastName = "Doe",
@@ -56,17 +58,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
                 {
                     new CompanyCollaboratorDb
                     {
-                        CompanyId = Guid.NewGuid(),
+                        CompanyId = comapnyId,
                         Company = new CompanyDb(),
-                        CollaboratorId = Guid.NewGuid(),
+                        CollaboratorId = collaboratorId,
                         Collaborator = new CollaboratorDb(),
                     },
                 },
             };
 
             // Assert
-            entity.Id.Should().Be(id);
-            entity.CompanyPersonal.CompanyId.Should().Be(Guid.Parse("3f8f025b-85a4-464f-9d8a-5be9ed5d375b"));
+            entity.Id.Should().Be(Guid.Parse("00000001-0000-0000-0000-000000000000"));
+            entity.CompanyPersonal.CompanyId.Should().Be(Guid.Parse("00000001-0000-0000-0000-000000000000"));
             entity.CompanyPersonal.Title.Should().Be("Mr.");
             entity.CompanyPersonal.FirstName.Should().Be("John");
             entity.CompanyPersonal.LastName.Should().Be("Doe");
@@ -80,7 +82,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             entity.SiretNumber.Should().Be("40902900600031");
             entity.ErpId.Should().Be("1000265308");
             entity.CompanyCollaborators.Count().Should().Be(1);
-
         }
     }
 }

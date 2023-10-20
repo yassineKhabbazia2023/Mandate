@@ -7,12 +7,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
     public class CompanyPersonalDbTest
     {
         [Fact]
-        public void CompanyPersonalDb_DefaultProperties_ShouldHaveExpectedValues()
+        public void Defaults()
         {
             // Arrange
             var entity = new CompanyPersonalDb();
 
             // Assert
+            // Make sure we don't forget propeties
+            entity.GetType().GetProperties().Length.Should().Be(12);
+
+            // Test all properties ; number of tests below should match the number of propeties above
             entity.Company.Should().BeNull("because it is initialized as null");
             entity.Title.Should().BeNull();
             entity.FirstName.Should().BeNull();
@@ -26,7 +30,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
         }
 
         [Fact]
-        public void CompanyPersonalDb_SetProperties_ShouldReturnCorrectValues()
+        public void Values()
         {
             // Arrange
             var entity = new CompanyPersonalDb

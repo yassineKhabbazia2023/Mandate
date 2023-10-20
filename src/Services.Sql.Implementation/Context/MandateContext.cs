@@ -22,13 +22,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             this.options = options;
         }
 
+        internal DbSet<CollaboratorDb> Collaborator { get; set; } = null!;
+
         internal DbSet<CollectionDb> Collection { get; set; } = null!;
 
+        internal DbSet<CompanyCollaboratorDb> CompanyCollaborator { get; set; } = null!;
+
         internal DbSet<CompanyDb> Company { get; set; } = null!;
-
-        internal DbSet<CollaboratorDb> Collabborator { get; set; } = null!;
-
-        internal DbSet<CompanyCollaboratorDb> CompanyCollabborator { get; set; } = null!;
 
         internal DbSet<CompanyPersonalDb> CompanyPersonal { get; set; } = null!;
 

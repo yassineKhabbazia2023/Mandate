@@ -27,14 +27,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
         public void Values()
         {
             // Arrange & Act
-            var companyId = Guid.NewGuid();
-            var collaboratorId = Guid.NewGuid();
+            PredictableGuid generator = new PredictableGuid();
+            Guid comapanyId = generator.NewGuid();
+            Guid collaboratorId = generator.NewGuid();
             var entity = new CompanyCollaboratorDb()
             {
-                CompanyId = companyId,
+                CompanyId = comapanyId,
                 Company = new CompanyDb
                 {
-                    Id = companyId,
+                    Id = comapanyId,
                     Name = "JEAN LÉVAGE",
                     SiretNumber = "40902900600031",
                     ErpId = "1000265308",
@@ -50,11 +51,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             };
 
             // Assert
-            entity.CompanyId.Should().Be(companyId);
+            entity.CompanyId.Should().Be(Guid.Parse("00000001-0000-0000-0000-000000000000"));
             entity.Company.Name.Should().Be("JEAN LÉVAGE");
             entity.Company.SiretNumber.Should().Be("40902900600031");
             entity.Company.ErpId.Should().Be("1000265308");
-            entity.CollaboratorId.Should().Be(collaboratorId);
+            entity.CollaboratorId.Should().Be(Guid.Parse("00000002-0000-0000-0000-000000000000"));
             entity.Collaborator.FirstName.Should().Be("John");
             entity.Collaborator.LastName.Should().Be("Doe");
             entity.Collaborator.Email.Should().Be("john.doe@example.com");

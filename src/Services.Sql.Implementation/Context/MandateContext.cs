@@ -50,9 +50,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.HasDefaultSchema("Mandate");
 
             modelBuilder.Entity<CollaboratorDb>().HasKey(c => c.Id);
-            modelBuilder.Entity<CollaboratorDb>().Property(c => c.Email).HasMaxLength(100).IsRequired(true);
-            modelBuilder.Entity<CollaboratorDb>().Property(c => c.FirstName).HasMaxLength(100).IsUnicode(true).IsRequired(false);
-            modelBuilder.Entity<CollaboratorDb>().Property(c => c.LastName).HasMaxLength(100).IsUnicode(true).IsRequired(false);
+            modelBuilder.Entity<CollaboratorDb>().Property(c => c.Email).HasMaxLength(255).IsRequired(true);
+            modelBuilder.Entity<CollaboratorDb>().Property(c => c.FirstName).HasMaxLength(255).IsUnicode(true).IsRequired(false);
+            modelBuilder.Entity<CollaboratorDb>().Property(c => c.LastName).HasMaxLength(255).IsUnicode(true).IsRequired(false);
             modelBuilder.Entity<CollaboratorDb>().HasMany(c => c.CompanyCollaborators).WithOne(cc => cc.Collaborator).HasForeignKey(cc => cc.CollaboratorId);
 
             modelBuilder.Entity<CollectionDb>().HasKey(c => c.Id);

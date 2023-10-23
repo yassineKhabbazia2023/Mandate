@@ -532,7 +532,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                     City = "Sample City",
                     Country = "ExampleLand",
                 },
-                Name = "JEAN LÉVAGE",
+                Name = "Microsoft",
                 SiretNumber = "40902900600031",
                 ErpId = "1000265308",
             };
@@ -594,7 +594,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             // Assert
             companies.Count.Should().Be(2);
-            companies[0]?.Name.Should().Be("JEAN LÉVAGE");
+            companies[0]?.Name.Should().Be("Microsoft");
             companies[0]?.SiretNumber.Should().Be("40902900600031");
             companies[0]?.ErpId.Should().Be("1000265308");
             companies[1]?.Name.Should().Be("Dior");

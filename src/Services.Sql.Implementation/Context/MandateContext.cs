@@ -53,7 +53,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<CollaboratorDb>().Property(c => c.Email).HasMaxLength(255).IsRequired(true);
             modelBuilder.Entity<CollaboratorDb>().Property(c => c.FirstName).HasMaxLength(255).IsUnicode(true).IsRequired(false);
             modelBuilder.Entity<CollaboratorDb>().Property(c => c.LastName).HasMaxLength(255).IsUnicode(true).IsRequired(false);
-            modelBuilder.Entity<CollaboratorDb>().HasMany(c => c.CompanyCollaborators).WithOne(cc => cc.Collaborator).HasForeignKey(cc => cc.CollaboratorId);
 
             modelBuilder.Entity<CollectionDb>().HasKey(c => c.Id);
             modelBuilder.Entity<CollectionDb>().HasOne(s => s.Company).WithMany(c => c.Collections).HasForeignKey(s => s.CompanyId);
@@ -96,7 +95,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<CompanyDb>().Property(c => c.SiretNumber).IsFixedLength(true).HasMaxLength(14).IsRequired(true);
             modelBuilder.Entity<CompanyDb>().Property(c => c.ErpId).HasMaxLength(50).IsRequired(false);
             modelBuilder.Entity<CompanyDb>().Property(c => c.BankServicesProviderId).HasMaxLength(50).IsRequired(false);
-            modelBuilder.Entity<CompanyDb>().HasMany(c => c.CompanyCollaborators).WithOne(cc => cc.Company).HasForeignKey(cc => cc.CompanyId);
 
             modelBuilder.Entity<CompanyPersonalDb>().HasKey(cp => cp.Id);
             modelBuilder.Entity<CompanyPersonalDb>().Property(cp => cp.Title).HasMaxLength(10).IsUnicode(true).IsRequired(false);

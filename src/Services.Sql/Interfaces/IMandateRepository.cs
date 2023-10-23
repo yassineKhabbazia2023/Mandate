@@ -6,7 +6,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 {
     public interface IMandateRepository
     {
+        /// <summary>
+        /// Asynchronously retrieves a company by its SIRET number.
+        /// </summary>
+        /// <param name="siret">The SIRET number of the company to retrieve.</param>
+        /// <returns>A company associated with a siret</returns>
         Task<CompanyDb> GetCompanyBySiretAsync(string siret);
+
+        /// <summary>
+        /// Asynchronously retrieves all companies associated with a specific collaborator based on their email.
+        /// </summary>
+        /// <param name="email">The email address of the collaborator.</param>
+        /// <returns>A list of companies associated with the collaborator.</returns>
+        Task<List<CompanyDb?>> GetAllCompaniesByCollaboratorAsync(string email);
 
         /// <summary>
         /// Finds a Bank in the reference table.

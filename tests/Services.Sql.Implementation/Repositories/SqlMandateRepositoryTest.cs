@@ -503,5 +503,103 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var response49 = await sqlMandateRepository.SearchCollectionsAsync(query49);
             response49.Count.Should().Be(0);
         }
+
+        [Fact]
+        public async Task GetAllCompaniesByCollaboratorAsync()
+        {
+            // Arrange
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            PredictableGuid generator = new PredictableGuid();
+            Guid comapnyId1 = generator.NewGuid();
+            Guid comapnyId2 = generator.NewGuid();
+            Guid collaboratorId = generator.NewGuid();
+            CompanyDb company1 = new CompanyDb
+            {
+                Id = comapnyId1,
+                CompanyPersonal = new CompanyPersonalDb
+                {
+                    CompanyId = comapnyId1,
+                    Title = "Mr.",
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Email = "john.doe@example.com",
+                    Street = "123 Main St",
+                    Complements = "Apt 4B",
+                    ZipCode = "12345",
+                    City = "Sample City",
+                    Country = "ExampleLand",
+                },
+                Name = "Microsoft",
+                SiretNumber = "40902900600031",
+                ErpId = "1000265308",
+            };
+            await context.Company.AddAsync(company1);
+
+            CompanyDb company2 = new CompanyDb
+            {
+                Id = comapnyId2,
+                CompanyPersonal = new CompanyPersonalDb
+                {
+                    CompanyId = comapnyId2,
+                    Title = "Mr.",
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Email = "john.doe@example.com",
+                    Street = "123 Main St",
+                    Complements = "Apt 4B",
+                    ZipCode = "12345",
+                    City = "Sample City",
+                    Country = "ExampleLand",
+                },
+                Name = "Dior",
+                SiretNumber = "40930900600031",
+                ErpId = "1000265309",
+            };
+            await context.Company.AddAsync(company2);
+
+            CollaboratorDb collaborator = new CollaboratorDb
+            {
+                Id = collaboratorId,
+                Email = "smedini@kpmg.fr",
+                FirstName = "Seif Allah",
+                LastName = "MEDINI",
+            };
+            await context.Collaborator.AddAsync(collaborator);
+
+            CompanyCollaboratorDb companyCollaborator1 = new CompanyCollaboratorDb
+            {
+                CompanyId = comapnyId1,
+                Company = company1,
+                CollaboratorId = collaboratorId,
+                Collaborator = collaborator,
+            };
+            await context.CompanyCollaborator.AddAsync(companyCollaborator1);
+
+            CompanyCollaboratorDb companyCollaborator2 = new CompanyCollaboratorDb
+            {
+                CompanyId = comapnyId2,
+                Company = company2,
+                CollaboratorId = collaboratorId,
+                Collaborator = collaborator,
+            };
+            await context.CompanyCollaborator.AddAsync(companyCollaborator2);
+
+            await context.SaveChangesAsync();
+
+            // Act
+            List<CompanyDb?> companies = await sqlMandateRepository.GetAllCompaniesByCollaboratorAsync("smedini@kpmg.fr");
+
+            // Assert
+            companies.Count.Should().Be(2);
+            companies[0]?.Name.Should().Be("Microsoft");
+            companies[0]?.SiretNumber.Should().Be("40902900600031");
+            companies[0]?.ErpId.Should().Be("1000265308");
+            companies[1]?.Name.Should().Be("Dior");
+            companies[1]?.SiretNumber.Should().Be("40930900600031");
+            companies[1]?.ErpId.Should().Be("1000265309");
+        }
     }
 }

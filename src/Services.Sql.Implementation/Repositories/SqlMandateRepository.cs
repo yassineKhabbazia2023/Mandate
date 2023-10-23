@@ -209,6 +209,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 .ToListAsync().ConfigureAwait(false);
         }
 
+        public async Task<List<CompanyDb?>> GetAllCompaniesByCollaboratorAsync(string email)
+        {
+            using var context = new MandateContext(this.options);
+            var companiesForCollaborator = context.Collaborator
+                .AsNoTracking()
+                .Include(c => c.CompanyCollaborators)
+                .ThenInclude(cc => cc.Company)
+                .Where(c => c.Email == email)
+                .SelectMany(c => c.CompanyCollaborators)
+                .Select(cc => cc.Company);
+
+            return await companiesForCollaborator.ToListAsync().ConfigureAwait(false);
+        }
+
         public async Task<RefBankDb> GetRefBankByCodeAsync(string bankCode)
         {
             using var context = new MandateContext(this.options);

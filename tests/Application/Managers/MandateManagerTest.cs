@@ -4,8 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.Interfaces;
-
     public class MandateManagerTest
     {
         [Fact]

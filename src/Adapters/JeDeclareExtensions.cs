@@ -17,8 +17,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 NumCompte = source.Bban?.AccountNumber!,
                 Cle = source.Bban?.CheckDigits!,
                 CiviliteTitulaire = source.Signatory?.Title!,
-                NomTitulaire = source.Signatory?.FirstName!,
-                PrenomTitulaire = source.Signatory?.LastName!,
+                NomTitulaire = source.Signatory?.LastName!,
+                PrenomTitulaire = source.Signatory?.FirstName!,
             };
         }
 
@@ -86,11 +86,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         public static Collection ToModel(this Releve source, Mandate.Company company, Bank bank, Collection sourceCollection)
         {
             Bban bban = new Bban(
-                source.Rib?.Id!,
                 source.Rib?.Etablissement!,
                 source.Rib?.Guichet!,
                 source.Rib?.NumCompte!,
                 source.Rib?.Cle!,
+                source.Rib?.Id!,
                 bank);
 
             Collection collection = new Collection(sourceCollection.Id, source.Id, company, bban, DateTime.Now, DateTime.Now, sourceCollection.Status);

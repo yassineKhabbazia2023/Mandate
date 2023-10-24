@@ -12,7 +12,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             Guid id = Guid.NewGuid();
             Company company = new Company(Guid.NewGuid(), "mega", "45207964300014", "1999156874", string.Empty, null, null);
             Bank? bank = new Bank("12345", "biap", "biap group", string.Empty, null!);
-            Bban bban = new Bban("6789", "12345", "56789", "12345678901", "88", bank);
+            Bban bban = new Bban("12345", "56789", "12345678901", "88", "6789", bank);
             Status status = new Status(CollectionStatus.ToDo, "todo");
 
             Collection collection = new Collection(

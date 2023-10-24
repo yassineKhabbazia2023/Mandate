@@ -10,11 +10,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
         public void Constructor()
         {
             var entity = new Bban(
-                "6789",
                 "12345",
                 "54321",
                 "12345678901",
                 "01",
+                "6789",
                 EntityFactory.Bank);
 
             // Make sure we don't forget propeties

@@ -28,7 +28,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public static Bban ToModel(this Client.Bban source)
         {
-            return new Bban(null, source.BankCode, source.BranchCode, source.AccountNumber, source.CheckDigits, null);
+            return new Bban(source.BankCode, source.BranchCode, source.AccountNumber, source.CheckDigits, null, null);
         }
 
         public static CollectionQueryDto ToModel(this Client.CollectionQuery source)

@@ -4,8 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.Interfaces;
-
     public class MandateManager : IMandateManager
     {
         private readonly IDatabaseService databaseService;

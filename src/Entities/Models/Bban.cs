@@ -6,7 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public class Bban
     {
-        public Bban(string? bbanServicesProviderId, string bankCode, string branchCode, string accountNumber, string checkDigits, Bank? bank)
+        public Bban(string bankCode, string branchCode, string accountNumber, string checkDigits, string? bbanServicesProviderId, Bank? bank)
         {
             this.BbanServicesProviderId = bbanServicesProviderId;
             this.BankCode = bankCode;
@@ -16,8 +16,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
             this.Bank = bank;
         }
 
-        public string? BbanServicesProviderId { get; }
-
         public string BankCode { get; }
 
         public string BranchCode { get; }
@@ -25,6 +23,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         public string AccountNumber { get; }
 
         public string CheckDigits { get; }
+
+        public string? BbanServicesProviderId { get; }
 
         public Bank? Bank { get; }
     }

@@ -66,11 +66,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
                         "Paris",
                         "France")),
                 new Bban(
-                    "9876",
                     "12345",
                     "67890",
                     "12345678901",
                     "87",
+                    "9876",
                     new Bank(
                         "12345",
                         "Crédit viticole",

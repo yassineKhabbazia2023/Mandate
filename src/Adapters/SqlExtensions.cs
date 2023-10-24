@@ -23,9 +23,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 default,
                 default);
 
-            Bank? bank = new Bank(source.Bank!.BankCode, source.Bank!.BankName, source.Bank!.BankGroup, source.Bank.EbicsCardId, null!);
+            Bank? bank = source.Bank?.ToModel();
 
-            Bban? bban = new Bban(source.JeDeclareCollection?.JdcRibId, source.BankCode!, source.BranchCode!, source.AccountNumber!, source.CheckDigits!, bank);
+            Bban? bban = new Bban(source.BankCode!, source.BranchCode!, source.AccountNumber!, source.CheckDigits!, source.JeDeclareCollection?.JdcRibId, bank);
 
             var currentStatus = source.Statuses?.SingleOrDefault(i => i.IsCurrent);
             var creationStatus = source.Statuses?.SingleOrDefault(i => i.StatusCode == -1);

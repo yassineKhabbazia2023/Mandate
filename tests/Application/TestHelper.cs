@@ -40,7 +40,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
 
         public static Bban GetBban(string? bbanServicesProviderId = null)
         {
-            return new Bban(bbanServicesProviderId, "code", "02408", "00011269900", "58", GetBank());
+            return new Bban("code", "02408", "00011269900", "58", bbanServicesProviderId, GetBank());
         }
 
         public static Collection GetCollection(Guid? companyId = null, string? collectionServicesProviderId = null)

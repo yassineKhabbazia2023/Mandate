@@ -30,7 +30,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return new Bban(source.BankCode, source.BranchCode, source.AccountNumber, source.CheckDigits, null);
         }
 
-        public static CollectionQueryDto ToModel(this Client.CollectionQuery source)
+        public static CollectionQueryDto ToModel(this Client.CollectionQuery source, Guid? collaboratorId)
         {
             SortOrder sortOrder;
             if (!Enum.TryParse(source.SortOrder, out sortOrder))
@@ -46,7 +46,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 throw new InvalidCastException($"Invalid SortCriteria. Allowed values are [ {allowedSortCriteria}]");
             }
 
-            return new CollectionQueryDto(source.SearchTerm, source.CreationDateStart, source.CreationDateEnd, source.ModificationDateStart, source.ModificationDateEnd, source.StatusCodes, source.Limit, source.Skip, sortOrder, sortCriteria, default);
+            return new CollectionQueryDto(source.SearchTerm, source.CreationDateStart, source.CreationDateEnd, source.ModificationDateStart, source.ModificationDateEnd, source.StatusCodes, source.Limit, source.Skip, sortOrder, sortCriteria, collaboratorId.Value);
         }
     }
 }

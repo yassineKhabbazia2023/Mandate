@@ -6,6 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
+    using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
@@ -32,9 +33,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         {
             try
             {
-                var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria, string.Empty);
+                string email = string.Empty;
+                Collaborator collaborator = await this.mandateManager.GetCollaboratorByEmail(email);
+                var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria, email);
                 this.logger.LogInformation($"{collectionQuery}");
-                var result = await this.mandateManager.GetAllCollectionsAsync(collectionQuery.ToModel());
+                var result = await this.mandateManager.GetAllCollectionsAsync(collectionQuery.ToModel(collaborator?.Id));
                 return this.Ok(result.Select(r => r.ToCollectionSummary()));
             }
             catch (Exception ex)
@@ -47,8 +50,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [HttpPost]
         public async Task<IActionResult> PostCollectionAsync([FromBody] CollectionCreationCommand collectionCreationCommand)
         {
-            await Task.CompletedTask;
-            return this.Ok(); // TODO
+            try
+            {
+                await Task.CompletedTask;
+                return this.Ok(); // TODO
+            }
+            catch (JeDeclareApiException e)
+            {
+
+                throw;
+            }
         }
 
         [HttpGet("{mandateId}/unsigned")]

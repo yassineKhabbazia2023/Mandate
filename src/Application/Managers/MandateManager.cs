@@ -17,5 +17,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         {
             return await this.databaseService.GetAllCollectionsAsync(query).ConfigureAwait(false);
         }
+
+        public Task<Collaborator> GetCollaboratorByEmail(string email)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -21,7 +21,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 skip: 0,
                 sortCriteria: Mandate.CollectionSortCriteria.ModificationDate,
                 sortOrder: Mandate.SortOrder.Ascending,
-                statusCodes: new List<int> { 1, 2 });
+                statusCodes: new List<int> { 1, 2 },
+                collaboratorId: new Guid("00000001-0000-0000-0000-000000000000"));
 
             var res = queryDto.ToSql();
 
@@ -37,6 +38,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 SortCriteria = CollectionSortCriteria.ModificationDate,
                 SortOrder = SortOrder.Ascending,
                 StatusCodes = new List<int> { 1, 2 },
+                CollaboratorId = new Guid("00000001-0000-0000-0000-000000000000"),
             });
         }
     }

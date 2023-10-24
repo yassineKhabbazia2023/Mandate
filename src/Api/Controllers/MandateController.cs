@@ -32,7 +32,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         {
             try
             {
-                var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria);
+                var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria, string.Empty);
                 this.logger.LogInformation($"{collectionQuery}");
                 var result = await this.mandateManager.GetAllCollectionsAsync(collectionQuery.ToModel());
                 return this.Ok(result.Select(r => r.ToCollectionSummary()));

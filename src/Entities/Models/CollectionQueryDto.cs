@@ -16,7 +16,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
             int? limit,
             int? skip,
             SortOrder sortOrder,
-            CollectionSortCriteria sortCriteria)
+            CollectionSortCriteria sortCriteria,
+            Guid collaboratorId)
         {
             this.SearchTerm = searchTerm;
             this.CreationDateStart = creationDateStart;
@@ -28,6 +29,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
             this.Skip = skip;
             this.SortOrder = sortOrder;
             this.SortCriteria = sortCriteria;
+            this.CollaboratorId = collaboratorId;
         }
 
         public string? SearchTerm { get; }
@@ -49,5 +51,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         public SortOrder SortOrder { get; }
 
         public CollectionSortCriteria SortCriteria { get; }
+
+        public Guid CollaboratorId { get; }
     }
 }

@@ -6,7 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
 {
     public class CollectionQuery
     {
-        public CollectionQuery(string? searchTerm, DateTime? creationDateStart, DateTime? creationDateEnd, DateTime? modificationDateStart, DateTime? modificationDateEnd, List<int>? statusCodes, int? limit, int? skip, string? sortOrder, string? sortCriteria)
+        public CollectionQuery(string? searchTerm, DateTime? creationDateStart, DateTime? creationDateEnd, DateTime? modificationDateStart, DateTime? modificationDateEnd, List<int>? statusCodes, int? limit, int? skip, string? sortOrder, string? sortCriteria, string collaboratorEmail)
         {
             this.SearchTerm = searchTerm;
             this.CreationDateStart = creationDateStart;
@@ -18,6 +18,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             this.Skip = skip;
             this.SortOrder = sortOrder;
             this.SortCriteria = sortCriteria;
+            this.CollaboratorEmail = collaboratorEmail;
         }
 
         public string? SearchTerm { get; }
@@ -39,5 +40,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
         public string? SortOrder { get; }
 
         public string? SortCriteria { get; }
+
+        public string CollaboratorEmail { get; }
     }
 }

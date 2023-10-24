@@ -57,6 +57,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 Skip = source.Skip,
                 SortOrder = (Sql.SortOrder)source.SortOrder,
                 SortCriteria = (Sql.CollectionSortCriteria)source.SortCriteria,
+                CollaboratorId = source.CollaboratorId,
             };
         }
     }

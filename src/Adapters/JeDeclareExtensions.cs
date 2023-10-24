@@ -74,7 +74,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                         Ville = company.Address?.City!,
                     },
                     Mail = company.Signatory?.Email!,
-                    Name = company.Signatory?.FirstName!,
+                    Name = $"{company.Signatory?.FirstName!} {company.Signatory?.LastName!}",
                 },
             };
 

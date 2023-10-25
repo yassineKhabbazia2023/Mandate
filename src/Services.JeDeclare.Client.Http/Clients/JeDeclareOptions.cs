@@ -42,6 +42,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
         public string Password { get; set; } = null!;
 
+        public string JdcCompteId { get; set; }
+
+        public string HistoryDateEnabledBanks { get; set; }
+
         /// <summary>
         /// Check if the object is filled with valid properties.
         /// </summary>

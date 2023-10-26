@@ -931,15 +931,16 @@
         "description": "Data specific to JeDeclare.com",
         "type": "object",
         "properties": {
-          "isPartner": {
-            "description": "Defines if the bank is a JDC partner",
-            "type": "boolean",
-            "example": true
-          },
-          "isScrapable": {
-            "description": "Defines if JDC can use scrapping with the bank",
-            "type": "boolean",
-            "example": true
+          "jdcPartnership": {
+            "description": "Defines the partnership of the Bank with JDC",
+            "type": "string",
+            "enum": [
+              "NonScrappable",
+              "Scrappable",
+              "NonPartner",
+              "Partner"
+            ],
+            "example": "NonPartner"
           }
         }
       },

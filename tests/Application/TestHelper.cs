@@ -13,7 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
 
         public static BankAgreement GetBankAgreement(bool isJdcPartner = false)
         {
-            return new BankAgreement(isJdcPartner, true, true);
+            return new BankAgreement(JdcPartnership.NonPartner);
         }
 
         public static Company GetCompany(Guid? id = null, string? bankServicesProviderId = null)

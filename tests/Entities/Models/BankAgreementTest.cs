@@ -9,18 +9,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
         [Fact]
         public void Constructor()
         {
-            var entity = new BankAgreement(
-                true,
-                false,
-                true);
+            var entity = new BankAgreement(JdcPartnership.NonPartner);
 
             // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(3);
+            entity.GetType().GetProperties().Length.Should().Be(1);
 
             // Test all properties ; number of tests below should match the number of propeties above
-            entity.IsJdcPartner.Should().BeTrue();
-            entity.IsJdcScrapable.Should().BeFalse();
-            entity.HasJdcReleve.Should().BeTrue();
+            entity.JdcPartnership.Should().Be(JdcPartnership.NonPartner);
         }
     }
 }

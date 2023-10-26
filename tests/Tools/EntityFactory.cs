@@ -10,7 +10,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         public static Bank Bank => new ("code", "name", "group", string.Empty, BankAgreement);
 
-        public static BankAgreement BankAgreement => new (true, false, true);
+        public static BankAgreement BankAgreement => new (JdcPartnership.NonPartner);
 
         public static Bban Bban => new ("12345", "54321", "12345678901", "01", "6789", Bank);
 

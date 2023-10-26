@@ -22,6 +22,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\PortalApi\PortalApi.csproj" />
 		<ProjectReference Include="..\Adapters\Mandate.Adapters.csproj" />
 		<ProjectReference Include="..\Application\Mandate.Application.csproj" />
 		<ProjectReference Include="..\Client\Mandate.Client.csproj" />

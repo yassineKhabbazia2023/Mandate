@@ -20,6 +20,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Microsoft.IdentityModel.Clients.ActiveDirectory;
+    using KPMG.Pulse.Back.Accounting.Mandate.PortalApi;
+    using KPMG.Constellation.Portal.Client.Http;
 
     [ExcludeFromCodeCoverage]
     public static class Program
@@ -124,6 +126,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             builder.Services.AddMandateApplication();
             builder.Services.AddMandateAdapters();
+            builder.Services.AddPortalClient(c => c.BaseUri = new Uri(builder.Configuration["PORTAL_API_URL"]));
+            builder.Services.AddPortailApi();
 
             var app = builder.Build();
 

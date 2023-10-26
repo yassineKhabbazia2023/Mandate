@@ -6,10 +6,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public class CollectionQueryDto
     {
-        public CollectionQueryDto()
-        {
-        }
-
         public CollectionQueryDto(
             string? searchTerm,
             DateTime? creationDateStart,
@@ -20,7 +16,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
             int? limit,
             int? skip,
             SortOrder sortOrder,
-            CollectionSortCriteria sortCriteria)
+            CollectionSortCriteria sortCriteria,
+            Guid collaboratorId)
         {
             this.SearchTerm = searchTerm;
             this.CreationDateStart = creationDateStart;
@@ -32,26 +29,29 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
             this.Skip = skip;
             this.SortOrder = sortOrder;
             this.SortCriteria = sortCriteria;
+            this.CollaboratorId = collaboratorId;
         }
 
-        public string? SearchTerm { get; set; }
+        public string? SearchTerm { get; }
 
-        public DateTime? CreationDateStart { get; set; }
+        public DateTime? CreationDateStart { get; }
 
-        public DateTime? CreationDateEnd { get; set; }
+        public DateTime? CreationDateEnd { get; }
 
-        public DateTime? ModificationDateStart { get; set; }
+        public DateTime? ModificationDateStart { get; }
 
-        public DateTime? ModificationDateEnd { get; set; }
+        public DateTime? ModificationDateEnd { get; }
 
-        public List<int>? StatusCodes { get; set; }
+        public List<int>? StatusCodes { get; }
 
-        public int? Limit { get; set; }
+        public int? Limit { get; }
 
-        public int? Skip { get; set; }
+        public int? Skip { get; }
 
-        public SortOrder SortOrder { get; set; }
+        public SortOrder SortOrder { get; }
 
-        public CollectionSortCriteria SortCriteria { get; set; }
+        public CollectionSortCriteria SortCriteria { get; }
+
+        public Guid CollaboratorId { get; }
     }
 }

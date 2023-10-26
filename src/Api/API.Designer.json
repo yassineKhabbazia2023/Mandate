@@ -8,6 +8,9 @@
   "servers": [
     {
       "url": "/api"
+    },
+    {
+      "url": "/mandate/api"
     }
   ],
   "tags": [
@@ -177,12 +180,12 @@
         ],
         "summary": "Creates a new mandate",
         "description": "Creates a new mandate",
-        "operationId": "PostMandateAsync",
+        "operationId": "PostCollectionAsync",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MandateCreation"
+                "$ref": "#/components/schemas/CollectionCreationCommand"
               }
             }
           }
@@ -287,7 +290,7 @@
         ],
         "summary": "Downloads an unsigned mandate",
         "description": "Downloads an unsigned mandate",
-        "operationId": "DownloadUnsigned",
+        "operationId": "DownloadUnsignedAsync",
         "parameters": [
           {
             "in": "path",
@@ -364,7 +367,7 @@
         ],
         "summary": "Downloads a signed mandate",
         "description": "Downloads a signed mandate",
-        "operationId": "DownloadSigned",
+        "operationId": "DownloadSignedAsync",
         "parameters": [
           {
             "in": "path",
@@ -439,7 +442,20 @@
         ],
         "summary": "Uploads a signed mandate",
         "description": "Uploads a signed mandate",
-        "operationId": "UploadSigned",
+        "operationId": "UploadSignedAsync",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mandateId",
+            "description": "The mandate identifier (UUID) given by /mandate",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "example": "e4ec92f2-a375-4574-b6de-235a9fe13028"
+          }
+        ],
         "requestBody": {
           "content": {
             "application/pdf": {
@@ -517,6 +533,94 @@
         }
       }
     },
+    "/mandate/{mandateId}/deactivate": {
+      "post": {
+        "tags": [
+          "Mandate"
+        ],
+        "summary": "Requests deactivation for the given mandate",
+        "description": "Requests deactivation for the given mandate",
+        "operationId": "DeactivateAsync",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mandateId",
+            "description": "The mandate identifier (UUID) given by /mandate",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "example": "e4ec92f2-a375-4574-b6de-235a9fe13028"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deactivation was successful"
+          },
+          "400": {
+            "description": "Invalid mandate status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "InvalidMandateStatus": {
+                    "value": {
+                      "errorType": "InvalidMandateStatus",
+                      "logReference": "12345",
+                      "message": "The mandate status doesn't currently allow a deactivation"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "CompanyForbidden": {
+                    "value": {
+                      "errorType": "CompanyForbidden",
+                      "logReference": "12345",
+                      "message": "The mandate belongs to a company that must be part of your portfolio and have active engagement"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mandate not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "MandateNotFound": {
+                    "value": {
+                      "errorType": "MandateNotFound",
+                      "logReference": "12345",
+                      "message": "The mandate with identifier 'mandateId' has not been found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/bank/{bankCode}": {
       "get": {
         "tags": [
@@ -524,7 +628,7 @@
         ],
         "summary": "Get reference data for a bank",
         "description": "Get reference data for a bank",
-        "operationId": "GetBankDetails",
+        "operationId": "GetBankDetailsAsync",
         "parameters": [
           {
             "in": "path",
@@ -548,9 +652,6 @@
               }
             }
           },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
           "404": {
             "description": "Bank not found",
             "content": {
@@ -559,9 +660,9 @@
                   "$ref": "#/components/schemas/Error"
                 },
                 "examples": {
-                  "BankNotFound": {
+                  "BankCodeNotFound": {
                     "value": {
-                      "errorType": "BankNotFound",
+                      "errorType": "BankCodeNotFound",
                       "logReference": "12345",
                       "message": "The 'xxxx' bank code has not been found"
                     }
@@ -654,7 +755,7 @@
         ],
         "summary": "Gets reference data for a company",
         "description": "Gets reference data for a company",
-        "operationId": "GetCompanyByErpNumber",
+        "operationId": "GetCompanyByErpIdAsync",
         "parameters": [
           {
             "in": "path",
@@ -872,6 +973,74 @@
           }
         }
       },
+      "CollectionCreationCommand": {
+        "description": "Data needed to create a new mandate",
+        "type": "object",
+        "properties": {
+          "erpId": {
+            "description": "Defines the identifier of the company",
+            "type": "string",
+            "required": true,
+            "example": "1000265308"
+          },
+          "signatory": {
+            "$ref": "#/components/schemas/Signatory"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "bban": {
+            "$ref": "#/components/schemas/Bban"
+          }
+        }
+      },
+      "CollectionSummary": {
+        "description": "Summary of a data collection ; this object is intended to be used in tables",
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Defines the mandate identifier",
+            "type": "string",
+            "format": "uuid",
+            "example": "e4ec92f2-a375-4574-b6de-235a9fe13028"
+          },
+          "erpId": {
+            "description": "Defines the identifier of the company in the ERP",
+            "type": "string",
+            "example": "1000265308"
+          },
+          "companyName": {
+            "description": "Defines the company legal name",
+            "type": "string",
+            "example": "Weyland Corporation"
+          },
+          "accountNumber": {
+            "description": "Defines the bank account number of the mandate BBAN",
+            "type": "string",
+            "example": "66842913356"
+          },
+          "bankName": {
+            "description": "Defines the name of the bank attached to the mandate",
+            "type": "string",
+            "example": "Crédit Agricole"
+          },
+          "creationDate": {
+            "description": "Defines the creation date of the mandate",
+            "type": "string",
+            "example": "2023-08-14T13:12:31.926Z"
+          },
+          "modificationDate": {
+            "description": "Defines the last update date of the mandate",
+            "type": "string",
+            "example": "2023-08-14T13:12:31.926Z"
+          },
+          "statusCode": {
+            "description": "Defines the pulse status code of the collection mandate",
+            "type": "integer",
+            "example": 40
+          }
+        }
+      },
       "Company": {
         "description": "Data specific to the company",
         "type": "object",
@@ -939,74 +1108,6 @@
           "Unhealthy"
         ]
       },
-      "MandateCreation": {
-        "description": "Data needed to create a new mandate",
-        "type": "object",
-        "properties": {
-          "erpId": {
-            "description": "Defines the identifier of the company",
-            "type": "string",
-            "required": true,
-            "example": "1000265308"
-          },
-          "signatory": {
-            "$ref": "#/components/schemas/Signatory"
-          },
-          "address": {
-            "$ref": "#/components/schemas/Address"
-          },
-          "bban": {
-            "$ref": "#/components/schemas/Bban"
-          }
-        }
-      },
-      "MandateSummary": {
-        "description": "Data specific to the mandate",
-        "type": "object",
-        "properties": {
-          "id": {
-            "description": "Defines the mandate identifier",
-            "type": "string",
-            "format": "uuid",
-            "example": "e4ec92f2-a375-4574-b6de-235a9fe13028"
-          },
-          "erpId": {
-            "description": "Defines the identifier of the company in the ERP",
-            "type": "string",
-            "example": "1000265308"
-          },
-          "companyName": {
-            "description": "Defines the company legal name",
-            "type": "string",
-            "example": "Weyland Corporation"
-          },
-          "accountNumber": {
-            "description": "Defines the bank account number of the mandate BBAN",
-            "type": "string",
-            "example": "66842913356"
-          },
-          "bankName": {
-            "description": "Defines the name of the bank attached to the mandate",
-            "type": "string",
-            "example": "Crédit Agricole"
-          },
-          "creationDate": {
-            "description": "Defines the creation date of the mandate",
-            "type": "string",
-            "example": "2023-08-14T13:12:31.926Z"
-          },
-          "modificationDate": {
-            "description": "Defines the last update date of the mandate",
-            "type": "string",
-            "example": "2023-08-14T13:12:31.926Z"
-          },
-          "statusCode": {
-            "description": "Defines the jdc side status code of the collection mandate",
-            "type": "string",
-            "example": "40"
-          }
-        }
-      },
       "PagedCounters": {
         "description": "Contains query metadata for a paged result",
         "type": "object",
@@ -1053,7 +1154,7 @@
           "data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/MandateSummary"
+              "$ref": "#/components/schemas/CollectionSummary"
             }
           }
         }

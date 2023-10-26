@@ -6,6 +6,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 {
     public class CollectionQuery
     {
+        public Guid CollaboratorId { get; set; }
+
         public string? SearchTerm { get; set; }
 
         public DateTime? CreationDateStart { get; set; }

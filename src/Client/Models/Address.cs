@@ -18,14 +18,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             this.Country = country;
         }
 
+        [JsonProperty("street")]
         public string? Street { get; }
 
+        [JsonProperty("addressComplement")]
         public string? AddressComplement { get; }
 
+        [JsonProperty("zipCode")]
         public string? ZipCode { get; }
 
+        [JsonProperty("city")]
         public string? City { get; }
 
+        [JsonProperty("country")]
         public string? Country { get; }
     }
 }

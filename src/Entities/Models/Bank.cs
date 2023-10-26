@@ -6,11 +6,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public class Bank
     {
-        public Bank(string code, string? name, string? group, BankAgreement jdcAgreement)
+        public Bank(string code, string? name, string? group, string? ebicsCardId, BankAgreement jdcAgreement)
         {
             this.Code = code;
             this.Name = name;
             this.Group = group;
+            this.EbicsCardId = ebicsCardId;
             this.JdcAgreement = jdcAgreement;
         }
 
@@ -19,6 +20,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         public string? Name { get; }
 
         public string? Group { get; }
+
+        public string? EbicsCardId { get; }
 
         public BankAgreement JdcAgreement { get; }
     }

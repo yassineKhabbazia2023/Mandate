@@ -15,14 +15,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 return false;
             }
 
-            var bankCodeNum = long.Parse(bban.BankCode, CultureInfo.InvariantCulture);
-            var branchCodeNum = long.Parse(bban.BranchCode, CultureInfo.InvariantCulture);
-            var accountNumberNum = long.Parse(bban.AccountNumber.ReplaceFrenchBbanLetters(), CultureInfo.InvariantCulture);
-            var checkDigitsNum = long.Parse(bban.CheckDigits, CultureInfo.InvariantCulture);
+            try
+            {
+                var bankCodeNum = long.Parse(bban.BankCode, CultureInfo.InvariantCulture);
+                var branchCodeNum = long.Parse(bban.BranchCode, CultureInfo.InvariantCulture);
+                var accountNumberNum = long.Parse(bban.AccountNumber.ReplaceFrenchBbanLetters(), CultureInfo.InvariantCulture);
+                var checkDigitsNum = long.Parse(bban.CheckDigits, CultureInfo.InvariantCulture);
 
-            var key = 97L - (((89L * bankCodeNum) + (15L * branchCodeNum) + (3L * accountNumberNum)) % 97L);
+                var key = 97L - (((89L * bankCodeNum) + (15L * branchCodeNum) + (3L * accountNumberNum)) % 97L);
 
-            return key == checkDigitsNum;
+                return key == checkDigitsNum;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

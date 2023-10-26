@@ -16,5 +16,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 .ToArray();
             return new string(result);
         }
+
+        public static string Concat(params string[] strings)
+        {
+            return string.Join("-", strings);
+        }
     }
 }

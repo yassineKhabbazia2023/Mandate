@@ -26,6 +26,29 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             this.bankManager = bankManager;
         }
 
+        [HttpGet("{bankCode}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BankDetail))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetBankDetailsAsync([FromRoute] string bankCode)
+        {
+            string correlationId = "0"; // TODO
+            try
+            {
+                var result = await this.bankManager.GetByCodeAsync(bankCode).ConfigureAwait(false);
+                return this.Ok(result.ToBankDetail());
+            }
+            catch (BankCodeNotFoundException ex)
+            {
+                return this.NotFound(new Error("BankCodeNotFound", correlationId, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.GetBankDetailsAsync));
+                throw;
+            }
+        }
+
         [HttpGet("check-bban-validity")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ValidationResult))]
         public IActionResult ValidateBban([FromQuery] string bankCode, [FromQuery] string branchCode, [FromQuery] string accountNumber, [FromQuery] string checkDigits)
@@ -36,28 +59,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             var validationResult = new ValidationResult(result);
 
             return this.Ok(validationResult);
-        }
-
-        [HttpGet("{bankCode}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BankDetail))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetBankDetails([FromRoute] string bankCode)
-        {
-            try
-            {
-                var result = await this.bankManager.GetByCodeAsync(bankCode).ConfigureAwait(false);
-                return this.Ok(result.ToBankDetail());
-            }
-            catch (BankCodeNotFoundException ex)
-            {
-                return this.NotFound(/* TODO */);
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", 0 /* TODO */, nameof(this.GetBankDetails));
-                throw;
-            }
         }
     }
 }

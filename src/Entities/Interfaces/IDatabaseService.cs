@@ -13,5 +13,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         Task<byte[]> GetPdfTemplateByBankCodeAsync(string bankCode);
 
         Task<IEnumerable<Collection>> GetAllCollectionsAsync(CollectionQueryDto query);
+
+        Task<Collection> CreateCollection(string erpId, Guid companyId, Bban bban);
+
+        Task<Company> CreateFolderAsync(string bankServicesProviderId, Guid companyId);
+
+        Task<Status> CreateStatus(Guid collectionId, Status status);
+
+        Task<Collection> InsertServicesProviderIds(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId);
+
+        Task<bool> CheckCollecteConfigExist(Bban bban);
+
+        Task<Collection> UpdateCollection(Guid id, Collection collection);
     }
 }

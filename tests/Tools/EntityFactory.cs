@@ -8,11 +8,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
     {
         public static Address Address => new ("street", "complements", "75001", "Paris", "France");
 
-        public static Bank Bank => new ("code", "name", "group", BankAgreement);
+        public static Bank Bank => new ("code", "name", "group", string.Empty, BankAgreement);
 
         public static BankAgreement BankAgreement => new (true, false, true);
 
-        public static Bban Bban => new ("12345", "54321", "12345678901", "01", Bank);
+        public static Bban Bban => new ("12345", "54321", "12345678901", "01", "6789", Bank);
 
         public static Company Company => new (new PredictableGuid().NewGuid(), "Raison Sociale", "siret", "ibsAccountNumber", "jdcDossierId", Signatory, Address);
 

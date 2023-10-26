@@ -5,6 +5,7 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
+    using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
@@ -23,19 +24,60 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCollectionsAsync([FromQuery] CollectionQueryDto query)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedMandate))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetCollectionsAsync([FromQuery] string? searchTerm, [FromQuery] DateTime? creationDateStart, [FromQuery] DateTime? creationDateEnd, [FromQuery] DateTime? modificationDateStart, [FromQuery] DateTime? modificationDateEnd, [FromQuery] List<int>? statusCodes, [FromQuery] int? limit, [FromQuery] int? skip, [FromQuery] string? sortOrder, [FromQuery] string? sortCriteria)
         {
             try
             {
-                this.logger.LogInformation($"{query}");
-                var result = await this.mandateManager.GetAllCollectionsAsync(query);
-                return this.Ok(result.Select(r => r.ToMandateCollection()));
+                var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria, string.Empty);
+                this.logger.LogInformation($"{collectionQuery}");
+                var result = await this.mandateManager.GetAllCollectionsAsync(collectionQuery.ToModel());
+                return this.Ok(result.Select(r => r.ToCollectionSummary()));
             }
             catch (Exception ex)
             {
                 this.logger.LogError($"{ex.Message}");
                 throw;
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PostCollectionAsync([FromBody] CollectionCreationCommand collectionCreationCommand)
+        {
+            await Task.CompletedTask;
+            return this.Ok(); // TODO
+        }
+
+        [HttpGet("{mandateId}/unsigned")]
+        public async Task<IActionResult> DownloadUnsignedAsync([FromRoute] string mandateId)
+        {
+            await Task.CompletedTask;
+            return this.Ok(); // TODO
+        }
+
+        [HttpGet("{mandateId}/signed")]
+        public async Task<IActionResult> DownloadSignedAsync([FromRoute] string mandateId)
+        {
+            await Task.CompletedTask;
+            return this.Ok(); // TODO
+        }
+
+        [HttpPost("{mandateId}/signed")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadSignedAsync([FromRoute] string mandateId, [FromForm] IFormFile file)
+        {
+            await Task.CompletedTask;
+            return this.NoContent(); // TODO
+        }
+
+        [HttpPost("{mandateId}/deactivate")]
+        public async Task<IActionResult> DeactivateAsync([FromRoute] string mandateId)
+        {
+            await Task.CompletedTask;
+            return this.NoContent(); // TODO
         }
     }
 }

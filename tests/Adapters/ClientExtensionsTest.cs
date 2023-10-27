@@ -7,6 +7,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
     public class ClientExtensionsTest
     {
         [Fact]
+        public void ToBankDetail()
+        {
+            var entity = new Bank("a", "b", "c", "d", new BankAgreement(JdcPartnership.NonPartner));
+            var result = entity.ToBankDetail();
+
+            result.Should().NotBeNull();
+            result.Should().BeEquivalentTo(new Client.BankDetail("a", "b", new Client.BankJdcDetail("NonPartner")));
+        }
+
+        [Fact]
         public void ToCollectionSummary()
         {
             Guid id = Guid.NewGuid();

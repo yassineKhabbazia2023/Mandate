@@ -29,7 +29,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             await this.databaseService.CreateFolderAsync(dossierClient.BankServicesProviderId!, dossierClient.Id);
 
             // Verification du bank partenaire ou non partenaire
-            if (!bank.JdcAgreement.IsJdcPartner && string.IsNullOrWhiteSpace(bank.EbicsCardId))
+            if (bank.JdcAgreement.JdcPartnership != JdcPartnership.Partner && string.IsNullOrWhiteSpace(bank.EbicsCardId))
             {
                 throw new ApplicationException($"L'établissement bancaire {bank.Code} n'est pas partenaire de JeDeclare.com mais est défini sans connexion à une carte EBICs.");
             }

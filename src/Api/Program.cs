@@ -19,6 +19,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using Microsoft.Data.SqlClient;
     using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
+    using Microsoft.Extensions.Logging;
     using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
     [ExcludeFromCodeCoverage]
@@ -44,6 +45,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 if (Enum.TryParse<Microsoft.Extensions.Logging.LogLevel>(builder.Configuration["MANDATE_LOG_LEVEL"], out var logLevel))
                 {
                     logging.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>(string.Empty, logLevel);
+                    logging.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>("Microsoft.AspNetCore", LogLevel.Warning);
                 }
             });
 

@@ -6,17 +6,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public class BankAgreement
     {
-        public BankAgreement(bool isJdcPartner, bool isJdcScrapable, bool? hasJdcReleve)
+        public BankAgreement(JdcPartnership jdcPartnership)
         {
-            this.IsJdcPartner = isJdcPartner;
-            this.IsJdcScrapable = isJdcScrapable;
-            this.HasJdcReleve = hasJdcReleve;
+            this.JdcPartnership = jdcPartnership;
         }
 
-        public bool IsJdcPartner { get; }
-
-        public bool IsJdcScrapable { get; }
-
-        public bool? HasJdcReleve { get; }
+        public JdcPartnership JdcPartnership { get; }
     }
 }

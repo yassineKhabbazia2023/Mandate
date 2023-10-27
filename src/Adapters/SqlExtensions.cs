@@ -8,7 +8,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
     {
         public static Bank ToModel(this Sql.RefBankDb source)
         {
-            var bankagreement = new BankAgreement(source.IsJdcPartner, source.IsJdcScrapable, source.HasReleveAgreement);
+            var bankagreement = new BankAgreement((JdcPartnership)source.JdcPartnership);
             return new Bank(source.BankCode, source.BankName, source.BankGroup, source.EbicsCardId, bankagreement);
         }
 

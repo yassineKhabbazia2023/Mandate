@@ -4,6 +4,7 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.PortalApi
 {
+    using KPMG.Constellation.Portal.Client;
 
     public interface IPortalProvider
     {

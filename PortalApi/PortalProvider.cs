@@ -4,14 +4,11 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.PortalApi
 {
-    using KPMG.Constellation.Function.AccessRight.Helper;
     using KPMG.Constellation.Portal.Client;
-    using KPMG.Constellation.Portal.Model;
 
     public class PortalProvider : IPortalProvider
     {
         private readonly IPortalClientFactory factory;
-
         private readonly IAuthenticationContext authenticationContext;
 
         public PortalProvider(IPortalClientFactory factory, IAuthenticationContext authenticationContext)

@@ -313,15 +313,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
         {
             Stream responseStream = await response.Content.ReadAsStreamAsync();
             byte[] pdf = new byte[responseStream.Length];
-            responseStream.Read(pdf, 0, (int)responseStream.Length);
+            var bytesSequence = responseStream.Read(pdf, 0, (int)responseStream.Length);
 
             var formioSubmissionPdf = new FormioSubmissionPdf
             {
-                Data = pdf,
-                Created = data["created"]?.Value<string>()!,
-                Modified = data["modified"]?.Value<string>()!,
-                Id = data["_id"]?.Value<string>()!,
-                Owner = data["owner"]?.Value<string>()!,
+                Data = bytesSequence > 0 ? pdf : new byte[1],
+                Created = data["created"]?.Value<string>() !,
+                Modified = data["modified"]?.Value<string>() !,
+                Id = data["_id"]?.Value<string>() !,
+                Owner = data["owner"]?.Value<string>() !,
             };
 
             return formioSubmissionPdf;
@@ -329,7 +329,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
         private static IList<FormioSubmission> DeserializeSubmissions(string responseBody)
         {
-            return responseBody.Deserialize<IList<FormioSubmission>>();
+            return JsonConvert.DeserializeObject<IList<FormioSubmission>>(responseBody) !;
         }
     }
 }

@@ -45,7 +45,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 if (Enum.TryParse<Microsoft.Extensions.Logging.LogLevel>(builder.Configuration["MANDATE_LOG_LEVEL"], out var logLevel))
                 {
                     logging.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>(string.Empty, logLevel);
-                    logging.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>("Microsoft.AspNetCore", LogLevel.Warning);
+                    logging.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>("Microsoft.AspNetCore", Microsoft.Extensions.Logging.LogLevel.Warning);
                 }
             });
 
@@ -191,7 +191,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 {
                     builder.Configuration.AddAzureKeyVault(
                         new Uri($"https://{builder.Configuration["MANDATE_VAULT_NAME"]}.vault.azure.net/"),
-                        new DefaultAzureCredential());
+                        new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = builder.Configuration["AZURE_CLIENT_ID"] }));
                 }
             }
         }

@@ -26,6 +26,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             var client = this.factory.Create(this.options.Value.BaseUri, authentication);
 
+            client.EnsureHttpClientCreated();
+
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xml"));
 

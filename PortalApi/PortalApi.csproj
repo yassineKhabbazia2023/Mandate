@@ -6,5 +6,6 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Kpmg.AspNetCore.Authentication.ConstellationIdentityService" Version="1.1.0.3" />
+		<PackageReference Include="KPMG.Constellation.Portal.Client.Http" Version="1.63.9-develop" />
 	</ItemGroup>
 </Project>

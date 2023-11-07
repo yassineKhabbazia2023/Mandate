@@ -10,6 +10,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\PortalApi\PortalApi.csproj" />
 		<ProjectReference Include="..\Client\Mandate.Client.csproj" />
 		<ProjectReference Include="..\Entities\Mandate.csproj" />
 		<ProjectReference Include="..\Services.JeDeclare.Client\Mandate.JeDeclare.Client.csproj" />

@@ -7,14 +7,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.PortalApi
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
+    using KPMG.Constellation.Portal.Client.Http;
+
     public static class ServiceRegistration
     {
-        public static IServiceCollection AddPortailApi(this IServiceCollection services)
+        public static IServiceCollection AddPortailApi(this IServiceCollection services, ConfigurationManager configuration)
         {
             if (services == null)
             {
                 throw new ArgumentNullException(nameof(services));
             }
+
+            services.AddPortalClient(c => c.BaseUri = new Uri(configuration["PORTAL_API_URL"] !));
 
             services.AddSystemAccountAuthenticationProvider<IConfiguration>((settings, configuration) =>
             {

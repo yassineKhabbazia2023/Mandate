@@ -21,12 +21,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Microsoft.IdentityModel.Clients.ActiveDirectory;
     using KPMG.Pulse.Back.Accounting.Mandate.PortalApi;
-    using KPMG.Constellation.Portal.Client.Http;
 
     [ExcludeFromCodeCoverage]
     public static class Program
     {
-        private static ClientCredential? clientCredential;
+        private static ClientCredential? clientCredential; 
 
         public static void Main(string[] args)
         {
@@ -126,8 +125,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             builder.Services.AddMandateApplication();
             builder.Services.AddMandateAdapters();
-            builder.Services.AddPortalClient(c => c.BaseUri = new Uri(builder.Configuration["PORTAL_API_URL"]));
-            builder.Services.AddPortailApi();
+            builder.Services.AddPortailApi(builder.Configuration);
 
             var app = builder.Build();
 

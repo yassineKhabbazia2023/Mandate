@@ -16,9 +16,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             this.portalProvider = portalProvider;
         }
 
-        public async Task GetAccountsODataWithoutCache(string odataQueryString)
+        public async Task GetAccountsODataWithoutCache(string? filer = null, int top = 1000, int skip = 0, bool count = false)
         {
-            await this.portalProvider.GetAccountsODataWithoutCache(odataQueryString);
+            await this.portalProvider.GetAccountsODataWithoutCache(top, skip, filer, count);
         }
     }
 }

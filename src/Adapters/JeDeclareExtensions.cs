@@ -13,7 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return new Rib()
             {
                 Etablissement = source.Bban?.BankCode!,
-                Guichet = source.Bban?.BankCode!,
+                Guichet = source.Bban?.BranchCode!,
                 NumCompte = source.Bban?.AccountNumber!,
                 Cle = source.Bban?.CheckDigits!,
                 CiviliteTitulaire = source.Signatory?.Title!,
@@ -81,21 +81,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             DossierClient dossier = new DossierClient() { Client = client };
 
             return dossier;
-        }
-
-        public static Collection ToModel(this Releve source, Mandate.Company company, Bank bank, Collection sourceCollection)
-        {
-            Bban bban = new Bban(
-                source.Rib?.Etablissement!,
-                source.Rib?.Guichet!,
-                source.Rib?.NumCompte!,
-                source.Rib?.Cle!,
-                source.Rib?.Id!,
-                bank);
-
-            Collection collection = new Collection(sourceCollection.Id, source.Id, company, bban, DateTime.Now, DateTime.Now, sourceCollection.Status);
-
-            return collection;
         }
     }
 }

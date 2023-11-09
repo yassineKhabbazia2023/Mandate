@@ -10,7 +10,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
     {
         public static string Serialize<T>(this T source)
         {
-            if (source == null)
+            if (source!.Equals(default(T)))
             {
                 return string.Empty;
             }

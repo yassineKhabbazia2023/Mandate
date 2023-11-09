@@ -4,6 +4,8 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
+    using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client;
+    using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
@@ -25,16 +27,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 opt.Login = "loginT";
                 opt.Password = "passwordT";
             });
+            sc.AddMandateFormio(opt =>
+            {
+                opt.BaseUri = new Uri("https://toto.com");
+                opt.FormioApiKey = "test";
+            });
 
             var sp = sc.BuildServiceProvider();
 
             // Make sure we don't forget services ; exclude services from Microsoft (IOption, ...)
-            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(3);
+            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(5);
 
             // Test all services ; number of tests below should match the number of services above
             sp.GetService<IDatabaseService>().Should().NotBeNull();
             sp.GetService<IMandateRepository>().Should().NotBeNull();
             sp.GetService<IJeDeclareClientFactory>().Should().NotBeNull();
+            sp.GetService<IJeDeclareClient>().Should().NotBeNull();
+            sp.GetService<IFormioClientFactory>().Should().NotBeNull();
         }
     }
 }

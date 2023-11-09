@@ -19,6 +19,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             services.AddConstellationHttpClient();
             services.AddScoped<IJeDeclareClientFactory, HttpJeDeclareClientFactory>();
+            services.AddScoped<IJeDeclareClient, HttpJeDeclareClient>();
 
             return services;
         }

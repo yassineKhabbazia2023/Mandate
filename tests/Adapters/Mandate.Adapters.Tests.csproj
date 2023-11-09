@@ -10,6 +10,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\PortalApi\PortalApi.csproj" />
 		<ProjectReference Include="..\..\src\Services.Formio.Client.Http\Mandate.Formio.Client.Http.csproj" />
 		<ProjectReference Include="..\..\src\Services.Formio.Client\Mandate.Formio.Client.csproj" />
 		<ProjectReference Include="..\Tools\Mandate.Tools.Tests.csproj" />

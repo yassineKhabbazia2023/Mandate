@@ -28,12 +28,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.PortalApi
             string url = $"$top={top}&$skip={skip}";
             if (!string.IsNullOrEmpty(query))
             {
-                url += query;
+                url += $"&{query}";
             }
 
-            query += count ? "&$count=true" : string.Empty;
+            url += count ? "&$count=true" : string.Empty;
 
-            return query;
+            return url;
         }
     }
 }

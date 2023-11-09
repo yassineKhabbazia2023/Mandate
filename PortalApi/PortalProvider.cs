@@ -17,18 +17,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.PortalApi
             this.authenticationContext = authenticationContext;
         }
 
-        public async Task<AccountWithoutCacheRootResponseJson> GetAccountsODataWithoutCache(int top, int skip, string? filer, bool count)
+        public async Task<AccountWithoutCacheRootResponseJson> GetAccountsODataWithoutCache(int top, int skip, string? query, bool count)
         {
             var client = this.factory.Create(this.authenticationContext.BearerToken);
-            return await client.GetAccountsODataWithoutCache(this.ConstructQuery(top, skip, filer, count));
+            return await client.GetAccountsODataWithoutCache(this.ConstructQuery(top, skip, query, count));
         }
 
-        private string ConstructQuery(int top, int skip, string? filer, bool count)
+        private string ConstructQuery(int top, int skip, string? query, bool count)
         {
-            string query = $"$top={top}&$skip={skip}";
-            if (!string.IsNullOrEmpty(filer))
+            string url = $"$top={top}&$skip={skip}";
+            if (!string.IsNullOrEmpty(query))
             {
-                query += $"&$filter={filer}";
+                url += query;
             }
 
             query += count ? "&$count=true" : string.Empty;

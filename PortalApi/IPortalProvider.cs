@@ -8,6 +8,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.PortalApi
 
     public interface IPortalProvider
     {
-        Task<AccountWithoutCacheRootResponseJson> GetAccountsODataWithoutCache(int top, int skip, string? filer, bool count);
+        Task<AccountWithoutCacheRootResponseJson> GetAccountsODataWithoutCache(int top, int skip, string? query, bool count);
     }
 }

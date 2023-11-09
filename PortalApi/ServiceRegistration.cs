@@ -4,10 +4,9 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.PortalApi
 {
+    using KPMG.Constellation.Portal.Client.Http;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
-
-    using KPMG.Constellation.Portal.Client.Http;
 
     public static class ServiceRegistration
     {

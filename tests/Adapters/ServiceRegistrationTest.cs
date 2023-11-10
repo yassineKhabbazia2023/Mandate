@@ -7,7 +7,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
     using KPMG.Constellation.Portal.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
-    using KPMG.Pulse.Back.Accounting.Mandate.Interfaces;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.Portal;

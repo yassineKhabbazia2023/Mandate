@@ -2,7 +2,7 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate.Interfaces
+namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public interface IPortalManager
     {

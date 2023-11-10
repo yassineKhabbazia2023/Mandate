@@ -1,8 +1,8 @@
-﻿// <copyright file="IPortalProvider.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="IPortalProvider.cs" company="KPMG">
+// Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate.PortalApi
+namespace KPMG.Pulse.Back.Accounting.Mandate.Portal
 {
     using KPMG.Constellation.Portal.Client;
 

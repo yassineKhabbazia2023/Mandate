@@ -5,7 +5,7 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Interfaces;
-    using KPMG.Pulse.Back.Accounting.Mandate.PortalApi;
+    using KPMG.Pulse.Back.Accounting.Mandate.Portal;
 
     public class PortalAdapter : IPortalManager
     {

@@ -13,6 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
+    using KPMG.Pulse.Back.Accounting.Mandate.Portal;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -21,7 +22,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Microsoft.Extensions.Logging;
     using Microsoft.IdentityModel.Clients.ActiveDirectory;
-    using KPMG.Pulse.Back.Accounting.Mandate.PortalApi;
 
     [ExcludeFromCodeCoverage]
     public static class Program

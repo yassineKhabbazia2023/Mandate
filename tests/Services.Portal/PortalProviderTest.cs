@@ -1,14 +1,10 @@
-﻿// <copyright file="PortalProviderTest.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="PortalProviderTest.cs" company="KPMG">
+// Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace Mandate.Services.Portal.Implementation.Tests
+namespace KPMG.Pulse.Back.Accounting.Mandate.Portal.Tests
 {
-    using FluentAssertions;
     using KPMG.Constellation.Portal.Client;
-    using KPMG.Pulse.Back.Accounting.Mandate.PortalApi;
-    using Moq;
-    using Xunit;
 
     public class PortalProviderTest
     {

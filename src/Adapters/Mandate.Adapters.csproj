@@ -10,11 +10,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\PortalApi\PortalApi.csproj" />
 		<ProjectReference Include="..\Client\Mandate.Client.csproj" />
 		<ProjectReference Include="..\Entities\Mandate.csproj" />
 		<ProjectReference Include="..\Services.JeDeclare.Client\Mandate.JeDeclare.Client.csproj" />
 		<ProjectReference Include="..\Services.Mongo\Mandate.Mongo.csproj" />
+		<ProjectReference Include="..\Services.Portal\Mandate.Portal.csproj" />
 		<ProjectReference Include="..\Services.Sql\Mandate.Sql.csproj" />
 	</ItemGroup>
 

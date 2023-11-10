@@ -10,7 +10,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
     using KPMG.Pulse.Back.Accounting.Mandate.Interfaces;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
-    using KPMG.Pulse.Back.Accounting.Mandate.PortalApi;
+    using KPMG.Pulse.Back.Accounting.Mandate.Portal;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
     using Microsoft.Extensions.Configuration;

@@ -5,7 +5,7 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
     using KPMG.Constellation.Portal.Client;
-    using KPMG.Pulse.Back.Accounting.Mandate.PortalApi;
+    using KPMG.Pulse.Back.Accounting.Mandate.Portal;
 
     public class PortalAdapterTest
     {

@@ -1,16 +1,12 @@
-﻿// <copyright file="AuthenticationContextTest.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="AuthenticationContextTest.cs" company="KPMG">
+// Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace Mandate.Services.Portal.Implementation.Tests
+namespace KPMG.Pulse.Back.Accounting.Mandate.Portal.Tests
 {
-    using FluentAssertions;
     using Kpmg.Constellation.IdentityService.Client;
-    using KPMG.Pulse.Back.Accounting.Mandate.PortalApi;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Primitives;
-    using Moq;
-    using Xunit;
 
     public class AuthenticationContextTest
     {

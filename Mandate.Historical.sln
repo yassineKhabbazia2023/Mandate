@@ -96,6 +96,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Formio.Client", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Formio.Client.Http", "src\Services.Formio.Client.Http\Mandate.Formio.Client.Http.csproj", "{F262E17F-2040-484C-8F9E-3C36C85E0D05}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Portal", "src\Services.Portal\Mandate.Portal.csproj", "{5C9CD4F7-E8C8-47FC-9762-BF6743E2D435}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Portal.Tests", "tests\Services.Portal\Mandate.Portal.Tests.csproj", "{4CAB9612-C5AF-4943-B1AA-8805203CE770}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -224,6 +228,14 @@ Global
 		{F262E17F-2040-484C-8F9E-3C36C85E0D05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F262E17F-2040-484C-8F9E-3C36C85E0D05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F262E17F-2040-484C-8F9E-3C36C85E0D05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C9CD4F7-E8C8-47FC-9762-BF6743E2D435}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C9CD4F7-E8C8-47FC-9762-BF6743E2D435}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C9CD4F7-E8C8-47FC-9762-BF6743E2D435}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C9CD4F7-E8C8-47FC-9762-BF6743E2D435}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CAB9612-C5AF-4943-B1AA-8805203CE770}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CAB9612-C5AF-4943-B1AA-8805203CE770}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CAB9612-C5AF-4943-B1AA-8805203CE770}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CAB9612-C5AF-4943-B1AA-8805203CE770}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -262,6 +274,8 @@ Global
 		{98D8A875-FBC2-44DB-B68B-80E02679883F} = {EE6267B4-407D-41DA-8EF1-F74120752372}
 		{81A682F8-B58F-43BD-9C77-4B2ACC234B9A} = {EE6267B4-407D-41DA-8EF1-F74120752372}
 		{F262E17F-2040-484C-8F9E-3C36C85E0D05} = {EE6267B4-407D-41DA-8EF1-F74120752372}
+		{5C9CD4F7-E8C8-47FC-9762-BF6743E2D435} = {EE6267B4-407D-41DA-8EF1-F74120752372}
+		{4CAB9612-C5AF-4943-B1AA-8805203CE770} = {EE6267B4-407D-41DA-8EF1-F74120752372}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {97AB0967-2109-4F52-B629-DEA955BFEF4D}

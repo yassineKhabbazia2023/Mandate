@@ -16,6 +16,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             }
 
             services.AddScoped<IDatabaseService, SqlAdapter>();
+            services.AddScoped<IJeDeclareService, JeDeclareAdapter>();
 
             return services;
         }

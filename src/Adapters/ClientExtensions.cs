@@ -8,7 +8,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
     {
         public static Client.BankDetail ToBankDetail(this Bank source)
         {
-            var bankJdcDetail = new Client.BankJdcDetail(source.JdcAgreement.IsJdcPartner, source.JdcAgreement.IsJdcScrapable);
+            var bankJdcDetail = new Client.BankJdcDetail(source.JdcAgreement.JdcPartnership.ToString("G"));
             return new Client.BankDetail(source.Code, source.Name, bankJdcDetail);
         }
 
@@ -27,7 +27,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public static Bban ToModel(this Client.Bban source)
         {
-            return new Bban(source.BankCode, source.BranchCode, source.AccountNumber, source.CheckDigits, null);
+            return new Bban(source.BankCode, source.BranchCode, source.AccountNumber, source.CheckDigits, null, null);
         }
 
         public static CollectionQueryDto ToModel(this Client.CollectionQuery source, Guid? collaboratorId)

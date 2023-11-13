@@ -4,10 +4,18 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.Sql;
-
     public class SqlExtensionsTest
     {
+        [Fact]
+        public void BankToModel()
+        {
+            var entity = new Sql.RefBankDb() { BankCode = "c", BankName = "n", BankGroup = "g", EbicsCardId = "e", JdcPartnership = (Sql.JdcPartnership)2 };
+            var result = entity.ToModel();
+
+            result.Should().NotBeNull();
+            result.Should().BeEquivalentTo(new Bank("c", "n", "g", "e", new BankAgreement(JdcPartnership.NonPartner)));
+        }
+
         [Fact]
         public void ToSqlTest()
         {
@@ -19,14 +27,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 modificationDateEnd: new DateTime(2023, 10, 4, 0, 0, 0, DateTimeKind.Utc),
                 searchTerm: "companyName",
                 skip: 0,
-                sortCriteria: Mandate.CollectionSortCriteria.ModificationDate,
-                sortOrder: Mandate.SortOrder.Ascending,
+                sortCriteria: CollectionSortCriteria.ModificationDate,
+                sortOrder: SortOrder.Ascending,
                 statusCodes: new List<int> { 1, 2 },
                 collaboratorId: new Guid("00000001-0000-0000-0000-000000000000"));
 
             var res = queryDto.ToSql();
 
-            res.Should().BeEquivalentTo(new CollectionQuery
+            res.Should().BeEquivalentTo(new Sql.CollectionQuery
             {
                 CreationDateEnd = new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 CreationDateStart = new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
@@ -35,8 +43,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 ModificationDateEnd = new DateTime(2023, 10, 4, 0, 0, 0, DateTimeKind.Utc),
                 SearchTerm = "companyName",
                 Skip = 0,
-                SortCriteria = CollectionSortCriteria.ModificationDate,
-                SortOrder = SortOrder.Ascending,
+                SortCriteria = Sql.CollectionSortCriteria.ModificationDate,
+                SortOrder = Sql.SortOrder.Ascending,
                 StatusCodes = new List<int> { 1, 2 },
                 CollaboratorId = new Guid("00000001-0000-0000-0000-000000000000"),
             });

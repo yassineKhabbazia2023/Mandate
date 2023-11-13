@@ -42,11 +42,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
         public string Password { get; set; } = null!;
 
+        public string JdcCompteId { get; set; }
+
+        public string HistoryDateEnabledBanks { get; set; }
+
         /// <summary>
         /// Check if the object is filled with valid properties.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown when <see cref="BaseUri"/> is null.</exception>
-        internal void Validate()
+        public void Validate()
         {
             if (this.BaseUri is null)
             {

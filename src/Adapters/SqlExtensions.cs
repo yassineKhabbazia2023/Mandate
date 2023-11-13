@@ -8,8 +8,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
     {
         public static Bank ToModel(this Sql.RefBankDb source)
         {
-            var bankagreement = new BankAgreement(source.IsJdcPartner, source.IsJdcScrapable, source.HasReleveAgreement);
-            return new Bank(source.BankCode, source.BankName, source.BankGroup, bankagreement);
+            var bankagreement = new BankAgreement((JdcPartnership)source.JdcPartnership);
+            return new Bank(source.BankCode, source.BankName, source.BankGroup, source.EbicsCardId, bankagreement);
         }
 
         public static Collection ToModel(this Sql.CollectionDb source)
@@ -23,9 +23,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 default,
                 default);
 
-            Bank? bank = new Bank(source.Bank!.BankCode, source.Bank!.BankName, source.Bank!.BankGroup, null!);
+            Bank? bank = source.Bank?.ToModel();
 
-            Bban? bban = new Bban(source.BankCode!, source.BranchCode!, source.AccountNumber!, source.CheckDigits!, bank);
+            Bban? bban = new Bban(source.BankCode!, source.BranchCode!, source.AccountNumber!, source.CheckDigits!, source.JeDeclareCollection?.JdcRibId, bank);
 
             var currentStatus = source.Statuses?.SingleOrDefault(i => i.IsCurrent);
             var creationStatus = source.Statuses?.SingleOrDefault(i => i.StatusCode == -1);
@@ -36,6 +36,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
             return new Collection(
                 id: source.Id,
+                collectionServicesProviderId: source.JeDeclareCollection?.JdcReleveId,
                 company: company,
                 bban: bban,
                 creationDate: (creationStatus?.StatusDate!).Value,

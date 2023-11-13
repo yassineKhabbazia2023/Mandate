@@ -9,8 +9,4 @@
 		<RootNamespace>KPMG.Pulse.Back.Accounting.Mandate</RootNamespace>
 	</PropertyGroup>
 
-	<ItemGroup>
-	  <Folder Include="Exceptions\" />
-	</ItemGroup>
-
 </Project>

@@ -9,7 +9,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests
         [Fact]
         public void Constructor()
         {
-            var jdc = new BankJdcDetail(true, true);
+            var jdc = new BankJdcDetail("NonPartner");
             var entity = new BankDetail("a", "b", jdc);
 
             // Make sure we don't forget propeties
@@ -27,7 +27,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests
         [Fact]
         public void Serialization()
         {
-            var jdc = new BankJdcDetail(true, true);
+            var jdc = new BankJdcDetail("NonPartner");
             var entity = new BankDetail("a", "b", jdc);
 
             entity.Should().BeJsonSerializableTo(new
@@ -36,8 +36,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests
                 name = "b",
                 jeDeclare = new
                 {
-                    isPartner = true,
-                    isScrapable = true,
+                    jdcPartnership = "NonPartner",
                 },
             });
         }

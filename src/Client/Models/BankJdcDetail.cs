@@ -9,16 +9,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
     public class BankJdcDetail
     {
         [JsonConstructor]
-        public BankJdcDetail(bool isPartner, bool isScrapable)
+        public BankJdcDetail(string jdcPartnership)
         {
-            this.IsPartner = isPartner;
-            this.IsScrapable = isScrapable;
+            this.JdcPartnership = jdcPartnership;
         }
 
-        [JsonProperty("isPartner")]
-        public bool IsPartner { get; }
-
-        [JsonProperty("isScrapable")]
-        public bool IsScrapable { get; }
+        [JsonProperty("jdcPartnership")]
+        public string JdcPartnership { get; }
     }
 }

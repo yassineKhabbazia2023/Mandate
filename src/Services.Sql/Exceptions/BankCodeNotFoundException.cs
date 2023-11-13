@@ -33,5 +33,4 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
             return new BankCodeNotFoundException($"La banque avec le code '{bankCode}' n'a pas été trouvée dans le référentiel");
         }
     }
-
 }

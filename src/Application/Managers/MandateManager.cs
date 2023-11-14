@@ -4,17 +4,25 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
+    using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
+    using Microsoft.Extensions.Options;
+
     public class MandateManager : IMandateManager
     {
         private readonly IDatabaseService databaseService;
         private readonly ICompanyManager companyManager;
         private readonly IJeDeclareService jeDeclareService;
+        private readonly IAsposeHelper asposeHelper;
+        private readonly IOptions<JeDeclareOptions> options;
 
-        public MandateManager(IDatabaseService databaseService, ICompanyManager companyManager, IJeDeclareService jeDeclareService)
+        public MandateManager(IDatabaseService databaseService, ICompanyManager companyManager, IJeDeclareService jeDeclareService, IAsposeHelper asposeHelper, IOptions<JeDeclareOptions> options)
         {
             this.databaseService = databaseService;
             this.companyManager = companyManager;
             this.jeDeclareService = jeDeclareService;
+            this.asposeHelper = asposeHelper;
+            this.options = options ?? throw new ArgumentNullException(nameof(options));
+            options.Value.Validate();
         }
 
         public async Task<Guid> CreateMandate(MandateCreation mandateCreation)
@@ -74,6 +82,34 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         public async Task<IEnumerable<Collection>> GetAllCollectionsAsync(CollectionQueryDto query)
         {
             return await this.databaseService.GetAllCollectionsAsync(query).ConfigureAwait(false);
+        }
+
+        public async Task<byte[]> DownloadUnsignedAsync(Guid id)
+        {
+            var collection = await this.databaseService.GetCollectionById(id);
+
+            var isJdcPartner = collection.Bban?.Bank?.JdcAgreement.JdcPartnership == JdcPartnership.Partner;
+            if (isJdcPartner)
+            {
+                var folderId = collection.Company?.BankServicesProviderId;
+                var ribId = collection.Bban?.BbanServicesProviderId;
+
+                if (string.IsNullOrEmpty(folderId))
+                {
+                    throw new FolderIdEmptyOrNullException();
+                }
+
+                if (string.IsNullOrEmpty(ribId))
+                {
+                    throw new RibIdEmptyOrNullException();
+                }
+
+                return await this.jeDeclareService.GetMandatPdfAsync(this.options.Value.JdcCompteId, folderId, ribId);
+            }
+            else
+            {
+                return await this.asposeHelper.GeneratePdfFromTemplateAsync(collection);
+            }
         }
     }
 }

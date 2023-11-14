@@ -25,5 +25,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         Task<bool> CheckCollecteConfigExist(Bban bban);
 
         Task<Collection> UpdateCollection(Guid id, Collection collection);
+
+        Task<Collection> GetCollectionById(Guid id);
     }
 }

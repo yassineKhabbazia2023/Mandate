@@ -20,6 +20,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Entities\Mandate.csproj" />
+		<ProjectReference Include="..\Services.JeDeclare.Client.Http\Mandate.JeDeclare.Client.Http.csproj" />
 	</ItemGroup>
 
 </Project>

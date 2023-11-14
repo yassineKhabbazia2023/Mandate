@@ -20,5 +20,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             throw new NotImplementedException();
         }
+
+        public Task<byte[]> GetMandatPdfAsync(string jdcCompteId, string jdcFolderId, string jdcRibId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -116,6 +116,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 opt.BaseUri = new Uri(builder.Configuration["MandateJeDeclareBaseUri"]);
                 opt.Login = builder.Configuration["MandateJeDeclareLogin"];
                 opt.Password = builder.Configuration["MandateJeDeclarePassword"];
+                opt.JdcCompteId = builder.Configuration["MandateJeDeclareCompteId"];
             });
 
             builder.Services.AddMandateFormio(opt =>

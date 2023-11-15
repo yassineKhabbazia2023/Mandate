@@ -256,7 +256,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
         {
             using var context = new MandateContext(this.options);
 
-            var collectionDb = context.Collection.AsNoTracking().Where(c => c.Id == id);
+            var collectionDb = context.Collection
+                .Include(c => c.Bank)
+                .Include(item => item.Company)
+                .Include(item => item.Statuses).ThenInclude(item => item.RefStatusCode)
+                .AsNoTracking().Where(c => c.Id == id);
 
             if (!await collectionDb.AnyAsync().ConfigureAwait(false))
             {

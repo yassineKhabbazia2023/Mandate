@@ -73,7 +73,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 {
                     m.Should().Be(Guid.Parse(mandateId));
                 })
-                .Throws(new CollectionNotFoundException());
+                .Throws(new Sql.CollectionNotFoundException());
 
             var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(

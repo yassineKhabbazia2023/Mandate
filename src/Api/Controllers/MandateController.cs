@@ -71,7 +71,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 // Return the file
                 return this.Ok(this.File(fileData, contentType, fileName));
             }
-            catch (CollectionNotFoundException ex)
+            catch (Sql.CollectionNotFoundException ex)
             {
                 this.logger.LogError("[{correlationId}] - There is no mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
                 return this.NotFound(new Error("CollectionNotFound", correlationId.ToString(), ex.Message));

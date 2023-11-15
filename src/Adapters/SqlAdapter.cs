@@ -73,15 +73,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             throw new NotImplementedException();
         }
 
-        public Task<Collection> GetCollectionById(Guid id)
+        public async Task<Collection> GetCollectionById(Guid id)
         {
-            throw new NotImplementedException();
+            var collectionDb = await this.mandateRepository.GetCollectionById(id).ConfigureAwait(false);
 
-            // TODO: check if the collection exists or not
-            //if (collection == null)
-            //{
-            //    throw new CollectionNotFoundException();
-            //}
+            return collectionDb.ToModel();
         }
     }
 }

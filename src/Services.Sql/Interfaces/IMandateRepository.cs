@@ -40,5 +40,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         /// <param name="query">An object that encapsulates the query parameters, including pagination and search terms.</param>
         /// <returns>All entries that match the query. All Collection instances returned contain their parent Company instance.</returns>
         Task<IReadOnlyList<CollectionDb>> SearchCollectionsAsync(CollectionQuery query);
+
+        Task<CollectionDb> GetCollectionById(Guid id);
     }
 }

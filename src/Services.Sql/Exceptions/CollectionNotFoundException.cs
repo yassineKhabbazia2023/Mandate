@@ -2,7 +2,7 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate
+namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 {
     using System.Runtime.Serialization;
 
@@ -26,6 +26,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         protected CollectionNotFoundException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+        }
+
+        public static CollectionNotFoundException FromId(string collectionId)
+        {
+            return new CollectionNotFoundException($"La collecton avec l'id '{collectionId}' n'a pas été trouvée");
         }
     }
 }

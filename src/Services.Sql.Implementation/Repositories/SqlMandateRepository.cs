@@ -251,5 +251,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 return refPdfTemplate.PdfFile;
             }
         }
+
+        public async Task<CollectionDb> GetCollectionById(Guid id)
+        {
+            using var context = new MandateContext(this.options);
+
+            var collectionDb = context.Collection.AsNoTracking().Where(c => c.Id == id);
+
+            if (!await collectionDb.AnyAsync().ConfigureAwait(false))
+            {
+                throw CollectionNotFoundException.FromId(id.ToString());
+            }
+
+            return await collectionDb.SingleAsync().ConfigureAwait(false);
+        }
     }
 }

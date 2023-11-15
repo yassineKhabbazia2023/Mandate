@@ -4,8 +4,17 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
+    using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
+
     public class JeDeclareAdapter : IJeDeclareService
     {
+        private readonly IJeDeclareClient jedeclareClient;
+
+        public JeDeclareAdapter(IJeDeclareClient jedeclareClient)
+        {
+           this.jedeclareClient = jedeclareClient;
+        }
+
         public Task<Bban> AddRibToFolderAsync(string? bankServicesProviderId, Bban bban, Signatory signatory)
         {
             throw new NotImplementedException();
@@ -21,9 +30,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             throw new NotImplementedException();
         }
 
-        public Task<byte[]> GetMandatPdfAsync(string jdcCompteId, string jdcFolderId, string jdcRibId)
+        public async Task<byte[]> GetMandatPdfAsync(string jdcCompteId, string jdcFolderId, string jdcRibId)
         {
-            throw new NotImplementedException();
+            return await this.jedeclareClient.GetMandatPdfAsync(jdcCompteId, jdcFolderId, jdcRibId);
         }
     }
 }

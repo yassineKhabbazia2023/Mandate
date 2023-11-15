@@ -14,4 +14,8 @@
 		<ProjectReference Include="..\..\src\Entities\Mandate.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Exceptions\" />
+	</ItemGroup>
+
 </Project>

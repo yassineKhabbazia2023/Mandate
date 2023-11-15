@@ -87,29 +87,50 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         public async Task<byte[]> DownloadUnsignedAsync(Guid id)
         {
             var collection = await this.databaseService.GetCollectionById(id);
+            var isJdcPartner = this.IsJdcPartner(collection);
 
-            var isJdcPartner = collection.Bban?.Bank?.JdcAgreement.JdcPartnership == JdcPartnership.Partner;
             if (isJdcPartner)
             {
-                var folderId = collection.Company?.BankServicesProviderId;
-                var ribId = collection.Bban?.BbanServicesProviderId;
-
-                if (string.IsNullOrEmpty(folderId))
-                {
-                    throw new FolderIdEmptyOrNullException();
-                }
-
-                if (string.IsNullOrEmpty(ribId))
-                {
-                    throw new RibIdEmptyOrNullException();
-                }
-
-                return await this.jeDeclareService.GetMandatPdfAsync(this.options.Value.JdcCompteId, folderId, ribId);
+                return await this.DownloadPdfForJdcPartner(collection);
             }
             else
             {
-                return await this.asposeHelper.GeneratePdfFromTemplateAsync(collection);
+                return await this.GeneratePdfForNonPartner(collection);
             }
+        }
+
+        private bool IsJdcPartner(Collection collection)
+        {
+            return collection.Bban?.Bank?.JdcAgreement.JdcPartnership == JdcPartnership.Partner;
+        }
+
+        private void ValidatePartnerCollection(Collection collection)
+        {
+            var folderId = collection.Company?.BankServicesProviderId;
+            var ribId = collection.Bban?.BbanServicesProviderId;
+
+            if (string.IsNullOrEmpty(folderId))
+            {
+                throw new FolderIdEmptyOrNullException();
+            }
+
+            if (string.IsNullOrEmpty(ribId))
+            {
+                throw new RibIdEmptyOrNullException();
+            }
+        }
+
+        private async Task<byte[]> DownloadPdfForJdcPartner(Collection collection)
+        {
+            var folderId = collection?.Company?.BankServicesProviderId;
+            var ribId = collection?.Bban?.BbanServicesProviderId;
+            this.ValidatePartnerCollection(collection!);
+            return await this.jeDeclareService.GetMandatPdfAsync(this.options.Value.JdcCompteId, folderId!, ribId!);
+        }
+
+        private async Task<byte[]> GeneratePdfForNonPartner(Collection collection)
+        {
+            return await this.asposeHelper.GeneratePdfFromTemplateAsync(collection);
         }
     }
 }

@@ -4,18 +4,15 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Portal
 {
-    using Kpmg.Constellation.IdentityService.Client;
     using Microsoft.AspNetCore.Http;
 
     public class AuthenticationContext : IAuthenticationContext
     {
         private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly ISystemAccountAuthenticationProvider systemAccountAuthenticationProvider;
 
-        public AuthenticationContext(IHttpContextAccessor httpContextAccessor, ISystemAccountAuthenticationProvider systemAccountAuthenticationProvider)
+        public AuthenticationContext(IHttpContextAccessor httpContextAccessor)
         {
             this.httpContextAccessor = httpContextAccessor;
-            this.systemAccountAuthenticationProvider = systemAccountAuthenticationProvider;
         }
 
         public string BearerToken
@@ -24,8 +21,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Portal
             {
                 if (this.httpContextAccessor?.HttpContext == null)
                 {
-                    // Generate Token systeme
-                    return this.systemAccountAuthenticationProvider.GetTokenAsync().GetAwaiter().GetResult();
+                    throw new InvalidOperationException("no http context for the request.");
                 }
                 else
                 {

@@ -30,9 +30,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Portal.Tests
             var httpContextAccessor = new Mock<IHttpContextAccessor>(MockBehavior.Strict);
             httpContextAccessor.SetupGet(a => a.HttpContext).Returns(httpContext.Object);
 
-            var systemAccountAuthenticationProvider = new Mock<ISystemAccountAuthenticationProvider>(MockBehavior.Strict);
-
-            var authenticationContext = new AuthenticationContext(httpContextAccessor.Object, systemAccountAuthenticationProvider.Object);
+            var authenticationContext = new AuthenticationContext(httpContextAccessor.Object);
             authenticationContext.BearerToken.Should().Be("abc");
         }
 
@@ -56,56 +54,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Portal.Tests
             var httpContextAccessor = new Mock<IHttpContextAccessor>(MockBehavior.Strict);
             httpContextAccessor.SetupGet(a => a.HttpContext).Returns(httpContext.Object);
 
-            var systemAccountAuthenticationProvider = new Mock<ISystemAccountAuthenticationProvider>(MockBehavior.Strict);
-
-            var authenticationContext = new AuthenticationContext(httpContextAccessor.Object, systemAccountAuthenticationProvider.Object);
+            var authenticationContext = new AuthenticationContext(httpContextAccessor.Object);
             Func<string> act = () => authenticationContext.BearerToken;
             act.Should().ThrowExactly<InvalidOperationException>().WithMessage("A Bearer token is mandatory in the Authorization header.");
-        }
-
-        [Fact]
-        public void BearerToken_NoHeader()
-        {
-            var dict = new HeaderDictionary();
-
-            var request = new Mock<HttpRequest>();
-            request.SetupGet(x => x.Headers)
-                .Returns(dict)
-                .Verifiable();
-
-            var httpContext = new Mock<HttpContext>();
-            httpContext.SetupGet(x => x.Request)
-                .Returns(request.Object);
-
-            var httpContextAccessor = new Mock<IHttpContextAccessor>(MockBehavior.Strict);
-            httpContextAccessor.SetupGet(a => a.HttpContext).Returns(httpContext.Object);
-
-            var systemAccountAuthenticationProvider = new Mock<ISystemAccountAuthenticationProvider>(MockBehavior.Strict);
-
-            var authenticationContext = new AuthenticationContext(httpContextAccessor.Object, systemAccountAuthenticationProvider.Object);
-            Func<string> act = () => authenticationContext.BearerToken;
-            act.Should().ThrowExactly<InvalidOperationException>().WithMessage("An Authorization header is mandatory.");
-        }
-
-        [Fact]
-        public void BearerToken_NoRequest()
-        {
-            string token = "abc";
-            HttpContext httpContext = null!;
-
-            var httpContextAccessor = new Mock<IHttpContextAccessor>(MockBehavior.Strict);
-            httpContextAccessor.SetupGet(a => a.HttpContext).Returns(httpContext);
-
-            var systemAccountAuthenticationProvider = new Mock<ISystemAccountAuthenticationProvider>(MockBehavior.Strict);
-            systemAccountAuthenticationProvider.Setup(x => x.GetTokenAsync())
-                .ReturnsAsync(token)
-                .Verifiable();
-
-            var authenticationContext = new AuthenticationContext(httpContextAccessor.Object, systemAccountAuthenticationProvider.Object);
-            authenticationContext.BearerToken.Should().Be("abc");
-
-            httpContextAccessor.Verify();
-            systemAccountAuthenticationProvider.Verify();
         }
 
         [Fact]
@@ -116,18 +67,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Portal.Tests
             var httpContextAccessor = new Mock<IHttpContextAccessor>(MockBehavior.Strict);
             httpContextAccessor.SetupGet(a => a.HttpContext).Returns(httpContext);
 
-            var systemAccountAuthenticationProvider = new Mock<ISystemAccountAuthenticationProvider>(MockBehavior.Strict);
-            systemAccountAuthenticationProvider.Setup(x => x.GetTokenAsync())
-                .ThrowsAsync(new Exception("message"))
-                .Verifiable();
-
-            var authenticationContext = new AuthenticationContext(httpContextAccessor.Object, systemAccountAuthenticationProvider.Object);
+            var authenticationContext = new AuthenticationContext(httpContextAccessor.Object);
 
             Func<string> act = () => authenticationContext.BearerToken;
-            act.Should().ThrowExactly<Exception>().WithMessage("message");
+            act.Should().ThrowExactly<InvalidOperationException>().WithMessage("no http context for the request.");
 
             httpContextAccessor.Verify();
-            systemAccountAuthenticationProvider.Verify();
         }
     }
 }

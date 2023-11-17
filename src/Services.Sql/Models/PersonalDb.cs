@@ -1,16 +1,20 @@
-﻿// <copyright file="CompanyPersonalDb.cs" company="KPMG">
+﻿// <copyright file="PersonalDb.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 {
-    public class CompanyPersonalDb
+    public class PersonalDb
     {
         public Guid Id { get; set; }
 
         public Guid CompanyId { get; set; }
 
         public CompanyDb? Company { get; set; } = null!;
+
+        public Guid CollectionId { get; set; }
+
+        public CollectionDb? Collection { get; set; }
 
         public string? Title { get; set; } = null!;
 

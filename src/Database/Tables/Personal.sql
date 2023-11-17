@@ -1,7 +1,8 @@
-﻿CREATE TABLE [Mandate].[CompanyPersonal]
+﻿CREATE TABLE [Mandate].[Personal]
 (
 	[Id] UNIQUEIDENTIFIER NOT NULL,
 	[CompanyId] UNIQUEIDENTIFIER NOT NULL,
+	[CollectionId] UNIQUEIDENTIFIER NOT NULL,
 	[Title] NVARCHAR(10) NULL, 
 	[FirstName] NVARCHAR(100) NULL, 
 	[LastName] NVARCHAR(100) NULL, 
@@ -12,6 +13,7 @@
 	[City] NVARCHAR(100) NULL, 
 	[Country] NVARCHAR(100) NULL, 
 
-    CONSTRAINT [PK_CompanyPersonal] PRIMARY KEY ([Id]),
-	CONSTRAINT [FK_CompanyPersonal_Company] FOREIGN KEY ([CompanyId]) REFERENCES [Mandate].[Company]([Id])
+    CONSTRAINT [PK_Personal] PRIMARY KEY ([Id]),
+	CONSTRAINT [FK_Personal_Company] FOREIGN KEY ([CompanyId]) REFERENCES [Mandate].[Company]([Id]),
+	CONSTRAINT [FK_Personal_Collection] FOREIGN KEY ([CollectionId]) REFERENCES [Mandate].[Collection]([Id])
 )

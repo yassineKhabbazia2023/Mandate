@@ -4,17 +4,17 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
 {
-    public class CompanyPersonalDbTest
+    public class PersonalDbTest
     {
         [Fact]
         public void Defaults()
         {
             // Arrange
-            var entity = new CompanyPersonalDb();
+            var entity = new PersonalDb();
 
             // Assert
             // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(12);
+            entity.GetType().GetProperties().Length.Should().Be(14);
 
             // Test all properties ; number of tests below should match the number of propeties above
             entity.Id.Should().BeEmpty();
@@ -29,13 +29,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             entity.ZipCode.Should().BeNull();
             entity.City.Should().BeNull();
             entity.Country.Should().BeNull();
+            entity.CollectionId.Should().BeEmpty();
+            entity.Collection.Should().BeNull("because it is initialized as null");
         }
 
         [Fact]
         public void Values()
         {
             // Arrange
-            var entity = new CompanyPersonalDb
+            var entity = new PersonalDb
             {
                 Title = "Mr.",
                 FirstName = "John",

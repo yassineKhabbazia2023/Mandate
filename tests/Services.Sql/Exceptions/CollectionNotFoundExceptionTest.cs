@@ -15,7 +15,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             var exception = new CollectionNotFoundException();
 
             // Assert
-            exception.Message.Should().Be("Exception of type 'KPMG.Pulse.Back.Accounting.Mandate.CollectionNotFoundException' was thrown.");
+            exception.Message.Should().Be("Exception of type 'KPMG.Pulse.Back.Accounting.Mandate.Sql.CollectionNotFoundException' was thrown.");
         }
 
         [Fact]

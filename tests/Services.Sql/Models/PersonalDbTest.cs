@@ -1,4 +1,4 @@
-﻿// <copyright file="CompanyPersonalDbTest.cs" company="KPMG">
+﻿// <copyright file="PersonalDbTest.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 

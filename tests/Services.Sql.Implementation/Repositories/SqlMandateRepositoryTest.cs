@@ -515,9 +515,56 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             PredictableGuid generator = new PredictableGuid();
             Guid comapnyId1 = generator.NewGuid();
             Guid comapnyId2 = generator.NewGuid();
+            Guid collaboratorId = generator.NewGuid();
+
             var collectionId1 = generator.NewGuid();
             var collectionId2 = generator.NewGuid();
-            Guid collaboratorId = generator.NewGuid();
+
+            var refBankDb = new RefBankDb()
+            {
+                BankCode = "12345",
+                BankName = "bn1",
+                BankCommercialName = "bcn",
+                BankCategory = "bca",
+                BankGroup = "bg",
+                IsJdcScrapable = true,
+                IsJdcPartner = false,
+                HasReleveAgreement = false,
+                HasLiasseAgreement = null,
+                AllowsDemat = true,
+                JdcPartnership = (JdcPartnership)2,
+                EbicsCardId = null,
+            };
+
+            await context.RefBank.AddAsync(refBankDb);
+
+            var collectiondb1 = new CollectionDb()
+            {
+                Id = collectionId1,
+                CompanyId = comapnyId1,
+                BankCode = "12345",
+                BranchCode = "23456",
+                AccountNumber = "12345678901",
+                CheckDigits = "55",
+                LinkType = 7,
+                RejectReason = "reason1",
+            };
+
+            var collectiondb2 = new CollectionDb()
+            {
+                Id = collectionId2,
+                CompanyId = comapnyId2,
+                BankCode = "12345",
+                BranchCode = "23456",
+                AccountNumber = "12345678901",
+                CheckDigits = "55",
+                LinkType = 7,
+                RejectReason = "reason1",
+            };
+
+            await context.Collection.AddAsync(collectiondb1);
+            await context.Collection.AddAsync(collectiondb2);
+
             CompanyDb company1 = new CompanyDb
             {
                 Id = comapnyId1,
@@ -541,51 +588,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             };
             await context.Company.AddAsync(company1);
 
-            var collectionDb1 = new CollaboratorDb
-            {
-                Id = collectionId1,
-                Email = "cmarwa@kpmg.fr",
-                FirstName = "marwa",
-                LastName = "CHEBIL",
-            };
-
-
-            var collectionDb2 = new CollectionDb()
-            {
-                Id = collectionId1,
-                CompanyId = comapnyId1,
-                BankCode = "12345",
-                BranchCode = "23456",
-                AccountNumber = "12345678901",
-                CheckDigits = "55",
-                LinkType = 7,
-                RejectReason = "reason1",
-                Personal = new PersonalDb
-                {
-                    CollectionId = collectionId1,
-                    CompanyId = comapnyId1,
-                    Title = "Mr.",
-                    FirstName = "John",
-                    LastName = "Doe",
-                    Email = "john.doe@example.com",
-                    Street = "123 Main St",
-                    Complements = "Apt 4B",
-                    ZipCode = "12345",
-                    City = "Sample City",
-                    Country = "ExampleLand",
-                },
-            };
-
-            await context.Collection.AddAsync(collectionDb2);
-
-            await context.Collaborator.AddAsync(collectionDb1);
-
             CompanyDb company2 = new CompanyDb
             {
                 Id = comapnyId2,
                 Personal = new PersonalDb
                 {
-                    CollectionId = collectionId1,
+                    CollectionId = collectionId2,
                     CompanyId = comapnyId2,
                     Title = "Mr.",
                     FirstName = "John",

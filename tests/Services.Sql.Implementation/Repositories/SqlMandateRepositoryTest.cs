@@ -4,8 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 {
-    using Azure;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
 
     [Collection("SerialExecutionPublishDb")]
@@ -651,6 +649,90 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             companies[1]?.Name.Should().Be("Dior");
             companies[1]?.SiretNumber.Should().Be("40930900600031");
             companies[1]?.ErpId.Should().Be("1000265309");
+        }
+
+        [Fact]
+        public async Task SaveSignatoryAsync_CaseNewEntity()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            var companyId = Guid.Parse("a1111111-1111-1111-1111-111111111111");
+            var collectionId = Guid.Parse("b1111111-1111-1111-1111-111111111111");
+
+            var refBankDb = new RefBankDb()
+            {
+                BankCode = "12345",
+                BankName = "bn1",
+                BankCommercialName = "bcn",
+                BankCategory = "bca",
+                BankGroup = "bg",
+                IsJdcScrapable = true,
+                IsJdcPartner = false,
+                HasReleveAgreement = false,
+                HasLiasseAgreement = null,
+                AllowsDemat = true,
+                JdcPartnership = (JdcPartnership)2,
+                EbicsCardId = null,
+            };
+
+            await context.RefBank.AddAsync(refBankDb);
+
+            var collectiondb1 = new CollectionDb()
+            {
+                Id = collectionId,
+                CompanyId = companyId,
+                BankCode = "12345",
+                BranchCode = "23456",
+                AccountNumber = "12345678901",
+                CheckDigits = "55",
+                LinkType = 7,
+                RejectReason = "reason1",
+            };
+
+            await context.Collection.AddAsync(collectiondb1);
+
+            CompanyDb company1 = new CompanyDb
+            {
+                Id = companyId,
+                Name = "Microsoft",
+                SiretNumber = "40902900600031",
+                ErpId = "1000265308",
+            };
+            await context.Company.AddAsync(company1);
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            var personal = new PersonalDb
+            {
+                CollectionId = collectionId,
+                CompanyId = companyId,
+                Title = "Mr.",
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com",
+                Street = "123 Main St",
+                Complements = "Apt 4B",
+                ZipCode = "12345",
+                City = "Sample City",
+                Country = "ExampleLand",
+            };
+            await sqlMandateRepository.SaveSignatoryAsync(personal);
+            var db = database.ExecuteQuery("select * from [Mandate].[Personal]");
+
+            db.Rows.Count.Should().Be(1);
+            var dbr0 = db.Rows[0];
+            dbr0["CollectionId"].As<Guid>().Should().Be(collectionId);
+            dbr0["Title"].As<string>().Should().BeEquivalentTo("Mr.");
+            dbr0["FirstName"].As<string>().Should().BeEquivalentTo("John");
+            dbr0["LastName"].As<string>().Should().BeEquivalentTo("Doe");
+            dbr0["Email"].As<string>().Should().BeEquivalentTo("john.doe@example.com");
+            dbr0["Street"].As<string>().Should().BeEquivalentTo("123 Main St");
+            dbr0["Complements"].As<string>().Should().BeEquivalentTo("Apt 4B");
+            dbr0["ZipCode"].As<string>().Should().BeEquivalentTo("12345");
+            dbr0["City"].As<string>().Should().BeEquivalentTo("Sample City");
+            dbr0["Country"].As<string>().Should().BeEquivalentTo("ExampleLand");
         }
     }
 }

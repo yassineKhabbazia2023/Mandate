@@ -251,5 +251,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 return refPdfTemplate.PdfFile;
             }
         }
+
+        public async Task SaveSignatoryAsync(PersonalDb personalDb)
+        {
+            using var context = new MandateContext(this.options);
+
+            await context.AddAsync(personalDb);
+            await context.SaveChangesAsync();
+        }
     }
 }

@@ -4,6 +4,8 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+
     public class SqlAdapter : IDatabaseService
     {
         private readonly Sql.IMandateRepository mandateRepository;
@@ -71,6 +73,26 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         public Task<Collection> UpdateCollection(Guid id, Collection collection)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task SaveSignatoryAsync(Guid companyId, Guid collectionId, Signatory signatory, Address address)
+        {
+            var newPersonalDb = new PersonalDb()
+            {
+                CompanyId = companyId,
+                CollectionId = collectionId,
+                City = address.City,
+                Country = address.Country,
+                Street = address.Street,
+                ZipCode = address.ZipCode,
+                Complements = address.Complements,
+                FirstName = signatory.FirstName,
+                LastName = signatory.LastName,
+                Email = signatory.Email,
+                Title = signatory.Title,
+            };
+
+            await this.mandateRepository.SaveSignatoryAsync(newPersonalDb);
         }
     }
 }

@@ -33,6 +33,7 @@
 		<ProjectReference Include="..\Services.Formio.Client.Http\Mandate.Formio.Client.Http.csproj" />
 		<ProjectReference Include="..\Services.JeDeclare.Client.Http\Mandate.JeDeclare.Client.Http.csproj" />
 		<ProjectReference Include="..\Services.Mongo.Implementation\Mandate.Mongo.Implementation.csproj" />
+		<ProjectReference Include="..\Services.Portal\Mandate.Portal.csproj" />
 		<ProjectReference Include="..\Services.Sql.Implementation\Mandate.Sql.Implementation.csproj" />
 	</ItemGroup>
 

@@ -4,8 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 {
-    using Azure;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
 
     [Collection("SerialExecutionPublishDb")]
@@ -137,12 +135,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Ascending,
             };
             var response11 = await sqlMandateRepository.SearchCollectionsAsync(query11);
-            response11.Count.Should().Be(5);
-            response11[0].AccountNumber.Should().Be("12345678901");
-            response11[1].AccountNumber.Should().Be("12345678902");
-            response11[2].AccountNumber.Should().Be("12345678903");
-            response11[3].AccountNumber.Should().Be("12345678904");
-            response11[4].AccountNumber.Should().Be("12345678905");
+            response11.Item2.Should().Be(5);
+            response11.Item1.Count.Should().Be(5);
+            response11.Item1[0].AccountNumber.Should().Be("12345678901");
+            response11.Item1[1].AccountNumber.Should().Be("12345678902");
+            response11.Item1[2].AccountNumber.Should().Be("12345678903");
+            response11.Item1[3].AccountNumber.Should().Be("12345678904");
+            response11.Item1[4].AccountNumber.Should().Be("12345678905");
 
             // Sort descending
             var query12 = new CollectionQuery()
@@ -151,12 +150,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Descending,
             };
             var response12 = await sqlMandateRepository.SearchCollectionsAsync(query12);
-            response12.Count.Should().Be(5);
-            response12[0].AccountNumber.Should().Be("12345678905");
-            response12[1].AccountNumber.Should().Be("12345678904");
-            response12[2].AccountNumber.Should().Be("12345678903");
-            response12[3].AccountNumber.Should().Be("12345678902");
-            response12[4].AccountNumber.Should().Be("12345678901");
+            response12.Item2.Should().Be(5);
+            response12.Item1.Count.Should().Be(5);
+            response12.Item1[0].AccountNumber.Should().Be("12345678905");
+            response12.Item1[1].AccountNumber.Should().Be("12345678904");
+            response12.Item1[2].AccountNumber.Should().Be("12345678903");
+            response12.Item1[3].AccountNumber.Should().Be("12345678902");
+            response12.Item1[4].AccountNumber.Should().Be("12345678901");
 
             // Sort by bank name
             var query21 = new CollectionQuery()
@@ -165,12 +165,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Descending,
             };
             var response21 = await sqlMandateRepository.SearchCollectionsAsync(query21);
-            response21.Count.Should().Be(5);
-            response21[0].Bank!.BankName.Should().Be("bn3");
-            response21[1].Bank!.BankName.Should().Be("bn2");
-            response21[2].Bank!.BankName.Should().Be("bn2");
-            response21[3].Bank!.BankName.Should().Be("bn2");
-            response21[4].Bank!.BankName.Should().Be("bn1");
+            response21.Item2.Should().Be(5);
+            response21.Item1.Count.Should().Be(5);
+            response21.Item1[0].Bank!.BankName.Should().Be("bn3");
+            response21.Item1[1].Bank!.BankName.Should().Be("bn2");
+            response21.Item1[2].Bank!.BankName.Should().Be("bn2");
+            response21.Item1[3].Bank!.BankName.Should().Be("bn2");
+            response21.Item1[4].Bank!.BankName.Should().Be("bn1");
 
             // Sort by creation date
             var query22 = new CollectionQuery()
@@ -179,17 +180,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Ascending,
             };
             var response22 = await sqlMandateRepository.SearchCollectionsAsync(query22);
-            response22.Count.Should().Be(5);
-            response22[0].AccountNumber.Should().Be("12345678902");
-            response22[0].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 19, 9, 0, 0, DateTimeKind.Utc));
-            response22[1].AccountNumber.Should().Be("12345678905");
-            response22[1].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 20, 9, 0, 0, DateTimeKind.Utc));
-            response22[2].AccountNumber.Should().Be("12345678904");
-            response22[2].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 22, 9, 0, 0, DateTimeKind.Utc));
-            response22[3].AccountNumber.Should().Be("12345678901");
-            response22[3].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc));
-            response22[4].AccountNumber.Should().Be("12345678903");
-            response22[4].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 29, 9, 0, 0, DateTimeKind.Utc));
+            response22.Item2.Should().Be(5);
+            response22.Item1.Count.Should().Be(5);
+            response22.Item1[0].AccountNumber.Should().Be("12345678902");
+            response22.Item1[0].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 19, 9, 0, 0, DateTimeKind.Utc));
+            response22.Item1[1].AccountNumber.Should().Be("12345678905");
+            response22.Item1[1].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 20, 9, 0, 0, DateTimeKind.Utc));
+            response22.Item1[2].AccountNumber.Should().Be("12345678904");
+            response22.Item1[2].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 22, 9, 0, 0, DateTimeKind.Utc));
+            response22.Item1[3].AccountNumber.Should().Be("12345678901");
+            response22.Item1[3].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc));
+            response22.Item1[4].AccountNumber.Should().Be("12345678903");
+            response22.Item1[4].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 29, 9, 0, 0, DateTimeKind.Utc));
 
             // Sort by creation date desc OK
             var query29 = new CollectionQuery()
@@ -198,17 +200,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Descending,
             };
             var response29 = await sqlMandateRepository.SearchCollectionsAsync(query29);
-            response29.Count.Should().Be(5);
-            response29[0].AccountNumber.Should().Be("12345678903");
-            response29[0].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 29, 9, 0, 0, DateTimeKind.Utc));
-            response29[1].AccountNumber.Should().Be("12345678901");
-            response29[1].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc));
-            response29[2].AccountNumber.Should().Be("12345678904");
-            response29[2].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 22, 9, 0, 0, DateTimeKind.Utc));
-            response29[3].AccountNumber.Should().Be("12345678905");
-            response29[3].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 20, 9, 0, 0, DateTimeKind.Utc));
-            response29[4].AccountNumber.Should().Be("12345678902");
-            response29[4].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 19, 9, 0, 0, DateTimeKind.Utc));
+            response29.Item2.Should().Be(5);
+            response29.Item1.Count.Should().Be(5);
+            response29.Item1[0].AccountNumber.Should().Be("12345678903");
+            response29.Item1[0].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 29, 9, 0, 0, DateTimeKind.Utc));
+            response29.Item1[1].AccountNumber.Should().Be("12345678901");
+            response29.Item1[1].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc));
+            response29.Item1[2].AccountNumber.Should().Be("12345678904");
+            response29.Item1[2].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 22, 9, 0, 0, DateTimeKind.Utc));
+            response29.Item1[3].AccountNumber.Should().Be("12345678905");
+            response29.Item1[3].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 20, 9, 0, 0, DateTimeKind.Utc));
+            response29.Item1[4].AccountNumber.Should().Be("12345678902");
+            response29.Item1[4].Statuses[0].StatusDate.Should().Be(new DateTime(2023, 9, 19, 9, 0, 0, DateTimeKind.Utc));
 
             // Sort by modification date
             var query23 = new CollectionQuery()
@@ -217,12 +220,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Ascending,
             };
             var response23 = await sqlMandateRepository.SearchCollectionsAsync(query23);
-            response23.Count.Should().Be(5);
-            response23[0].AccountNumber.Should().Be("12345678905"); // 20/09
-            response23[1].AccountNumber.Should().Be("12345678904"); // 22/09
-            response23[2].AccountNumber.Should().Be("12345678901"); // 28/09
-            response23[3].AccountNumber.Should().Be("12345678903"); // 29/09
-            response23[4].AccountNumber.Should().Be("12345678902"); // 30/09
+            response23.Item2.Should().Be(5);
+            response23.Item1.Count.Should().Be(5);
+            response23.Item1[0].AccountNumber.Should().Be("12345678905"); // 20/09
+            response23.Item1[1].AccountNumber.Should().Be("12345678904"); // 22/09
+            response23.Item1[2].AccountNumber.Should().Be("12345678901"); // 28/09
+            response23.Item1[3].AccountNumber.Should().Be("12345678903"); // 29/09
+            response23.Item1[4].AccountNumber.Should().Be("12345678902"); // 30/09
 
             // Sort by modification date desc ok
             var query28 = new CollectionQuery()
@@ -231,12 +235,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Descending,
             };
             var response28 = await sqlMandateRepository.SearchCollectionsAsync(query28);
-            response28.Count.Should().Be(5);
-            response28[0].AccountNumber.Should().Be("12345678902"); // 30/09
-            response28[1].AccountNumber.Should().Be("12345678903"); // 29/09
-            response28[2].AccountNumber.Should().Be("12345678901"); // 28/09
-            response28[3].AccountNumber.Should().Be("12345678904"); // 22/09
-            response28[4].AccountNumber.Should().Be("12345678905"); // 20/09
+            response28.Item2.Should().Be(5);
+            response28.Item1.Count.Should().Be(5);
+            response28.Item1[0].AccountNumber.Should().Be("12345678902"); // 30/09
+            response28.Item1[1].AccountNumber.Should().Be("12345678903"); // 29/09
+            response28.Item1[2].AccountNumber.Should().Be("12345678901"); // 28/09
+            response28.Item1[3].AccountNumber.Should().Be("12345678904"); // 22/09
+            response28.Item1[4].AccountNumber.Should().Be("12345678905"); // 20/09
 
             // Sort by company name desc
             var query24 = new CollectionQuery()
@@ -245,12 +250,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Descending,
             };
             var response24 = await sqlMandateRepository.SearchCollectionsAsync(query24);
-            response24.Count.Should().Be(5);
-            response24[0].Company!.Name.Should().Be("cn2");
-            response24[1].Company!.Name.Should().Be("cn2");
-            response24[2].Company!.Name.Should().Be("cn2");
-            response24[3].Company!.Name.Should().Be("cn1");
-            response24[4].Company!.Name.Should().Be("cn1");
+            response24.Item2.Should().Be(5);
+            response24.Item1.Count.Should().Be(5);
+            response24.Item1[0].Company!.Name.Should().Be("cn2");
+            response24.Item1[1].Company!.Name.Should().Be("cn2");
+            response24.Item1[2].Company!.Name.Should().Be("cn2");
+            response24.Item1[3].Company!.Name.Should().Be("cn1");
+            response24.Item1[4].Company!.Name.Should().Be("cn1");
 
             // Sort by company name
             var queryc9 = new CollectionQuery()
@@ -259,12 +265,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Ascending,
             };
             var responsec9 = await sqlMandateRepository.SearchCollectionsAsync(queryc9);
-            responsec9.Count.Should().Be(5);
-            responsec9[0].Company!.Name.Should().Be("cn1");
-            responsec9[1].Company!.Name.Should().Be("cn1");
-            responsec9[2].Company!.Name.Should().Be("cn2");
-            responsec9[3].Company!.Name.Should().Be("cn2");
-            responsec9[4].Company!.Name.Should().Be("cn2");
+            responsec9.Item2.Should().Be(5);
+            responsec9.Item1.Count.Should().Be(5);
+            responsec9.Item1[0].Company!.Name.Should().Be("cn1");
+            responsec9.Item1[1].Company!.Name.Should().Be("cn1");
+            responsec9.Item1[2].Company!.Name.Should().Be("cn2");
+            responsec9.Item1[3].Company!.Name.Should().Be("cn2");
+            responsec9.Item1[4].Company!.Name.Should().Be("cn2");
 
             // Sort by erp
             var query25 = new CollectionQuery()
@@ -273,12 +280,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Ascending,
             };
             var response25 = await sqlMandateRepository.SearchCollectionsAsync(query25);
-            response25.Count.Should().Be(5);
-            response25[0].Company!.ErpId.Should().Be("1234567890");
-            response25[1].Company!.ErpId.Should().Be("1234567890");
-            response25[2].Company!.ErpId.Should().Be("9876543210");
-            response25[3].Company!.ErpId.Should().Be("9876543210");
-            response25[4].Company!.ErpId.Should().Be("9876543210");
+            response25.Item2.Should().Be(5);
+            response25.Item1.Count.Should().Be(5);
+            response25.Item1[0].Company!.ErpId.Should().Be("1234567890");
+            response25.Item1[1].Company!.ErpId.Should().Be("1234567890");
+            response25.Item1[2].Company!.ErpId.Should().Be("9876543210");
+            response25.Item1[3].Company!.ErpId.Should().Be("9876543210");
+            response25.Item1[4].Company!.ErpId.Should().Be("9876543210");
 
             // Sort by erp desc
             var queryErp = new CollectionQuery()
@@ -287,12 +295,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Descending,
             };
             var responseErp = await sqlMandateRepository.SearchCollectionsAsync(queryErp);
-            responseErp.Count.Should().Be(5);
-            responseErp[0].Company!.ErpId.Should().Be("9876543210");
-            responseErp[1].Company!.ErpId.Should().Be("9876543210");
-            responseErp[2].Company!.ErpId.Should().Be("9876543210");
-            responseErp[3].Company!.ErpId.Should().Be("1234567890");
-            responseErp[4].Company!.ErpId.Should().Be("1234567890");
+            responseErp.Item2.Should().Be(5);
+            responseErp.Item1.Count.Should().Be(5);
+            responseErp.Item1[0].Company!.ErpId.Should().Be("9876543210");
+            responseErp.Item1[1].Company!.ErpId.Should().Be("9876543210");
+            responseErp.Item1[2].Company!.ErpId.Should().Be("9876543210");
+            responseErp.Item1[3].Company!.ErpId.Should().Be("1234567890");
+            responseErp.Item1[4].Company!.ErpId.Should().Be("1234567890");
 
             // Sort by status
             var query26 = new CollectionQuery()
@@ -301,12 +310,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Ascending,
             };
             var response26 = await sqlMandateRepository.SearchCollectionsAsync(query26);
-            response26.Count.Should().Be(5);
-            response26[0].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(30);
-            response26[1].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(40);
-            response26[2].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
-            response26[3].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
-            response26[4].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
+            response26.Item2.Should().Be(5);
+            response26.Item1.Count.Should().Be(5);
+            response26.Item1[0].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(30);
+            response26.Item1[1].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(40);
+            response26.Item1[2].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
+            response26.Item1[3].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
+            response26.Item1[4].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
 
             // Sort by status desc
             var querySt = new CollectionQuery()
@@ -315,12 +325,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Descending,
             };
             var responseSt = await sqlMandateRepository.SearchCollectionsAsync(querySt);
-            responseSt.Count.Should().Be(5);
-            responseSt[0].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
-            responseSt[1].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
-            responseSt[2].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
-            responseSt[3].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(40);
-            responseSt[4].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(30);
+            responseSt.Item2.Should().Be(5);
+            responseSt.Item1.Count.Should().Be(5);
+            responseSt.Item1[0].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
+            responseSt.Item1[1].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
+            responseSt.Item1[2].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
+            responseSt.Item1[3].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(40);
+            responseSt.Item1[4].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(30);
 
             // Page 0
             var query31 = new CollectionQuery()
@@ -331,9 +342,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 Limit = 2,
             };
             var response31 = await sqlMandateRepository.SearchCollectionsAsync(query31);
-            response31.Count.Should().Be(2);
-            response31[0].AccountNumber.Should().Be("12345678901");
-            response31[1].AccountNumber.Should().Be("12345678902");
+            response31.Item2.Should().Be(5);
+            response31.Item1.Count.Should().Be(2);
+            response31.Item1[0].AccountNumber.Should().Be("12345678901");
+            response31.Item1[1].AccountNumber.Should().Be("12345678902");
 
             // Page 1
             var query32 = new CollectionQuery()
@@ -344,9 +356,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 Limit = 2,
             };
             var response32 = await sqlMandateRepository.SearchCollectionsAsync(query32);
-            response32.Count.Should().Be(2);
-            response32[0].AccountNumber.Should().Be("12345678903");
-            response32[1].AccountNumber.Should().Be("12345678904");
+            response32.Item2.Should().Be(5);
+            response32.Item1.Count.Should().Be(2);
+            response32.Item1[0].AccountNumber.Should().Be("12345678903");
+            response32.Item1[1].AccountNumber.Should().Be("12345678904");
 
             // Partial last page
             var query33 = new CollectionQuery()
@@ -357,9 +370,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 Limit = 100,
             };
             var response33 = await sqlMandateRepository.SearchCollectionsAsync(query33);
-            response33.Count.Should().Be(2);
-            response33[0].AccountNumber.Should().Be("12345678904");
-            response33[1].AccountNumber.Should().Be("12345678905");
+            response33.Item2.Should().Be(5);
+            response33.Item1.Count.Should().Be(2);
+            response33.Item1[0].AccountNumber.Should().Be("12345678904");
+            response33.Item1[1].AccountNumber.Should().Be("12345678905");
 
             // After last page
             var query34 = new CollectionQuery()
@@ -370,7 +384,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 Limit = 100,
             };
             var response34 = await sqlMandateRepository.SearchCollectionsAsync(query34);
-            response34.Count.Should().Be(0);
+            response34.Item2.Should().Be(5);
+            response34.Item1.Count.Should().Be(0);
+
+            // filter + pagination + count
+            var query35 = new CollectionQuery()
+            {
+                SearchTerm = "bn2",
+                SortCriteria = CollectionSortCriteria.BankName,
+                SortOrder = SortOrder.Ascending,
+                Skip = 0,
+                Limit = 2,
+            };
+            var response35 = await sqlMandateRepository.SearchCollectionsAsync(query35);
+            response35.Item2.Should().Be(3);
+            response35.Item1.Count.Should().Be(2);
 
             // Filter no result
             var query41 = new CollectionQuery()
@@ -378,7 +406,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SearchTerm = "boom",
             };
             var response41 = await sqlMandateRepository.SearchCollectionsAsync(query41);
-            response41.Count.Should().Be(0);
+            response41.Item2.Should().Be(0);
+            response41.Item1.Count.Should().Be(0);
 
             // Filter search term on account number OK
             var query56 = new CollectionQuery()
@@ -388,8 +417,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Ascending,
             };
             var response56 = await sqlMandateRepository.SearchCollectionsAsync(query56);
-            response56.Count.Should().Be(1);
-            response56[0].AccountNumber.Should().Be("12345678901");
+            response56.Item2.Should().Be(1);
+            response56.Item1.Count.Should().Be(1);
+            response56.Item1[0].AccountNumber.Should().Be("12345678901");
 
             // Filter search term on company name
             var query58 = new CollectionQuery()
@@ -399,10 +429,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Ascending,
             };
             var response58 = await sqlMandateRepository.SearchCollectionsAsync(query58);
-            response58.Count.Should().Be(3);
-            response58[0].AccountNumber.Should().Be("12345678903");
-            response58[1].AccountNumber.Should().Be("12345678904");
-            response58[2].AccountNumber.Should().Be("12345678905");
+            response58.Item2.Should().Be(3);
+            response58.Item1.Count.Should().Be(3);
+            response58.Item1[0].AccountNumber.Should().Be("12345678903");
+            response58.Item1[1].AccountNumber.Should().Be("12345678904");
+            response58.Item1[2].AccountNumber.Should().Be("12345678905");
 
             // Filter search term on bank name
             var query45 = new CollectionQuery()
@@ -412,10 +443,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Ascending,
             };
             var response45 = await sqlMandateRepository.SearchCollectionsAsync(query45);
-            response45.Count.Should().Be(3);
-            response45[0].AccountNumber.Should().Be("12345678902");
-            response45[1].AccountNumber.Should().Be("12345678904");
-            response45[2].AccountNumber.Should().Be("12345678905");
+            response45.Item2.Should().Be(3);
+            response45.Item1.Count.Should().Be(3);
+            response45.Item1[0].AccountNumber.Should().Be("12345678902");
+            response45.Item1[1].AccountNumber.Should().Be("12345678904");
+            response45.Item1[2].AccountNumber.Should().Be("12345678905");
 
             // Filter search term on bank name
             var query59 = new CollectionQuery()
@@ -425,9 +457,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Ascending,
             };
             var response59 = await sqlMandateRepository.SearchCollectionsAsync(query59);
-            response59.Count.Should().Be(2);
-            response59[0].AccountNumber.Should().Be("12345678901");
-            response59[1].AccountNumber.Should().Be("12345678902");
+            response59.Item2.Should().Be(2);
+            response59.Item1.Count.Should().Be(2);
+            response59.Item1[0].AccountNumber.Should().Be("12345678901");
+            response59.Item1[1].AccountNumber.Should().Be("12345678902");
 
             // Filter creation date
             var query42 = new CollectionQuery()
@@ -438,10 +471,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Ascending,
             };
             var response42 = await sqlMandateRepository.SearchCollectionsAsync(query42);
-            response42.Count.Should().Be(3);
-            response42[0].AccountNumber.Should().Be("12345678902");
-            response42[1].AccountNumber.Should().Be("12345678904");
-            response42[2].AccountNumber.Should().Be("12345678905");
+            response42.Item2.Should().Be(3);
+            response42.Item1.Count.Should().Be(3);
+            response42.Item1[0].AccountNumber.Should().Be("12345678902");
+            response42.Item1[1].AccountNumber.Should().Be("12345678904");
+            response42.Item1[2].AccountNumber.Should().Be("12345678905");
 
             // Filter modification date
             var query43 = new CollectionQuery()
@@ -452,11 +486,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Ascending,
             };
             var response43 = await sqlMandateRepository.SearchCollectionsAsync(query43);
-            response43.Count.Should().Be(4);
-            response43[0].AccountNumber.Should().Be("12345678901");
-            response43[1].AccountNumber.Should().Be("12345678903");
-            response43[2].AccountNumber.Should().Be("12345678904");
-            response43[3].AccountNumber.Should().Be("12345678905");
+            response43.Item2.Should().Be(4);
+            response43.Item1.Count.Should().Be(4);
+            response43.Item1[0].AccountNumber.Should().Be("12345678901");
+            response43.Item1[1].AccountNumber.Should().Be("12345678903");
+            response43.Item1[2].AccountNumber.Should().Be("12345678904");
+            response43.Item1[3].AccountNumber.Should().Be("12345678905");
 
             // Filter on status = 3 & 4 ok
             var query46 = new CollectionQuery()
@@ -466,9 +501,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Ascending,
             };
             var response46 = await sqlMandateRepository.SearchCollectionsAsync(query46);
-            response46.Count.Should().Be(2);
-            response46[0].AccountNumber.Should().Be("12345678902");
-            response46[1].AccountNumber.Should().Be("12345678905");
+            response46.Item2.Should().Be(2);
+            response46.Item1.Count.Should().Be(2);
+            response46.Item1[0].AccountNumber.Should().Be("12345678902");
+            response46.Item1[1].AccountNumber.Should().Be("12345678905");
 
             // Filter on status = 2
             var query47 = new CollectionQuery()
@@ -478,10 +514,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Ascending,
             };
             var response47 = await sqlMandateRepository.SearchCollectionsAsync(query47);
-            response47.Count.Should().Be(3);
-            response47[0].AccountNumber.Should().Be("12345678901");
-            response47[1].AccountNumber.Should().Be("12345678903");
-            response47[2].AccountNumber.Should().Be("12345678904");
+            response47.Item2.Should().Be(3);
+            response47.Item1.Count.Should().Be(3);
+            response47.Item1[0].AccountNumber.Should().Be("12345678901");
+            response47.Item1[1].AccountNumber.Should().Be("12345678903");
+            response47.Item1[2].AccountNumber.Should().Be("12345678904");
 
             // Filter on all statuses
             var query48 = new CollectionQuery()
@@ -491,7 +528,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Ascending,
             };
             var response48 = await sqlMandateRepository.SearchCollectionsAsync(query48);
-            response48.Count.Should().Be(5);
+            response48.Item2.Should().Be(5);
+            response48.Item1.Count.Should().Be(5);
 
             // Filter no result
             var query49 = new CollectionQuery()
@@ -501,7 +539,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SortOrder = SortOrder.Ascending,
             };
             var response49 = await sqlMandateRepository.SearchCollectionsAsync(query49);
-            response49.Count.Should().Be(0);
+            response49.Item2.Should().Be(0);
+            response49.Item1.Count.Should().Be(0);
         }
 
         [Fact]

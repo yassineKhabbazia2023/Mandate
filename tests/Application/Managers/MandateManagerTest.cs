@@ -25,6 +25,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(company)
                 .Verifiable();
 
+            var createdCollectionSQL = TestHelper.GetCollection(new Guid("00000000-0000-0000-0000-000000000001"));
             var createdCompany = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "12345");
             var jeDeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
             jeDeclareService.Setup(r => r.CreateFolderAsync(company))
@@ -45,12 +46,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(false)
                 .Verifiable();
 
+            databaseService.Setup(ds => ds.SaveSignatoryAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Signatory>(), It.IsAny<Address>()))
+                .Callback<Guid, Guid, Signatory, Address>((comp, coll, sign, adres) =>
+                {
+                    comp.Should().Be(company.Id);
+                    coll.Should().Be(createdCollectionSQL.Id);
+                    sign.Should().BeEquivalentTo(company.Signatory);
+                    adres.Should().BeEquivalentTo(company.Address);
+
+                }).Returns(Task.CompletedTask)
+                .Verifiable();
+
             var createdBban = TestHelper.GetBban("56789");
             jeDeclareService.Setup(js => js.AddRibToFolderAsync("12345", bban, signatory))
                 .ReturnsAsync(createdBban)
                 .Verifiable();
 
-            var createdCollectionSQL = TestHelper.GetCollection(new Guid("00000000-0000-0000-0000-000000000001"));
             databaseService.Setup(ds => ds.CreateCollection("1000332927", new Guid("00000000-0000-0000-0000-000000000001"), bban))
                 .ReturnsAsync(createdCollectionSQL)
                .Verifiable();

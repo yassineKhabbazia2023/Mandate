@@ -26,7 +26,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             SqlAdapter adapter = new SqlAdapter(mandateRepository.Object);
 
-            var res = await adapter.GetAllCollectionsAsync(new CollectionQueryDto(null, null, null, null, null, null, null, null, Mandate.SortOrder.Ascending, Mandate.CollectionSortCriteria.Name, default));
+            var res = await adapter.GetAllCollectionsAsync(
+                new CollectionQueryDto(null, null, null, null, null, null, null, null, Mandate.SortOrder.Ascending, Mandate.CollectionSortCriteria.Name, "collab@email.com"),
+                new Guid("00000001-0000-0000-0000-000000000000"));
 
             res.Should().NotBeNull();
             res.Count().Should().Be(1);

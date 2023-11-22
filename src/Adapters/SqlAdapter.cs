@@ -34,9 +34,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return await this.mandateRepository.GetPdfTemplateByCodeAsync(bankCode).ConfigureAwait(false);
         }
 
-        public async Task<IEnumerable<Collection>> GetAllCollectionsAsync(CollectionQueryDto query)
+        public async Task<IEnumerable<Collection>> GetAllCollectionsAsync(CollectionQueryDto query, Guid collaboratorId)
         {
-            return (await this.mandateRepository.SearchCollectionsAsync(query.ToSql())).Select(i => i.ToModel());
+            return (await this.mandateRepository.SearchCollectionsAsync(query.ToSql(collaboratorId))).Select(i => i.ToModel());
         }
 
         public Task<Company> CreateFolderAsync(string bankServicesProviderId, Guid companyId)
@@ -69,6 +69,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         }
 
         public Task<Collection> UpdateCollection(Guid id, Collection collection)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Collaborator> GetCollaboratorByEmail(string collaboratorEmail)
         {
             throw new NotImplementedException();
         }

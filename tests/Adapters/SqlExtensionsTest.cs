@@ -30,9 +30,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 sortCriteria: CollectionSortCriteria.ModificationDate,
                 sortOrder: SortOrder.Ascending,
                 statusCodes: new List<int> { 1, 2 },
-                collaboratorId: new Guid("00000001-0000-0000-0000-000000000000"));
+                collaboratorEmail: "collab@email.com");
 
-            var res = queryDto.ToSql();
+            var res = queryDto.ToSql(new Guid("00000001-0000-0000-0000-000000000000"));
 
             res.Should().BeEquivalentTo(new Sql.CollectionQuery
             {

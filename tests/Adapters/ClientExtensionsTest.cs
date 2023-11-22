@@ -48,5 +48,37 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             model.Should().BeEquivalentTo(expected);
         }
+
+        [Fact]
+        public void ToModel()
+        {
+            var entity = new Client.CollectionQuery(
+                "search",
+                new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                new List<int>() { -1,3},
+                10,
+                0,
+                "Ascending",
+                "AccountNumber",
+                "collab@email.com");
+
+            var model = entity.ToModel();
+
+            model.Should().BeEquivalentTo(new CollectionQueryDto(
+                 "search",
+                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                 new List<int>() { -1, 3 },
+                 10,
+                 0,
+                 SortOrder.Ascending,
+                 CollectionSortCriteria.AccountNumber,
+                 "collab@email.com"));
+        }
     }
 }

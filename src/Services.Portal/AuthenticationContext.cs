@@ -4,6 +4,7 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Portal
 {
+    using System.Security.Claims;
     using Microsoft.AspNetCore.Http;
 
     public class AuthenticationContext : IAuthenticationContext
@@ -42,6 +43,25 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Portal
 
                     throw new InvalidOperationException("A Bearer token is mandatory in the Authorization header.");
                 }
+            }
+        }
+
+        public string? Email
+        {
+            get
+            {
+                if (
+                    this.httpContextAccessor.HttpContext != null &&
+                    this.httpContextAccessor.HttpContext.User.Identity!.IsAuthenticated)
+                {
+                    var emailClaim = this.httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email);
+                    if (emailClaim != null)
+                    {
+                        return emailClaim.Value;
+                    }
+                }
+
+                return null;
             }
         }
     }

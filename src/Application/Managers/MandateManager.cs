@@ -73,12 +73,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
         public async Task<IEnumerable<Collection>> GetAllCollectionsAsync(CollectionQueryDto query)
         {
-            return await this.databaseService.GetAllCollectionsAsync(query).ConfigureAwait(false);
-        }
-
-        public Task<Collaborator> GetCollaboratorByEmail(string email)
-        {
-            throw new NotImplementedException();
+            Collaborator collaborator = await this.databaseService.GetCollaboratorByEmail(query.CollaboratorEmail);
+            return await this.databaseService.GetAllCollectionsAsync(query, collaborator.Id).ConfigureAwait(false);
         }
     }
 }

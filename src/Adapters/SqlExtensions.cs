@@ -44,7 +44,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 status: status);
         }
 
-        public static Sql.CollectionQuery ToSql(this CollectionQueryDto source)
+        public static Sql.CollectionQuery ToSql(this CollectionQueryDto source, Guid collaboratorId)
         {
             return new Sql.CollectionQuery
             {
@@ -58,7 +58,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 Skip = source.Skip,
                 SortOrder = (Sql.SortOrder)source.SortOrder,
                 SortCriteria = (Sql.CollectionSortCriteria)source.SortCriteria,
-                CollaboratorId = source.CollaboratorId,
+                CollaboratorId = collaboratorId,
             };
         }
     }

@@ -7,6 +7,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
+    using KPMG.Pulse.Back.Accounting.Mandate.Portal;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
@@ -17,11 +18,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     {
         private readonly ILogger<MandateController> logger;
         private readonly IMandateManager mandateManager;
+        private readonly IAuthenticationContext authenticationContext;
 
-        public MandateController(ILogger<MandateController> logger, IMandateManager mandateManager)
+        public MandateController(ILogger<MandateController> logger, IMandateManager mandateManager, IAuthenticationContext authenticationContext)
         {
             this.logger = logger;
             this.mandateManager = mandateManager;
+            this.authenticationContext = authenticationContext;
         }
 
         [HttpGet]
@@ -33,11 +36,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         {
             try
             {
-                string email = string.Empty;
-                Collaborator collaborator = await this.mandateManager.GetCollaboratorByEmail(email);
+                string email = this.authenticationContext.Email!;
                 var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria, email);
                 this.logger.LogInformation($"{collectionQuery}");
-                var result = await this.mandateManager.GetAllCollectionsAsync(collectionQuery.ToModel(collaborator?.Id));
+                var result = await this.mandateManager.GetAllCollectionsAsync(collectionQuery.ToModel());
                 return this.Ok(result.Select(r => r.ToCollectionSummary()));
             }
             catch (Exception ex)

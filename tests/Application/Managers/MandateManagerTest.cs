@@ -423,5 +423,99 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             this.mockDatabaseService.Verify(m => m.GetCollectionById(id), Times.Once);
             this.mockAsposeHelper.Verify(m => m.GeneratePdfFromTemplateAsync(It.IsAny<Collection>()), Times.Once);
         }
+
+        [Fact]
+        public async Task GetAllCollectionsAsync_Case_OK()
+        {
+            var query = new CollectionQueryDto(
+                  string.Empty,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  10,
+                  0,
+                  SortOrder.Ascending,
+                  CollectionSortCriteria.Name,
+                  Guid.Empty);
+
+            Company company = new Company(
+                new Guid("00000001-0000-0000-0000-000000000000"),
+                "cn",
+                "12345678910",
+                "123456789",
+                string.Empty,
+                null,
+                null);
+
+            Bank bank = new Bank("12345", "bn", "bg", string.Empty, new BankAgreement(JdcPartnership.NonPartner));
+
+            Bban bban = new Bban("12345", "54321", "12345678901", "55", string.Empty, bank);
+
+            Collection collection = new Collection(
+                    new Guid("00000002-0000-0000-0000-000000000000"),
+                    string.Empty,
+                    company,
+                    bban,
+                    new DateTime(2022, 1, 1),
+                    new DateTime(2022, 1, 1),
+                    new Status(CollectionStatus.InProgress, "En cours"));
+
+            var counters = new Counters(1, 1, 0, 0, 0, 0);
+            var pm = new PagedMandate(counters, new List<Collection> { collection });
+
+            var database = new Mock<IDatabaseService>(MockBehavior.Strict);
+            database.Setup(i => i.GetAllCollectionsAsync(query))
+                .ReturnsAsync(pm)
+                .Verifiable();
+
+            MandateManager manager = new MandateManager(
+                database.Object,
+                new Mock<ICompanyManager>(MockBehavior.Strict).Object,
+                new Mock<IJeDeclareService>(MockBehavior.Strict).Object,
+                null!,
+                null!);
+
+            var result = await manager.GetAllCollectionsAsync(query);
+
+            result.Should().BeEquivalentTo(pm);
+
+            database.VerifyAll();
+        }
+
+        [Fact]
+        public async Task GetAllCollectionsAsync_When_Service_Throw_Exception()
+        {
+            var query = new CollectionQueryDto(
+                  string.Empty,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  10,
+                  0,
+                  SortOrder.Ascending,
+                  CollectionSortCriteria.Name,
+                  Guid.Empty);
+
+            var database = new Mock<IDatabaseService>(MockBehavior.Strict);
+            database.Setup(i => i.GetAllCollectionsAsync(query))
+                .ThrowsAsync(new Exception("message"))
+                .Verifiable();
+
+            MandateManager manager = new MandateManager(
+                database.Object,
+                new Mock<ICompanyManager>(MockBehavior.Strict).Object,
+                new Mock<IJeDeclareService>(MockBehavior.Strict).Object,
+                null!,
+                null!);
+
+            Func<Task> action = async () => await manager.GetAllCollectionsAsync(query);
+            await action.Should().ThrowAsync<Exception>().WithMessage("message");
+
+            database.VerifyAll();
+        }
     }
 }

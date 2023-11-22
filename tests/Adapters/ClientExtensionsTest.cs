@@ -48,5 +48,56 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             model.Should().BeEquivalentTo(expected);
         }
+
+        [Fact]
+        public void ToCountersDetail()
+        {
+            Counters counters = new Counters(10, 2, 3, 1, 2, 2);
+
+            var model = counters.ToCountersDetail();
+
+            model.Should().BeEquivalentTo(new Client.Counters(10, 2, 3, 1, 2, 2));
+        }
+
+        [Fact]
+        public void ToPageMandateDetails()
+        {
+            Counters counters = new Counters(1, 1, 0, 0, 0, 0);
+            Company company = new Company(
+                new Guid("00000001-0000-0000-0000-000000000000"),
+                "cn",
+                "12345678910",
+                "123456789",
+                string.Empty,
+                null,
+                null);
+
+            Bban bban = new Bban("12345", "54321", "12345678901", "55", string.Empty, null);
+
+            Collection collection = new Collection(
+                    new Guid("00000002-0000-0000-0000-000000000000"),
+                    string.Empty,
+                    company,
+                    bban,
+                    new DateTime(2022, 1, 1),
+                    new DateTime(2022, 1, 1),
+                    new Status(default, string.Empty));
+
+            List<Collection> collections = new List<Collection>()
+            {
+                collection,
+            };
+
+            PagedMandate page1 = new PagedMandate(counters, collections);
+
+            var model = page1.ToPageMandateDetails();
+            var expectedCounters = new Client.Counters(1, 1, 0, 0, 0, 0);
+            var expectedCollections = new List<Client.CollectionSummary>()
+            {
+               collection.ToCollectionSummary(),
+            };
+
+            model.Should().BeEquivalentTo(new Client.PagedMandate(expectedCounters, expectedCollections));
+        }
     }
 }

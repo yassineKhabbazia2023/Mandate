@@ -13,6 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
+    using KPMG.Pulse.Back.Accounting.Mandate.Portal;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -25,7 +26,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     [ExcludeFromCodeCoverage]
     public static class Program
     {
-        private static ClientCredential? clientCredential;
+        private static ClientCredential? clientCredential; 
 
         public static void Main(string[] args)
         {
@@ -127,6 +128,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             builder.Services.AddMandateApplication();
             builder.Services.AddMandateAdapters();
+            builder.Services.AddPortailApi(builder.Configuration);
 
             var app = builder.Build();
 

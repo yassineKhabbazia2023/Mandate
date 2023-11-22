@@ -34,9 +34,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return await this.mandateRepository.GetPdfTemplateByCodeAsync(bankCode).ConfigureAwait(false);
         }
 
-        public async Task<IEnumerable<Collection>> GetAllCollectionsAsync(CollectionQueryDto query)
+        public async Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query)
         {
-            return (await this.mandateRepository.SearchCollectionsAsync(query.ToSql())).Select(i => i.ToModel());
+            (List<Sql.CollectionDb>, int) tuple = await this.mandateRepository.SearchCollectionsAsync(query.ToSql());
+
+            return new PagedMandate(
+                new Counters(tuple.Item2, 0, 0, 0, 0, 0),
+                tuple.Item1.Select(i => i.ToModel()).ToList());
         }
 
         public Task<Company> CreateFolderAsync(string bankServicesProviderId, Guid companyId)

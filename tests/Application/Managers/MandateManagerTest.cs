@@ -470,12 +470,25 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(pm)
                 .Verifiable();
 
+            var jeDeclareOptions = new JeDeclareOptions
+            {
+                // Set properties as needed
+                JdcCompteId = "yourJdcCompteId",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            };
+
+            this.mockOptions
+                .Setup(opt => opt.Value)
+                .Returns(jeDeclareOptions);
+
             MandateManager manager = new MandateManager(
                 database.Object,
                 new Mock<ICompanyManager>(MockBehavior.Strict).Object,
                 new Mock<IJeDeclareService>(MockBehavior.Strict).Object,
                 null!,
-                null!);
+                this.mockOptions.Object);
 
             var result = await manager.GetAllCollectionsAsync(query);
 
@@ -505,12 +518,25 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ThrowsAsync(new Exception("message"))
                 .Verifiable();
 
+            var jeDeclareOptions = new JeDeclareOptions
+            {
+                // Set properties as needed
+                JdcCompteId = "yourJdcCompteId",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            };
+
+            this.mockOptions
+                .Setup(opt => opt.Value)
+                .Returns(jeDeclareOptions);
+
             MandateManager manager = new MandateManager(
                 database.Object,
                 new Mock<ICompanyManager>(MockBehavior.Strict).Object,
                 new Mock<IJeDeclareService>(MockBehavior.Strict).Object,
                 null!,
-                null!);
+                this.mockOptions.Object);
 
             Func<Task> action = async () => await manager.GetAllCollectionsAsync(query);
             await action.Should().ThrowAsync<Exception>().WithMessage("message");

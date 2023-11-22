@@ -6,7 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public interface IMandateManager
     {
-        Task<IEnumerable<Collection>> GetAllCollectionsAsync(CollectionQueryDto query);
+        Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query);
 
         Task<Guid> CreateMandate(MandateCreation mandateCreation);
     }

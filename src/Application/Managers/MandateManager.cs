@@ -74,7 +74,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             return collection.Id!;
         }
 
-        public async Task<IEnumerable<Collection>> GetAllCollectionsAsync(CollectionQueryDto query)
+        public async Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query)
         {
             return await this.databaseService.GetAllCollectionsAsync(query).ConfigureAwait(false);
         }

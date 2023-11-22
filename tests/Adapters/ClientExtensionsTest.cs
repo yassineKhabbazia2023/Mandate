@@ -58,7 +58,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                new List<int>() { -1,3},
+                new List<int>() { -1, 3 },
                 10,
                 0,
                 "Ascending",
@@ -79,6 +79,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                  SortOrder.Ascending,
                  CollectionSortCriteria.AccountNumber,
                  "collab@email.com"));
+        }
+
+        [Fact]
         public void ToCountersDetail()
         {
             Counters counters = new Counters(10, 2, 3, 1, 2, 2);

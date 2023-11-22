@@ -4,10 +4,11 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests.Controllers
 {
+    using System.Net;
+    using KPMG.Pulse.Back.Accounting.Mandate.Portal;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
-    using System.Net;
 
     public class MandateControllerTest
     {
@@ -25,7 +26,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests.Controllers
                 0,
                 SortOrder.Ascending,
                 CollectionSortCriteria.Name,
-                Guid.Empty);
+                "collab@email.com");
 
             Company company = new Company(
                 new Guid("00000001-0000-0000-0000-000000000000"),
@@ -69,7 +70,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests.Controllers
                 .ReturnsAsync(pm)
                 .Verifiable();
 
-            var controller = new MandateController(logger.Object, manager.Object);
+            var authenticationContext = new Mock<IAuthenticationContext>(MockBehavior.Strict);
+            authenticationContext.Setup(item => item.Email)
+                .Returns("collab@email.com")
+                .Verifiable();
+
+            var controller = new MandateController(logger.Object, manager.Object, authenticationContext.Object);
 
             var result = await controller.GetCollectionsAsync(
                 string.Empty,
@@ -121,7 +127,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests.Controllers
                 0,
                 SortOrder.Ascending,
                 CollectionSortCriteria.Name,
-                Guid.Empty);
+                "collab@email.com");
 
             var logger = new Mock<ILogger<MandateController>>(MockBehavior.Loose);
             var manager = new Mock<IMandateManager>(MockBehavior.Strict);
@@ -131,7 +137,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests.Controllers
                 .ThrowsAsync(new Exception("message"))
                 .Verifiable();
 
-            var controller = new MandateController(logger.Object, manager.Object);
+            var authenticationContext = new Mock<IAuthenticationContext>(MockBehavior.Strict);
+            authenticationContext.Setup(item => item.Email)
+                .Returns("collab@email.com")
+                .Verifiable();
+
+            var controller = new MandateController(logger.Object, manager.Object, authenticationContext.Object);
 
             var result = await controller.GetCollectionsAsync(
                 string.Empty,

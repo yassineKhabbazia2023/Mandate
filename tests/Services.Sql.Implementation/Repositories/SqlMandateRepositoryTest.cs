@@ -20,6 +20,41 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         }
 
         [Fact]
+        public async Task Constructor()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+
+            var options = Options.Create(new SqlMandateRepositoryOptions() { ConnectionString = SqlServerFixture.ConnectionString });
+            var guidGenerator = new Mock<IGuidGenerator>(MockBehavior.Strict);
+            var sqlCalendarRepository = new SqlMandateRepository(options);
+
+            sqlCalendarRepository.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void Constructor_OptionsNullException()
+        {
+            IOptions<SqlMandateRepositoryOptions>? options = null;
+
+            var guidGenerator = new Mock<IGuidGenerator>(MockBehavior.Strict);
+
+            Action action = () => { _ = new SqlMandateRepository(options!); };
+
+            action.Should().ThrowExactly<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'options')");
+        }
+
+        [Fact]
+        public void Constructor_OptionsInvalid()
+        {
+            var options = Options.Create(new SqlMandateRepositoryOptions() { ConnectionString = null });
+            var guidGenerator = new Mock<IGuidGenerator>(MockBehavior.Strict);
+
+            Action creationWithException = () => { _ = new SqlMandateRepository(options); };
+
+            creationWithException.Should().ThrowExactly<InvalidOperationException>().WithMessage("Instance of SqlMandateRepositoryOptions is invalid, ConnectionString is null");
+        }
+
+        [Fact]
         public async Task SearchCollectionsAsync()
         {
             await using var database = SqlServerFixture.CreateDatabase();
@@ -733,6 +768,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             dbr0["ZipCode"].As<string>().Should().BeEquivalentTo("12345");
             dbr0["City"].As<string>().Should().BeEquivalentTo("Sample City");
             dbr0["Country"].As<string>().Should().BeEquivalentTo("ExampleLand");
+        }
+
+        [Fact]
+        public void GetPdfTemplateByCodeAsync_CaseThrowBankCodeNotFoundException()
+        {
+
         }
     }
 }

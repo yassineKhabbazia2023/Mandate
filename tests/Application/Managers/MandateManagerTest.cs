@@ -53,8 +53,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                     coll.Should().Be(createdCollectionSQL.Id);
                     sign.Should().BeEquivalentTo(company.Signatory);
                     adres.Should().BeEquivalentTo(company.Address);
-
-                }).Returns(Task.CompletedTask)
+                })
+                .Returns(Task.CompletedTask)
                 .Verifiable();
 
             var createdBban = TestHelper.GetBban("56789");

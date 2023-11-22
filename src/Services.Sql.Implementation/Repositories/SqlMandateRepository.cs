@@ -29,7 +29,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             throw new NotImplementedException();
         }
 
-        public async Task<IReadOnlyList<CollectionDb>> SearchCollectionsAsync(CollectionQuery query)
+        public async Task<(List<CollectionDb>, int)> SearchCollectionsAsync(CollectionQuery query)
         {
             using var context = new MandateContext(this.options);
             var mandates = context.Collection
@@ -213,10 +213,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                     break;
             }
 
-            return await mandates
+            var list = await mandates
                 .Skip(query.Skip.HasValue ? query.Skip.Value : 0)
                 .Take(query.Limit.HasValue ? query.Limit.Value : mandates.Count())
                 .ToListAsync().ConfigureAwait(false);
+
+            return (list, await mandates.CountAsync());
         }
 
         public async Task<List<CompanyDb?>> GetAllCompaniesByCollaboratorAsync(string email)

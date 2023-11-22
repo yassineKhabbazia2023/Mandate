@@ -22,7 +22,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                     accountNumber: source.Bban?.AccountNumber!,
                     creationDate: source.CreationDate,
                     modificationDate: source.ModificationDate,
-                    statusCode: (int)source.Status.StatusCode);
+                    statusCode: (int)source.Status.StatusCode !);
+        }
+
+        public static Client.Counters ToCountersDetail(this Counters source)
+        {
+            return new Client.Counters(source.All, source.Status10, source.Status20, source.Status30, source.Status40, source.Status50);
+        }
+
+        public static Client.PagedMandate ToPageMandateDetails(this PagedMandate source)
+        {
+            return new Client.PagedMandate(
+                source.Counters.ToCountersDetail(),
+                source.Data.Select(r => r.ToCollectionSummary()).ToList());
         }
 
         public static Bban ToModel(this Client.Bban source)

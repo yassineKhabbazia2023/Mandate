@@ -12,7 +12,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<byte[]> GetPdfTemplateByBankCodeAsync(string bankCode);
 
-        Task<IEnumerable<Collection>> GetAllCollectionsAsync(CollectionQueryDto query, Guid collaboratorId);
+        Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query, Guid collaboratorId);
 
         Task<Collection> CreateCollection(string erpId, Guid companyId, Bban bban);
 

@@ -71,7 +71,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             return collection.Id!;
         }
 
-        public async Task<IEnumerable<Collection>> GetAllCollectionsAsync(CollectionQueryDto query)
+        public async Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query)
         {
             Collaborator collaborator = await this.databaseService.GetCollaboratorByEmail(query.CollaboratorEmail);
             return await this.databaseService.GetAllCollectionsAsync(query, collaborator.Id).ConfigureAwait(false);

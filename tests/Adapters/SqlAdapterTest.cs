@@ -18,10 +18,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             coll.Company = EntityDbFactory.CompanyDb;
             coll.Bank = EntityDbFactory.RefBankDb;
             coll.Statuses = new List<StatusDb>() { status };
+            (List<CollectionDb>, int) tuple = (new List<CollectionDb>() { coll }, 1);
 
             var mandateRepository = new Mock<IMandateRepository>(MockBehavior.Strict);
             mandateRepository.Setup(r => r.SearchCollectionsAsync(It.IsAny<CollectionQuery>()))
-                .ReturnsAsync(new List<CollectionDb>() { coll })
+                .ReturnsAsync(tuple)
                 .Verifiable();
 
             SqlAdapter adapter = new SqlAdapter(mandateRepository.Object);
@@ -30,9 +31,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 new CollectionQueryDto(null, null, null, null, null, null, null, null, Mandate.SortOrder.Ascending, Mandate.CollectionSortCriteria.Name, "collab@email.com"),
                 new Guid("00000001-0000-0000-0000-000000000000"));
 
+            Counters expectedCounters = new Counters(1, 0, 0, 0, 0, 0);
+            List<Collection> expectedCollections = new List<Collection>()
+            {
+                coll.ToModel(),
+            };
+
             res.Should().NotBeNull();
-            res.Count().Should().Be(1);
-            res.Single().Should().BeEquivalentTo(coll.ToModel());
+            res.Should().BeEquivalentTo(new PagedMandate(expectedCounters, expectedCollections));
+
             mandateRepository.VerifyAll();
         }
     }

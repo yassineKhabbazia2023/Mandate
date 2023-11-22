@@ -192,7 +192,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         }
 
         [Fact]
-        public async Task GetAllCollectionsAsync()
+        public async Task GetAllCollectionsAsync_Case_OK()
         {
             var query = new CollectionQueryDto(
                  "search",
@@ -206,29 +206,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                  SortOrder.Ascending,
                  CollectionSortCriteria.AccountNumber,
                  "collab@email.com");
-            Collaborator collaborator = new Collaborator(new Guid("00000001-0000-0000-0000-000000000000"), "collab@email.com", "fname", "lname");
+
+            Collaborator collaborator = EntityFactory.Collaborator;
+
             var databaseService = new Mock<IDatabaseService>(MockBehavior.Strict);
             databaseService.Setup(r => r.GetCollaboratorByEmail("collab@email.com"))
                 .ReturnsAsync(collaborator)
                 .Verifiable();
 
-            Collection collection = new Collection(
-                new Guid("00000001-0000-0000-0000-000000000000"),
-                string.Empty,
-                default,
-                default,
-                new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
-                new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                new Status(CollectionStatus.Active, "active"));
-
+            PagedMandate pagedMandate = EntityFactory.Page(new List<Collection> { EntityFactory.Collection });
             databaseService.Setup(r => r.GetAllCollectionsAsync(query, new Guid("00000001-0000-0000-0000-000000000000")))
-                .ReturnsAsync(new List<Collection>() { collection })
+                .ReturnsAsync(pagedMandate)
                 .Verifiable();
 
             var mandateManager = new MandateManager(databaseService.Object, new Mock<ICompanyManager>(MockBehavior.Strict).Object, new Mock<IJeDeclareService>(MockBehavior.Strict).Object);
 
             var result = await mandateManager.GetAllCollectionsAsync(query).ConfigureAwait(false);
-            result.Should().BeEquivalentTo(new List<Collection>() { collection });
+            result.Should().BeEquivalentTo(pagedMandate);
 
             databaseService.VerifyAll();
         }

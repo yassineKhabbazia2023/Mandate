@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -9,4 +8,7 @@
 		<RootNamespace>KPMG.Pulse.Back.Accounting.Mandate</RootNamespace>
 	</PropertyGroup>
 
+	<ItemGroup>
+		<PackageReference Include="Kpmg.AspNetCore.Authentication.ConstellationIdentityService" Version="1.1.0.3" />
+	</ItemGroup>
 </Project>

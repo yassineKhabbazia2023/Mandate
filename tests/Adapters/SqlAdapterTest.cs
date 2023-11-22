@@ -29,7 +29,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var res = await adapter.GetAllCollectionsAsync(
                 new CollectionQueryDto(null, null, null, null, null, null, null, null, Mandate.SortOrder.Ascending, Mandate.CollectionSortCriteria.Name, "collab@email.com"),
-                new Guid("00000001-0000-0000-0000-000000000000"));
+                new PredictableGuid(101).NewGuid());
 
             Counters expectedCounters = new Counters(1, 0, 0, 0, 0, 0);
             List<Collection> expectedCollections = new List<Collection>()

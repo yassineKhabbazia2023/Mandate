@@ -6,7 +6,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 {
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
-    using System.Linq;
 
     public class SqlMandateRepository : IMandateRepository
     {
@@ -38,14 +37,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 .Include(item => item.Statuses).ThenInclude(item => item.RefStatusCode)
                 .AsQueryable();
 
-            List<Guid> companyIds = context.CompanyCollaborator
-                .Include(item => item.Company)
-                .Where(item => item.CollaboratorId == query.CollaboratorId)
-                .Select(cc => cc.Company!.Id)
-                .ToList();
-
-            // filter avec list de companyDB
-            mandates = mandates.Where(item => companyIds.Contains(item.CompanyId));
+            mandates = mandates
+                .Where(item => context.CompanyCollaborator
+                    .Where(item => item.CollaboratorId == query.CollaboratorId)
+                    .Select(cc => cc.CompanyId)
+                    .Contains(item.CompanyId));
 
             if (!string.IsNullOrEmpty(query.SearchTerm))
             {

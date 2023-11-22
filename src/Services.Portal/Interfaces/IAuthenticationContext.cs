@@ -7,7 +7,5 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Portal
     public interface IAuthenticationContext
     {
         string BearerToken { get; }
-
-        string? Email { get; }
     }
 }

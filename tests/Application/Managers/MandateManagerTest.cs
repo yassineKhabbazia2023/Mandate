@@ -214,7 +214,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(collaborator)
                 .Verifiable();
 
-            PagedMandate pagedMandate = EntityFactory.Page(new List<Collection> { EntityFactory.Collection });
+            PagedMandate pagedMandate = EntityFactory.PagedMandate(new List<Collection> { EntityFactory.Collection });
             databaseService.Setup(r => r.GetAllCollectionsAsync(query, new Guid("00000001-0000-0000-0000-000000000000")))
                 .ReturnsAsync(pagedMandate)
                 .Verifiable();

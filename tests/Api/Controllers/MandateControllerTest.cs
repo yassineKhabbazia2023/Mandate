@@ -4,8 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests.Controllers
 {
-    using System.Net;
-    using KPMG.Pulse.Back.Accounting.Mandate.Portal;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
@@ -70,7 +68,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests.Controllers
                 .ReturnsAsync(pm)
                 .Verifiable();
 
-            var authenticationContext = new Mock<IAuthenticationContext>(MockBehavior.Strict);
+            var authenticationContext = new Mock<IAuthenticationServices>(MockBehavior.Strict);
             authenticationContext.Setup(item => item.Email)
                 .Returns("collab@email.com")
                 .Verifiable();
@@ -106,7 +104,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests.Controllers
                expectedCollection,
             };
 
-            result.As<OkObjectResult>().StatusCode.Should().Be((int)HttpStatusCode.OK);
+            result.As<OkObjectResult>().StatusCode.Should().Be(200);
             result.As<OkObjectResult>().Value.Should().BeEquivalentTo(new Client.PagedMandate(expectedCounters, expectedCollections));
 
             logger.VerifyAll();
@@ -137,7 +135,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests.Controllers
                 .ThrowsAsync(new Exception("message"))
                 .Verifiable();
 
-            var authenticationContext = new Mock<IAuthenticationContext>(MockBehavior.Strict);
+            var authenticationContext = new Mock<IAuthenticationServices>(MockBehavior.Strict);
             authenticationContext.Setup(item => item.Email)
                 .Returns("collab@email.com")
                 .Verifiable();

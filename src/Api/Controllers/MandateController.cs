@@ -6,8 +6,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
-    using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
-    using KPMG.Pulse.Back.Accounting.Mandate.Portal;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Error = KPMG.Pulse.Back.Accounting.Mandate.Client.Error;
@@ -19,9 +17,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     {
         private readonly ILogger<MandateController> logger;
         private readonly IMandateManager mandateManager;
-        private readonly IAuthenticationContext authenticationContext;
+        private readonly IAuthenticationServices authenticationContext;
 
-        public MandateController(ILogger<MandateController> logger, IMandateManager mandateManager, IAuthenticationContext authenticationContext)
+        public MandateController(ILogger<MandateController> logger, IMandateManager mandateManager, IAuthenticationServices authenticationContext)
         {
             this.logger = logger;
             this.mandateManager = mandateManager;
@@ -35,7 +33,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetCollectionsAsync([FromQuery] string? searchTerm, [FromQuery] DateTime? creationDateStart, [FromQuery] DateTime? creationDateEnd, [FromQuery] DateTime? modificationDateStart, [FromQuery] DateTime? modificationDateEnd, [FromQuery] List<int>? statusCodes, [FromQuery] int? limit, [FromQuery] int? skip, [FromQuery] string? sortOrder, [FromQuery] string? sortCriteria)
         {
-            string correlationId = string.Empty;
+            string correlationId = Guid.NewGuid().ToString();
 
             try
             {
@@ -55,16 +53,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [HttpPost]
         public async Task<IActionResult> PostCollectionAsync([FromBody] CollectionCreationCommand collectionCreationCommand)
         {
-            try
-            {
-                await Task.CompletedTask;
-                return this.Ok(); // TODO
-            }
-            catch (JeDeclareApiException e)
-            {
-
-                throw;
-            }
+            await Task.CompletedTask;
+            return this.Ok(); // TODO
         }
 
         [HttpGet("{mandateId}/unsigned")]

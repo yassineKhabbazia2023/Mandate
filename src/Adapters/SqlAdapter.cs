@@ -79,7 +79,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             throw new NotImplementedException();
         }
 
-        public async Task SaveSignatoryAsync(Guid companyId, Guid collectionId, Signatory signatory, Address address)
+        public async Task SaveSignatoryAsync(Guid? companyId, Guid? collectionId, Signatory signatory, Address address)
         {
             var newPersonalDb = new PersonalDb()
             {

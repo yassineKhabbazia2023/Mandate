@@ -46,8 +46,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(false)
                 .Verifiable();
 
-            databaseService.Setup(ds => ds.SaveSignatoryAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Signatory>(), It.IsAny<Address>()))
-                .Callback<Guid, Guid, Signatory, Address>((comp, coll, sign, adres) =>
+            databaseService.Setup(ds => ds.SaveSignatoryAsync(It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<Signatory>(), It.IsAny<Address>()))
+                .Callback<Guid?, Guid?, Signatory, Address>((comp, coll, sign, adres) =>
                 {
                     comp.Should().Be(company.Id);
                     coll.Should().Be(createdCollectionSQL.Id);

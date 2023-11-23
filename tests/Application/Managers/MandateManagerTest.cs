@@ -13,7 +13,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         private readonly Mock<ICompanyManager> mockCompanyManager;
         private readonly Mock<IJeDeclareService> mockJeDeclareService;
         private readonly Mock<IAsposeHelper> mockAsposeHelper;
-        private readonly Mock<IOptions<JeDeclareOptions>> mockOptions;
 
         public MandateManagerTest()
         {
@@ -21,7 +20,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             this.mockCompanyManager = new Mock<ICompanyManager>(MockBehavior.Strict);
             this.mockJeDeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
             this.mockAsposeHelper = new Mock<IAsposeHelper>(MockBehavior.Strict);
-            this.mockOptions = new Mock<IOptions<JeDeclareOptions>>();
         }
 
         [Fact]
@@ -103,19 +101,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(It.Is<Status>(s => s != null))
                 .Verifiable();
 
-            var jeDeclareOptions = new JeDeclareOptions
+            var options = Options.Create(new JeDeclareOptions()
             {
-                // Set properties as needed
                 JdcCompteId = "yourJdcCompteId",
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
-            };
-            this.mockOptions
-               .Setup(opt => opt.Value)
-               .Returns(jeDeclareOptions);
+            });
 
-            var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object, this.mockAsposeHelper.Object, this.mockOptions.Object);
+            var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object, this.mockAsposeHelper.Object, options);
 
             MandateCreation mandate = new MandateCreation("1000332927", signatory, adress, bban);
 
@@ -156,19 +150,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(It.Is<Company>(f => f != null))
                 .Verifiable();
 
-            var jeDeclareOptions = new JeDeclareOptions
+            var options = Options.Create(new JeDeclareOptions()
             {
-                // Set properties as needed
                 JdcCompteId = "yourJdcCompteId",
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
-            };
-            this.mockOptions
-               .Setup(opt => opt.Value)
-               .Returns(jeDeclareOptions);
+            });
 
-            var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object, this.mockAsposeHelper.Object, this.mockOptions.Object);
+            var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object, this.mockAsposeHelper.Object, options);
 
             MandateCreation mandate = new MandateCreation("1000332927", signatory, adress, bban);
 
@@ -220,19 +210,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(true)
                 .Verifiable();
 
-            var jeDeclareOptions = new JeDeclareOptions
+            var options = Options.Create(new JeDeclareOptions()
             {
-                // Set properties as needed
                 JdcCompteId = "yourJdcCompteId",
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
-            };
-            this.mockOptions
-               .Setup(opt => opt.Value)
-               .Returns(jeDeclareOptions);
+            });
 
-            var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object, this.mockAsposeHelper.Object, this.mockOptions.Object);
+            var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object, this.mockAsposeHelper.Object, options);
 
             MandateCreation mandate = new MandateCreation("1000332927", signatory, adress, bban);
 
@@ -249,8 +235,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         public async Task DownloadUnsignedAsync_ValidJdcPartner_ReturnsPdf()
         {
             // Arrange
-            var id = Guid.NewGuid();
-            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "bankServicesProviderId");
+            var id = new PredictableGuid().NewGuid();
+            var companyId = new PredictableGuid().NewGuid();
+
+            var company = TestHelper.GetCompany(companyId, "bankServicesProviderId");
             Bban bban = TestHelper.GetBban("ebicsCardId", true);
             Status status = TestHelper.GetStatus();
             var collection = new Collection(
@@ -262,26 +250,24 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 DateTime.Now,
                 status);
             var expectedBytes = new byte[] { /* byte array */ };
-            var jeDeclareOptions = new JeDeclareOptions
-            {
-                // Set properties as needed
-                JdcCompteId = "yourJdcCompteId",
-                BaseUri = new Uri("http://example.com"),
-                Login = "yourLogin",
-                Password = "yourPassword",
-            };
 
             this.mockDatabaseService
                 .Setup(m => m.GetCollectionById(id))
                 .ReturnsAsync(collection);
-            this.mockOptions
-                .Setup(opt => opt.Value)
-                .Returns(jeDeclareOptions);
+
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "yourJdcCompteId",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
+
             this.mockJeDeclareService
-                .Setup(m => m.GetMandatPdfAsync(this.mockOptions.Object.Value.JdcCompteId, It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(m => m.GetMandatPdfAsync(options.Value.JdcCompteId, It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(expectedBytes);
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, this.mockOptions.Object);
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, options);
 
             // Act
             var result = await mandateManager.DownloadUnsignedAsync(id);
@@ -290,7 +276,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             result.Should().BeEquivalentTo(expectedBytes, "because the service should return the expected PDF data");
             result.Should().NotBeNull("because the method should return a non-null PDF data");
             this.mockDatabaseService.Verify(m => m.GetCollectionById(id), Times.Once);
-            this.mockJeDeclareService.Verify(m => m.GetMandatPdfAsync(jeDeclareOptions.JdcCompteId, company.BankServicesProviderId!, bban.BbanServicesProviderId!), Times.Once);
+            this.mockJeDeclareService.Verify(m => m.GetMandatPdfAsync(options.Value.JdcCompteId, company.BankServicesProviderId!, bban.BbanServicesProviderId!), Times.Once);
         }
 
         [Fact]
@@ -322,11 +308,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             this.mockDatabaseService
                 .Setup(m => m.GetCollectionById(id))
                 .ReturnsAsync(collection);
-            this.mockOptions
-                .Setup(opt => opt.Value)
-                .Returns(jeDeclareOptions);
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, this.mockOptions.Object);
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "yourJdcCompteId",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, options);
 
             // Act & Assert
             Func<Task> act = async () => await mandateManager.DownloadUnsignedAsync(id);
@@ -350,26 +341,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 DateTime.Now,
                 status);
             var expectedBytes = new byte[] { /* byte array */ };
-            var jeDeclareOptions = new JeDeclareOptions
+            var options = Options.Create(new JeDeclareOptions()
             {
-                // Set properties as needed
                 JdcCompteId = "yourJdcCompteId",
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
-            };
+            });
 
             this.mockDatabaseService
                 .Setup(m => m.GetCollectionById(id))
                 .ReturnsAsync(collection);
-            this.mockOptions
-                .Setup(opt => opt.Value)
-                .Returns(jeDeclareOptions);
+
             this.mockJeDeclareService
-                .Setup(m => m.GetMandatPdfAsync(this.mockOptions.Object.Value.JdcCompteId, It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(m => m.GetMandatPdfAsync(options.Value.JdcCompteId, It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(expectedBytes);
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, this.mockOptions.Object);
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, options);
 
             // Act & Assert
             Func<Task> act = async () => await mandateManager.DownloadUnsignedAsync(id);
@@ -393,26 +381,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 DateTime.Now,
                 status);
             var expectedBytes = new byte[] { /* byte array */ };
-            var jeDeclareOptions = new JeDeclareOptions
+            var options = Options.Create(new JeDeclareOptions()
             {
-                // Set properties as needed
                 JdcCompteId = "yourJdcCompteId",
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
-            };
+            });
 
             this.mockDatabaseService
                 .Setup(m => m.GetCollectionById(id))
                 .ReturnsAsync(collection);
-            this.mockOptions
-                .Setup(opt => opt.Value)
-                .Returns(jeDeclareOptions);
+
             this.mockAsposeHelper
                 .Setup(m => m.GeneratePdfFromTemplateAsync(It.IsAny<Collection>()))
                 .ReturnsAsync(expectedBytes);
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, this.mockOptions.Object);
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, options);
 
             // Act
             var result = await mandateManager.DownloadUnsignedAsync(id);
@@ -470,25 +455,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(pm)
                 .Verifiable();
 
-            var jeDeclareOptions = new JeDeclareOptions
+            var options = Options.Create(new JeDeclareOptions()
             {
-                // Set properties as needed
                 JdcCompteId = "yourJdcCompteId",
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
-            };
-
-            this.mockOptions
-                .Setup(opt => opt.Value)
-                .Returns(jeDeclareOptions);
+            });
 
             MandateManager manager = new MandateManager(
                 database.Object,
                 new Mock<ICompanyManager>(MockBehavior.Strict).Object,
                 new Mock<IJeDeclareService>(MockBehavior.Strict).Object,
                 null!,
-                this.mockOptions.Object);
+                options);
 
             var result = await manager.GetAllCollectionsAsync(query);
 
@@ -518,25 +498,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ThrowsAsync(new Exception("message"))
                 .Verifiable();
 
-            var jeDeclareOptions = new JeDeclareOptions
+            var options = Options.Create(new JeDeclareOptions()
             {
-                // Set properties as needed
                 JdcCompteId = "yourJdcCompteId",
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
-            };
-
-            this.mockOptions
-                .Setup(opt => opt.Value)
-                .Returns(jeDeclareOptions);
+            });
 
             MandateManager manager = new MandateManager(
                 database.Object,
                 new Mock<ICompanyManager>(MockBehavior.Strict).Object,
                 new Mock<IJeDeclareService>(MockBehavior.Strict).Object,
                 null!,
-                this.mockOptions.Object);
+                options);
 
             Func<Task> action = async () => await manager.GetAllCollectionsAsync(query);
             await action.Should().ThrowAsync<Exception>().WithMessage("message");

@@ -18,7 +18,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
 
             // Test all properties ; number of tests below should match the number of propeties above
             entity.Id.Should().BeEmpty();
-            entity.CompanyId.Should().BeEmpty();
+            entity.CompanyId.Should().BeNull();
             entity.Company.Should().BeNull("because it is initialized as null");
             entity.Title.Should().BeNull();
             entity.FirstName.Should().BeNull();
@@ -29,7 +29,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             entity.ZipCode.Should().BeNull();
             entity.City.Should().BeNull();
             entity.Country.Should().BeNull();
-            entity.CollectionId.Should().BeEmpty();
+            entity.CollectionId.Should().BeNull();
             entity.Collection.Should().BeNull("because it is initialized as null");
         }
 

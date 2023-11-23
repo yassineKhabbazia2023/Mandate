@@ -810,11 +810,5 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             dbr0["City"].As<string>().Should().BeEquivalentTo("Sample City");
             dbr0["Country"].As<string>().Should().BeEquivalentTo("ExampleLand");
         }
-
-        [Fact]
-        public void GetPdfTemplateByCodeAsync_CaseThrowBankCodeNotFoundException()
-        {
-
-        }
     }
 }

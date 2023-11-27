@@ -11,7 +11,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
     [ApiController]
     [Route("api/mandate")]
-    [Authorize]
+    //[Authorize]
     public class MandateController : ControllerBase
     {
         private readonly ILogger<MandateController> logger;
@@ -56,6 +56,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         }
 
         [HttpGet("{mandateId}/unsigned")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FileContentResult))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DownloadUnsignedAsync([FromRoute] string mandateId)
         {
             var correlationId = this.guidGenerator.NewGuid();
@@ -71,7 +75,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 var fileName = $"unsigned-mandate-{mandateId}.pdf";
 
                 // Return the file
-                return this.Ok(this.File(fileData, contentType, fileName));
+                return this.File(fileData, contentType, fileName);
             }
             catch (Sql.CollectionNotFoundException ex)
             {

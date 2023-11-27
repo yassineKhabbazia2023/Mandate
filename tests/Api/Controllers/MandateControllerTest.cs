@@ -162,7 +162,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var guidGenerator = new Mock<IGuidGenerator>();
 
             var mandateId = "00000001-0000-0000-0000-000000000000";
-            byte[] data = { 0, 16, 104, 213 };
+            byte[] expectedFileData = { 0, 16, 104, 213 };
 
             var mandateManager = new Mock<IMandateManager>();
             mandateManager.Setup(m => m.DownloadUnsignedAsync(It.IsAny<Guid>()))
@@ -170,7 +170,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 {
                     m.Should().Be(Guid.Parse(mandateId));
                 })
-                .ReturnsAsync(data);
+                .ReturnsAsync(expectedFileData);
 
             var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
@@ -182,21 +182,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var expectedContentType = "application/pdf";
             var expectedFileName = $"unsigned-mandate-{mandateId}.pdf";
 
-            var expectedResult = new FileContentResult(data, expectedContentType)
+            var expectedResult = new FileContentResult(expectedFileData, expectedContentType)
             {
                 FileDownloadName = expectedFileName,
             };
 
             var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
 
-            var result = await controller.DownloadUnsignedAsync(mandateId) as ObjectResult;
+            var result = await controller.DownloadUnsignedAsync(mandateId);
 
             result.Should().NotBeNull();
-            result!.StatusCode.Should().Be((int)HttpStatusCode.OK);
-
-            var fileStream = result.Value as FileContentResult;
-
-            fileStream.Should().BeEquivalentTo(expectedResult);
+            var fileResult = result.Should().BeOfType<FileContentResult>().Subject;
+            fileResult.FileContents.Should().BeEquivalentTo(expectedFileData);
+            fileResult.ContentType.Should().Be(expectedContentType);
+            fileResult.FileDownloadName.Should().Be(expectedFileName);
 
             mandateManager.VerifyAll();
             guidGenerator.VerifyAll();

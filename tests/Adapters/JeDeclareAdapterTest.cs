@@ -14,12 +14,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             byte[] data = { 0, 16, 104, 213 };
 
             var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
-            jedeclareClient.Setup(c => c.GetMandatPdfAsync("jdcCompteIdT", "jdcFolderIdT", "jdcRibIdT"))
+            jedeclareClient.Setup(c => c.GetMandatPdfAsync("jdcFolderIdT", "jdcRibIdT"))
                 .ReturnsAsync(data)
                 .Verifiable();
 
             var adapter = new JeDeclareAdapter(jedeclareClient.Object);
-            var result = await adapter.GetMandatPdfAsync("jdcCompteIdT", "jdcFolderIdT", "jdcRibIdT");
+            var result = await adapter.GetMandatPdfAsync("jdcFolderIdT", "jdcRibIdT");
 
             result.Should().BeEquivalentTo(data);
             jedeclareClient.VerifyAll();

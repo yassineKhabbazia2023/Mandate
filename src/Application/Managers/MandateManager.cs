@@ -4,25 +4,19 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
-    using Microsoft.Extensions.Options;
-
     public class MandateManager : IMandateManager
     {
         private readonly IDatabaseService databaseService;
         private readonly ICompanyManager companyManager;
         private readonly IJeDeclareService jeDeclareService;
         private readonly IAsposeHelper asposeHelper;
-        private readonly IOptions<JeDeclareOptions> options;
 
-        public MandateManager(IDatabaseService databaseService, ICompanyManager companyManager, IJeDeclareService jeDeclareService, IAsposeHelper asposeHelper, IOptions<JeDeclareOptions> options)
+        public MandateManager(IDatabaseService databaseService, ICompanyManager companyManager, IJeDeclareService jeDeclareService, IAsposeHelper asposeHelper)
         {
             this.databaseService = databaseService;
             this.companyManager = companyManager;
             this.jeDeclareService = jeDeclareService;
             this.asposeHelper = asposeHelper;
-            this.options = options ?? throw new ArgumentNullException(nameof(options));
-            options.Value.Validate();
         }
 
         public async Task<Guid> CreateMandate(MandateCreation mandateCreation)
@@ -125,7 +119,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             var folderId = collection?.Company?.BankServicesProviderId;
             var ribId = collection?.Bban?.BbanServicesProviderId;
             this.ValidatePartnerCollection(collection!);
-            return await this.jeDeclareService.GetMandatPdfAsync(this.options.Value.JdcCompteId, folderId!, ribId!);
+            return await this.jeDeclareService.GetMandatPdfAsync(folderId!, ribId!);
         }
 
         private async Task<byte[]> GeneratePdfForNonPartner(Collection collection)

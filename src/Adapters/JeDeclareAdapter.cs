@@ -30,9 +30,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             throw new NotImplementedException();
         }
 
-        public async Task<byte[]> GetMandatPdfAsync(string jdcCompteId, string jdcFolderId, string jdcRibId)
+        public async Task<byte[]> GetMandatPdfAsync(string jdcFolderId, string jdcRibId)
         {
-            return await this.jedeclareClient.GetMandatPdfAsync(jdcCompteId, jdcFolderId, jdcRibId);
+            return await this.jedeclareClient.GetMandatPdfAsync(jdcFolderId, jdcRibId);
         }
     }
 }

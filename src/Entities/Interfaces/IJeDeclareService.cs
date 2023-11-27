@@ -12,6 +12,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<Company> CreateFolderAsync(Company company);
 
-        Task<byte[]> GetMandatPdfAsync(string jdcCompteId, string jdcFolderId, string jdcRibId);
+        Task<byte[]> GetMandatPdfAsync(string jdcFolderId, string jdcRibId);
     }
 }

@@ -14,7 +14,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
 
             // Assert
             // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(9);
+            entity.GetType().GetProperties().Length.Should().Be(8);
 
             // Test all properties ; number of tests below should match the number of propeties above
             entity.Id.Should().Be(Guid.Empty);
@@ -24,7 +24,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             entity.Name.Should().Be(null);
             entity.SiretNumber.Should().Be(null);
             entity.ErpId.Should().Be(null);
-            entity.BankServicesProviderId.Should().Be(null);
             entity.CompanyCollaborators.Should().BeNull();
         }
 

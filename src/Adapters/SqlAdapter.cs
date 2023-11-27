@@ -21,7 +21,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
             var address = new Address(companyDb.Personal?.Street, companyDb.Personal?.Complements, companyDb.Personal?.ZipCode, companyDb.Personal?.City, companyDb.Personal?.Country);
             var signatory = new Signatory(companyDb.Personal?.Title, companyDb.Personal?.FirstName, companyDb.Personal?.LastName, companyDb.Personal?.Email);
-            var company = new Company(companyDb.Id, companyDb.Name, companyDb.SiretNumber, companyDb.ErpId, companyDb.BankServicesProviderId, signatory, address);
+            var company = new Company(companyDb.Id, companyDb.Name, companyDb.SiretNumber, companyDb.ErpId, companyDb.JeDeclareFolder?.JdcDossierId, signatory, address);
             return company;
         }
 

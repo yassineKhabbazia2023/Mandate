@@ -98,7 +98,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<CompanyDb>().Property(c => c.Name).HasMaxLength(100).IsUnicode(true).IsRequired(false);
             modelBuilder.Entity<CompanyDb>().Property(c => c.SiretNumber).IsFixedLength(true).HasMaxLength(14).IsRequired(true);
             modelBuilder.Entity<CompanyDb>().Property(c => c.ErpId).HasMaxLength(50).IsRequired(false);
-            modelBuilder.Entity<CompanyDb>().Property(c => c.BankServicesProviderId).HasMaxLength(50).IsRequired(false);
 
             modelBuilder.Entity<PersonalDb>().HasKey(cp => cp.Id);
             modelBuilder.Entity<PersonalDb>().Property(cp => cp.Title).HasMaxLength(10).IsUnicode(true).IsRequired(false);

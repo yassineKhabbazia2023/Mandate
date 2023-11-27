@@ -102,7 +102,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 },
                 SiretNumber = "40902900600031",
                 ErpId = "1000265308",
-                BankServicesProviderId = "bankServicesProviderIdM",
+                JeDeclareFolder = new JeDeclareFolderDb()
+                {
+                    JdcDossierId = "bankServicesProviderIdT",
+                },
             };
 
             var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
@@ -112,7 +115,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var expectedAdress = new Address("123 Main St", "Apt 4B", "12345", "Sample City", "ExampleLand");
             var expectedSignatory = new Signatory("Mr.", "John", "Doe", "john.doe@example.com");
-            var expectedResult = new Company(companyId, "Microsoft", "40902900600031", "1000265308", "bankServicesProviderIdM", expectedSignatory, expectedAdress);
+            var expectedResult = new Company(companyId, "Microsoft", "40902900600031", "1000265308", "bankServicesProviderIdT", expectedSignatory, expectedAdress);
 
             var adapter = new SqlAdapter(repository.Object);
 

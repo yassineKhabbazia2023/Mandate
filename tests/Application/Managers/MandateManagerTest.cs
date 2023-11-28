@@ -87,7 +87,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object);
 
-            MandateCreation mandate = new MandateCreation("1000332927", signatory, adress, bban);
+            CollectionCreationCommand mandate = new CollectionCreationCommand("1000332927", signatory, adress, bban);
 
             var result = await mandateManager.CreateMandate(mandate).ConfigureAwait(false);
             result.Should().Be(createdCollectionSQL.Id);
@@ -128,7 +128,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object);
 
-            MandateCreation mandate = new MandateCreation("1000332927", signatory, adress, bban);
+            CollectionCreationCommand mandate = new CollectionCreationCommand("1000332927", signatory, adress, bban);
 
             Func<Task> acttion = () => mandateManager.CreateMandate(mandate);
             await acttion.Should().ThrowExactlyAsync<ApplicationException>()
@@ -180,7 +180,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object);
 
-            MandateCreation mandate = new MandateCreation("1000332927", signatory, adress, bban);
+            CollectionCreationCommand mandate = new CollectionCreationCommand("1000332927", signatory, adress, bban);
 
             Func<Task> acttion = () => mandateManager.CreateMandate(mandate);
             await acttion.Should().ThrowExactlyAsync<ApplicationException>()

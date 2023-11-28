@@ -17,7 +17,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             this.jeDeclareService = jeDeclareService;
         }
 
-        public async Task<Guid> CreateMandate(MandateCreation mandateCreation)
+        public async Task<Guid> CreateMandate(CollectionCreationCommand mandateCreation)
         {
             Company company = await this.companyManager.GetCompanyByErpId(mandateCreation.ErpId);
 

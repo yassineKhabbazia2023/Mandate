@@ -9,7 +9,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
     public class CollectionCreationCommand
     {
         [JsonConstructor]
-        public CollectionCreationCommand(string erpId, Signatory? signatory, Address? address, Bban? bban)
+        public CollectionCreationCommand(string erpId, Signatory signatory, Address address, Bban bban)
         {
             this.ErpId = erpId;
             this.Signatory = signatory;
@@ -21,12 +21,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
         public string ErpId { get; }
 
         [JsonProperty("signatory")]
-        public Signatory? Signatory { get; }
+        public Signatory Signatory { get; }
 
         [JsonProperty("address")]
-        public Address? Address { get; }
+        public Address Address { get; }
 
         [JsonProperty("bban")]
-        public Bban? Bban { get; }
+        public Bban Bban { get; }
     }
 }

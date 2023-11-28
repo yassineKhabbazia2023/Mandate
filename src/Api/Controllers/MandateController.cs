@@ -49,8 +49,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [HttpPost]
         public async Task<IActionResult> PostCollectionAsync([FromBody] CollectionCreationCommand collectionCreationCommand)
         {
-            await Task.CompletedTask;
-            return this.Ok(); // TODO
+            string correlationId = Guid.NewGuid().ToString();
+
+            try
+            {
+                var result = await this.mandateManager.CreateMandate(collectionCreationCommand.ToModel());
+                return this.Ok(new SaveResult(result));
+            }
+            catch (Exception ex)
+            {
+                // TODO
+                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.PostCollectionAsync));
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
+            }
         }
 
         [HttpGet("{mandateId}/unsigned")]

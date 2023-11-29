@@ -41,6 +41,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         /// <returns>All entries that match the query. All Collection instances returned contain their parent Company instance.</returns>
         Task<(List<CollectionDb>, int)> SearchCollectionsAsync(CollectionQuery query);
 
+        /// <summary>
+        /// Saves Signatory.
+        /// </summary>
+        /// <param name="personalDb">the personal table where we save signatory informations.</param>
+        /// <returns>an asynchronous task.</returns>
         Task SaveSignatoryAsync(PersonalDb personalDb);
     }
 }

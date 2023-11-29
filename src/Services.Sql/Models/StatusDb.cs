@@ -14,7 +14,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 
         public int StatusCode { get; set; }
 
-        public int? CollectionStatusCode { get; set; }
+        public int? CollectionStatusCode { get; set; } = null!;
 
         public RefStatusCodeDb? RefStatusCode { get; set; } = null!;
 

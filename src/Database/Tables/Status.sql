@@ -12,5 +12,5 @@
     CONSTRAINT [PK_Status] PRIMARY KEY ([Id]),
 	CONSTRAINT [FK_Status_Collection] FOREIGN KEY ([CollectionId]) REFERENCES [Mandate].[Collection]([Id]),
 	CONSTRAINT [FK_Status_RefStatusCode] FOREIGN KEY ([StatusCode]) REFERENCES [Mandate].[RefStatusCode]([StatusCode]),
-	CONSTRAINT [FK_CollectionStatus_RefStatusCode] FOREIGN KEY ([CollectionStatusCode]) REFERENCES [Mandate].[RefStatusCode]([CollectionStatusCode])
+	CONSTRAINT [FK_Status_RefStatusCode_Collection] FOREIGN KEY ([CollectionStatusCode]) REFERENCES [Mandate].[RefStatusCode]([CollectionStatusCode])
 )

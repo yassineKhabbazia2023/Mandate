@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [Mandate].[RefStatusCode]
 (
 	[StatusCode] INT NOT NULL,
-	[CollectionStatusCode] INT NULL UNIQUE,
+	[CollectionStatusCode] INT NULL,
 	[PulseCode] INT NOT NULL,
 	[StatusNameFr] NVARCHAR(100) NOT NULL,
 	[StatusNameEn] NVARCHAR(100) NOT NULL,

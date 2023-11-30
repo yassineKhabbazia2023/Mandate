@@ -100,9 +100,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
 
-            var result = await jeDeclareClient.GetAllConfigurationFromFolderAsync("19581575", "21570139");
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            var result = await jeDeclareClient.GetAllConfigurationFromFolderAsync("21570139");
 
             result.Releve!.Count().Should().Be(1);
             result.Releve![0].Id.Should().Be("idT");
@@ -170,9 +178,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
 
-            Func<Task> act = async () => await jeDeclareClient.GetAllConfigurationFromFolderAsync("19581575", "21570139");
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            Func<Task> act = async () => await jeDeclareClient.GetAllConfigurationFromFolderAsync("21570139");
 
             await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message returned by jeDeclareApi'");
@@ -210,9 +226,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
 
-            var result = await jeDeclareClient.GetSignedMandatPdfAsync("19581575", "21570139", "1234");
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            var result = await jeDeclareClient.GetSignedMandatPdfAsync("21570139", "1234");
             result.Should().NotBeNull();
 
             client.VerifyAll();
@@ -251,9 +275,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
 
-            Func<Task> act = async () => await jeDeclareClient.GetSignedMandatPdfAsync("19581575", "21570139", "1234");
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            Func<Task> act = async () => await jeDeclareClient.GetSignedMandatPdfAsync("21570139", "1234");
 
             await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'Error message'");
@@ -327,9 +359,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
 
-            var result = await jeDeclareClient.CreateFolderAsync("19581575", newFolder);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            var result = await jeDeclareClient.CreateFolderAsync(newFolder);
 
             result.ExploitationDonnees.Should().BeTrue();
             result.Client.Id.Should().Be("idT");
@@ -413,9 +453,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
 
-            Func<Task> act = async () => await jeDeclareClient.CreateFolderAsync("19581575", newFolder);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            Func<Task> act = async () => await jeDeclareClient.CreateFolderAsync(newFolder);
 
             await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message returned by jeDeclareApi'");
@@ -474,9 +522,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
 
-            var result = await jeDeclareClient.AddRibToFolderAsync("19581575", "98765", newRib);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            var result = await jeDeclareClient.AddRibToFolderAsync("98765", newRib);
 
             result.Id.Should().Be("1234");
             result.Libelle.Should().Be("libelleM");
@@ -542,9 +598,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
 
-            Func<Task> act = async () => await jeDeclareClient.AddRibToFolderAsync("19581575", "98765", newRib);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            Func<Task> act = async () => await jeDeclareClient.AddRibToFolderAsync("98765", newRib);
 
             await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'Error Message'");
@@ -639,9 +703,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
 
-            var result = await jeDeclareClient.CreateCollecteConfigurationAsync("19581575", "98765", newReleve);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            var result = await jeDeclareClient.CreateCollecteConfigurationAsync("98765", newReleve);
 
             result.Id.Should().Be("999945");
             result.Etat.Should().Be("2");
@@ -760,9 +832,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
 
-            Func<Task> act = async () => await jeDeclareClient.CreateCollecteConfigurationAsync("19581575", "98765", newReleve);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            Func<Task> act = async () => await jeDeclareClient.CreateCollecteConfigurationAsync("98765", newReleve);
 
             await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message'");
@@ -857,9 +937,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
 
-            var result = await jeDeclareClient.UpdateCollecteConfigurationAsync("19581575", "98765", newReleve);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            var result = await jeDeclareClient.UpdateCollecteConfigurationAsync("98765", newReleve);
 
             result.Should().BeTrue();
 
@@ -953,9 +1041,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
 
-            Func<Task> act = async () => await jeDeclareClient.UpdateCollecteConfigurationAsync("19581575", "98765", newReleve);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            Func<Task> act = async () => await jeDeclareClient.UpdateCollecteConfigurationAsync("98765", newReleve);
 
             await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message'");
@@ -1002,9 +1098,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
 
-            var result = await jeDeclareClient.UploadSignedMandat("19581575", "98765", "999945", mandat);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            var result = await jeDeclareClient.UploadSignedMandat("98765", "999945", mandat);
 
             result.Should().Be("response body test");
 
@@ -1050,9 +1154,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
 
-            Func<Task> act = async () => await jeDeclareClient.UploadSignedMandat("19581575", "98765", "999945", mandat);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            Func<Task> act = async () => await jeDeclareClient.UploadSignedMandat("98765", "999945", mandat);
 
             await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message'");
@@ -1091,9 +1203,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
 
-            var result = await jeDeclareClient.CheckSignedMandatExists("19581575", "98765", "999945");
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            var result = await jeDeclareClient.CheckSignedMandatExists("98765", "999945");
 
             result.Should().BeTrue();
 
@@ -1134,9 +1254,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+            });
 
-            Func<Task> act = async () => await jeDeclareClient.CheckSignedMandatExists("19581575", "98765", "999945");
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            Func<Task> act = async () => await jeDeclareClient.CheckSignedMandatExists("98765", "999945");
 
             await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message'");

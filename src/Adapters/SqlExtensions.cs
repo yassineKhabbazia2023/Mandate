@@ -31,7 +31,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             var creationStatus = source.Statuses?.SingleOrDefault(i => i.StatusCode == -1);
 
             Status status = new Status(
-                (CollectionStatus)currentStatus?.StatusCode!,
+                (CollectionStatus)currentStatus?.RefStatusCode!.PulseCode!,
                 currentStatus.RefStatusCode?.StatusNameFr!);
 
             return new Collection(

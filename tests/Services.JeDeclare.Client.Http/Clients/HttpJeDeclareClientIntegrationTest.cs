@@ -20,6 +20,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("https://recette.jedeclare.com/webservice/gestion/"),
                 Login = "kpmg-test@jedeclare.com",
                 Password = "****",
+                JdcCompteId = "****",
             });
 
             var credentials = $"{options.Value.Login}" + ":" + $"{options.Value.Password}";
@@ -53,9 +54,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, jedeclareFactory.Object);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, jedeclareFactory.Object, options);
 
-            var result = await jeDeclareClient.GetAllConfigurationFromFolderAsync("829566", "1670097");
+            var result = await jeDeclareClient.GetAllConfigurationFromFolderAsync("1670097");
 
             result.Releve!.Length.Should().Be(1);
 
@@ -71,6 +72,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("https://jedeclare.com/webservice/gestion/"),
                 Login = "kpmgfr@jedeclare.com",
                 Password = "****",
+                JdcCompteId = "****",
             });
 
             var credentials = $"{options.Value.Login}" + ":" + $"{options.Value.Password}";
@@ -105,9 +107,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
 
-            var result = await jeDeclareClient.GetSignedMandatPdfAsync("19581575", "21570139", "10379399");
+            var result = await jeDeclareClient.GetSignedMandatPdfAsync("21570139", "10379399");
             result.Should().NotBeNull();
 
             client.VerifyAll();
@@ -122,6 +124,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("https://recette.jedeclare.com/webservice/gestion/"),
                 Login = "kpmg-test@jedeclare.com",
                 Password = "******",
+                JdcCompteId = "****",
             });
 
             var credentials = $"{options.Value.Login}" + ":" + $"{options.Value.Password}";
@@ -155,7 +158,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
 
             var newFolder = new DossierClient
             {
@@ -185,7 +188,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 ExploitationDonnees = true,
             };
 
-            var result = await jeDeclareClient.CreateFolderAsync("829566", newFolder);
+            var result = await jeDeclareClient.CreateFolderAsync(newFolder);
 
             result.ExploitationDonnees.Should().BeTrue();
             result.Client.Should().NotBeNull();
@@ -213,6 +216,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("https://recette.jedeclare.com/webservice/gestion/"),
                 Login = "kpmg-test@jedeclare.com",
                 Password = "****",
+                JdcCompteId = "****",
             });
 
             var credentials = $"{options.Value.Login}" + ":" + $"{options.Value.Password}";
@@ -248,7 +252,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
 
             var newRib = new Rib()
             {
@@ -263,7 +267,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 Cle = "41",
             };
 
-            var result = await jeDeclareClient.AddRibToFolderAsync("829566", "1670097", newRib);
+            var result = await jeDeclareClient.AddRibToFolderAsync("1670097", newRib);
             result.Should().NotBeNull();
             result.Id.Should().NotBeEmpty();
             result.Libelle.Should().NotBeEmpty();
@@ -287,6 +291,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("https://recette.jedeclare.com/webservice/gestion/"),
                 Login = "kpmg-test@jedeclare.com",
                 Password = "****",
+                JdcCompteId = "****",
             });
 
             var credentials = $"{options.Value.Login}" + ":" + $"{options.Value.Password}";
@@ -322,7 +327,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
 
             var destinataire = new Destinataire()
             {
@@ -358,7 +363,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 DateReprise = "2023-01-01",
             };
 
-            var result = await jeDeclareClient.CreateCollecteConfigurationAsync("829566", "1670097", newReleve);
+            var result = await jeDeclareClient.CreateCollecteConfigurationAsync("1670097", newReleve);
             result.Should().NotBeNull();
 
             client.VerifyAll();
@@ -373,6 +378,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("https://recette.jedeclare.com/webservice/gestion/"),
                 Login = "kpmg-test@jedeclare.com",
                 Password = "****",
+                JdcCompteId = "****",
             });
 
             var credentials = $"{options.Value.Login}" + ":" + $"{options.Value.Password}";
@@ -409,7 +415,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
 
             var destinataire = new Destinataire()
             {
@@ -446,7 +452,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 DateReprise = "2023-01-01",
             };
 
-            var result = await jeDeclareClient.UpdateCollecteConfigurationAsync("829566", "1670097", newReleve);
+            var result = await jeDeclareClient.UpdateCollecteConfigurationAsync("1670097", newReleve);
 
             client.VerifyAll();
             factory.VerifyAll();
@@ -460,6 +466,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("https://recette.jedeclare.com/webservice/gestion/"),
                 Login = "kpmg-test@jedeclare.com",
                 Password = "****",
+                JdcCompteId = "****",
             });
 
             var credentials = $"{options.Value.Login}" + ":" + $"{options.Value.Password}";
@@ -495,9 +502,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
 
-            var result = await jeDeclareClient.CheckSignedMandatExists("829566", "1670097", "999945");
+            var result = await jeDeclareClient.CheckSignedMandatExists("1670097", "999945");
 
             result.Should().BeTrue();
 

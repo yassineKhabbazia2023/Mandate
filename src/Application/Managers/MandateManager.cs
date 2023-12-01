@@ -9,15 +9,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         private readonly IDatabaseService databaseService;
         private readonly ICompanyManager companyManager;
         private readonly IJeDeclareService jeDeclareService;
+        private readonly IAsposeHelper asposeHelper;
 
-        public MandateManager(IDatabaseService databaseService, ICompanyManager companyManager, IJeDeclareService jeDeclareService)
+        public MandateManager(IDatabaseService databaseService, ICompanyManager companyManager, IJeDeclareService jeDeclareService, IAsposeHelper asposeHelper)
         {
             this.databaseService = databaseService;
             this.companyManager = companyManager;
             this.jeDeclareService = jeDeclareService;
+            this.asposeHelper = asposeHelper;
         }
 
-        public async Task<Guid> CreateMandate(MandateCreation mandateCreation)
+        public async Task<Guid> CreateMandate(CollectionCreationCommand mandateCreation)
         {
             Company company = await this.companyManager.GetCompanyByErpId(mandateCreation.ErpId);
 
@@ -74,6 +76,55 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         public async Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query)
         {
             return await this.databaseService.GetAllCollectionsAsync(query).ConfigureAwait(false);
+        }
+
+        public async Task<byte[]> DownloadUnsignedAsync(Guid id)
+        {
+            var collection = await this.databaseService.GetCollectionById(id);
+            var isJdcPartner = this.IsJdcPartner(collection);
+
+            if (isJdcPartner)
+            {
+                return await this.DownloadPdfForJdcPartner(collection);
+            }
+            else
+            {
+                return await this.GeneratePdfForNonPartner(collection);
+            }
+        }
+
+        private bool IsJdcPartner(Collection collection)
+        {
+            return collection.Bban?.Bank?.JdcAgreement.JdcPartnership == JdcPartnership.Partner;
+        }
+
+        private void ValidatePartnerCollection(Collection collection)
+        {
+            var folderId = collection.Company?.BankServicesProviderId;
+            var ribId = collection.Bban?.BbanServicesProviderId;
+
+            if (string.IsNullOrEmpty(folderId))
+            {
+                throw new FolderIdEmptyOrNullException();
+            }
+
+            if (string.IsNullOrEmpty(ribId))
+            {
+                throw new RibIdEmptyOrNullException();
+            }
+        }
+
+        private async Task<byte[]> DownloadPdfForJdcPartner(Collection collection)
+        {
+            var folderId = collection?.Company?.BankServicesProviderId;
+            var ribId = collection?.Bban?.BbanServicesProviderId;
+            this.ValidatePartnerCollection(collection!);
+            return await this.jeDeclareService.GetMandatPdfAsync(folderId!, ribId!);
+        }
+
+        private async Task<byte[]> GeneratePdfForNonPartner(Collection collection)
+        {
+            return await this.asposeHelper.GeneratePdfFromTemplateAsync(collection);
         }
     }
 }

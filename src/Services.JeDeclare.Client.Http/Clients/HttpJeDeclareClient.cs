@@ -10,21 +10,27 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
     using System.Text;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
 
     public class HttpJeDeclareClient : IJeDeclareClient
     {
         private readonly ILogger logger;
         private readonly IJeDeclareClientFactory factory;
+        private readonly IOptions<JeDeclareOptions> options;
 
-        public HttpJeDeclareClient(ILogger<HttpJeDeclareClient> logger, IJeDeclareClientFactory factory)
+        public HttpJeDeclareClient(ILogger<HttpJeDeclareClient> logger, IJeDeclareClientFactory factory, IOptions<JeDeclareOptions> options)
         {
             this.logger = logger;
             this.factory = factory;
+            this.options = options ?? throw new ArgumentNullException(nameof(options));
+            options.Value.Validate();
         }
 
-        public async Task<ListeReleves> GetAllConfigurationFromFolderAsync(string jdcCompteId, string jdcFolderId)
+        public async Task<ListeReleves> GetAllConfigurationFromFolderAsync(string jdcFolderId)
         {
             using var client = this.factory.Create();
+
+            var jdcCompteId = this.options.Value.JdcCompteId;
             var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/releve";
 
             var response = await client.GetAsync(requestUri).ConfigureAwait(false);
@@ -53,10 +59,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             throw exception;
         }
 
-        public async Task<byte[]> GetSignedMandatPdfAsync(string jdcCompteId, string jdcFolderId, string jdcRibId)
+        public async Task<byte[]> GetSignedMandatPdfAsync(string jdcFolderId, string jdcRibId)
         {
             using var client = this.factory.Create();
 
+            var jdcCompteId = this.options.Value.JdcCompteId;
             var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/rib/{jdcRibId}/mandatSigne";
 
             var response = await client.GetAsync(requestUri).ConfigureAwait(false);
@@ -85,10 +92,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
         }
 
         // missing UT => to code it when finishing aspose.
-        public async Task<byte[]> GetMandatPdfAsync(string jdcCompteId, string jdcFolderId, string jdcRibId)
+        public async Task<byte[]> GetMandatPdfAsync(string jdcFolderId, string jdcRibId)
         {
             using var client = this.factory.Create();
 
+            var jdcCompteId = this.options.Value.JdcCompteId;
             var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/rib/{jdcRibId}/mandat";
 
             var response = await client.GetAsync(requestUri).ConfigureAwait(false);
@@ -120,10 +128,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             throw exception;
         }
 
-        public async Task<DossierClient> CreateFolderAsync(string jdcCompteId, DossierClient folderClient)
+        public async Task<DossierClient> CreateFolderAsync(DossierClient folderClient)
         {
             using var client = this.factory.Create();
 
+            var jdcCompteId = this.options.Value.JdcCompteId;
             var requestUri = $"compte/{jdcCompteId}/dossierClient";
 
             var serializedFolder = folderClient.Serialize();
@@ -157,10 +166,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             throw exception;
         }
 
-        public async Task<Rib> AddRibToFolderAsync(string jdcCompteId, string jdcFolderId, Rib ribClient)
+        public async Task<Rib> AddRibToFolderAsync(string jdcFolderId, Rib ribClient)
         {
             using var client = this.factory.Create();
 
+            var jdcCompteId = this.options.Value.JdcCompteId;
             var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/rib";
 
             var serializedRib = ribClient.Serialize();
@@ -195,10 +205,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             throw exception;
         }
 
-        public async Task<Releve> CreateCollecteConfigurationAsync(string jdcCompteId, string jdcFolderId, Releve releve)
+        public async Task<Releve> CreateCollecteConfigurationAsync(string jdcFolderId, Releve releve)
         {
             using var client = this.factory.Create();
 
+            var jdcCompteId = this.options.Value.JdcCompteId;
             var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/releve";
 
             var serializedReleve = releve.Serialize();
@@ -234,10 +245,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             throw exception;
         }
 
-        public async Task<bool> UpdateCollecteConfigurationAsync(string jdcCompteId, string jdcFolderId, Releve releve)
+        public async Task<bool> UpdateCollecteConfigurationAsync(string jdcFolderId, Releve releve)
         {
             using var client = this.factory.Create();
 
+            var jdcCompteId = this.options.Value.JdcCompteId;
             var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/releve/{releve.Id}";
 
             var serializedReleve = releve.Serialize();
@@ -272,10 +284,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             throw exception;
         }
 
-        public async Task<string> UploadSignedMandat(string jdcCompteId, string jdcFolderId, string jdcRibId, byte[] mandat)
+        public async Task<string> UploadSignedMandat(string jdcFolderId, string jdcRibId, byte[] mandat)
         {
             using var client = this.factory.Create();
 
+            var jdcCompteId = this.options.Value.JdcCompteId;
             var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/rib/{jdcRibId}/mandatSigne";
 
             var serializedMandatFile = Convert.ToBase64String(mandat);
@@ -308,10 +321,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             throw exception;
         }
 
-        public async Task<bool> CheckSignedMandatExists(string jdcCompteId, string jdcFolderId, string jdcRibId)
+        public async Task<bool> CheckSignedMandatExists(string jdcFolderId, string jdcRibId)
         {
             using var client = this.factory.Create();
 
+            var jdcCompteId = this.options.Value.JdcCompteId;
             var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/rib/{jdcRibId}/mandatSigne";
 
             var request = new HttpRequestMessage(HttpMethod.Head, requestUri);

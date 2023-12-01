@@ -24,6 +24,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         public string CheckDigits { get; }
 
+        // ribId
         public string? BbanServicesProviderId { get; }
 
         public Bank? Bank { get; }

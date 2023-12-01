@@ -36,6 +36,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Tests
             {
                 Id = "999945",
                 Etat = "2",
+                EtatCollecte = "11",
                 TypeLiaison = "1",
                 CauseRejet = "causeRejetT",
                 Destinataire = destinataire,
@@ -50,6 +51,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Tests
 <releve xmlns=""http://jedeclare.com/gestion"">
   <id>999945</id>
   <etat>2</etat>
+  <etatCollecte>11</etatCollecte>
   <typeLiaison>1</typeLiaison>
   <causeRejet>causeRejetT</causeRejet>
   <destinataire>
@@ -80,6 +82,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Tests
 <releve xmlns=""http://jedeclare.com/gestion"">
   <id>999945</id>
   <etat>2</etat>
+  <etatCollecte>11</etatCollecte>
   <typeLiaison>1</typeLiaison>
   <causeRejet>causeRejetT</causeRejet>
   <destinataire>
@@ -107,6 +110,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Tests
             releve.Should().NotBeNull();
             releve.Id.Should().Be("999945");
             releve.Etat.Should().Be("2");
+            releve.EtatCollecte.Should().Be("11");
             releve.TypeLiaison.Should().Be("1");
             releve.CauseRejet.Should().Be("causeRejetT");
             releve.Destinataire!.Id.Should().Be("829566");

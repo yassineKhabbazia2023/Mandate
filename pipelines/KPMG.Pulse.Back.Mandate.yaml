@@ -18,7 +18,7 @@ resources:
 parameters:
 - name: devenv
   type: string
-  default: 'dev15'
+  default: 'dev55'
 
 extends:
   template: PipelineTemplate.yaml@CICD
@@ -51,6 +51,7 @@ extends:
        #   description: |
        #     KPMG.Pulse.Back.Accounting.Mandate v$(GitVersion.number)
 
+    ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
     deploy:
       environments:
       - name: DEV

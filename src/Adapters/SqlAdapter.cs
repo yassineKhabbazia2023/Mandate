@@ -45,6 +45,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 tuple.Item1.Select(i => i.ToModel()).ToList());
         }
 
+        public async Task<Company> GetCompanyByErpIdAsync(string erpId)
+        {
+            var company = await this.mandateRepository.GetCompanyByErpIdAsync(erpId);
+            return company.ToModel();
+        }
+
         public Task<Company> CreateFolderAsync(string bankServicesProviderId, Guid companyId)
         {
             // Creation JeDeclare Folder

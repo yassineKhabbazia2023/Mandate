@@ -5,6 +5,7 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
@@ -14,10 +15,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     public class CompanyController : ControllerBase
     {
         private readonly ILogger<CompanyController> logger;
+        private readonly ICompanyManager companyManager;
 
-        public CompanyController(ILogger<CompanyController> logger)
+        public CompanyController(ILogger<CompanyController> logger, ICompanyManager companyManager)
         {
             this.logger = logger;
+            this.companyManager = companyManager;
         }
 
         [HttpGet("{erpId}")]
@@ -27,14 +30,24 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetCompanyByErpIdAsync([FromRoute] string erpId)
         {
-            string correlationId = "0"; // TODO
+            string correlationId = Guid.NewGuid().ToString();
 
-            await Task.CompletedTask;
-            this.logger.LogInformation($"x = {erpId}"); // TODO
-            Address address = new ("11 rue Street", "complement", "75014", "Paris", "France");
-            Signatory signatory = new ("M", "maroo", "elleuch", "email@email.com");
-            Company company = new (Guid.NewGuid(), "MK 2000", "50339868700015", "1999072765", signatory, address);
-            return this.Ok(company);
+            try
+            {
+                this.logger.LogInformation($"Get company by erpId : {erpId}");
+                var company = await this.companyManager.GetCompanyByErpIdAsync(erpId);
+                return this.Ok(company);
+            }
+            catch (CompanyNotFoundException ex)
+            {
+                this.logger.LogError(ex, "[{CorrelationId}] - the company: {ErpId} has not been found.", correlationId, erpId);
+                return this.NotFound(new Error("CompanyNotFound", correlationId.ToString(), ex.Message));
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.GetCompanyByErpIdAsync));
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
+            }
         }
     }
 }

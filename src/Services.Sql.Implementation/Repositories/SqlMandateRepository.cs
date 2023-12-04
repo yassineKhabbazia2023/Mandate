@@ -262,6 +262,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             await context.SaveChangesAsync();
         }
 
+        public Task<CollectionDb> GetCollectionById(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<CompanyDb> GetCompanyByErpIdAsync(string erpId)
         {
             using var context = new MandateContext(this.options);

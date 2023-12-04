@@ -76,9 +76,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var refStatusCode2 = EntityDbFactory.RefStatusCodeDb;
             var refStatusCode3 = EntityDbFactory.RefStatusCodeDb;
             refStatusCode2.StatusCode = 3;
+            refStatusCode2.CollectionStatusCode = 0;
             refStatusCode2.PulseCode = 30;
             refStatusCode2.StatusNameFr = "Actif";
             refStatusCode3.StatusCode = 4;
+            refStatusCode3.CollectionStatusCode = 2;
             refStatusCode3.PulseCode = 40;
             refStatusCode3.StatusNameFr = "Attente mandat signé";
             await context.RefStatusCode.AddAsync(refStatusCode1);

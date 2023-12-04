@@ -15,6 +15,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
         [XmlElement(ElementName = "etat")]
         public string? Etat { get; set; }
 
+        [XmlElement(ElementName = "etatCollecte")]
+        public string? EtatCollecte { get; set; }
+
         [XmlElement(ElementName = "typeLiaison")]
         public string? TypeLiaison { get; set; }
 

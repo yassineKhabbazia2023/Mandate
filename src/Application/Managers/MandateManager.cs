@@ -70,6 +70,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             Status createdStatus = new Status(CollectionStatus.InProgress, "Actif");
             await this.databaseService.CreateStatus(collection.Id, createdStatus);
 
+            // save Signatory
+            await this.databaseService.SaveSignatoryAsync(company.Id, collection.Id, mandateCreation.Signatory, mandateCreation.Address);
+
             return collection.Id!;
         }
 

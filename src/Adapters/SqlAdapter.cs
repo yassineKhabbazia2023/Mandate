@@ -4,6 +4,8 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+
     public class SqlAdapter : IDatabaseService
     {
         private readonly Sql.IMandateRepository mandateRepository;
@@ -17,9 +19,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             var companyDb = await this.mandateRepository.GetCompanyBySiretAsync(siret).ConfigureAwait(false);
 
-            var address = new Address(companyDb.CompanyPersonal?.Street, companyDb.CompanyPersonal?.Complements, companyDb.CompanyPersonal?.ZipCode, companyDb.CompanyPersonal?.City, companyDb.CompanyPersonal?.Country);
-            var signatory = new Signatory(companyDb.CompanyPersonal?.Title, companyDb.CompanyPersonal?.FirstName, companyDb.CompanyPersonal?.LastName, companyDb.CompanyPersonal?.Email);
-            var company = new Company(companyDb.Id, companyDb.Name, companyDb.SiretNumber, companyDb.ErpId, companyDb.BankServicesProviderId, signatory, address);
+            var address = new Address(companyDb.Personal?.Street, companyDb.Personal?.Complements, companyDb.Personal?.ZipCode, companyDb.Personal?.City, companyDb.Personal?.Country);
+            var signatory = new Signatory(companyDb.Personal?.Title, companyDb.Personal?.FirstName, companyDb.Personal?.LastName, companyDb.Personal?.Email);
+            var company = new Company(companyDb.Id, companyDb.Name, companyDb.SiretNumber, companyDb.ErpId, companyDb.JeDeclareFolder?.JdcDossierId, signatory, address);
             return company;
         }
 
@@ -82,6 +84,26 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             var collectionDb = await this.mandateRepository.GetCollectionById(id).ConfigureAwait(false);
 
             return collectionDb.ToModel();
+        }
+
+        public async Task SaveSignatoryAsync(Guid? companyId, Guid? collectionId, Signatory signatory, Address address)
+        {
+            var newPersonalDb = new PersonalDb()
+            {
+                CompanyId = companyId,
+                CollectionId = collectionId,
+                City = address.City,
+                Country = address.Country,
+                Street = address.Street,
+                ZipCode = address.ZipCode,
+                Complements = address.Complements,
+                FirstName = signatory.FirstName,
+                LastName = signatory.LastName,
+                Email = signatory.Email,
+                Title = signatory.Title,
+            };
+
+            await this.mandateRepository.SaveSignatoryAsync(newPersonalDb);
         }
     }
 }

@@ -27,5 +27,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         Task<Collection> UpdateCollection(Guid id, Collection collection);
 
         Task<Collection> GetCollectionById(Guid id);
+
+        Task SaveSignatoryAsync(Guid? companyId, Guid? collectionId, Signatory signatory, Address address);
     }
 }

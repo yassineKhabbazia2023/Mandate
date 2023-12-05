@@ -66,6 +66,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             {
                 throw new InvalidOperationException($"Instance of {nameof(JeDeclareOptions)} is invalid, {nameof(JeDeclareOptions.Password)} is null");
             }
+
+            if (string.IsNullOrEmpty(this.JdcCompteId))
+            {
+                throw new InvalidOperationException($"Instance of {nameof(JeDeclareOptions)} is invalid, {nameof(JeDeclareOptions.JdcCompteId)} is null");
+            }
         }
 
         /// <summary>

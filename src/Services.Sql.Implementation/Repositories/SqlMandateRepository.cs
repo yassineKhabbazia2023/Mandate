@@ -260,7 +260,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
             var collectionDb = context.Collection
                 .Include(c => c.Bank)
-                .Include(item => item.Company)
+                .Include(c => c.JeDeclareCollection)
+                .Include(item => item.Company).ThenInclude(item => item.JeDeclareFolder)
                 .Include(item => item.Statuses).ThenInclude(item => item.RefStatusCode)
                 .AsNoTracking().Where(c => c.Id == id);
 

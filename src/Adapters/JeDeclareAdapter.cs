@@ -12,7 +12,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public JeDeclareAdapter(IJeDeclareClient jedeclareClient)
         {
-           this.jedeclareClient = jedeclareClient;
+            this.jedeclareClient = jedeclareClient;
         }
 
         public Task<Bban> AddRibToFolderAsync(string? bankServicesProviderId, Bban bban, Signatory signatory)
@@ -32,7 +32,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public async Task<byte[]> GetMandatPdfAsync(string jdcFolderId, string jdcRibId)
         {
-            return await this.jedeclareClient.GetMandatPdfAsync(jdcFolderId, jdcRibId);
+            try
+            {
+                return await this.jedeclareClient.GetMandatPdfAsync(jdcFolderId, jdcRibId);
+            }
+            catch (JeDeclareApiException ex)
+            {
+                throw new ServicesProviderException(ex.Message, ex);
+            }
         }
     }
 }

@@ -4,7 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests;
 
@@ -199,6 +198,62 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var result = await adapter.GetCompanyBySiretAsync(siret);
             result.Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Fact]
+        public async Task GetBankByCodeAsync()
+        {
+            var bankCode = "bankCodeT";
+            var refBankDb = new RefBankDb()
+            {
+                BankCode = "12345",
+                BankName = "bn1",
+                BankCommercialName = "bcn",
+                BankCategory = "bca",
+                BankGroup = "bg",
+                IsJdcScrapable = true,
+                IsJdcPartner = false,
+                HasReleveAgreement = false,
+                HasLiasseAgreement = null,
+                AllowsDemat = true,
+                JdcPartnership = (JdcPartnership)2,
+                EbicsCardId = null,
+            };
+
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.GetRefBankByCodeAsync(bankCode))
+                .ReturnsAsync(refBankDb)
+                .Verifiable();
+
+            var adapter = new SqlAdapter(repository.Object);
+            var result = await adapter.GetBankByCodeAsync(bankCode);
+
+            result.Code.Should().Be("12345");
+            result.Name.Should().Be("bn1");
+            result.Group.Should().Be("bg");
+            result.EbicsCardId.Should().BeNull();
+            result.JdcAgreement.JdcPartnership.Should().Be(Mandate.JdcPartnership.NonPartner);
+
+            repository.VerifyAll();
+        }
+
+        [Fact]
+        public async Task GetPdfTemplateByBankCodeAsync()
+        {
+            var bankCode = "bankCodeT";
+            byte[] bytesfile = { 0, 16, 104, 213 };
+
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.GetPdfTemplateByCodeAsync(bankCode))
+                .ReturnsAsync(bytesfile)
+                .Verifiable();
+
+            var adapter = new SqlAdapter(repository.Object);
+            var pdfTemplate = await adapter.GetPdfTemplateByBankCodeAsync(bankCode);
+
+            pdfTemplate.Should().BeEquivalentTo(bytesfile);
+
+            repository.VerifyAll();
         }
     }
 }

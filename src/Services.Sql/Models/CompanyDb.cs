@@ -8,7 +8,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
     {
         public Guid Id { get; set; }
 
-        public CompanyPersonalDb? CompanyPersonal { get; set; } = null!;
+        public PersonalDb? Personal { get; set; } = null!;
 
         public JeDeclareFolderDb? JeDeclareFolder { get; set; } = null!;
 
@@ -19,8 +19,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         public string SiretNumber { get; set; } = null!;
 
         public string? ErpId { get; set; }
-
-        public string? BankServicesProviderId { get; set; }
 
         public List<CompanyCollaboratorDb> CompanyCollaborators { get; set; } = null!;
     }

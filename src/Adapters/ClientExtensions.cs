@@ -22,7 +22,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                     accountNumber: source.Bban?.AccountNumber!,
                     creationDate: source.CreationDate,
                     modificationDate: source.ModificationDate,
-                    statusCode: (int)source.Status.StatusCode !);
+                    statusCode: (int)source.Status.StatusCode!);
         }
 
         public static Client.Counters ToCountersDetail(this Counters source)
@@ -37,9 +37,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 source.Data.Select(r => r.ToCollectionSummary()).ToList());
         }
 
+        public static Address ToModel(this Client.Address source)
+        {
+            return new Address(source.Street, source.AddressComplement, source.ZipCode, source.City, source.Country);
+        }
+
         public static Bban ToModel(this Client.Bban source)
         {
             return new Bban(source.BankCode, source.BranchCode, source.AccountNumber, source.CheckDigits, null, null);
+        }
+
+        public static CollectionCreationCommand ToModel(this Client.CollectionCreationCommand source)
+        {
+            return new CollectionCreationCommand(source.ErpId, source.Signatory.ToModel(), source.Address.ToModel(), source.Bban.ToModel());
         }
 
         public static CollectionQueryDto ToModel(this Client.CollectionQuery source)
@@ -59,6 +69,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             }
 
             return new CollectionQueryDto(source.SearchTerm, source.CreationDateStart, source.CreationDateEnd, source.ModificationDateStart, source.ModificationDateEnd, source.StatusCodes, source.Limit, source.Skip, sortOrder, sortCriteria, default);
+        }
+
+        public static Signatory ToModel(this Client.Signatory source)
+        {
+            return new Signatory(source.Title, source.FirstName, source.LastName, source.Email);
         }
     }
 }

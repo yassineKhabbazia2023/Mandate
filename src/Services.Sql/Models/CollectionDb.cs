@@ -12,6 +12,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 
         public CompanyDb? Company { get; set; } = null!;
 
+        public PersonalDb? Personal { get; set; } = null!;
+
         public JeDeclareCollectionDb? JeDeclareCollection { get; set; } = null!;
 
         public List<StatusDb> Statuses { get; set; } = null!;

@@ -42,5 +42,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         Task<(List<CollectionDb>, int)> SearchCollectionsAsync(CollectionQuery query);
 
         Task<CollectionDb> GetCollectionById(Guid id);
+
+        /// <summary>
+        /// Saves Signatory.
+        /// </summary>
+        /// <param name="personalDb">the personal table where we save signatory informations.</param>
+        /// <returns>an asynchronous task.</returns>
+        Task SaveSignatoryAsync(PersonalDb personalDb);
     }
 }

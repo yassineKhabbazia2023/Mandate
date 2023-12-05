@@ -16,6 +16,7 @@
 
 	<ItemGroup>
 	  <Folder Include="Exceptions\" />
+	  <Folder Include="Models\Queries\" />
 	</ItemGroup>
 
 </Project>

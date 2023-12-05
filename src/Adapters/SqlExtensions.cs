@@ -19,7 +19,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 source.Company!.Name,
                 source.Company.SiretNumber,
                 source.Company.ErpId,
-                source.Company!.JeDeclareFolder?.JdcDossierId,
+                source.Company.JeDeclareFolder?.JdcDossierId,
                 default,
                 default);
 

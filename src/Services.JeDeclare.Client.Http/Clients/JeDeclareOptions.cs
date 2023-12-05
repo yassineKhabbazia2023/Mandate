@@ -17,12 +17,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
         /// <summary>
         /// The endpoint URL to the <c>JeDeclare API</c>.
         /// </summary>
-        private Uri baseUri = null!;
+        private Uri? baseUri;
 
         /// <summary>
         /// Gets or sets the URL under which <c>JeDeclare Service</c> is deployed.
         /// </summary>
-        public Uri BaseUri
+        public Uri? BaseUri
         {
             get => this.baseUri;
             set
@@ -33,7 +33,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                 }
                 else
                 {
-                    this.baseUri = value!;
+                    this.baseUri = value;
                 }
             }
         }

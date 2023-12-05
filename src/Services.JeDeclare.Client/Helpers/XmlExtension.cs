@@ -10,20 +10,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
     {
         public static string Serialize<T>(this T source)
         {
-            if (source!.Equals(default(T)))
+            if (object.Equals(source, default(T)))
             {
                 return string.Empty;
             }
 
-            using var ms = new MemoryStream();
+            using var memoryStream = new MemoryStream();
             var ser = new XmlSerializer(typeof(T));
             XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
 
             ns.Add(string.Empty, string.Empty);
-            ser.Serialize(ms, source, ns);
-            ms.Position = 0;
+            ser.Serialize(memoryStream, source, ns);
+            memoryStream.Position = 0;
 
-            using var sr = new StreamReader(ms);
+            using var sr = new StreamReader(memoryStream);
             return sr.ReadToEnd();
         }
 

@@ -15,7 +15,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
     public class HttpFormioClientTestIntegrationTest
     {
-        [Fact]
+        [Fact(Skip = "Integration Test")]
         public async Task GetSubmissions_IntegrationTest()
         {
             var options = Options.Create(new FormioOptions()
@@ -64,7 +64,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             result!.Submissions.Count.Should().Be(20);
         }
 
-        [Fact]
+        [Fact(Skip = "Integration Test")]
         public async Task CheckJdcPartnerBank_IntegrationTest()
         {
             var options = Options.Create(new FormioOptions()
@@ -109,7 +109,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             ((string)result!["bankingGroup"] !).Should().Be("BNP");
         }
 
-        [Fact]
+        [Fact(Skip = "Integration Test")]
         public async Task CheckMadateDematSupported_IntegrationTest()
         {
             var options = Options.Create(new FormioOptions()
@@ -152,7 +152,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             result.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact(Skip = "Integration Test")]
         public async Task CheckCollecteConfigExist_IntegrationTest()
         {
             var options = Options.Create(new FormioOptions()
@@ -201,7 +201,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             result.Should().BeTrue();
         }
 
-        [Fact]
+        [Fact(Skip = "Integration Test")]
         public async Task GetTemplateShemaAsync_IntegrationTest()
         {
             var options = Options.Create(new FormioOptions()
@@ -250,7 +250,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Fact(Skip = "Integration Test")]
         public async Task GetSubmissionByIdAsync_IntegrationTest()
         {
             var options = Options.Create(new FormioOptions()
@@ -299,7 +299,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             ((string)result["_id"]) !.Should().Be("5dd29cae73ff997779932250");
         }
 
-        [Fact]
+        [Fact(Skip = "Integration Test")]
         public async Task GetProjectDefinitionAsync_IntegrationTest()
         {
             var options = Options.Create(new FormioOptions()
@@ -348,7 +348,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             ((string)result["_id"]) !.Should().Be("5ce57e521c42f37327ab37ab");
         }
 
-        [Fact]
+        [Fact(Skip = "Integration Test")]
         public async Task DownloadSubmissionAsPDFWithTemplate_IntegrationTest()
         {
             var fileToken = "aJVYt4fi8mA5p0IgvIUsXQkzKbNCql";
@@ -429,7 +429,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             result.Id.Should().Be("5ce57e521c42f37327ab37ab");
         }
 
-        [Fact]
+        [Fact(Skip = "Integration Test")]
         public async Task IntegrationTest()
         {
             var auth = new FormioAuthToken()

@@ -14,17 +14,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
 
             // Assert
             // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(9);
+            entity.GetType().GetProperties().Length.Should().Be(8);
 
             // Test all properties ; number of tests below should match the number of propeties above
             entity.Id.Should().Be(Guid.Empty);
-            entity.CompanyPersonal.Should().Be(null);
+            entity.Personal.Should().Be(null);
             entity.JeDeclareFolder.Should().Be(null);
             entity.Collections.Should().BeNull();
             entity.Name.Should().Be(null);
             entity.SiretNumber.Should().Be(null);
             entity.ErpId.Should().Be(null);
-            entity.BankServicesProviderId.Should().Be(null);
             entity.CompanyCollaborators.Should().BeNull();
         }
 
@@ -38,7 +37,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             var entity = new CompanyDb()
             {
                 Id = comapnyId,
-                CompanyPersonal = new CompanyPersonalDb
+                Personal = new PersonalDb
                 {
                     CompanyId = comapnyId,
                     Title = "Mr.",
@@ -68,16 +67,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
 
             // Assert
             entity.Id.Should().Be(Guid.Parse("00000001-0000-0000-0000-000000000000"));
-            entity.CompanyPersonal.CompanyId.Should().Be(Guid.Parse("00000001-0000-0000-0000-000000000000"));
-            entity.CompanyPersonal.Title.Should().Be("Mr.");
-            entity.CompanyPersonal.FirstName.Should().Be("John");
-            entity.CompanyPersonal.LastName.Should().Be("Doe");
-            entity.CompanyPersonal.Email.Should().Be("john.doe@example.com");
-            entity.CompanyPersonal.Street.Should().Be("123 Main St");
-            entity.CompanyPersonal.Complements.Should().Be("Apt 4B");
-            entity.CompanyPersonal.ZipCode.Should().Be("12345");
-            entity.CompanyPersonal.City.Should().Be("Sample City");
-            entity.CompanyPersonal.Country.Should().Be("ExampleLand");
+            entity.Personal.CompanyId.Should().Be(Guid.Parse("00000001-0000-0000-0000-000000000000"));
+            entity.Personal.Title.Should().Be("Mr.");
+            entity.Personal.FirstName.Should().Be("John");
+            entity.Personal.LastName.Should().Be("Doe");
+            entity.Personal.Email.Should().Be("john.doe@example.com");
+            entity.Personal.Street.Should().Be("123 Main St");
+            entity.Personal.Complements.Should().Be("Apt 4B");
+            entity.Personal.ZipCode.Should().Be("12345");
+            entity.Personal.City.Should().Be("Sample City");
+            entity.Personal.Country.Should().Be("ExampleLand");
             entity.Name.Should().Be("JEAN LÉVAGE");
             entity.SiretNumber.Should().Be("40902900600031");
             entity.ErpId.Should().Be("1000265308");

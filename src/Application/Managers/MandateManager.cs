@@ -19,7 +19,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             this.asposeHelper = asposeHelper;
         }
 
-        public async Task<Guid> CreateMandate(MandateCreation mandateCreation)
+        public async Task<Guid> CreateMandate(CollectionCreationCommand mandateCreation)
         {
             Company company = await this.companyManager.GetCompanyByErpId(mandateCreation.ErpId);
 
@@ -69,6 +69,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             // Creation mandate Status 10
             Status createdStatus = new Status(CollectionStatus.InProgress, "Actif");
             await this.databaseService.CreateStatus(collection.Id, createdStatus);
+
+            // save Signatory
+            await this.databaseService.SaveSignatoryAsync(company.Id, collection.Id, mandateCreation.Signatory, mandateCreation.Address);
 
             return collection.Id!;
         }

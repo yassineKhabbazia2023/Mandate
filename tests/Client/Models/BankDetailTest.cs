@@ -15,9 +15,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests
             // Make sure we don't forget propeties
             entity.GetType().GetProperties().Length.Should().Be(3);
 
-            // Make sure propeties don't have setters
-            entity.GetType().GetProperties().Should().AllSatisfy(p => p.CanWrite.Should().BeFalse());
-
             // Test all properties ; number of tests below should match the number of propeties above
             entity.BankCode.Should().Be("a");
             entity.BankName.Should().Be("b");

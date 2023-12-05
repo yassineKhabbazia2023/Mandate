@@ -27,7 +27,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             Name = "cn1",
             SiretNumber = "12345678901234",
             ErpId = "1234567890",
-            BankServicesProviderId = null,
         };
 
         public static RefBankDb RefBankDb => new ()
@@ -49,6 +48,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         public static RefStatusCodeDb RefStatusCodeDb => new ()
         {
             StatusCode = -1,
+            CollectionStatusCode = null,
             PulseCode = 100,
             StatusNameFr = "En cours",
             StatusNameEn = "In progress",
@@ -59,6 +59,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             Id = new PredictableGuid(103).NewGuid(),
             CollectionId = new PredictableGuid(101).NewGuid(),
             StatusCode = -1,
+            CollectionStatusCode = null,
             IsCurrent = true,
             StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
             MandateFile = null,

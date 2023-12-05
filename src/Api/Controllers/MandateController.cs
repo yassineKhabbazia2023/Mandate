@@ -79,18 +79,28 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             }
             catch (Sql.CollectionNotFoundException ex)
             {
-                this.logger.LogError("[{correlationId}] - There is no mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                this.logger.LogError(ex, "[{correlationId}] - There is no mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
                 return this.NotFound(new Error("CollectionNotFound", correlationId.ToString(), ex.Message));
             }
             catch (FolderIdEmptyOrNullException ex)
             {
-                this.logger.LogError("[{correlationId}] - There is no folderId in the mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                this.logger.LogError(ex, "[{correlationId}] - There is no folderId in the mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
                 return this.NotFound(new Error("FolderIdEmptyOrNull", correlationId.ToString(), ex.Message));
             }
             catch (RibIdEmptyOrNullException ex)
             {
-                this.logger.LogError("[{correlationId}] - There is no ridId in the mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                this.logger.LogError(ex, "[{correlationId}] - There is no ridId in the mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
                 return this.NotFound(new Error("RibIdEmptyOrNull", correlationId.ToString(), ex.Message));
+            }
+            catch (ServicesProviderException ex)
+            {
+                this.logger.LogError(ex, "[{correlationId}] - There is error when trying to download unsigned mandate [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                return this.NotFound(new Error("ServicesProviderError", correlationId.ToString(), ex.Message));
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "[{correlationId}] - [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("Exception", correlationId.ToString(), ex.Message));
             }
         }
 

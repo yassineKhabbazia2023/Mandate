@@ -30,6 +30,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Tests
         }
 
         [Fact]
+        public void Serialization_CaseNull()
+        {
+            Adresse? credentials = null;
+
+            var res = credentials!.Serialize<Adresse>();
+            res.Should().BeEmpty();
+        }
+
+        [Fact]
         public void Deserialization()
         {
             var jdcReference = @"<?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>

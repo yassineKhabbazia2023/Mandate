@@ -5,8 +5,10 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 {
     using System.Collections.Generic;
+    using System.Collections.Specialized;
     using System.Text;
     using System.Web;
+    using Kpmg.Constellation.Net.Http;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
@@ -28,38 +30,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
             queryStringDic["skip"] = $"{skip}";
             queryStringDic["limit"] = limit == null ? "50" : $"{limit}";
 
-            var allSubs = new FormioSubmissionCollection();
+            var subs = new FormioSubmissionCollection();
 
             using var client = this.factory.Create(authToken);
 
             var requestUri = $"constellation/{formId.Trim('/')}/submission?{queryStringDic}";
 
-            var response = await client.GetAsync(requestUri);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var exception = new FormioApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
-
-                this.logger.LogError(
-                    exception,
-                    "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - formiId: {formiId} - Message : '{eroorMessage}'",
-                    nameof(HttpFormioClient),
-                    nameof(this.GetSubmissionsAsync),
-                    response.StatusCode,
-                    formId,
-                    responseBody);
-
-                throw exception;
-            }
+            var responseBody = await this.GetResponseBodyAsync(formId, client, requestUri);
 
             var submissions = DeserializeSubmissions(responseBody);
 
-            allSubs.Submissions.AddRange(submissions);
-            allSubs.Skip = skip;
-            allSubs.Limit = 50;
+            subs.Submissions.AddRange(submissions);
+            subs.Skip = skip;
 
-            return allSubs;
+            subs.Limit = limit == null ? 50 : (int)limit;
+
+            return subs;
         }
 
         public async Task<JToken?> CheckJdcPartnerBankAsync(string formId, string codeBank)
@@ -70,25 +56,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
             queryStringDic["data.bankCode"] = $"{codeBank}";
 
             var requestUri = $"constellation/{formId.Trim('/')}/submission?{queryStringDic}";
-
-            var response = await client.GetAsync(requestUri);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var exception = new FormioApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
-
-                this.logger.LogError(
-                    exception,
-                    "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - formiId: {formiId} - Message : '{eroorMessage}'",
-                    nameof(HttpFormioClient),
-                    nameof(this.CheckJdcPartnerBankAsync),
-                    response.StatusCode,
-                    formId,
-                    responseBody);
-
-                throw exception;
-            }
+            string responseBody = await this.GetResponseBodyAsync(formId, client, requestUri);
 
             var submissions = DeserializeSubmissions(responseBody);
 
@@ -97,9 +65,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
                 return null;
             }
 
-            var result = JObject.Parse(submissions.Single().Data.ToString() !);
-
-            return result;
+            return JObject.Parse(submissions.Single().Data.ToString() !);
         }
 
         public async Task<bool> CheckMadateDematSupportedAsync(string formId, string codeBank)
@@ -112,24 +78,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
             var requestUri = $"constellation/{formId.Trim('/')}/submission?{queryStringDic}";
 
-            var response = await client.GetAsync(requestUri);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var exception = new FormioApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
-
-                this.logger.LogError(
-                    exception,
-                    "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - formiId: {formiId} - Message : '{eroorMessage}'",
-                    nameof(HttpFormioClient),
-                    nameof(this.CheckMadateDematSupportedAsync),
-                    response.StatusCode,
-                    formId,
-                    responseBody);
-
-                throw exception;
-            }
+            var responseBody = await this.GetResponseBodyAsync(formId, client, requestUri);
 
             var submissions = DeserializeSubmissions(responseBody);
 
@@ -147,29 +96,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
             var requestUri = $"constellation/{formId.Trim('/')}/exists?{queryStringDic}";
 
-            var response = await client.GetAsync(requestUri);
-            var responseBody = await response.Content.ReadAsStringAsync();
+            var responseBody = await this.GetResponseBodyAsync(formId, client, requestUri);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                var exception = new FormioApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
-
-                this.logger.LogError(
-                    exception,
-                    "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - formiId: {formiId} - codeBank: {codeBank} - bankAccountNumber: {bankAccountNumber} - bankSortCode: {bankSortCode} - Message : '{eroorMessage}'",
-                    nameof(HttpFormioClient),
-                    nameof(this.CheckCollecteConfigExistAsync),
-                    response.StatusCode,
-                    formId,
-                    codeBank,
-                    bankAccountNumber,
-                    bankSortCode,
-                    responseBody);
-
-                throw exception;
-            }
-
-            return true;
+            return JArray.Parse(responseBody).Count > 0;
         }
 
         public async Task<JToken?> GetTemplateShemaAsync(string projectId, string codeBank, FormioAuthToken authToken)
@@ -192,7 +121,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
                 this.logger.LogError(
                     exception,
-                    "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - projectId: {projectId} - codeBank: {codeBank} - Message : '{eroorMessage}'",
+                    "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - projectId: {projectId} - codeBank: {codeBank} - Message : '{errorMessage}'",
                     nameof(HttpFormioClient),
                     nameof(this.GetTemplateShemaAsync),
                     response.StatusCode,
@@ -205,7 +134,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
             var templateSchemas = JArray.Parse(responseBody);
 
-            return templateSchemas[0];
+            return templateSchemas.Count > 0 ? templateSchemas[0] : null;
         }
 
         public async Task<JToken> GetSubmissionByIdAsync(string formId, string submissionId, FormioAuthToken authToken)
@@ -214,29 +143,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
             var requestUri = $"constellation/{formId.Trim('/')}/submission/{submissionId}";
 
-            var response = await client.GetAsync(requestUri);
-            var responseBody = await response.Content.ReadAsStringAsync();
+            var responseBody = await this.GetResponseBodyAsync(formId, client, requestUri);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                var exception = new FormioApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
-
-                this.logger.LogError(
-                    exception,
-                    "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - formiId: {formiId} - submissionId: {submissionId} - Message : '{eroorMessage}'",
-                    nameof(HttpFormioClient),
-                    nameof(this.GetSubmissionsAsync),
-                    response.StatusCode,
-                    formId,
-                    submissionId,
-                    responseBody);
-
-                throw exception;
-            }
-
-            var result = JObject.Parse(responseBody);
-
-            return result;
+            return JObject.Parse(responseBody);
         }
 
         public async Task<FormioSubmissionPdf> DownloadSubmissionAsPDFWithTemplate(JToken form, JToken data, string downloadUrl, string pdfFileToken)
@@ -266,7 +175,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
                 this.logger.LogError(
                     exception,
-                    "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - downloadUrl: {downloadUrl} - Message : '{eroorMessage}'",
+                    "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - downloadUrl: {downloadUrl} - Message : '{errorMessage}'",
                     nameof(HttpFormioClient),
                     nameof(this.DownloadSubmissionAsPDFWithTemplate),
                     response.StatusCode,
@@ -285,24 +194,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
             var requestUri = $"project/{formioProjectId.Trim('/')}";
 
-            var response = await client.GetAsync(requestUri);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var exception = new FormioApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
-
-                this.logger.LogError(
-                    exception,
-                    "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - formioProjectId: {formioProjectId} - Message : '{eroorMessage}'",
-                    nameof(HttpFormioClient),
-                    nameof(this.GetProjectDefinitionAsync),
-                    response.StatusCode,
-                    formioProjectId,
-                    responseBody);
-
-                throw exception;
-            }
+            var responseBody = await this.GetResponseBodyAsync(formioProjectId, client, requestUri);
 
             var result = JObject.Parse(responseBody);
 
@@ -313,11 +205,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
         {
             Stream responseStream = await response.Content.ReadAsStreamAsync();
             byte[] pdf = new byte[responseStream.Length];
-            var bytesSequence = responseStream.Read(pdf, 0, (int)responseStream.Length);
+            var bytesRead = responseStream.Read(pdf, 0, (int)responseStream.Length);
 
             var formioSubmissionPdf = new FormioSubmissionPdf
             {
-                Data = bytesSequence > 0 ? pdf : new byte[1],
+                Data = bytesRead > 0 ? pdf : Array.Empty<byte>(),
                 Created = data["created"]?.Value<string>() !,
                 Modified = data["modified"]?.Value<string>() !,
                 Id = data["_id"]?.Value<string>() !,
@@ -330,6 +222,30 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
         private static IList<FormioSubmission> DeserializeSubmissions(string responseBody)
         {
             return JsonConvert.DeserializeObject<IList<FormioSubmission>>(responseBody) !;
+        }
+
+        private async Task<string> GetResponseBodyAsync(string formId, IHttpClient client, string requestUri)
+        {
+            var response = await client.GetAsync(requestUri);
+            var responseBody = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var exception = new FormioApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
+
+                this.logger.LogError(
+                    exception,
+                    "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - formiId: {formiId} - Message : '{errorMessage}'",
+                    nameof(HttpFormioClient),
+                    nameof(this.CheckJdcPartnerBankAsync),
+                    response.StatusCode,
+                    formId,
+                    responseBody);
+
+                throw exception;
+            }
+
+            return responseBody;
         }
     }
 }

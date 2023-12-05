@@ -969,7 +969,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             result.Name.Should().Be(expectedCompany.Name);
         }
 
-
         [Fact]
         public async Task GetCompanyByErpIdAsync_ShouldThrowCompanyNotFoundException_WhenCompanyDoesNotExist()
         {
@@ -978,9 +977,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             using var context = new MandateContext(this.options);
 
             var sqlMandateRepository = new SqlMandateRepository(this.options);
+            var nonExistingErpId = "nonExistingErpId";
 
             // Act & Assert
-            await Assert.ThrowsAsync<CompanyNotFoundException>(() => sqlMandateRepository.GetCompanyByErpIdAsync("nonExistingErpId"));
+            Func<Task> act = async () => await sqlMandateRepository.GetCompanyByErpIdAsync(nonExistingErpId);
+
+            await act.Should().ThrowAsync<CompanyNotFoundException>();
         }
     }
 }

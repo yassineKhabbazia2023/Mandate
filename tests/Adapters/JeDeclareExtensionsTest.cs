@@ -14,7 +14,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         {
             Bban bban = new Bban("12345", "54321", "12345678910", "12", null, default);
             Signatory signatory = new Signatory("M", "Maroo", "Elleuch", "email@email.com");
-            var entity = new MandateCreation("12345", signatory, null!, bban);
+            var entity = new CollectionCreationCommand("12345", signatory, null!, bban);
 
             var result = entity.ToRibClient();
 

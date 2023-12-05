@@ -85,6 +85,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             throw new NotImplementedException();
         }
 
+        public async Task<Collection> GetCollectionById(Guid id)
+        {
+            var collectionDb = await this.mandateRepository.GetCollectionById(id).ConfigureAwait(false);
+
+            return collectionDb.ToModel();
+        }
+
         public async Task SaveSignatoryAsync(Guid? companyId, Guid? collectionId, Signatory signatory, Address address)
         {
             var newPersonalDb = new PersonalDb()

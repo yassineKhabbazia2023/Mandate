@@ -76,9 +76,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var refStatusCode2 = EntityDbFactory.RefStatusCodeDb;
             var refStatusCode3 = EntityDbFactory.RefStatusCodeDb;
             refStatusCode2.StatusCode = 3;
+            refStatusCode2.CollectionStatusCode = 0;
             refStatusCode2.PulseCode = 30;
             refStatusCode2.StatusNameFr = "Actif";
             refStatusCode3.StatusCode = 4;
+            refStatusCode3.CollectionStatusCode = 2;
             refStatusCode3.PulseCode = 40;
             refStatusCode3.StatusNameFr = "Attente mandat signé";
             await context.RefStatusCode.AddAsync(refStatusCode1);
@@ -725,6 +727,94 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             companies[1]?.Name.Should().Be("Dior");
             companies[1]?.SiretNumber.Should().Be("40930900600031");
             companies[1]?.ErpId.Should().Be("1000265309");
+        }
+
+        [Fact]
+        public async Task GetCollectionById()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            var collectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111");
+            var companyId = Guid.Parse("b1111111-1111-1111-1111-111111111111");
+            var companyId2 = Guid.Parse("c1111111-1111-1111-1111-111111111111");
+
+            var collection = new CollectionDb()
+            {
+                Id = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
+                CompanyId = Guid.Parse("b1111111-1111-1111-1111-111111111111"),
+                BankCode = "12345",
+                BranchCode = "23456",
+                AccountNumber = "12345678901",
+                CheckDigits = "55",
+                LinkType = 7,
+                RejectReason = "reason1",
+            };
+
+            var collection2 = new CollectionDb()
+            {
+                Id = Guid.Parse("d1111111-1111-1111-1111-111111111111"),
+                CompanyId = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
+                BankCode = "12345",
+                BranchCode = "23456",
+                AccountNumber = "12345678901",
+                CheckDigits = "55",
+                LinkType = 7,
+                RejectReason = "reason1",
+            };
+
+            var refStatusCode = new RefStatusCodeDb()
+            {
+                StatusCode = -1,
+                PulseCode = 30,
+                StatusNameFr = "En cours",
+                StatusNameEn = "In progress",
+            };
+            var statusdb = new StatusDb()
+            {
+                Id = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
+                CollectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
+                StatusCode = -1,
+                IsCurrent = true,
+                StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
+                MandateFile = null,
+                CreatedBy = "created1",
+                RefStatusCode = refStatusCode,
+            };
+
+            var companydb = new CompanyDb()
+            {
+                Id = companyId,
+                Name = "cn1",
+                SiretNumber = "12345678901234",
+                ErpId = "1234567890",
+            };
+
+            var companydb2 = new CompanyDb()
+            {
+                Id = companyId2,
+                Name = "cn1",
+                SiretNumber = "12345678901234",
+                ErpId = "1234567890",
+            };
+            var bankDb = EntityDbFactory.RefBankDb;
+
+            await context.Collection.AddAsync(collection);
+            await context.Collection.AddAsync(collection2);
+            await context.Company.AddAsync(companydb);
+            await context.Company.AddAsync(companydb2);
+            await context.RefBank.AddAsync(bankDb);
+            await context.RefStatusCode.AddAsync(refStatusCode);
+            await context.Status.AddAsync(statusdb);
+
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            var result = await sqlMandateRepository.GetCollectionById(collectionId);
+
+            result.Should().NotBeNull();
+            result.Id.Should().Be(Guid.Parse("a1111111-1111-1111-1111-111111111111"));
         }
 
         [Fact]

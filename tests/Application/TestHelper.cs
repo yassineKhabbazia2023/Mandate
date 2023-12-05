@@ -13,7 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
 
         public static BankAgreement GetBankAgreement(bool isJdcPartner = false)
         {
-            return new BankAgreement(JdcPartnership.NonPartner);
+            return new BankAgreement(isJdcPartner ? JdcPartnership.Partner : JdcPartnership.NonPartner);
         }
 
         public static Company GetCompany(Guid? id = null, string? bankServicesProviderId = null)
@@ -38,9 +38,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
             return new Address("1 Rue du Capitaine Floch", string.Empty, "72000", "Le Mans", "FRANCE");
         }
 
-        public static Bban GetBban(string? bbanServicesProviderId = null)
+        public static Bban GetBban(string? bbanServicesProviderId = null, bool isJdcPartner = false)
         {
-            return new Bban("code", "02408", "00011269900", "58", bbanServicesProviderId, GetBank());
+            return new Bban("code", "02408", "00011269900", "58", bbanServicesProviderId, GetBank("ebicsCardId", isJdcPartner));
         }
 
         public static Collection GetCollection(Guid? companyId = null, string? collectionServicesProviderId = null)

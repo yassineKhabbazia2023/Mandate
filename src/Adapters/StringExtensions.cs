@@ -2,9 +2,6 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-using Microsoft.VisualBasic;
-using System.Text;
-
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
     public static class StringExtensions

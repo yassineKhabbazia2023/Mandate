@@ -2,7 +2,7 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate
+namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
     public class GuidGenerator : IGuidGenerator
     {

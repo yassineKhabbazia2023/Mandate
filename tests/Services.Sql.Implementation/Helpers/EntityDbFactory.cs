@@ -48,6 +48,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         public static RefStatusCodeDb RefStatusCodeDb => new ()
         {
             StatusCode = -1,
+            CollectionStatusCode = null,
             PulseCode = 100,
             StatusNameFr = "En cours",
             StatusNameEn = "In progress",
@@ -58,6 +59,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             Id = new PredictableGuid(103).NewGuid(),
             CollectionId = new PredictableGuid(101).NewGuid(),
             StatusCode = -1,
+            CollectionStatusCode = null,
             IsCurrent = true,
             StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
             MandateFile = null,

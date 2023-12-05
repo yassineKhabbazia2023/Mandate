@@ -1,12 +1,12 @@
-﻿// <copyright file="MandateCreationDto.cs" company="KPMG">
+﻿// <copyright file="CollectionCreationCommand.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
 namespace KPMG.Pulse.Back.Accounting.Mandate
 {
-    public class MandateCreation
+    public class CollectionCreationCommand
     {
-        public MandateCreation(string erpId, Signatory signatory, Address address, Bban bban)
+        public CollectionCreationCommand(string erpId, Signatory signatory, Address address, Bban bban)
         {
             this.ErpId = erpId;
             this.Signatory = signatory;

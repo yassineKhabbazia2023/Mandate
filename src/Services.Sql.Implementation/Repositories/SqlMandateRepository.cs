@@ -254,6 +254,24 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             }
         }
 
+        public async Task<CollectionDb> GetCollectionById(Guid id)
+        {
+            using var context = new MandateContext(this.options);
+
+            var collectionDb = context.Collection
+                .Include(c => c.Bank)
+                .Include(item => item.Company)
+                .Include(item => item.Statuses).ThenInclude(item => item.RefStatusCode)
+                .AsNoTracking().Where(c => c.Id == id);
+
+            if (!await collectionDb.AnyAsync().ConfigureAwait(false))
+            {
+                throw CollectionNotFoundException.FromId(id.ToString());
+            }
+
+            return await collectionDb.SingleAsync().ConfigureAwait(false);
+        }
+
         public async Task SaveSignatoryAsync(PersonalDb personalDb)
         {
             using var context = new MandateContext(this.options);
@@ -261,12 +279,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             await context.AddAsync(personalDb);
             await context.SaveChangesAsync();
         }
-
-        public Task<CollectionDb> GetCollectionById(Guid id)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public async Task<CompanyDb> GetCompanyByErpIdAsync(string erpId)
         {
             using var context = new MandateContext(this.options);

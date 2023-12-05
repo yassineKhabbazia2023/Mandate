@@ -136,6 +136,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<RefPdfTemplateDb>().Property(s => s.PdfFile).IsRequired(true);
 
             modelBuilder.Entity<RefStatusCodeDb>().HasKey(s => s.StatusCode);
+            modelBuilder.Entity<RefStatusCodeDb>().Property(s => s.CollectionStatusCode).IsRequired(false);
             modelBuilder.Entity<RefStatusCodeDb>().Property(s => s.PulseCode).IsRequired(true);
             modelBuilder.Entity<RefStatusCodeDb>().Property(s => s.StatusNameFr).HasMaxLength(100).IsUnicode(true).IsRequired(true);
             modelBuilder.Entity<RefStatusCodeDb>().Property(s => s.StatusNameEn).HasMaxLength(100).IsUnicode(true).IsRequired(true);
@@ -144,6 +145,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<StatusDb>().HasOne(s => s.Collection).WithMany(c => c.Statuses).HasForeignKey(s => s.CollectionId);
             modelBuilder.Entity<StatusDb>().HasOne(s => s.RefStatusCode).WithMany().HasForeignKey(s => s.StatusCode);
             modelBuilder.Entity<StatusDb>().Property(cp => cp.StatusCode).IsRequired(true);
+            modelBuilder.Entity<StatusDb>().Property(cp => cp.CollectionStatusCode).IsRequired(false);
             modelBuilder.Entity<StatusDb>().Property(cp => cp.IsCurrent).IsRequired(true);
             modelBuilder.Entity<StatusDb>().Property(cp => cp.StatusDate).IsRequired(false);
             modelBuilder.Entity<StatusDb>().Property(cp => cp.MandateFile).IsRequired(false);

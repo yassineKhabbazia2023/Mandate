@@ -270,13 +270,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
         public async Task<CompanyDb> GetCompanyByErpIdAsync(string erpId)
         {
             using var context = new MandateContext(this.options);
-            var company = await context.Company.AsNoTracking().SingleAsync(c => c.ErpId == erpId).ConfigureAwait(false);
-            if (company == null)
+            var company = context.Company.AsNoTracking().Where(c => c.ErpId == erpId);
+            if (!await company.AnyAsync().ConfigureAwait(false))
             {
                 throw CompanyNotFoundException.FromId(erpId);
             }
 
-            return company;
+            return await company.SingleAsync().ConfigureAwait(false);
         }
     }
 }

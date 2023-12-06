@@ -49,5 +49,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         /// <param name="personalDb">the personal table where we save signatory informations.</param>
         /// <returns>an asynchronous task.</returns>
         Task SaveSignatoryAsync(PersonalDb personalDb);
+
+        Task CreateFakeRefAsync();
+
+        Task DeleteFakeRefAsync();
+
+        Task CreateFakeAuthAsync();
+
+        Task DeleteFakeAuthAsync();
+
+        Task AddFakeDataAsync();
+
+        Task DeleteFakeDataAsync();
     }
 }

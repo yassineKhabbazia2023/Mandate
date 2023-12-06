@@ -105,5 +105,35 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
             await this.mandateRepository.SaveSignatoryAsync(newPersonalDb);
         }
+
+        public async Task CreateFakeRefAsync()
+        {
+            await this.mandateRepository.CreateFakeRefAsync().ConfigureAwait(false);
+        }
+
+        public async Task DeleteFakeRefAsync()
+        {
+            await this.mandateRepository.DeleteFakeRefAsync().ConfigureAwait(false);
+        }
+
+        public async Task CreateFakeAuthAsync()
+        {
+            await this.mandateRepository.CreateFakeAuthAsync().ConfigureAwait(false);
+        }
+
+        public async Task DeleteFakeAuthAsync()
+        {
+            await this.mandateRepository.DeleteFakeAuthAsync().ConfigureAwait(false);
+        }
+
+        public async Task AddFakeDataAsync()
+        {
+            await this.mandateRepository.AddFakeDataAsync().ConfigureAwait(false);
+        }
+
+        public async Task DeleteFakeDataAsync()
+        {
+            await this.mandateRepository.DeleteFakeDataAsync().ConfigureAwait(false);
+        }
     }
 }

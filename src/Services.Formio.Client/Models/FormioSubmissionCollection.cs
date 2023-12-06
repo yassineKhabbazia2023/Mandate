@@ -1,4 +1,8 @@
-﻿namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client
+﻿// <copyright file="FormioSubmissionCollection.cs" company="KPMG">
+// Copyright (c) KPMG. All rights reserved.
+// </copyright>
+
+namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client
 {
     using Newtonsoft.Json;
 

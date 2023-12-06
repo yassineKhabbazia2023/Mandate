@@ -5,16 +5,17 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 {
     using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.Text;
     using System.Web;
     using Kpmg.Constellation.Net.Http;
+    using Microsoft.AspNetCore.Http.Extensions;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
     public class HttpFormioClient : IFormioClient
     {
+        private const string FormId = "demandemandat";
         private readonly ILogger logger;
         private readonly IFormioClientFactory factory;
 
@@ -201,6 +202,47 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
             return result;
         }
 
+        public async Task<FormioSubmissionCollection> GetSubmissionMandateAsync(string bankCode, string bankSortCode, string bankAccountNumber, string bankCheckNumber, FormioAuthToken authToken)
+        {
+            var qb = new QueryBuilder();
+
+            if (bankCode != null)
+            {
+                qb.Add("data.bankCode", bankCode);
+            }
+
+            if (bankSortCode != null)
+            {
+                qb.Add("data.bankSortCode", bankSortCode);
+            }
+
+            if (bankAccountNumber != null)
+            {
+                qb.Add("data.bankAccountNumber", bankAccountNumber);
+            }
+
+            if (bankCheckNumber != null)
+            {
+                qb.Add("data.bankCheckNumber", bankCheckNumber);
+            }
+
+            var uriQuery = qb.ToQueryString();
+
+            var subs = new FormioSubmissionCollection();
+
+            using var client = this.factory.Create(authToken);
+
+            var requestUri = $"constellation/{FormId}/submission{uriQuery}";
+
+            var responseBody = await this.GetResponseBodyAsync(FormId, client, requestUri);
+
+            var submissions = DeserializeSubmissions(responseBody);
+
+            subs.Submissions.AddRange(submissions);
+
+            return subs;
+        }
+
         private static async Task<FormioSubmissionPdf> GetFormioSubmissionPdfAsync(JToken data, HttpResponseMessage response)
         {
             Stream responseStream = await response.Content.ReadAsStreamAsync();
@@ -246,11 +288,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
             }
 
             return responseBody;
-        }
-
-        public Task<FormioSubmissionCollection> GetSubmissionMandateAsync(string bankCode, string bankSortCode, string bankAccountNumber, string bankCheckNumber, int skip, int? limit, FormioAuthToken authToken)
-        {
-            throw new NotImplementedException();
         }
     }
 }

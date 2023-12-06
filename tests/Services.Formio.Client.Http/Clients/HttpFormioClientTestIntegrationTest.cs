@@ -15,7 +15,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
     public class HttpFormioClientTestIntegrationTest
     {
-        [Fact(Skip = "Integration Test")]
+        [Fact]
         public async Task GetSubmissions_IntegrationTest()
         {
             var options = Options.Create(new FormioOptions()

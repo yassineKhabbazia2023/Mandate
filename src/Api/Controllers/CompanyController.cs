@@ -30,7 +30,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetCompanyByErpIdAsync([FromRoute] string erpId)
         {
-            string correlationId = Guid.NewGuid().ToString();
+            string correlationId = "0"; // TODO
 
             try
             {

@@ -900,5 +900,54 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             dbr0["City"].As<string>().Should().BeEquivalentTo("Sample City");
             dbr0["Country"].As<string>().Should().BeEquivalentTo("ExampleLand");
         }
+
+        [Fact]
+        public async Task FakeData()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+            await sqlMandateRepository.CreateFakeRefAsync();
+            await sqlMandateRepository.AddFakeDataAsync();
+            await sqlMandateRepository.CreateFakeAuthAsync();
+
+            using var context = new MandateContext(this.options);
+            context.RefPdfTemplate.Count().Should().Be(1);
+            context.RefBank.Count().Should().Be(10);
+            context.RefBank.Count(b => b.JdcPartnership == JdcPartnership.NonPartner).Should().Be(1);
+            context.RefBank.Count(b => b.JdcPartnership == JdcPartnership.Scrappable).Should().Be(1);
+            context.RefStatusCode.Count().Should().Be(19);
+            context.Collaborator.Count().Should().Be(9);
+            context.CompanyCollaborator.Count().Should().Be(9);
+            context.Company.Count().Should().Be(1);
+            context.Personal.Count().Should().Be(3);
+            context.JeDeclareFolder.Count().Should().Be(1);
+            context.Collection.Count().Should().Be(2);
+            context.JeDeclareCollection.Count().Should().Be(2);
+            context.Status.Count().Should().Be(4);
+
+            await sqlMandateRepository.DeleteFakeAuthAsync();
+            context.Collaborator.Count().Should().Be(0);
+            context.CompanyCollaborator.Count().Should().Be(0);
+            context.Company.Count().Should().Be(1);
+
+            await sqlMandateRepository.CreateFakeAuthAsync();
+            context.Collaborator.Count().Should().Be(9);
+            context.CompanyCollaborator.Count().Should().Be(9);
+
+            await sqlMandateRepository.DeleteFakeDataAsync();
+            context.Collaborator.Count().Should().Be(9);
+            context.CompanyCollaborator.Count().Should().Be(0);
+            context.Company.Count().Should().Be(0);
+            context.Personal.Count().Should().Be(0);
+            context.JeDeclareFolder.Count().Should().Be(0);
+            context.Collection.Count().Should().Be(0);
+            context.JeDeclareCollection.Count().Should().Be(0);
+            context.Status.Count().Should().Be(0);
+
+            await sqlMandateRepository.DeleteFakeRefAsync();
+            context.RefPdfTemplate.Count().Should().Be(0);
+            context.RefBank.Count().Should().Be(0);
+            context.RefStatusCode.Count().Should().Be(0);
+        }
     }
 }

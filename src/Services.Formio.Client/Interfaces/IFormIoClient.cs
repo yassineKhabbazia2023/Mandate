@@ -23,5 +23,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client
         Task<JToken> GetProjectDefinitionAsync(string formioProjectId, FormioAuthToken authToken);
 
         Task<FormioSubmissionPdf> DownloadSubmissionAsPDFWithTemplate(JToken form, JToken data, string downloadUrl, string pdfFileToken);
+
+        Task<FormioSubmissionCollection> GetSubmissionMandateAsync(string bankCode, string bankSortCode, string bankAccountNumber, string bankCheckNumber, int skip, int? limit, FormioAuthToken authToken);
     }
 }

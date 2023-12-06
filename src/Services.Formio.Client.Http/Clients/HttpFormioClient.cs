@@ -247,5 +247,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
             return responseBody;
         }
+
+        public Task<FormioSubmissionCollection> GetSubmissionMandateAsync(string bankCode, string bankSortCode, string bankAccountNumber, string bankCheckNumber, int skip, int? limit, FormioAuthToken authToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

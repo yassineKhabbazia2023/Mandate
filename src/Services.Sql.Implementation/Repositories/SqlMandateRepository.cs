@@ -1470,5 +1470,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 CheckDigits = "99",
             };
         }
+        
+        public async Task<CompanyDb> GetCompanyByErpIdAsync(string erpId)
+        {
+            using var context = new MandateContext(this.options);
+            var company = context.Company.AsNoTracking().Where(c => c.ErpId == erpId);
+            if (!await company.AnyAsync().ConfigureAwait(false))
+            {
+                throw CompanyNotFoundException.FromId(erpId);
+            }
+
+            return await company.SingleAsync().ConfigureAwait(false);
+        }
     }
 }

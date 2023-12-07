@@ -65,8 +65,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 data?["jdcRibId"]?.ToString() !,
                 null);
 
-            Status status = new Status(CollectionStatus.Created, "created");
-
             return new Collection(
                Guid.Empty,
                data?["jdcReleveId"]?.ToString(),
@@ -74,7 +72,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                bban,
                created,
                modified,
-               status);
+               null!);
         }
     }
 }

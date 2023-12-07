@@ -6,7 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client
 {
     using Newtonsoft.Json.Linq;
 
-    public interface IFormioClient
+    public interface IFormIoClient
     {
         Task<FormioSubmissionCollection?> GetSubmissionsAsync(string formId, int skip, int? limit, FormioAuthToken authToken);
 

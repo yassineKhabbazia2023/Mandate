@@ -53,7 +53,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 Submissions = JsonConvert.DeserializeObject<List<FormioSubmission>>(data) !,
             };
 
-            var formIoClient = new Mock<IFormioClient>(MockBehavior.Strict);
+            var formIoClient = new Mock<IFormIoClient>(MockBehavior.Strict);
             formIoClient.Setup(item => item.GetSubmissionMandateAsync("13507", "00014", "31464482121", "77", It.IsAny<FormioAuthToken>()))
                 .ReturnsAsync(sub)
                 .Verifiable();

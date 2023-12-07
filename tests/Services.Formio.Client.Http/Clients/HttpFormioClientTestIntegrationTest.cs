@@ -48,7 +48,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -56,7 +56,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormIoClient(logger.Object, formioFactory.Object);
 
             var result = await formioClient.GetSubmissionsAsync("demandemandat", 0, 20, auth);
 
@@ -91,7 +91,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -99,7 +99,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormIoClient(logger.Object, formioFactory.Object);
 
             var result = await formioClient.CheckJdcPartnerBankAsync("jdcsupportedbanks", "30004");
 
@@ -137,7 +137,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -145,7 +145,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormIoClient(logger.Object, formioFactory.Object);
 
             var result = await formioClient.CheckMadateDematSupportedAsync("jdcsupportedbanks", "30004");
 
@@ -186,7 +186,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -194,7 +194,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormIoClient(logger.Object, formioFactory.Object);
 
             var result = await formioClient.CheckCollecteConfigExistAsync("demandemandat", "30004", "00000000014", "00818", auth);
 
@@ -235,7 +235,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -243,7 +243,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormIoClient(logger.Object, formioFactory.Object);
 
             var result = await formioClient.GetTemplateShemaAsync("5ce57e521c42f37327ab37ab", "30004", auth);
 
@@ -283,7 +283,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -291,7 +291,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormIoClient(logger.Object, formioFactory.Object);
 
             var result = await formioClient.GetSubmissionByIdAsync("demandemandat", "5dd29cae73ff997779932250", auth);
 
@@ -332,7 +332,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -340,7 +340,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormIoClient(logger.Object, formioFactory.Object);
 
             var result = await formioClient.GetProjectDefinitionAsync("5ce57e521c42f37327ab37ab", auth);
 
@@ -412,7 +412,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -420,7 +420,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormIoClient(logger.Object, formioFactory.Object);
 
             var result = await formioClient.DownloadSubmissionAsPDFWithTemplate(form, data, downloadUrl, fileToken);
 
@@ -480,7 +480,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             var factory = new HttpFormioClientFactory(options, clientFactory.Object);
 
-            var formioClient = new HttpFormioClient((new NullLoggerFactory() as ILoggerFactory).CreateLogger<HttpFormioClient>(), factory);
+            var formioClient = new HttpFormIoClient((new NullLoggerFactory() as ILoggerFactory).CreateLogger<HttpFormIoClient>(), factory);
 
             var result = await formioClient.CheckCollecteConfigExistAsync("demandemandat", "30004", "00000000014", "00818", auth);
 

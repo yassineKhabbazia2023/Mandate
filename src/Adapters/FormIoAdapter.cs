@@ -8,9 +8,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
     public class FormIoAdapter : IFormIoService
     {
-        private readonly IFormioClient formioClient;
+        private readonly IFormIoClient formioClient;
 
-        public FormIoAdapter(IFormioClient formioClient)
+        public FormIoAdapter(IFormIoClient formioClient)
         {
             this.formioClient = formioClient;
         }

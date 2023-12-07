@@ -485,18 +485,32 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
         {
             var submission1 = new FormioSubmission()
             {
-                 Id = "id1"
-            }
-            var o = new FormioSubmissionCollection()
+                Id = "id1",
+                Modified = "modified1",
+                Owner = "owner1",
+                Created = "created1",
+                Data = new
+                {
+                    bankCode = "123",
+                    bankSortCode = "456",
+                    bankAccountNumber = "789",
+                    bankCheckNumber = "46",
+                },
+            };
+
+            var formioSubmissionCollection = new FormioSubmissionCollection()
             {
                 Limit = 0,
                 Skip = 0,
-                Submissions = new List<FormioSubmission>() { submission1 },
+                Total = 0,
             };
+            formioSubmissionCollection.Submissions.Add(submission1);
+
+            var serializedFormioSubmissionCollection = JsonConvert.SerializeObject(formioSubmissionCollection.Submissions);
 
             var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"),
+                Content = new StringContent(serializedFormioSubmissionCollection, Encoding.UTF8, "application/json"),
             };
 
             var client = new Mock<IHttpClient>(MockBehavior.Strict);
@@ -528,10 +542,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
 
-            var submission = await jeDeclareClient.GetSubmissionMandateAsync("123", "456", "789", "46", auth);
+            var submissionMandate = await jeDeclareClient.GetSubmissionMandateAsync("123", "456", "789", "46", auth);
 
-            submission.Limit.Should().Be(0);
-            submission.Skip.Should().Be(0);
+            submissionMandate.Limit.Should().Be(0);
+            submissionMandate.Skip.Should().Be(0);
+
+            //submissionMandate.Submissions.Single().Should().BeEquivalentTo(submission1);
 
             client.VerifyAll();
             factory.VerifyAll();

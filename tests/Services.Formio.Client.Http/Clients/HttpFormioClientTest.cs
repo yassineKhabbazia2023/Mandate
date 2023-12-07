@@ -489,7 +489,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 Modified = "modified1",
                 Owner = "owner1",
                 Created = "created1",
-                Data = new FormioBban("123", "456", "789", "46"),
+                //Data = new FormioBban("123", "456", "789", "46"),
             };
 
             var formioSubmissionCollection = new FormioSubmissionCollection()

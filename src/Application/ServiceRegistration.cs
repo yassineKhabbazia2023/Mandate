@@ -21,6 +21,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             services.AddScoped<ICompanyManager, CompanyManager>();
             services.AddScoped<IAsposeHelper, AsposeHelper>();
             services.AddScoped<IGuidGenerator, GuidGenerator>();
+            services.AddScoped<IFormIoManager, FormIoManager>();
 
             return services;
         }

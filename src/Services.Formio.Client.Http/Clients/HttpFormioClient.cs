@@ -16,10 +16,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
     public class HttpFormioClient : IFormioClient
     {
         private const string FormId = "demandemandat";
-        private readonly ILogger logger;
+        private readonly ILogger<HttpFormioClient> logger;
         private readonly IFormioClientFactory factory;
 
-        public HttpFormioClient(ILogger logger, IFormioClientFactory factory)
+        public HttpFormioClient(ILogger<HttpFormioClient> logger, IFormioClientFactory factory)
         {
             this.logger = logger;
             this.factory = factory;

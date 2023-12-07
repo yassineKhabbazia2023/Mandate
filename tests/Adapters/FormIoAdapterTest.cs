@@ -66,7 +66,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var address = new Address("12 RUE DES 2 NATIONS", string.Empty, "59250", "HALLUIN", "France");
             var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "brunelatolivier@gmail.com");
             var company = new Company(Guid.Empty, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
-            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), null!);
+            Status status = new Status(CollectionStatus.ToDo, "En cours");
+            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
 
             res.Should().BeEquivalentTo(collection);
 

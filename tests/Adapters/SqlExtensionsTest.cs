@@ -119,8 +119,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             result.SiretNumber.Should().Be("123456789");
             result.ErpId.Should().Be("ERP123");
             result.BankServicesProviderId.Should().BeNull();
-            result.Signatory.Should().BeNull();
-            result.Address.Should().BeNull();
+            result.Signatory.Email.Should().BeNull();
+            result.Signatory.FirstName.Should().BeNull();
+            result.Signatory.LastName.Should().BeNull();
+            result.Signatory.Title.Should().BeNull();
+            result.Address.Street.Should().BeNull();
+            result.Address.Complements.Should().BeNull();
+            result.Address.ZipCode.Should().BeNull();
+            result.Address.City.Should().BeNull();
+            result.Address.Country.Should().BeNull();
         }
     }
 }

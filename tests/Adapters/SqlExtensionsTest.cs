@@ -118,7 +118,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             result.Name.Should().Be("Test Company");
             result.SiretNumber.Should().Be("123456789");
             result.ErpId.Should().Be("ERP123");
-            result.JeDeclareFolderId.Should().BeNull();
+            result.BankServicesProviderId.Should().BeNull();
             result.Signatory.Should().BeNull();
             result.Address.Should().BeNull();
         }

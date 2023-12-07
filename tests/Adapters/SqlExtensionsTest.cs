@@ -94,5 +94,33 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             result?.Address?.Country.Should().Be("ExampleLand");
             result?.Address?.Complements.Should().Be("Apt 4B");
         }
+
+        [Fact]
+        public void ToModel_WithNullProperties_ShouldHandleNullsGracefully()
+        {
+            // Arrange
+            var companyDb = new Sql.CompanyDb
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Company",
+                SiretNumber = "123456789",
+                ErpId = "ERP123",
+                JeDeclareFolder = null,
+                Personal = null,
+            };
+
+            // Act
+            var result = companyDb.ToModel();
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Id.Should().Be(companyDb.Id);
+            result.Name.Should().Be("Test Company");
+            result.SiretNumber.Should().Be("123456789");
+            result.ErpId.Should().Be("ERP123");
+            result.JeDeclareFolderId.Should().BeNull();
+            result.Signatory.Should().BeNull();
+            result.Address.Should().BeNull();
+        }
     }
 }

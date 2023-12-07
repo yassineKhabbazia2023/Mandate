@@ -1,4 +1,4 @@
-﻿// <copyright file="IFormioClient.cs" company="KPMG">
+﻿// <copyright file="IFormIoClient.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 

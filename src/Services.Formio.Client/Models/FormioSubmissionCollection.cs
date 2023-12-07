@@ -11,7 +11,7 @@
         }
 
         [JsonProperty("data")]
-        public List<FormioSubmission> Submissions { get; }
+        public List<FormioSubmission> Submissions { get; set; }
 
         [JsonProperty("limit")]
         public int Limit { get; set; }

@@ -4,11 +4,18 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
-    internal class CompanyManager : ICompanyManager
+    public class CompanyManager : ICompanyManager
     {
-        public Task<Company> GetCompanyByErpId(string erpId)
+        private readonly IDatabaseService databaseService;
+
+        public CompanyManager(IDatabaseService databaseService)
         {
-            throw new NotImplementedException();
+            this.databaseService = databaseService;
+        }
+
+        public async Task<Company> GetCompanyByErpIdAsync(string erpId)
+        {
+           return await this.databaseService.GetCompanyByErpIdAsync(erpId).ConfigureAwait(false);
         }
     }
 }

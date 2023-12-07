@@ -12,7 +12,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client
         public string Id { get; set; } = null!;
 
         [JsonProperty("data")]
-        public object Data { get; set; } = null!;
+        public FormioBban Data { get; set; } = null!;
 
         [JsonProperty("owner")]
         public string Owner { get; set; } = null!;

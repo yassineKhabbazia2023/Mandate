@@ -5,6 +5,7 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 {
     using System.Net;
+    using System.Text.Json.Nodes;
     using Kpmg.Constellation.Net.Http;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
@@ -489,7 +490,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 Modified = "modified1",
                 Owner = "owner1",
                 Created = "created1",
-                //Data = new FormioBban("123", "456", "789", "46"),
+                Data = new
+                {
+                    bankCode = "123",
+                    bankSortCode = "456",
+                    bankAccountNumber = "789",
+                    bankCheckNumber = "46",
+                },
             };
 
             var formioSubmissionCollection = new FormioSubmissionCollection()
@@ -498,9 +505,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 Skip = 0,
                 Total = 0,
             };
+
             formioSubmissionCollection.Submissions.Add(submission1);
 
-            var serializedFormioSubmissionCollection = JsonConvert.SerializeObject(formioSubmissionCollection.Submissions, Formatting.Indented);
+            var serializedFormioSubmissionCollection = JsonNode.Parse(JsonConvert.SerializeObject(formioSubmissionCollection.Submissions)) !.ToJsonString();
+
 
             var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -541,7 +550,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             submissionMandate.Limit.Should().Be(0);
             submissionMandate.Skip.Should().Be(0);
 
-            submissionMandate.Submissions.Single().Should().BeEquivalentTo(submission1);
+            submissionMandate.Submissions.Count.Should().Be(1);
+            var submission = submissionMandate.Submissions[0];
+
+            var dataJtoken = JToken.FromObject(submission.Data);
+
+            ((string)dataJtoken["bankCode"] !).Should().Be("123");
+            ((string)dataJtoken["bankSortCode"] !).Should().Be("456");
+            ((string)dataJtoken["bankAccountNumber"] !).Should().Be("789");
+            ((string)dataJtoken["bankCheckNumber"] !).Should().Be("46");
 
             client.VerifyAll();
             factory.VerifyAll();

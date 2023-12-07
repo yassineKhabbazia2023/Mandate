@@ -27,8 +27,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 bban.BranchCode,
                 bban.AccountNumber,
                 bban.CheckDigits,
-                0,
-                1,
                 token);
 
             return submission.ToCollection();

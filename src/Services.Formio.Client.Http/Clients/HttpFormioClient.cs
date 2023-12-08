@@ -204,29 +204,29 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
         public async Task<FormioSubmissionCollection> GetSubmissionMandateAsync(string bankCode, string bankSortCode, string bankAccountNumber, string bankCheckNumber, FormioAuthToken authToken)
         {
-            var qb = new QueryBuilder();
+            var queryBuilder = new QueryBuilder();
 
             if (bankCode != null)
             {
-                qb.Add("data.bankCode", bankCode);
+                queryBuilder.Add("data.bankCode", bankCode);
             }
 
             if (bankSortCode != null)
             {
-                qb.Add("data.bankSortCode", bankSortCode);
+                queryBuilder.Add("data.bankSortCode", bankSortCode);
             }
 
             if (bankAccountNumber != null)
             {
-                qb.Add("data.bankAccountNumber", bankAccountNumber);
+                queryBuilder.Add("data.bankAccountNumber", bankAccountNumber);
             }
 
             if (bankCheckNumber != null)
             {
-                qb.Add("data.bankCheckNumber", bankCheckNumber);
+                queryBuilder.Add("data.bankCheckNumber", bankCheckNumber);
             }
 
-            var uriQuery = qb.ToQueryString();
+            var uriQuery = queryBuilder.ToQueryString();
 
             var subs = new FormioSubmissionCollection();
 

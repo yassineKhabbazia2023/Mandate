@@ -59,7 +59,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<CollectionDb>().HasOne(c => c.Personal)
                 .WithOne(p => p.Collection)
                 .HasForeignKey<PersonalDb>(p => p.CollectionId)
-                .IsRequired();
+                .IsRequired(false);
             modelBuilder.Entity<CollectionDb>().Property(cp => cp.BankCode).IsFixedLength(true).HasMaxLength(5).IsRequired(true);
             modelBuilder.Entity<CollectionDb>().Property(cp => cp.BranchCode).IsFixedLength(true).HasMaxLength(5).IsRequired(true);
             modelBuilder.Entity<CollectionDb>().Property(cp => cp.AccountNumber).IsFixedLength(true).HasMaxLength(11).IsRequired(true);
@@ -91,7 +91,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<CompanyDb>().HasOne(c => c.Personal)
                 .WithOne(cp => cp.Company)
                 .HasForeignKey<PersonalDb>(cp => cp.CompanyId)
-                .IsRequired();
+                .IsRequired(false);
             modelBuilder.Entity<CompanyDb>().HasOne(c => c.JeDeclareFolder)
                 .WithOne(jdf => jdf.Company)
                 .HasForeignKey<JeDeclareFolderDb>(jdf => jdf.CompanyId);
@@ -136,6 +136,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<RefPdfTemplateDb>().Property(s => s.PdfFile).IsRequired(true);
 
             modelBuilder.Entity<RefStatusCodeDb>().HasKey(s => s.StatusCode);
+            modelBuilder.Entity<RefStatusCodeDb>().Property(s => s.StatusCode).IsRequired(true).ValueGeneratedNever();
             modelBuilder.Entity<RefStatusCodeDb>().Property(s => s.CollectionStatusCode).IsRequired(false);
             modelBuilder.Entity<RefStatusCodeDb>().Property(s => s.PulseCode).IsRequired(true);
             modelBuilder.Entity<RefStatusCodeDb>().Property(s => s.StatusNameFr).HasMaxLength(100).IsUnicode(true).IsRequired(true);

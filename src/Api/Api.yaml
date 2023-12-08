@@ -10,6 +10,7 @@ tags:
   - name: Mandate
   - name: Bank
   - name: Company
+  - name: Fake Data
   - name: Health
 security:
   - 'JWT': []
@@ -526,6 +527,141 @@ paths:
                     errorType: 'CompanyNotFound'
                     logReference: '12345'
                     message: 'The ''erpId'' account number has not been found'
+  /fake/referential:
+    put:
+      tags:
+        - Fake Data
+      summary: Creates fake data into the referential tables (status, banks, aspose templates)
+      operationId: CreateFakeRef
+      responses:
+        '204':
+          description: 'Operation was successful'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                'FakeDataForbidden':
+                  value:
+                    errorType: 'FakeDataForbidden'
+                    logReference: '12345'
+                    message: 'Manipulating fake data requires a system token'
+    delete:
+      tags:
+        - Fake Data
+      summary: Deletes fake data from the referential tables (status, banks, aspose templates)
+      operationId: DeleteFakeRef
+      responses:
+        '204':
+          description: 'Operation was successful'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                'FakeDataForbidden':
+                  value:
+                    errorType: 'FakeDataForbidden'
+                    logReference: '12345'
+                    message: 'Manipulating fake data requires a system token'
+  /fake/auth:
+    put:
+      tags:
+        - Fake Data
+      summary: Creates fake data into the authentication tables (collab, companycollab)
+      operationId: CreateFakeAuth
+      responses:
+        '204':
+          description: 'Operation was successful'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                'FakeDataForbidden':
+                  value:
+                    errorType: 'FakeDataForbidden'
+                    logReference: '12345'
+                    message: 'Manipulating fake data requires a system token'
+    delete:
+      tags:
+        - Fake Data
+      summary: Deletes fake data from the authentication tables (collab, companycollab)
+      operationId: DeleteFakeAuth
+      responses:
+        '204':
+          description: 'Operation was successful'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                'FakeDataForbidden':
+                  value:
+                    errorType: 'FakeDataForbidden'
+                    logReference: '12345'
+                    message: 'Manipulating fake data requires a system token'
+  /fake/data:
+    post:
+      tags:
+        - Fake Data
+      summary: Adds fake data into the mandate tables
+      operationId: AddFakeData
+      responses:
+        '204':
+          description: 'Operation was successful'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                'FakeDataForbidden':
+                  value:
+                    errorType: 'FakeDataForbidden'
+                    logReference: '12345'
+                    message: 'Manipulating fake data requires a system token'
+    delete:
+      tags:
+        - Fake Data
+      summary: Deletes fake data from the mandate tables
+      operationId: DeleteFakeData
+      responses:
+        '204':
+          description: 'Operation was successful'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                'FakeDataForbidden':
+                  value:
+                    errorType: 'FakeDataForbidden'
+                    logReference: '12345'
+                    message: 'Manipulating fake data requires a system token'
   /health:
     get:
       tags:

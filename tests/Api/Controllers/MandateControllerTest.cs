@@ -335,5 +335,141 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             logger.VerifyAll();
             guidGenerator.VerifyAll();
         }
+
+        [Fact]
+        public async Task Recovery()
+        {
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            var newGuid = Guid.Parse("00000000-0000-0000-0000-000000000001");
+            var guidGenerator = new Mock<IGuidGenerator>();
+            guidGenerator.Setup(g => g.NewGuid())
+            .Returns(newGuid)
+            .Verifiable();
+
+            var collection = new Mandate.Collection(
+                Guid.Empty,
+                "8909440",
+                EntityFactory.Company,
+                EntityFactory.Bban,
+                new DateTime(2019, 10, 10),
+                new DateTime(2019, 10, 10),
+                new Status(CollectionStatus.ToDo, "En Cours"));
+
+            var formIoManager = new Mock<IFormIoManager>(MockBehavior.Strict);
+            formIoManager.Setup(item =>
+                item.GetCollectionByBban(
+                    It.Is<Bban>(b =>
+                        b.BankCode == "12345" &&
+                        b.BranchCode == "54321" &&
+                        b.AccountNumber == "12345678901" &&
+                        b.CheckDigits == "01")))
+               .ReturnsAsync(collection)
+               .Verifiable();
+
+            var controller = new MandateController(logger.Object, null!, formIoManager.Object, guidGenerator.Object);
+
+            Client.Bban bban = new Client.Bban("12345", "54321", "12345678901", "01");
+            var result = await controller.Recovery(bban) as ObjectResult;
+
+            var summary = new Client.CollectionSummary(
+                Guid.Empty,
+                "ibsAccountNumber",
+                "Raison Sociale",
+                "name",
+                "12345678901",
+                new DateTime(2019, 10, 10),
+                new DateTime(2019, 10, 10),
+                20);
+
+            result.As<OkObjectResult>().StatusCode.Should().Be((int)HttpStatusCode.OK);
+            result.As<OkObjectResult>().Value.Should().BeEquivalentTo(summary);
+
+            formIoManager.VerifyAll();
+            logger.VerifyAll();
+            guidGenerator.VerifyAll();
+        }
+
+        [Fact]
+        public async Task Recovery_When_GetCollectionByBban_NoContent()
+        {
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            var newGuid = Guid.Parse("00000000-0000-0000-0000-000000000001");
+            var guidGenerator = new Mock<IGuidGenerator>();
+            guidGenerator.Setup(g => g.NewGuid())
+            .Returns(newGuid)
+            .Verifiable();
+
+            Collection? collection = null;
+
+            var formIoManager = new Mock<IFormIoManager>(MockBehavior.Strict);
+            formIoManager.Setup(item =>
+                item.GetCollectionByBban(
+                    It.Is<Bban>(b =>
+                        b.BankCode == "12345" &&
+                        b.BranchCode == "54321" &&
+                        b.AccountNumber == "12345678901" &&
+                        b.CheckDigits == "01")))
+               .ReturnsAsync(collection)
+               .Verifiable();
+
+            var controller = new MandateController(logger.Object, null!, formIoManager.Object, guidGenerator.Object);
+
+            Client.Bban bban = new Client.Bban("12345", "54321", "12345678901", "01");
+            var result = await controller.Recovery(bban) as NoContentResult;
+
+            result.As<NoContentResult>().StatusCode.Should().Be((int)HttpStatusCode.NoContent);
+
+            formIoManager.VerifyAll();
+            logger.VerifyAll();
+            guidGenerator.VerifyAll();
+        }
+
+        [Fact]
+        public async Task Recovery_When_GetCollectionByBban_Throw_Exception()
+        {
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception?>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
+
+            var newGuid = Guid.Parse("00000000-0000-0000-0000-000000000001");
+            var guidGenerator = new Mock<IGuidGenerator>();
+            guidGenerator.Setup(g => g.NewGuid())
+            .Returns(newGuid)
+            .Verifiable();
+
+            var formIoManager = new Mock<IFormIoManager>(MockBehavior.Strict);
+            formIoManager.Setup(item =>
+                item.GetCollectionByBban(
+                    It.Is<Bban>(b =>
+                        b.BankCode == "12345" &&
+                        b.BranchCode == "54321" &&
+                        b.AccountNumber == "12345678901" &&
+                        b.CheckDigits == "01")))
+               .ThrowsAsync(new Exception("message"))
+               .Verifiable();
+
+            var controller = new MandateController(logger.Object, null!, formIoManager.Object, guidGenerator.Object);
+
+            Client.Bban bban = new Client.Bban("12345", "54321", "12345678901", "01");
+            var result = await controller.Recovery(bban) as ObjectResult;
+
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
+
+            var errorType = result!.Value as Client.Error;
+            errorType.Should().NotBeNull();
+            errorType!.ErrorType.Should()
+                               .Be("TechnicalError");
+            errorType!.LogReference.Should()
+                                  .Be(newGuid.ToString());
+
+            formIoManager.VerifyAll();
+            logger.VerifyAll();
+            guidGenerator.VerifyAll();
+        }
     }
 }

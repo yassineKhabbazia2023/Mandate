@@ -13,7 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
     {
         public static Collection ToCollection(this FormioSubmissionCollection source)
         {
-            FormioSubmission mandate = source?.Submissions?.SingleOrDefault() !;
+            FormioSubmission mandate = source.Submissions.SingleOrDefault() !;
             var node = JsonNode.Parse(JsonConvert.SerializeObject(mandate)) !.AsObject();
             var data = node["data"];
             var headOffice = data?["headOffice"];
@@ -36,7 +36,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 data?["companyName"]?.ToString() !,
                 data?["SIRETNumber"]?.ToString() !,
                 data?["accountNumber"]?.ToString() !,
-                data?["jdcDossierId"]?.ToString()!,
+                data?["jdcDossierId"]?.ToString() !,
                 signatory,
                 address);
 

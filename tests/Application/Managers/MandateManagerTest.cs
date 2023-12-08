@@ -34,7 +34,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Verifiable();
 
             var companyManager = new Mock<ICompanyManager>(MockBehavior.Strict);
-            companyManager.Setup(r => r.GetCompanyByErpId("1000332927"))
+            companyManager.Setup(r => r.GetCompanyByErpIdAsync("1000332927"))
                 .ReturnsAsync(company)
                 .Verifiable();
 
@@ -136,7 +136,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Verifiable();
 
             var companyManager = new Mock<ICompanyManager>(MockBehavior.Strict);
-            companyManager.Setup(r => r.GetCompanyByErpId("1000332927"))
+            companyManager.Setup(r => r.GetCompanyByErpIdAsync("1000332927"))
                 .ReturnsAsync(company)
                 .Verifiable();
 
@@ -178,7 +178,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Verifiable();
 
             var companyManager = new Mock<ICompanyManager>(MockBehavior.Strict);
-            companyManager.Setup(r => r.GetCompanyByErpId("1000332927"))
+            companyManager.Setup(r => r.GetCompanyByErpIdAsync("1000332927"))
                 .ReturnsAsync(company)
                 .Verifiable();
 

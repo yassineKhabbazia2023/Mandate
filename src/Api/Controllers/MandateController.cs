@@ -38,6 +38,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             try
             {
+                sortOrder ??= "Ascending";
+                sortCriteria ??= "Name";
+
                 var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria, string.Empty);
                 this.logger.LogInformation($"{collectionQuery}");
                 var result = await this.mandateManager.GetAllCollectionsAsync(collectionQuery.ToModel());
@@ -145,7 +148,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.PostCollectionAsync));
+                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.Recovery));
                 return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
             }
         }

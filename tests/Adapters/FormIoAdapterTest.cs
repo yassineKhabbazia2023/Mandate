@@ -50,7 +50,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 Limit = 1,
                 Skip = 0,
                 Total = 1,
-                Submissions = JsonConvert.DeserializeObject<List<FormioSubmission>>(data) !,
+                Submissions = JsonConvert.DeserializeObject<List<FormioSubmission>>(data)!,
             };
 
             var formIoClient = new Mock<IFormIoClient>(MockBehavior.Strict);
@@ -70,6 +70,32 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
 
             res.Should().BeEquivalentTo(collection);
+
+            formIoClient.VerifyAll();
+        }
+
+        [Fact]
+        public async Task GetSubmissionMandateAsync_When_GetSubmissionMandateAsync_Return_NoResult()
+        {
+            Bban bban = new Bban("13507", "00014", "31464482121", "77", "8909440", null);
+            var sub = new FormioSubmissionCollection()
+            {
+                Limit = 1,
+                Skip = 0,
+                Total = 1,
+                Submissions = JsonConvert.DeserializeObject<List<FormioSubmission>>("[]") !,
+            };
+
+            var formIoClient = new Mock<IFormIoClient>(MockBehavior.Strict);
+            formIoClient.Setup(item => item.GetSubmissionMandateAsync("13507", "00014", "31464482121", "77", It.IsAny<FormioAuthToken>()))
+                .ReturnsAsync(sub)
+                .Verifiable();
+
+            var adapter = new FormIoAdapter(formIoClient.Object);
+
+            var res = await adapter.GetSubmissionMandateAsync(bban);
+
+            res.Should().BeNull();
 
             formIoClient.VerifyAll();
         }

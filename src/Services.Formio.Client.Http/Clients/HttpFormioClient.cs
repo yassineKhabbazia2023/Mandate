@@ -1,4 +1,4 @@
-﻿// <copyright file="HttpFormioClient.cs" company="KPMG">
+﻿// <copyright file="HttpFormIoClient.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -13,13 +13,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
-    public class HttpFormioClient : IFormioClient
+    public class HttpFormIoClient : IFormIoClient
     {
         private const string FormId = "demandemandat";
-        private readonly ILogger logger;
+        private readonly ILogger<HttpFormIoClient> logger;
         private readonly IFormioClientFactory factory;
 
-        public HttpFormioClient(ILogger logger, IFormioClientFactory factory)
+        public HttpFormIoClient(ILogger<HttpFormIoClient> logger, IFormioClientFactory factory)
         {
             this.logger = logger;
             this.factory = factory;
@@ -123,7 +123,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
                 this.logger.LogError(
                     exception,
                     "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - projectId: {projectId} - codeBank: {codeBank} - Message : '{errorMessage}'",
-                    nameof(HttpFormioClient),
+                    nameof(HttpFormIoClient),
                     nameof(this.GetTemplateShemaAsync),
                     response.StatusCode,
                     projectId,
@@ -177,7 +177,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
                 this.logger.LogError(
                     exception,
                     "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - downloadUrl: {downloadUrl} - Message : '{errorMessage}'",
-                    nameof(HttpFormioClient),
+                    nameof(HttpFormIoClient),
                     nameof(this.DownloadSubmissionAsPDFWithTemplate),
                     response.StatusCode,
                     downloadUrl,
@@ -278,7 +278,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
                 this.logger.LogError(
                     exception,
                     "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - formiId: {formiId} - Message : '{errorMessage}'",
-                    nameof(HttpFormioClient),
+                    nameof(HttpFormIoClient),
                     nameof(this.CheckJdcPartnerBankAsync),
                     response.StatusCode,
                     formId,

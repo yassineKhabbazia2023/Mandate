@@ -1,4 +1,4 @@
-﻿// <copyright file="HttpFormioClientTest.cs" company="KPMG">
+﻿// <copyright file="HttpFormIoClientTest.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -11,7 +11,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
-    public class HttpFormioClientTest
+    public class HttpFormIoClientTest
     {
         [Fact]
         public async Task GetSubmissionsAsync_CaseThrowExeption()
@@ -40,7 +40,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -48,7 +48,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormIoClient(logger.Object, factory.Object);
 
             Func<Task> act = async () => await jeDeclareClient.GetSubmissionsAsync("demandemandat", 0, 20, auth);
 
@@ -84,7 +84,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -92,7 +92,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormIoClient(logger.Object, factory.Object);
 
             Func<Task> act = async () => await jeDeclareClient.CheckJdcPartnerBankAsync("demandemandat", "codeBankT");
 
@@ -128,7 +128,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -136,7 +136,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormIoClient(logger.Object, factory.Object);
 
             Func<Task> act = async () => await jeDeclareClient.CheckMadateDematSupportedAsync("demandemandat", "codeBankT");
 
@@ -174,7 +174,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -182,7 +182,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormIoClient(logger.Object, factory.Object);
 
             Func<Task> act = async () => await jeDeclareClient.CheckCollecteConfigExistAsync("demandemandat", "bankCodeT", "bankAccountNumberT", "bankSortT", auth);
 
@@ -220,7 +220,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -228,7 +228,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormIoClient(logger.Object, factory.Object);
 
             Func<Task> act = async () => await jeDeclareClient.GetTemplateShemaAsync("projectIdT", "codeBankT", auth);
 
@@ -266,7 +266,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -274,7 +274,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormIoClient(logger.Object, factory.Object);
 
             Func<Task> act = async () => await jeDeclareClient.GetSubmissionByIdAsync("formIdT", "submissionIdT", auth);
 
@@ -343,7 +343,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -351,7 +351,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormIoClient(logger.Object, factory.Object);
 
             Func<Task> act = async () => await jeDeclareClient.DownloadSubmissionAsPDFWithTemplate(form, data, downloadUrl, fileToken);
 
@@ -415,7 +415,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -423,7 +423,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormIoClient(logger.Object, factory.Object);
 
             var result = await jeDeclareClient.DownloadSubmissionAsPDFWithTemplate(form, data, downloadUrl, fileToken);
 
@@ -462,7 +462,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -470,7 +470,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormIoClient(logger.Object, factory.Object);
 
             Func<Task> act = async () => await jeDeclareClient.GetProjectDefinitionAsync("demandemandat", auth);
 
@@ -535,7 +535,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -543,7 +543,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormIoClient(logger.Object, factory.Object);
 
             var submissionMandate = await jeDeclareClient.GetSubmissionMandateAsync("123", "456", "789", "46", auth);
 

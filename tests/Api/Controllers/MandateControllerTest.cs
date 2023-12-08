@@ -69,7 +69,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 .ReturnsAsync(pm)
                 .Verifiable();
 
-            var controller = new MandateController(logger.Object, manager.Object, null!);
+            var controller = new MandateController(logger.Object, manager.Object, null!, null!);
 
             var result = await controller.GetCollectionsAsync(
                 string.Empty,
@@ -131,7 +131,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 .ThrowsAsync(new Exception("message"))
                 .Verifiable();
 
-            var controller = new MandateController(logger.Object, manager.Object, null!);
+            var controller = new MandateController(logger.Object, manager.Object, null!, null!);
 
             var result = await controller.GetCollectionsAsync(
                 string.Empty,
@@ -187,7 +187,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 FileDownloadName = expectedFileName,
             };
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object);
 
             var result = await controller.DownloadUnsignedAsync(mandateId);
 
@@ -227,7 +227,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object);
 
             var result = await controller.DownloadUnsignedAsync(mandateId) as ObjectResult;
 
@@ -272,7 +272,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object);
 
             var result = await controller.DownloadUnsignedAsync(mandateId) as ObjectResult;
 
@@ -317,7 +317,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object);
 
             var result = await controller.DownloadUnsignedAsync(mandateId) as ObjectResult;
 

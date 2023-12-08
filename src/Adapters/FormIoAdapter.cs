@@ -6,11 +6,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client;
 
-    public class FormIoAdapter
+    public class FormIoAdapter : IFormIoService
     {
-        private readonly IFormioClient formioClient;
+        private readonly IFormIoClient formioClient;
 
-        public FormIoAdapter(IFormioClient formioClient)
+        public FormIoAdapter(IFormIoClient formioClient)
         {
             this.formioClient = formioClient;
         }
@@ -29,7 +29,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 bban.CheckDigits,
                 token);
 
-            return submission.ToCollection();
+            return submission.Submissions.Any() ? submission.ToCollection() : null;
         }
     }
 }

@@ -510,7 +510,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             var serializedFormioSubmissionCollection = JsonNode.Parse(JsonConvert.SerializeObject(formioSubmissionCollection.Submissions)) !.ToJsonString();
 
-
             var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(serializedFormioSubmissionCollection, Encoding.UTF8, "application/json"),

@@ -41,7 +41,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 address);
 
             DateTime created, modified;
-            string format = "yyyy-MM-ddTHH:mm:ss.fffZ";
+            const string format = "yyyy-MM-ddTHH:mm:ss.fffZ";
 
             DateTime.TryParseExact(
                 node["created"]?.ToString(),

@@ -2,10 +2,10 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client;
-
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
+    using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client;
+
     public class FormIoExtensionsTest
     {
         [Fact]

@@ -115,7 +115,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             var httpClient = httpFormioclientFactory.Create(formioAuthToken);
             client.Object.DefaultRequestHeaders.GetValues("x-jwt-token").Single().Should().Be("valueT");
 
-            // idigao 
+            // idigao
             client.VerifyAll();
             factory.VerifyAll();
         }
@@ -160,7 +160,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             var httpClient = httpFormioclientFactory.Create(formioAuthToken);
             client.Object.DefaultRequestHeaders.GetValues("x-token").Single().Should().Be("formioApiKeyT");
 
-            // idigao 
+            // idigao
             client.VerifyAll();
             factory.VerifyAll();
         }

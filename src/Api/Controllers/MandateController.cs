@@ -135,7 +135,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [HttpPost("recovery")]
         public async Task<IActionResult> Recovery([FromBody] Bban rib)
         {
-            var correlationId = this.guidGenerator.NewGuid().ToString();
+            var correlationId = "0"; // TODO
             try
             {
                 Collection? collection = await this.formIoManager.GetCollectionByBban(rib.ToModel());

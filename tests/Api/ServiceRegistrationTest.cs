@@ -4,12 +4,15 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 {
-
+    using KPMG.Constellation.Portal.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
+    using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
+    using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.Portal;
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -66,6 +69,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             sp.GetService<IGuidGenerator>().Should().NotBeNull();
             sp.GetService<IFormIoManager>().Should().NotBeNull();
             sp.GetService<IFakeDataManager>().Should().NotBeNull();
+            sp.GetService<IDatabaseService>().Should().NotBeNull();
+            sp.GetService<IJeDeclareService>().Should().NotBeNull();
+            sp.GetService<IPortalManager>().Should().NotBeNull();
+            sp.GetService<IFormIoService>().Should().NotBeNull();
+            sp.GetService<IMandateRepository>().Should().NotBeNull();
+            sp.GetService<IJeDeclareClientFactory>().Should().NotBeNull();
+            sp.GetService<IJeDeclareClient>().Should().NotBeNull();
+            sp.GetService<IFormioClientFactory>().Should().NotBeNull();
+            sp.GetService<IFormIoClient>().Should().NotBeNull();
+            sp.GetService<IPortalClientFactory>().Should().NotBeNull();
+            sp.GetService<IAuthenticationContext>().Should().NotBeNull();
+            sp.GetService<IPortalProvider>().Should().NotBeNull();
         }
     }
 }

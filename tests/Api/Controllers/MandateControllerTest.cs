@@ -340,11 +340,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         public async Task Recovery()
         {
             var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
-            var newGuid = Guid.Parse("00000000-0000-0000-0000-000000000001");
             var guidGenerator = new Mock<IGuidGenerator>();
-            guidGenerator.Setup(g => g.NewGuid())
-            .Returns(newGuid)
-            .Verifiable();
 
             var collection = new Mandate.Collection(
                 Guid.Empty,
@@ -393,11 +389,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         public async Task Recovery_When_GetCollectionByBban_NoContent()
         {
             var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
-            var newGuid = Guid.Parse("00000000-0000-0000-0000-000000000001");
             var guidGenerator = new Mock<IGuidGenerator>();
-            guidGenerator.Setup(g => g.NewGuid())
-            .Returns(newGuid)
-            .Verifiable();
 
             Collection? collection = null;
 
@@ -435,11 +427,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var newGuid = Guid.Parse("00000000-0000-0000-0000-000000000001");
             var guidGenerator = new Mock<IGuidGenerator>();
-            guidGenerator.Setup(g => g.NewGuid())
-            .Returns(newGuid)
-            .Verifiable();
 
             var formIoManager = new Mock<IFormIoManager>(MockBehavior.Strict);
             formIoManager.Setup(item =>
@@ -465,7 +453,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             errorType!.ErrorType.Should()
                                .Be("TechnicalError");
             errorType!.LogReference.Should()
-                                  .Be(newGuid.ToString());
+                                  .Be("0");
 
             formIoManager.VerifyAll();
             logger.VerifyAll();

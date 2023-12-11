@@ -1363,7 +1363,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             };
             #endregion
 
-            var accountNumber = "W" + (200000000L + rand.Next(1000, 9999)).ToString();
+            var accountNumber = (2000000000L + rand.Next(1000, 9999)).ToString();
             if (!context.Company.Any(t => t.ErpId == accountNumber))
             {
                 var companyId = Guid.NewGuid();
@@ -1402,7 +1402,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
         public async Task DeleteFakeDataAsync()
         {
             using var context = new MandateContext(this.options);
-            var fakeCompanyIds = context.Company.Where(c => c.ErpId != null && c.ErpId.StartsWith("W20000")).Select(c => c.Id);
+            var fakeCompanyIds = context.Company.Where(c => c.ErpId != null && c.ErpId.StartsWith("200000")).Select(c => c.Id);
             var fakeCollectionIds = context.Collection.Where(c => fakeCompanyIds.Contains(c.CompanyId)).Select(c => c.Id);
 
             context.RemoveRange(await context.Status.Where(s => fakeCollectionIds.Contains(s.CollectionId)).ToListAsync());

@@ -84,7 +84,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 Name = "cn1",
                 SiretNumber = "12345678901234",
                 ErpId = "1234567890",
-                BankServicesProviderId = null,
             };
             collection.Bank = EntityDbFactory.RefBankDb;
             collection.Statuses = new List<StatusDb>() { statusdb };

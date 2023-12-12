@@ -788,7 +788,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 Name = "cn1",
                 SiretNumber = "12345678901234",
                 ErpId = "1234567890",
-                BankServicesProviderId = null,
             };
 
             var companydb2 = new CompanyDb()
@@ -797,7 +796,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 Name = "cn1",
                 SiretNumber = "12345678901234",
                 ErpId = "1234567890",
-                BankServicesProviderId = null,
             };
             var bankDb = EntityDbFactory.RefBankDb;
 

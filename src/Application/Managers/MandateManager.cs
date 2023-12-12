@@ -21,7 +21,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
         public async Task<Guid> CreateMandate(CollectionCreationCommand mandateCreation)
         {
-            Company company = await this.companyManager.GetCompanyByErpId(mandateCreation.ErpId);
+            Company company = await this.companyManager.GetCompanyByErpIdAsync(mandateCreation.ErpId);
 
             Bank bank = await this.databaseService.GetBankByCodeAsync(mandateCreation.Bban.BankCode);
 

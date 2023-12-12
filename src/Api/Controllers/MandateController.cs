@@ -36,6 +36,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             try
             {
+                sortOrder ??= "Ascending";
+                sortCriteria ??= "Name";
+
                 var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria, string.Empty);
                 this.logger.LogInformation($"{collectionQuery}");
                 var result = await this.mandateManager.GetAllCollectionsAsync(collectionQuery.ToModel());

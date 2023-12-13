@@ -26,6 +26,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             var adress = TestHelper.GetAddress();
             Bban bban = TestHelper.GetBban();
             var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"));
+            var initStatus = new Status(CollectionStatus.ToDo, "En Cours");
+
+            CollectionCreationCommand mandate = new CollectionCreationCommand("1000332927", signatory, adress, bban);
 
             var bank = TestHelper.GetBank("carteId", true);
             var databaseService = new Mock<IDatabaseService>(MockBehavior.Strict);
@@ -41,7 +44,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             var createdCollectionSQL = TestHelper.GetCollection(new Guid("00000000-0000-0000-0000-000000000001"));
             var createdCompany = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "12345");
             var jeDeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
-            jeDeclareService.Setup(r => r.CreateFolderAsync(company))
+            jeDeclareService.Setup(r => r.CreateFolderAsync(It.IsAny<Company>()))
+                .Callback<Company>(c =>
+                {
+                    c.Id.Should().Be(Guid.Empty);
+                    c.Name.Should().Be("SCI IMMO JACOBINS");
+                    c.SiretNumber.Should().Be("83030022400011");
+                    c.ErpId.Should().Be("1000332927");
+                    c.BankServicesProviderId.Should().BeNull();
+                    c.Signatory.Should().BeEquivalentTo(mandate.Signatory);
+                    c.Address.Should().BeEquivalentTo(mandate.Address);
+                })
                 .ReturnsAsync(createdCompany)
                 .Verifiable();
 
@@ -71,7 +84,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Verifiable();
 
             var createdBban = TestHelper.GetBban("56789");
-            jeDeclareService.Setup(js => js.AddRibToFolderAsync("12345", bban, signatory))
+            jeDeclareService.Setup(js => js.AddRibToFolderAsync("12345", mandate, bank))
                 .ReturnsAsync(createdBban)
                 .Verifiable();
 
@@ -88,7 +101,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Verifiable();
 
             var createdCollectionJdc = TestHelper.GetCollection(new Guid("00000000-0000-0000-0000-000000000001"), "0987");
-            jeDeclareService.Setup(js => js.CreateCollecteConfigurationAsync("12345", createdBban))
+
+            jeDeclareService.Setup(js => js.CreateCollecteConfigurationAsync(It.IsAny<string>(), It.IsAny<Bban>(), It.IsAny<Company>(), It.IsAny<Guid>(), It.IsAny<Status>()))
+                .Callback<string, Bban, Company, Guid, Status>((s, b, c, g, a) =>
+                {
+                    s.Should().Be("12345");
+                    b.Should().BeEquivalentTo(createdBban);
+                    c.Should().BeEquivalentTo(createdCompany);
+                    g.Should().Be(createdCollectionSQL.Id);
+                    a.Should().BeEquivalentTo(initStatus);
+                })
                 .ReturnsAsync(createdCollectionJdc)
                 .Verifiable();
 
@@ -111,9 +133,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object, this.mockAsposeHelper.Object);
 
-            CollectionCreationCommand mandate = new CollectionCreationCommand("1000332927", signatory, adress, bban);
-
-            var result = await mandateManager.CreateMandate(mandate).ConfigureAwait(false);
+            var result = await mandateManager.CreateMandate(mandate);
             result.Should().Be(createdCollectionSQL.Id);
 
             jeDeclareService.VerifyAll();
@@ -128,6 +148,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             var adress = TestHelper.GetAddress();
             Bban bban = TestHelper.GetBban();
             var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"));
+            CollectionCreationCommand mandate = new CollectionCreationCommand("1000332927", signatory, adress, bban);
 
             var bank = TestHelper.GetBank();
             var databaseService = new Mock<IDatabaseService>(MockBehavior.Strict);
@@ -142,7 +163,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             var createdCompany = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "12345");
             var jeDeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
-            jeDeclareService.Setup(r => r.CreateFolderAsync(company))
+
+            jeDeclareService.Setup(r => r.CreateFolderAsync(It.IsAny<Company>()))
+                .Callback<Company>(c =>
+                {
+                    c.Id.Should().Be(Guid.Empty);
+                    c.Name.Should().Be("SCI IMMO JACOBINS");
+                    c.SiretNumber.Should().Be("83030022400011");
+                    c.ErpId.Should().Be("1000332927");
+                    c.BankServicesProviderId.Should().BeNull();
+                    c.Signatory.Should().BeEquivalentTo(mandate.Signatory);
+                    c.Address.Should().BeEquivalentTo(mandate.Address);
+                })
                 .ReturnsAsync(createdCompany)
                 .Verifiable();
 
@@ -151,8 +183,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Verifiable();
 
             var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object, this.mockAsposeHelper.Object);
-
-            CollectionCreationCommand mandate = new CollectionCreationCommand("1000332927", signatory, adress, bban);
 
             Func<Task> acttion = () => mandateManager.CreateMandate(mandate);
             await acttion.Should().ThrowExactlyAsync<ApplicationException>()
@@ -171,6 +201,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             Bban bban = TestHelper.GetBban();
             var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"));
 
+            CollectionCreationCommand mandate = new CollectionCreationCommand("1000332927", signatory, adress, bban);
+
             var bank = TestHelper.GetBank("carteId", true);
             var databaseService = new Mock<IDatabaseService>(MockBehavior.Strict);
             databaseService.Setup(r => r.GetBankByCodeAsync("code"))
@@ -184,7 +216,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             var createdCompany = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "12345");
             var jeDeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
-            jeDeclareService.Setup(r => r.CreateFolderAsync(company))
+
+            jeDeclareService.Setup(r => r.CreateFolderAsync(It.IsAny<Company>()))
+                .Callback<Company>(c =>
+                {
+                    c.Id.Should().Be(Guid.Empty);
+                    c.Name.Should().Be("SCI IMMO JACOBINS");
+                    c.SiretNumber.Should().Be("83030022400011");
+                    c.ErpId.Should().Be("1000332927");
+                    c.BankServicesProviderId.Should().BeNull();
+                    c.Signatory.Should().BeEquivalentTo(mandate.Signatory);
+                    c.Address.Should().BeEquivalentTo(mandate.Address);
+                })
                 .ReturnsAsync(createdCompany)
                 .Verifiable();
 
@@ -203,8 +246,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Verifiable();
 
             var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object, this.mockAsposeHelper.Object);
-
-            CollectionCreationCommand mandate = new CollectionCreationCommand("1000332927", signatory, adress, bban);
 
             Func<Task> acttion = () => mandateManager.CreateMandate(mandate);
             await acttion.Should().ThrowExactlyAsync<ApplicationException>()

@@ -17,7 +17,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
         private readonly ILogger logger;
         private readonly IJeDeclareClientFactory factory;
         private readonly IOptions<JeDeclareOptions> options;
-        private readonly string historyDateEnabledBanks;
 
         public HttpJeDeclareClient(ILogger<HttpJeDeclareClient> logger, IJeDeclareClientFactory factory, IOptions<JeDeclareOptions> options)
         {
@@ -25,7 +24,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             this.factory = factory;
             this.options = options ?? throw new ArgumentNullException(nameof(options));
             options.Value.Validate();
-            this.historyDateEnabledBanks = options.Value.HistoryDateEnabledBanks;
         }
 
         public async Task<ListeReleves> GetAllConfigurationFromFolderAsync(string jdcFolderId)
@@ -224,7 +222,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                 };
             }
 
-            if (this.historyDateEnabledBanks.Split(';').Contains(bankCode))
+            if (this.options.Value.HistoryDateEnabledBanks.Split(';').Contains(bankCode))
             {
                 releve.DateReprise = $"{DateTime.Now.Year}-01-01";
             }

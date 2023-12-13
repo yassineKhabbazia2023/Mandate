@@ -286,6 +286,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
         [Fact(Skip = "test jedeclare api")]
         public async Task CreateCollecteConfigurationAsync_integrationTest()
         {
+            var bankCode = "****";
+            var ebicsCarteId = "*****";
+
             var options = Options.Create(new JeDeclareOptions()
             {
                 BaseUri = new Uri("https://recette.jedeclare.com/webservice/gestion/"),
@@ -363,7 +366,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 DateReprise = "2023-01-01",
             };
 
-            var result = await jeDeclareClient.CreateCollecteConfigurationAsync("1670097", newReleve);
+            var result = await jeDeclareClient.CreateCollecteConfigurationAsync("1670097", newReleve, bankCode, ebicsCarteId);
             result.Should().NotBeNull();
 
             client.VerifyAll();

@@ -8,7 +8,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Error = KPMG.Pulse.Back.Accounting.Mandate.Client.Error;
 
     [ApiController]
     [Route("api/mandate")]

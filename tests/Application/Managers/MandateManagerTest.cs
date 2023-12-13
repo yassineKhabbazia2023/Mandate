@@ -2,10 +2,10 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-using System.IO;
-
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 {
+    using System.IO;
+
     public class MandateManagerTest
     {
         private readonly Mock<IDatabaseService> mockDatabaseService;

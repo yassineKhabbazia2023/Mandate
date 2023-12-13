@@ -12,38 +12,37 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public JeDeclareAdapter(IJeDeclareClient jedeclareClient)
         {
-           this.jedeclareClient = jedeclareClient;
+            this.jedeclareClient = jedeclareClient;
         }
 
-        public async Task<Bban> AddRibToFolderAsync(string? bankServicesProviderId, CollectionCreationCommand mandateCreation)
+        public async Task<Bban> AddRibToFolderAsync(string? bankServicesProviderId, CollectionCreationCommand mandateCreation, Bank bank)
         {
             var rib = mandateCreation.ToRibClient();
 
             var ribSaved = await this.jedeclareClient.AddRibToFolderAsync(
-                jdcFolderId: bankServicesProviderId !,
+                jdcFolderId: bankServicesProviderId!,
                 ribClient: rib);
 
             return new Bban(
-                bankCode: ribSaved.Etablissement !,
-                branchCode: ribSaved.Guichet !,
-                accountNumber: ribSaved.NumCompte !,
-                checkDigits: ribSaved.Cle !,
+                bankCode: ribSaved.Etablissement!,
+                branchCode: ribSaved.Guichet!,
+                accountNumber: ribSaved.NumCompte!,
+                checkDigits: ribSaved.Cle!,
                 bbanServicesProviderId: ribSaved.Id,
-                bank: null);
+                bank: bank);
         }
 
-        public async Task<Collection> CreateCollecteConfigurationAsync(string bankServicesProviderId, Bban rib, Signatory signatory)
+        public async Task<Collection> CreateCollecteConfigurationAsync(string bankServicesProviderId, Bban rib, Company dossier, Guid collectionId, Status initStatus)
         {
-            var releve = rib.ToReleve(signatory);
-            // bban => rib
-            //rib.construct..
+            var releve = rib.ToReleve(dossier?.Signatory!);
 
             var collectConfigurationCreated = await this.jedeclareClient.CreateCollecteConfigurationAsync(
                 jdcFolderId: bankServicesProviderId,
-                releve: releve);
+                releve: releve,
+                bankCode: rib.Bank?.Code!,
+                ebicsCardId: rib.Bank?.EbicsCardId!);
 
-            
-            throw new NotImplementedException();
+            return collectConfigurationCreated.ToModel(dossier!, rib, collectionId, initStatus);
         }
 
         public async Task<Company> CreateFolderAsync(Company company)

@@ -22,36 +22,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
         }
 
-        // déplacer vers infra jeDeclare
-        public static Releve ConstructReleve(this Rib source, string? bankCode, string? ebicsCardId, string historyDateEnabledBanks)
-        {
-            Releve releve = new Releve()
-            {
-                Rib = source,
-                Etat = "2",
-                Periodicite = new Periodicite
-                {
-                    Id = "1",
-                },
-            };
-
-            if (!string.IsNullOrWhiteSpace(ebicsCardId))
-            {
-                releve.TypeLiaison = "2";
-                releve.Card = new Carte
-                {
-                    Id = ebicsCardId,
-                };
-            }
-
-            if (historyDateEnabledBanks.Split(';').Contains(bankCode))
-            {
-                releve.DateReprise = $"{DateTime.Now.Year}-01-01";
-            }
-
-            return releve;
-        }
-
         public static DossierClient ToDossierClient(this Company company)
         {
             Client client = new Client()
@@ -73,7 +43,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                         Rue = company.Address?.Street!,
                         Ville = company.Address?.City!,
                     },
-                    Mail = company.Signatory?.Email !,
+                    Mail = company.Signatory?.Email!,
                     Name = $"{company.Signatory?.FirstName!} {company.Signatory?.LastName!}",
                 },
             };
@@ -120,20 +90,24 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                     CiviliteTitulaire = signatory.Title,
                     NomTitulaire = signatory.LastName,
                     PrenomTitulaire = signatory.FirstName,
-                }, 
+                },
             };
 
             return releve;
         }
 
-        //public static Collection ToCollection(this Releve releve)
-        //{
-        //    var collection = new Collection(
-        //        id: Guid.Empty,
-        //        collectionServicesProviderId: "",
-        //        company: null,
-        //        bban: null,
-        //        creationDate: releve.Periodicite.)
-        //}
+        public static Collection ToModel(this Releve source, Company company, Bban rib, Guid collectionId, Status initStatus)
+        {
+            Collection collection = new Collection(
+                collectionId,
+                source.Id,
+                company,
+                rib,
+                DateTime.UtcNow,
+                DateTime.UtcNow,
+                initStatus);
+
+            return collection;
+        }
     }
 }

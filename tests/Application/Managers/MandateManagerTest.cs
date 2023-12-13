@@ -455,7 +455,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             databaseService.Setup(x => x.GetAllCollectionsAsync(query, new Guid("00000001-0000-0000-0000-000000000000")))
                    .ThrowsAsync(new Exception("message"));
 
-            var mandateManager = new MandateManager(databaseService.Object, new Mock<ICompanyManager>(MockBehavior.Strict).Object, new Mock<IJeDeclareService>(MockBehavior.Strict).Object);
+            var mandateManager = new MandateManager(databaseService.Object, new Mock<ICompanyManager>(MockBehavior.Strict).Object, new Mock<IJeDeclareService>(MockBehavior.Strict).Object, null!);
 
             Func<Task> action = async () => await mandateManager.GetAllCollectionsAsync(query);
             await action.Should().ThrowAsync<Exception>().WithMessage("message");

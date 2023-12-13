@@ -41,5 +41,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 throw new ServicesProviderException(ex.Message, ex);
             }
         }
+
+        public Task<string> UploadSignedMandate(Collection collection, byte[] mandateFile)
+        {
+            var folderId = collection?.Company?.BankServicesProviderId;
+            var ribId = collection?.Bban?.BbanServicesProviderId;
+            return this.jedeclareClient.UploadSignedMandat(folderId!, ribId!, mandateFile);
+        }
     }
 }

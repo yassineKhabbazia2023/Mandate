@@ -4,8 +4,10 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
+    using Aspose.Pdf.Operators;
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
+    using KPMG.Pulse.Back.Accounting.Mandate.Exceptions;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
@@ -129,8 +131,37 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadSignedAsync([FromRoute] string mandateId, [FromForm] IFormFile file)
         {
-            await Task.CompletedTask;
-            return this.NoContent(); // TODO
+            var correlationId = "0";
+            if (!Guid.TryParse(mandateId, out var parsedMandateId))
+            {
+                return this.BadRequest("Invalid mandate ID.");
+            }
+
+            try
+            {
+                if (file == null)
+                {
+                    throw new ArgumentNullException(nameof(file));
+                }
+
+                if (file.ContentType != "application/pdf")
+                {
+                    throw new InvalidFileTypeException("The file must be a PDF.");
+                }
+
+                var result = await this.mandateManager.UploadSignedMandate(parsedMandateId, file.OpenReadStream());
+                return this.Ok(result);
+            }
+            catch (InvalidFileTypeException ex)
+            {
+                this.logger.LogError(ex, "MandateAPI - {correlationId} - Invalid file type", correlationId);
+                return this.StatusCode(StatusCodes.Status400BadRequest, new Error("InvalidFileType", correlationId, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "MandateAPI - {correlationId} - UploadSignedAsync", correlationId);
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
+            }
         }
 
         [HttpPost("{mandateId}/deactivate")]

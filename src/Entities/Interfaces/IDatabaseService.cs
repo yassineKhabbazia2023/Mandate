@@ -16,6 +16,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query);
 
+        Task<Collection> GetCollectionById(Guid collectionId);
+
         Task<Collection> CreateCollection(string erpId, Guid companyId, Bban bban);
 
         Task<Company> CreateFolderAsync(string bankServicesProviderId, Guid companyId);
@@ -27,8 +29,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         Task<bool> CheckCollecteConfigExist(Bban bban);
 
         Task<Collection> UpdateCollection(Guid id, Collection collection);
-
-        Task<Collection> GetCollectionById(Guid id);
 
         Task SaveSignatoryAsync(Guid? companyId, Guid? collectionId, Signatory signatory, Address address);
 

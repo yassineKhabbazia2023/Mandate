@@ -75,5 +75,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 CollaboratorId = collaboratorId,
             };
         }
+
+        public static Collaborator ToModel(this Sql.CollaboratorDb source)
+        {
+            return new Collaborator(source.Id, source.Email, source.FirstName, source.LastName);
+        }
     }
 }

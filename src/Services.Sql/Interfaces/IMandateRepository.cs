@@ -79,5 +79,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         /// The task result contains an instance of <see cref="CompanyDb"/> corresponding to the specified ERP ID.
         /// </returns>
         Task<CompanyDb> GetCompanyByErpIdAsync(string erpId);
+
+        Task<CollaboratorDb> GetCollaboratorByEmail(string collaboratorEmail);
     }
 }

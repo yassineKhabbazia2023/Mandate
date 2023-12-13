@@ -1488,5 +1488,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
             return await company.SingleAsync().ConfigureAwait(false);
         }
+
+        public async Task<CollaboratorDb> GetCollaboratorByEmail(string collaboratorEmail)
+        {
+            using var context = new MandateContext(this.options);
+
+            var collab = context.Collaborator.AsNoTracking()
+                .Where(c => c.Email.ToLower() == collaboratorEmail.ToLower());
+
+            return await collab.SingleAsync();
+        }
     }
 }

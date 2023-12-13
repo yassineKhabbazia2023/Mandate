@@ -55,11 +55,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
             var exception = new InvalidFileTypeException(customMessage, innerException);
 
             string jsonString;
-            InvalidFileTypeException deserializedException;
+            InvalidFileTypeException? deserializedException;
 
             // Act
             jsonString = JsonConvert.SerializeObject(exception);
-            deserializedException = JsonConvert.DeserializeObject<InvalidFileTypeException>(jsonString!);
+            deserializedException = JsonConvert.DeserializeObject<InvalidFileTypeException>(jsonString);
 
             // Assert
             deserializedException?.Message.Should().Be(customMessage);

@@ -76,7 +76,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 status);
             var mandateFile = new byte[] { 1, 2, 3, 4, 5 };
             var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
-            jedeclareClient.Setup(c => c.UploadSignedMandat(collection.Company.BankServicesProviderId!, collection.Bban.Bank.EbicsCardId!, It.IsAny<byte[]>()))
+            var bankServicesProviderId = collection.Company?.BankServicesProviderId;
+            var ebicsCardId = collection.Bban?.Bank?.EbicsCardId;
+            jedeclareClient.Setup(c => c.UploadSignedMandat(bankServicesProviderId!, ebicsCardId!, It.IsAny<byte[]>()))
                 .ReturnsAsync("signedMandateId")
                 .Verifiable();
 
@@ -84,7 +86,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var result = await adapter.UploadSignedMandate(collection, mandateFile);
 
             result.Should().BeEquivalentTo("signedMandateId");
-            jedeclareClient.Verify(client => client.UploadSignedMandat(collection.Company.BankServicesProviderId!, collection.Bban.Bank.EbicsCardId!, mandateFile), Times.Once);
+            jedeclareClient.Verify(client => client.UploadSignedMandat(bankServicesProviderId!, ebicsCardId!, mandateFile), Times.Once);
         }
     }
 }

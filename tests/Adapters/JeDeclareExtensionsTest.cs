@@ -1,4 +1,4 @@
-﻿// <copyright file="JeDeclareExtensions.cs" company="KPMG">
+﻿// <copyright file="JeDeclareExtensionsTest.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 

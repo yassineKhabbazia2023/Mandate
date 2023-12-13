@@ -10,6 +10,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using KPMG.Pulse.Back.Accounting.Mandate.Exceptions;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using System;
 
     [ApiController]
     [Route("api/mandate")]
@@ -129,9 +130,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
         [HttpPost("{mandateId}/signed")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadSignedAsync([FromRoute] string mandateId, [FromForm] IFormFile file)
+        public async Task<IActionResult> UploadSignedMandateAsync([FromRoute] string mandateId, [FromForm] IFormFile file)
         {
-            var correlationId = "0";
+            var correlationId = "0"; // TODO
             if (!Guid.TryParse(mandateId, out var parsedMandateId))
             {
                 return this.BadRequest("Invalid mandate ID.");
@@ -139,17 +140,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             try
             {
-                if (file == null)
-                {
-                    throw new ArgumentNullException(nameof(file));
-                }
-
-                if (file.ContentType != "application/pdf")
+                if (file == null || file.ContentType != "application/pdf")
                 {
                     throw new InvalidFileTypeException("The file must be a PDF.");
                 }
 
-                var result = await this.mandateManager.UploadSignedMandate(parsedMandateId, file.OpenReadStream());
+                var result = await this.mandateManager.UploadSignedMandateAsync(parsedMandateId, file.OpenReadStream());
                 return this.Ok(result);
             }
             catch (InvalidFileTypeException ex)

@@ -5,6 +5,7 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 {
     using System.Net;
+    using KPMG.Pulse.Back.Accounting.Mandate.Application;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
@@ -334,6 +335,219 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             mandateManager.VerifyAll();
             logger.VerifyAll();
             guidGenerator.VerifyAll();
+        }
+
+        [Fact]
+        public async Task UploadSignedMandateAsync_WithValidPdfFile_ReturnsOkResult()
+        {
+            // Arrange
+            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
+            var guidGenerator = new Mock<IGuidGenerator>();
+            guidGenerator.Setup(g => g.NewGuid())
+                .Returns(newGuid);
+
+            var validMandateId = "00000001-0000-0000-0000-000000000000";
+
+            var mandateManagerMock = new Mock<IMandateManager>();
+            mandateManagerMock.Setup(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()))
+                .ReturnsAsync("signedMandateId")
+                .Verifiable();
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception?>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
+
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, guidGenerator.Object);
+
+            var fileMock = new Mock<IFormFile>();
+            fileMock.Setup(f => f.ContentType).Returns("application/pdf");
+            var content = "PDF file content";
+            var ms = new MemoryStream();
+            var writer = new StreamWriter(ms);
+            writer.Write(content);
+            writer.Flush();
+            ms.Position = 0;
+            fileMock.Setup(f => f.OpenReadStream()).Returns(ms);
+
+            // Act
+            var result = await controller.UploadSignedMandateAsync(validMandateId, fileMock.Object);
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            okResult?.StatusCode.Should().Be(200);
+            okResult?.Value.Should().Be("signedMandateId");
+            okResult.Should().NotBeNull();
+            okResult.Should().BeOfType<OkObjectResult>();
+            mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task UploadSignedMandateAsync_WithNullFile_ReturnsBadRquest()
+        {
+            // Arrange
+            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
+            var guidGenerator = new Mock<IGuidGenerator>();
+            guidGenerator.Setup(g => g.NewGuid())
+                .Returns(newGuid);
+
+            var validMandateId = "00000001-0000-0000-0000-000000000000";
+
+            var mandateManagerMock = new Mock<IMandateManager>();
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception?>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
+
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, guidGenerator.Object);
+
+            var fileMock = new Mock<IFormFile>();
+            fileMock.Setup(f => f.ContentType).Returns("application/jpg");
+            var content = "PDF file content";
+            var ms = new MemoryStream();
+            var writer = new StreamWriter(ms);
+            writer.Write(content);
+            writer.Flush();
+            ms.Position = 0;
+            fileMock.Setup(f => f.OpenReadStream()).Returns(ms);
+
+            // Act
+            var result = await controller.UploadSignedMandateAsync(validMandateId, fileMock.Object);
+
+            // Assert
+            var badRequestResult = result as ObjectResult;
+            badRequestResult?.StatusCode.Should().Be(400);
+            badRequestResult.Should().NotBeNull();
+            badRequestResult.Should().BeOfType<ObjectResult>();
+            mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task UploadSignedMandateAsync_WithInValidFileType_ReturnsBadRequest()
+        {
+            // Arrange
+            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
+            var guidGenerator = new Mock<IGuidGenerator>();
+            guidGenerator.Setup(g => g.NewGuid())
+                .Returns(newGuid);
+
+            var validMandateId = "00000001-0000-0000-0000-000000000000";
+
+            var mandateManagerMock = new Mock<IMandateManager>();
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception?>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
+
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, guidGenerator.Object);
+
+            // Act
+            var result = await controller.UploadSignedMandateAsync(validMandateId, null!);
+
+            // Assert
+            var badRequestResult = result as ObjectResult;
+            badRequestResult?.StatusCode.Should().Be(400);
+            badRequestResult.Should().NotBeNull();
+            badRequestResult.Should().BeOfType<ObjectResult>();
+            mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task UploadSignedMandateAsync_WithInValidMandateId_ReturnsBadRequest()
+        {
+            // Arrange
+            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
+            var guidGenerator = new Mock<IGuidGenerator>();
+            guidGenerator.Setup(g => g.NewGuid())
+                .Returns(newGuid);
+
+            var inValidMandateId = "00000001-0000-0000-0000-00000";
+
+            var mandateManagerMock = new Mock<IMandateManager>();
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception?>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
+
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, guidGenerator.Object);
+
+            var fileMock = new Mock<IFormFile>();
+            fileMock.Setup(f => f.ContentType).Returns("application/pdf");
+            var content = "PDF file content";
+            var ms = new MemoryStream();
+            var writer = new StreamWriter(ms);
+            writer.Write(content);
+            writer.Flush();
+            ms.Position = 0;
+            fileMock.Setup(f => f.OpenReadStream()).Returns(ms);
+
+            // Act
+            var result = await controller.UploadSignedMandateAsync(inValidMandateId, fileMock.Object);
+
+            // Assert
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Should().NotBeNull();
+            badRequestResult.Should().BeOfType<BadRequestObjectResult>();
+            mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task UploadSignedMandateAsync_ReturnsInternalServerError()
+        {
+            // Arrange
+            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
+            var guidGenerator = new Mock<IGuidGenerator>();
+            guidGenerator.Setup(g => g.NewGuid())
+                .Returns(newGuid);
+
+            var validMandateId = "00000001-0000-0000-0000-000000000000";
+
+            var mandateManagerMock = new Mock<IMandateManager>();
+            mandateManagerMock.Setup(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()))
+                .ThrowsAsync(new Exception("Test exception"))
+                .Verifiable();
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception?>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
+
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, guidGenerator.Object);
+
+            var fileMock = new Mock<IFormFile>();
+            fileMock.Setup(f => f.ContentType).Returns("application/pdf");
+            var content = "PDF file content";
+            var ms = new MemoryStream();
+            var writer = new StreamWriter(ms);
+            writer.Write(content);
+            writer.Flush();
+            ms.Position = 0;
+            fileMock.Setup(f => f.OpenReadStream()).Returns(ms);
+
+            // Act
+            var result = await controller.UploadSignedMandateAsync(validMandateId, fileMock.Object);
+
+            // Assert
+            var internalServerErrorResult = result as ObjectResult;
+            internalServerErrorResult?.StatusCode.Should().Be(500);
+            internalServerErrorResult.Should().NotBeNull();
+            internalServerErrorResult.Should().BeOfType<ObjectResult>();
+            mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()), Times.Once);
         }
     }
 }

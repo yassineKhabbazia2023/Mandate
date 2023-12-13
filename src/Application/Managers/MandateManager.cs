@@ -81,13 +81,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             return await this.databaseService.GetAllCollectionsAsync(query).ConfigureAwait(false);
         }
 
-        public async Task<string?> UploadSignedMandate(Guid collectionId, Stream mandateFileStream)
+        public async Task<string?> UploadSignedMandateAsync(Guid collectionId, Stream mandateFileStream)
         {
-            if (mandateFileStream == null)
-            {
-                throw new ArgumentNullException(nameof(mandateFileStream));
-            }
-
             using var memoryStream = new MemoryStream();
             await mandateFileStream.CopyToAsync(memoryStream);
             byte[] fileBytes = memoryStream.ToArray() !;

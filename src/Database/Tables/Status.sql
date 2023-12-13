@@ -2,7 +2,8 @@
 (
 	[Id] UNIQUEIDENTIFIER NOT NULL,
 	[CollectionId] UNIQUEIDENTIFIER NOT NULL,
-	[StatusCode] INT NOT NULL, 
+	[StatusCode] INT NOT NULL,
+	[CollectionStatusCode] INT NULL,
 	[IsCurrent] BIT NOT NULL DEFAULT 0, 
 	[StatusDate] DATETIME2 NULL, 
 	[MandateFile] VARBINARY(MAX) NULL, 

@@ -7,6 +7,49 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
     public class ClientExtensionsTest
     {
         [Fact]
+        public void AddressToModel()
+        {
+            var entity = new Client.Address("a", "b", "c", "d", "e");
+            var result = entity.ToModel();
+
+            result.Should().NotBeNull();
+            result.Should().BeEquivalentTo(new Address("a", "b", "c", "d", "e"));
+        }
+
+        [Fact]
+        public void BbanToModel()
+        {
+            var entity = new Client.Bban("a", "b", "c", "d");
+            var result = entity.ToModel();
+
+            result.Should().NotBeNull();
+            result.Should().BeEquivalentTo(new Bban("a", "b", "c", "d", null, null));
+        }
+
+        [Fact]
+        public void CollectionCreationCommandToModel()
+        {
+            var address = new Client.Address("a", "b", "c", "d", "e");
+            var bban = new Client.Bban("a", "b", "c", "d");
+            var signatory = new Client.Signatory("a", "b", "c", "d");
+            var entity = new Client.CollectionCreationCommand("a", signatory, address, bban);
+            var result = entity.ToModel();
+
+            result.Should().NotBeNull();
+            result.Should().BeEquivalentTo(new CollectionCreationCommand("a", signatory.ToModel(), address.ToModel(), bban.ToModel()));
+        }
+
+        [Fact]
+        public void SignatoryToModel()
+        {
+            var entity = new Client.Signatory("a", "b", "c", "d");
+            var result = entity.ToModel();
+
+            result.Should().NotBeNull();
+            result.Should().BeEquivalentTo(new Signatory("a", "b", "c", "d"));
+        }
+
+        [Fact]
         public void ToBankDetail()
         {
             var entity = new Bank("a", "b", "c", "d", new BankAgreement(JdcPartnership.NonPartner));

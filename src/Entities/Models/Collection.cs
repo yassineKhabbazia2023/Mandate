@@ -19,6 +19,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         public Guid Id { get; }
 
+        // releveId
         public string? CollectionServicesProviderId { get; }
 
         public Company? Company { get; }

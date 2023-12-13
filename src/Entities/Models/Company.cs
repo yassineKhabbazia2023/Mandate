@@ -25,6 +25,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         public string? ErpId { get; }
 
+        // folderId
         public string? BankServicesProviderId { get; }
 
         public Signatory? Signatory { get; }

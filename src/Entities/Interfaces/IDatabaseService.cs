@@ -8,6 +8,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
     {
         Task<Company> GetCompanyBySiretAsync(string siret);
 
+        Task<Company> GetCompanyByErpIdAsync(string erpId);
+
         Task<Bank> GetBankByCodeAsync(string bankCode);
 
         Task<byte[]> GetPdfTemplateByBankCodeAsync(string bankCode);
@@ -27,5 +29,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         Task<Collection> UpdateCollection(Guid id, Collection collection);
 
         Task<Collaborator> GetCollaboratorByEmail(string collaboratorEmail);
+
+        Task<Collection> GetCollectionById(Guid id);
+
+        Task SaveSignatoryAsync(Guid? companyId, Guid? collectionId, Signatory signatory, Address address);
+
+        Task CreateFakeRefAsync();
+
+        Task DeleteFakeRefAsync();
+
+        Task CreateFakeAuthAsync();
+
+        Task DeleteFakeAuthAsync();
+
+        Task AddFakeDataAsync();
+
+        Task DeleteFakeDataAsync();
     }
 }

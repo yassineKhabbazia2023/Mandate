@@ -14,4 +14,8 @@
 		<ProjectReference Include="..\..\src\Client\Mandate.Client.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Models\Queries\" />
+	</ItemGroup>
+
 </Project>

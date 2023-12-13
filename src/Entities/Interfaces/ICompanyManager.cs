@@ -6,6 +6,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public interface ICompanyManager
     {
-        Task<Company> GetCompanyByErpId(string erpId);
+        Task<Company> GetCompanyByErpIdAsync(string erpId);
     }
 }

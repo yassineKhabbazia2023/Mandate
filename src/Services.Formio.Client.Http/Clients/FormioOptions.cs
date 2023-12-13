@@ -14,12 +14,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
         /// <summary>
         /// The endpoint URL to the <c>portal API for formio</c>.
         /// </summary>
-        private Uri baseUri = null;
+        private Uri? baseUri;
 
         /// <summary>
         /// Gets or sets the URL under which <c>MyPulse formio Service</c> is deployed.
         /// </summary>
-        public Uri BaseUri
+        public Uri? BaseUri
         {
             get => this.baseUri;
             set

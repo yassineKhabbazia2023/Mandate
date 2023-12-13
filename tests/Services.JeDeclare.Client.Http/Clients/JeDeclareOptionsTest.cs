@@ -24,11 +24,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("https://toto.com"),
                 Login = "loginT",
                 Password = "passwordT",
+                JdcCompteId = "jdcCompteIdT",
+                HistoryDateEnabledBanks = "historyDateEnabledBanksT",
             };
 
             options.BaseUri.Should().BeEquivalentTo(new Uri("https://toto.com/"));
             options.Login.Should().Be("loginT");
             options.Password.Should().Be("passwordT");
+            options.JdcCompteId.Should().Be("jdcCompteIdT");
+            options.HistoryDateEnabledBanks.Should().Be("historyDateEnabledBanksT");
         }
 
         [Fact]
@@ -36,6 +40,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
         {
             var options = new JeDeclareOptions()
             {
+                BaseUri = null,
                 Login = "loginT",
                 Password = "passwordT",
             };

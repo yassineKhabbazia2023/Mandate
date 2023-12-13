@@ -40,5 +40,44 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         /// <param name="query">An object that encapsulates the query parameters, including pagination and search terms.</param>
         /// <returns>All entries that match the query. All Collection instances returned contain their parent Company instance.</returns>
         Task<(List<CollectionDb>, int)> SearchCollectionsAsync(CollectionQuery query);
+
+        /// <summary>
+        /// Saves Signatory.
+        /// </summary>
+        /// <param name="personalDb">the personal table where we save signatory informations.</param>
+        /// <returns>an asynchronous task.</returns>
+        Task SaveSignatoryAsync(PersonalDb personalDb);
+
+        Task CreateFakeRefAsync();
+
+        Task DeleteFakeRefAsync();
+
+        Task CreateFakeAuthAsync();
+
+        Task DeleteFakeAuthAsync();
+
+        Task AddFakeDataAsync();
+
+        Task DeleteFakeDataAsync();
+
+        /// <summary>
+        /// Retrieves a collection from the database based on the provided unique identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the collection to be retrieved.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// The task result contains an instance of <see cref="CollectionDb"/> corresponding to the specified ID.
+        /// </returns>
+        Task<CollectionDb> GetCollectionById(Guid id);
+
+        /// <summary>
+        /// Asynchronously retrieves a company's details from the database based on the provided ERP identifier.
+        /// </summary>
+        /// <param name="erpId">The ERP identifier of the company to be retrieved.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// The task result contains an instance of <see cref="CompanyDb"/> corresponding to the specified ERP ID.
+        /// </returns>
+        Task<CompanyDb> GetCompanyByErpIdAsync(string erpId);
     }
 }

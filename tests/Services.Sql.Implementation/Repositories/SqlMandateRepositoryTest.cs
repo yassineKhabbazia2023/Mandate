@@ -20,6 +20,41 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         }
 
         [Fact]
+        public async Task Constructor()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+
+            var options = Options.Create(new SqlMandateRepositoryOptions() { ConnectionString = SqlServerFixture.ConnectionString });
+            var guidGenerator = new Mock<IGuidGenerator>(MockBehavior.Strict);
+            var sqlCalendarRepository = new SqlMandateRepository(options);
+
+            sqlCalendarRepository.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void Constructor_OptionsNullException()
+        {
+            IOptions<SqlMandateRepositoryOptions>? options = null;
+
+            var guidGenerator = new Mock<IGuidGenerator>(MockBehavior.Strict);
+
+            Action action = () => { _ = new SqlMandateRepository(options!); };
+
+            action.Should().ThrowExactly<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'options')");
+        }
+
+        [Fact]
+        public void Constructor_OptionsInvalid()
+        {
+            var options = Options.Create(new SqlMandateRepositoryOptions() { ConnectionString = null });
+            var guidGenerator = new Mock<IGuidGenerator>(MockBehavior.Strict);
+
+            Action creationWithException = () => { _ = new SqlMandateRepository(options); };
+
+            creationWithException.Should().ThrowExactly<InvalidOperationException>().WithMessage("Instance of SqlMandateRepositoryOptions is invalid, ConnectionString is null");
+        }
+
+        [Fact]
         public async Task SearchCollectionsAsync()
         {
             await using var database = SqlServerFixture.CreateDatabase();
@@ -41,9 +76,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var refStatusCode2 = EntityDbFactory.RefStatusCodeDb;
             var refStatusCode3 = EntityDbFactory.RefStatusCodeDb;
             refStatusCode2.StatusCode = 3;
+            refStatusCode2.CollectionStatusCode = 0;
             refStatusCode2.PulseCode = 30;
             refStatusCode2.StatusNameFr = "Actif";
             refStatusCode3.StatusCode = 4;
+            refStatusCode3.CollectionStatusCode = 2;
             refStatusCode3.PulseCode = 40;
             refStatusCode3.StatusNameFr = "Attente mandat signé";
             await context.RefStatusCode.AddAsync(refStatusCode1);
@@ -593,11 +630,61 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             Guid comapnyId1 = generator.NewGuid();
             Guid comapnyId2 = generator.NewGuid();
             Guid collaboratorId = generator.NewGuid();
+
+            var collectionId1 = generator.NewGuid();
+            var collectionId2 = generator.NewGuid();
+
+            var refBankDb = new RefBankDb()
+            {
+                BankCode = "12345",
+                BankName = "bn1",
+                BankCommercialName = "bcn",
+                BankCategory = "bca",
+                BankGroup = "bg",
+                IsJdcScrapable = true,
+                IsJdcPartner = false,
+                HasReleveAgreement = false,
+                HasLiasseAgreement = null,
+                AllowsDemat = true,
+                JdcPartnership = (JdcPartnership)2,
+                EbicsCardId = null,
+            };
+
+            await context.RefBank.AddAsync(refBankDb);
+
+            var collectiondb1 = new CollectionDb()
+            {
+                Id = collectionId1,
+                CompanyId = comapnyId1,
+                BankCode = "12345",
+                BranchCode = "23456",
+                AccountNumber = "12345678901",
+                CheckDigits = "55",
+                LinkType = 7,
+                RejectReason = "reason1",
+            };
+
+            var collectiondb2 = new CollectionDb()
+            {
+                Id = collectionId2,
+                CompanyId = comapnyId2,
+                BankCode = "12345",
+                BranchCode = "23456",
+                AccountNumber = "12345678901",
+                CheckDigits = "55",
+                LinkType = 7,
+                RejectReason = "reason1",
+            };
+
+            await context.Collection.AddAsync(collectiondb1);
+            await context.Collection.AddAsync(collectiondb2);
+
             CompanyDb company1 = new CompanyDb
             {
                 Id = comapnyId1,
-                CompanyPersonal = new CompanyPersonalDb
+                Personal = new PersonalDb
                 {
+                    CollectionId = collectionId1,
                     CompanyId = comapnyId1,
                     Title = "Mr.",
                     FirstName = "John",
@@ -618,8 +705,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             CompanyDb company2 = new CompanyDb
             {
                 Id = comapnyId2,
-                CompanyPersonal = new CompanyPersonalDb
+                Personal = new PersonalDb
                 {
+                    CollectionId = collectionId2,
                     CompanyId = comapnyId2,
                     Title = "Mr.",
                     FirstName = "John",
@@ -823,6 +911,311 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             response2.Item2.Should().Be(1);
             response2.Item1.Count.Should().Be(1);
             response2.Item1[0].AccountNumber.Should().Be("12345678903");
+        }
+
+        public async Task GetCollectionById()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            // GetCollectionById
+            var collectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111");
+            var companyId = Guid.Parse("b1111111-1111-1111-1111-111111111111");
+            var companyId2 = Guid.Parse("c1111111-1111-1111-1111-111111111111");
+
+            var collection = new CollectionDb()
+            {
+                Id = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
+                CompanyId = Guid.Parse("b1111111-1111-1111-1111-111111111111"),
+                BankCode = "12345",
+                BranchCode = "23456",
+                AccountNumber = "12345678901",
+                CheckDigits = "55",
+                LinkType = 7,
+                RejectReason = "reason1",
+            };
+
+            var collection2 = new CollectionDb()
+            {
+                Id = Guid.Parse("d1111111-1111-1111-1111-111111111111"),
+                CompanyId = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
+                BankCode = "12345",
+                BranchCode = "23456",
+                AccountNumber = "12345678901",
+                CheckDigits = "55",
+                LinkType = 7,
+                RejectReason = "reason1",
+            };
+
+            var refStatusCode = new RefStatusCodeDb()
+            {
+                StatusCode = -1,
+                PulseCode = 30,
+                StatusNameFr = "En cours",
+                StatusNameEn = "In progress",
+            };
+            var statusdb = new StatusDb()
+            {
+                Id = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
+                CollectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
+                StatusCode = -1,
+                IsCurrent = true,
+                StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
+                MandateFile = null,
+                CreatedBy = "created1",
+                RefStatusCode = refStatusCode,
+            };
+
+            var companydb = new CompanyDb()
+            {
+                Id = companyId,
+                Name = "cn1",
+                SiretNumber = "12345678901234",
+                ErpId = "1234567890",
+            };
+
+            var companydb2 = new CompanyDb()
+            {
+                Id = companyId2,
+                Name = "cn1",
+                SiretNumber = "12345678901234",
+                ErpId = "1234567890",
+            };
+            var bankDb = EntityDbFactory.RefBankDb;
+
+            await context.Collection.AddAsync(collection);
+            await context.Collection.AddAsync(collection2);
+            await context.Company.AddAsync(companydb);
+            await context.Company.AddAsync(companydb2);
+            await context.RefBank.AddAsync(bankDb);
+            await context.RefStatusCode.AddAsync(refStatusCode);
+            await context.Status.AddAsync(statusdb);
+
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            var result = await sqlMandateRepository.GetCollectionById(collectionId);
+
+            result.Should().NotBeNull();
+            result.Id.Should().Be(Guid.Parse("a1111111-1111-1111-1111-111111111111"));
+        }
+
+        [Fact]
+        public async Task SaveSignatoryAsync_CaseNewEntity()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            var companyId = Guid.Parse("a1111111-1111-1111-1111-111111111111");
+            var collectionId = Guid.Parse("b1111111-1111-1111-1111-111111111111");
+
+            var refBankDb = new RefBankDb()
+            {
+                BankCode = "12345",
+                BankName = "bn1",
+                BankCommercialName = "bcn",
+                BankCategory = "bca",
+                BankGroup = "bg",
+                IsJdcScrapable = true,
+                IsJdcPartner = false,
+                HasReleveAgreement = false,
+                HasLiasseAgreement = null,
+                AllowsDemat = true,
+                JdcPartnership = (JdcPartnership)2,
+                EbicsCardId = null,
+            };
+
+            await context.RefBank.AddAsync(refBankDb);
+
+            var collectiondb1 = new CollectionDb()
+            {
+                Id = collectionId,
+                CompanyId = companyId,
+                BankCode = "12345",
+                BranchCode = "23456",
+                AccountNumber = "12345678901",
+                CheckDigits = "55",
+                LinkType = 7,
+                RejectReason = "reason1",
+            };
+
+            await context.Collection.AddAsync(collectiondb1);
+
+            CompanyDb company1 = new CompanyDb
+            {
+                Id = companyId,
+                Name = "Microsoft",
+                SiretNumber = "40902900600031",
+                ErpId = "1000265308",
+            };
+            await context.Company.AddAsync(company1);
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            var personal = new PersonalDb
+            {
+                CollectionId = collectionId,
+                CompanyId = companyId,
+                Title = "Mr.",
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com",
+                Street = "123 Main St",
+                Complements = "Apt 4B",
+                ZipCode = "12345",
+                City = "Sample City",
+                Country = "ExampleLand",
+            };
+            await sqlMandateRepository.SaveSignatoryAsync(personal);
+            var db = database.ExecuteQuery("select * from [Mandate].[Personal]");
+
+            db.Rows.Count.Should().Be(1);
+            var dbr0 = db.Rows[0];
+            dbr0["CollectionId"].As<Guid>().Should().Be(collectionId);
+            dbr0["Title"].As<string>().Should().BeEquivalentTo("Mr.");
+            dbr0["FirstName"].As<string>().Should().BeEquivalentTo("John");
+            dbr0["LastName"].As<string>().Should().BeEquivalentTo("Doe");
+            dbr0["Email"].As<string>().Should().BeEquivalentTo("john.doe@example.com");
+            dbr0["Street"].As<string>().Should().BeEquivalentTo("123 Main St");
+            dbr0["Complements"].As<string>().Should().BeEquivalentTo("Apt 4B");
+            dbr0["ZipCode"].As<string>().Should().BeEquivalentTo("12345");
+            dbr0["City"].As<string>().Should().BeEquivalentTo("Sample City");
+            dbr0["Country"].As<string>().Should().BeEquivalentTo("ExampleLand");
+        }
+
+        [Fact]
+        public async Task FakeData()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+            await sqlMandateRepository.CreateFakeRefAsync();
+            await sqlMandateRepository.AddFakeDataAsync();
+            await sqlMandateRepository.CreateFakeAuthAsync();
+
+            using var context = new MandateContext(this.options);
+            context.RefPdfTemplate.Count().Should().Be(1);
+            context.RefBank.Count().Should().Be(10);
+            context.RefBank.Count(b => b.JdcPartnership == JdcPartnership.NonPartner).Should().Be(1);
+            context.RefBank.Count(b => b.JdcPartnership == JdcPartnership.Scrappable).Should().Be(1);
+            context.RefStatusCode.Count().Should().Be(19);
+            context.Collaborator.Count().Should().Be(9);
+            context.CompanyCollaborator.Count().Should().Be(9);
+            context.Company.Count().Should().Be(1);
+            context.Personal.Count().Should().Be(3);
+            context.JeDeclareFolder.Count().Should().Be(1);
+            context.Collection.Count().Should().Be(2);
+            context.JeDeclareCollection.Count().Should().Be(2);
+            context.Status.Count().Should().Be(4);
+
+            await sqlMandateRepository.DeleteFakeAuthAsync();
+            context.Collaborator.Count().Should().Be(0);
+            context.CompanyCollaborator.Count().Should().Be(0);
+            context.Company.Count().Should().Be(1);
+
+            await sqlMandateRepository.CreateFakeAuthAsync();
+            context.Collaborator.Count().Should().Be(9);
+            context.CompanyCollaborator.Count().Should().Be(9);
+
+            await sqlMandateRepository.DeleteFakeDataAsync();
+            context.Collaborator.Count().Should().Be(9);
+            context.CompanyCollaborator.Count().Should().Be(0);
+            context.Company.Count().Should().Be(0);
+            context.Personal.Count().Should().Be(0);
+            context.JeDeclareFolder.Count().Should().Be(0);
+            context.Collection.Count().Should().Be(0);
+            context.JeDeclareCollection.Count().Should().Be(0);
+            context.Status.Count().Should().Be(0);
+
+            await sqlMandateRepository.DeleteFakeRefAsync();
+            context.RefPdfTemplate.Count().Should().Be(0);
+            context.RefBank.Count().Should().Be(0);
+            context.RefStatusCode.Count().Should().Be(0);
+        }
+
+        [Fact]
+        public async Task GetCompanyByErpIdAsync_ShouldReturnCompany_WhenCompanyExists()
+        {
+            // Arrange
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            PredictableGuid generator = new PredictableGuid();
+            Guid companyId = generator.NewGuid();  // Ensure this is the same ID used for the foreign key in CollectionDb
+            var erpId = "validErpId";
+
+            var refBankDb = new RefBankDb()
+            {
+                BankCode = "12345",
+                BankName = "bn1",
+                BankCommercialName = "bcn",
+                BankCategory = "bca",
+                BankGroup = "bg",
+                IsJdcScrapable = true,
+                IsJdcPartner = false,
+                HasReleveAgreement = false,
+                HasLiasseAgreement = null,
+                AllowsDemat = true,
+                JdcPartnership = (JdcPartnership)2,
+                EbicsCardId = null,
+            };
+
+            await context.RefBank.AddAsync(refBankDb);
+
+            var expectedCompany = new CompanyDb
+            {
+                Id = companyId,
+                Name = "Dior",
+                SiretNumber = "40930900600031",
+                ErpId = erpId,
+            };
+
+            await context.Company.AddAsync(expectedCompany);
+            await context.SaveChangesAsync();
+
+            Guid collectionId = generator.NewGuid();
+            var collectionDb = new CollectionDb()
+            {
+                Id = collectionId,
+                CompanyId = companyId,  // This must match the ID of the Company record
+                BankCode = "12345",
+                BranchCode = "23456",
+                AccountNumber = "12345678901",
+                CheckDigits = "55",
+                LinkType = 7,
+                RejectReason = "reason1",
+            };
+
+            await context.Collection.AddAsync(collectionDb);
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            // Act
+            var result = await sqlMandateRepository.GetCompanyByErpIdAsync(erpId);
+
+            // Assert
+            result.Id.Should().Be(expectedCompany.Id);
+            result.ErpId.Should().Be(expectedCompany.ErpId);
+            result.SiretNumber.Should().Be(expectedCompany.SiretNumber);
+            result.Name.Should().Be(expectedCompany.Name);
+        }
+
+        [Fact]
+        public async Task GetCompanyByErpIdAsync_ShouldThrowCompanyNotFoundException_WhenCompanyDoesNotExist()
+        {
+            // Arrange
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+            var nonExistingErpId = "nonExistingErpId";
+
+            // Act & Assert
+            Func<Task> act = async () => await sqlMandateRepository.GetCompanyByErpIdAsync(nonExistingErpId);
+
+            await act.Should().ThrowAsync<CompanyNotFoundException>();
         }
     }
 }

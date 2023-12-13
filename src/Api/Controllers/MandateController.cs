@@ -17,11 +17,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         private readonly ILogger<MandateController> logger;
         private readonly IMandateManager mandateManager;
         private readonly IAuthenticationServices authenticationContext;
+        private readonly IGuidGenerator guidGenerator;
 
-        public MandateController(ILogger<MandateController> logger, IMandateManager mandateManager, IAuthenticationServices authenticationContext)
+        public MandateController(ILogger<MandateController> logger, IMandateManager mandateManager, IAuthenticationServices authenticationContext, IGuidGenerator guidGenerator)
         {
             this.logger = logger;
             this.mandateManager = mandateManager;
+            this.guidGenerator = guidGenerator;
             this.authenticationContext = authenticationContext;
         }
 
@@ -37,6 +39,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             try
             {
                 string email = this.authenticationContext.Email!;
+                sortOrder ??= "Ascending";
+                sortCriteria ??= "Name";
+
                 var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria, email);
                 this.logger.LogInformation($"{collectionQuery}");
                 var result = await this.mandateManager.GetAllCollectionsAsync(collectionQuery.ToModel());
@@ -52,15 +57,58 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [HttpPost]
         public async Task<IActionResult> PostCollectionAsync([FromBody] CollectionCreationCommand collectionCreationCommand)
         {
-            await Task.CompletedTask;
-            return this.Ok(); // TODO
+            string correlationId = Guid.NewGuid().ToString();
+
+            try
+            {
+                var result = await this.mandateManager.CreateMandate(collectionCreationCommand.ToModel());
+                return this.Ok(new SaveResult(result));
+            }
+            catch (Exception ex)
+            {
+                // TODO
+                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.PostCollectionAsync));
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
+            }
         }
 
         [HttpGet("{mandateId}/unsigned")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FileContentResult))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DownloadUnsignedAsync([FromRoute] string mandateId)
         {
-            await Task.CompletedTask;
-            return this.Ok(); // TODO
+            var correlationId = this.guidGenerator.NewGuid();
+            try
+            {
+                // Assuming you have your file data as byte[]
+                byte[] fileData = await this.mandateManager.DownloadUnsignedAsync(Guid.Parse(mandateId));
+
+                // Get the file type (MIME type)
+                var contentType = "application/pdf";
+
+                // Set a file download name (optional)
+                var fileName = $"unsigned-mandate-{mandateId}.pdf";
+
+                // Return the file
+                return this.File(fileData, contentType, fileName);
+            }
+            catch (Sql.CollectionNotFoundException ex)
+            {
+                this.logger.LogError("[{correlationId}] - There is no mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                return this.NotFound(new Error("CollectionNotFound", correlationId.ToString(), ex.Message));
+            }
+            catch (FolderIdEmptyOrNullException ex)
+            {
+                this.logger.LogError("[{correlationId}] - There is no folderId in the mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                return this.NotFound(new Error("FolderIdEmptyOrNull", correlationId.ToString(), ex.Message));
+            }
+            catch (RibIdEmptyOrNullException ex)
+            {
+                this.logger.LogError("[{correlationId}] - There is no ridId in the mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                return this.NotFound(new Error("RibIdEmptyOrNull", correlationId.ToString(), ex.Message));
+            }
         }
 
         [HttpGet("{mandateId}/signed")]

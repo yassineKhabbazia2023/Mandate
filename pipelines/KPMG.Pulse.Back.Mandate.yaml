@@ -18,7 +18,7 @@ resources:
 parameters:
 - name: devenv
   type: string
-  default: 'dev15'
+  default: 'dev55'
 
 extends:
   template: PipelineTemplate.yaml@CICD

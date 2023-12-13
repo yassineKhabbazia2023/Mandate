@@ -6,22 +6,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
 {
     public interface IJeDeclareClient
     {
-        Task<ListeReleves> GetAllConfigurationFromFolderAsync(string jdcCompteId, string jdcFolderId);
+        Task<ListeReleves> GetAllConfigurationFromFolderAsync(string jdcFolderId);
 
-        Task<byte[]> GetSignedMandatPdfAsync(string jdcCompteId, string jdcFolderId, string jdcRibId);
+        Task<byte[]> GetSignedMandatPdfAsync(string jdcFolderId, string jdcRibId);
 
-        Task<byte[]> GetMandatPdfAsync(string jdcCompteId, string jdcFolderId, string jdcRibId);
+        Task<byte[]> GetMandatPdfAsync(string jdcFolderId, string jdcRibId);
 
-        Task<DossierClient> CreateFolderAsync(string jdcCompteId, DossierClient folderClient);
+        Task<DossierClient> CreateFolderAsync(DossierClient folderClient);
 
-        Task<Rib> AddRibToFolderAsync(string jdcCompteId, string jdcFolderId, Rib ribClient);
+        Task<Rib> AddRibToFolderAsync(string jdcFolderId, Rib ribClient);
 
-        Task<Releve> CreateCollecteConfigurationAsync(string jdcCompteId, string jdcFolderId, Releve releve);
+        Task<Releve> CreateCollecteConfigurationAsync(string jdcFolderId, Releve releve);
 
-        Task<bool> UpdateCollecteConfigurationAsync(string jdcCompteId, string jdcFolderId, Releve releve);
+        Task<bool> UpdateCollecteConfigurationAsync(string jdcFolderId, Releve releve);
 
-        Task<string> UploadSignedMandat(string jdcCompteId, string jdcFolderId, string jdcRibId, byte[] mandat);
+        Task<string> UploadSignedMandat(string jdcFolderId, string jdcRibId, byte[] mandat);
 
-        Task<bool> CheckSignedMandatExists(string jdcCompteId, string jdcFolderId, string jdcRibId);
+        Task<bool> CheckSignedMandatExists(string jdcFolderId, string jdcRibId);
     }
 }

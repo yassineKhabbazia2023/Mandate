@@ -49,5 +49,85 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 CollaboratorId = new PredictableGuid(101).NewGuid(),
             });
         }
+
+        [Fact]
+        public void ToModel_ShouldConvertCompanyDbToCompanyModelCorrectly()
+        {
+            // Arrange
+            var companyDb = new Sql.CompanyDb
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Company",
+                SiretNumber = "123456789",
+                ErpId = "ERP123",
+                JeDeclareFolder = new Sql.JeDeclareFolderDb { JdcDossierId = "JDC123" },
+                Personal = new Sql.PersonalDb
+                {
+                    Title = "Mr.",
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Email = "john.doe@example.com",
+                    Street = "123 Main St",
+                    Complements = "Apt 4B",
+                    ZipCode = "12345",
+                    City = "Sample City",
+                    Country = "ExampleLand",
+                },
+            };
+
+            // Act
+            var result = companyDb.ToModel();
+
+            // Assert
+            result.Id.Should().Be(companyDb.Id);
+            result.Name.Should().Be("Test Company");
+            result.SiretNumber.Should().Be("123456789");
+            result.ErpId.Should().Be("ERP123");
+            result.BankServicesProviderId.Should().Be("JDC123");
+            result?.Signatory?.Title.Should().Be("Mr.");
+            result?.Signatory?.FirstName.Should().Be("John");
+            result?.Signatory?.LastName.Should().Be("Doe");
+            result?.Signatory?.Email.Should().Be("john.doe@example.com");
+            result?.Address?.Street.Should().Be("123 Main St");
+            result?.Address?.ZipCode.Should().Be("12345");
+            result?.Address?.City.Should().Be("Sample City");
+            result?.Address?.Country.Should().Be("ExampleLand");
+            result?.Address?.Complements.Should().Be("Apt 4B");
+        }
+
+        [Fact]
+        public void ToModel_WithNullProperties_ShouldHandleNullsGracefully()
+        {
+            // Arrange
+            var companyDb = new Sql.CompanyDb
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Company",
+                SiretNumber = "123456789",
+                ErpId = "ERP123",
+                JeDeclareFolder = null,
+                Personal = null,
+            };
+
+            // Act
+            var result = companyDb.ToModel();
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Id.Should().Be(companyDb.Id);
+            result.Name.Should().Be("Test Company");
+            result.SiretNumber.Should().Be("123456789");
+            result.ErpId.Should().Be("ERP123");
+            result.BankServicesProviderId.Should().BeNull();
+            result.Signatory.Email.Should().BeNull();
+            result.Signatory.FirstName.Should().BeNull();
+            result.Signatory.LastName.Should().BeNull();
+            result.Signatory.Title.Should().BeNull();
+            result.Address.Street.Should().BeNull();
+            result.Address.Complements.Should().BeNull();
+            result.Address.ZipCode.Should().BeNull();
+            result.Address.City.Should().BeNull();
+            result.Address.Country.Should().BeNull();
+        }
     }
 }

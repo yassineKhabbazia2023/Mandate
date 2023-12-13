@@ -4,6 +4,8 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+
     public class SqlAdapter : IDatabaseService
     {
         private readonly Sql.IMandateRepository mandateRepository;
@@ -17,9 +19,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             var companyDb = await this.mandateRepository.GetCompanyBySiretAsync(siret).ConfigureAwait(false);
 
-            var address = new Address(companyDb.CompanyPersonal?.Street, companyDb.CompanyPersonal?.Complements, companyDb.CompanyPersonal?.ZipCode, companyDb.CompanyPersonal?.City, companyDb.CompanyPersonal?.Country);
-            var signatory = new Signatory(companyDb.CompanyPersonal?.Title, companyDb.CompanyPersonal?.FirstName, companyDb.CompanyPersonal?.LastName, companyDb.CompanyPersonal?.Email);
-            var company = new Company(companyDb.Id, companyDb.Name, companyDb.SiretNumber, companyDb.ErpId, companyDb.BankServicesProviderId, signatory, address);
+            var address = new Address(companyDb.Personal?.Street, companyDb.Personal?.Complements, companyDb.Personal?.ZipCode, companyDb.Personal?.City, companyDb.Personal?.Country);
+            var signatory = new Signatory(companyDb.Personal?.Title, companyDb.Personal?.FirstName, companyDb.Personal?.LastName, companyDb.Personal?.Email);
+            var company = new Company(companyDb.Id, companyDb.Name, companyDb.SiretNumber, companyDb.ErpId, companyDb.JeDeclareFolder?.JdcDossierId, signatory, address);
             return company;
         }
 
@@ -41,6 +43,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return new PagedMandate(
                 new Counters(tuple.Item2, 0, 0, 0, 0, 0),
                 tuple.Item1.Select(i => i.ToModel()).ToList());
+        }
+
+        public async Task<Company> GetCompanyByErpIdAsync(string erpId)
+        {
+            var company = await this.mandateRepository.GetCompanyByErpIdAsync(erpId);
+            return company.ToModel();
         }
 
         public Task<Company> CreateFolderAsync(string bankServicesProviderId, Guid companyId)
@@ -80,6 +88,63 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         public Task<Collaborator> GetCollaboratorByEmail(string collaboratorEmail)
         {
             throw new NotImplementedException();
+        }
+        
+        public async Task<Collection> GetCollectionById(Guid id)
+        {
+            var collectionDb = await this.mandateRepository.GetCollectionById(id).ConfigureAwait(false);
+
+            return collectionDb.ToModel();
+        }
+
+        public async Task SaveSignatoryAsync(Guid? companyId, Guid? collectionId, Signatory signatory, Address address)
+        {
+            var newPersonalDb = new PersonalDb()
+            {
+                CompanyId = companyId,
+                CollectionId = collectionId,
+                City = address.City,
+                Country = address.Country,
+                Street = address.Street,
+                ZipCode = address.ZipCode,
+                Complements = address.Complements,
+                FirstName = signatory.FirstName,
+                LastName = signatory.LastName,
+                Email = signatory.Email,
+                Title = signatory.Title,
+            };
+
+            await this.mandateRepository.SaveSignatoryAsync(newPersonalDb);
+        }
+
+        public async Task CreateFakeRefAsync()
+        {
+            await this.mandateRepository.CreateFakeRefAsync().ConfigureAwait(false);
+        }
+
+        public async Task DeleteFakeRefAsync()
+        {
+            await this.mandateRepository.DeleteFakeRefAsync().ConfigureAwait(false);
+        }
+
+        public async Task CreateFakeAuthAsync()
+        {
+            await this.mandateRepository.CreateFakeAuthAsync().ConfigureAwait(false);
+        }
+
+        public async Task DeleteFakeAuthAsync()
+        {
+            await this.mandateRepository.DeleteFakeAuthAsync().ConfigureAwait(false);
+        }
+
+        public async Task AddFakeDataAsync()
+        {
+            await this.mandateRepository.AddFakeDataAsync().ConfigureAwait(false);
+        }
+
+        public async Task DeleteFakeDataAsync()
+        {
+            await this.mandateRepository.DeleteFakeDataAsync().ConfigureAwait(false);
         }
     }
 }

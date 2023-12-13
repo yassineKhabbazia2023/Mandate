@@ -2,7 +2,7 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate.Tests.Exceptions
+namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
 {
     using Newtonsoft.Json;
 

@@ -2,7 +2,7 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate.Exceptions
+namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     using System.Runtime.Serialization;
 

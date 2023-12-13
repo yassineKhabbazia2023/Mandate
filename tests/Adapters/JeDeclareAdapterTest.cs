@@ -55,5 +55,36 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             jedeclareClient.VerifyAll();
         }
+
+        [Fact]
+        public async Task UploadSignedMandate_WithValidInputs_CallsJedeclareClient()
+        {
+            var collectionId = new PredictableGuid().NewGuid();
+            var companyId = new PredictableGuid().NewGuid();
+
+            var company = TestHelper.GetCompany(companyId, "bankServicesProviderId");
+            Bban bban = TestHelper.GetBban("ebicsCardId", false);
+            Status status = TestHelper.GetStatus();
+
+            var collection = new Collection(
+                collectionId,
+                "yourServiceProviderId",
+                company,
+                bban,
+                DateTime.Now,
+                DateTime.Now,
+                status);
+            var mandateFile = new byte[] { 1, 2, 3, 4, 5 };
+            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            jedeclareClient.Setup(c => c.UploadSignedMandat(collection.Company.BankServicesProviderId!, collection.Bban.Bank.EbicsCardId!, It.IsAny<byte[]>()))
+                .ReturnsAsync("signedMandateId")
+                .Verifiable();
+
+            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            var result = await adapter.UploadSignedMandate(collection, mandateFile);
+
+            result.Should().BeEquivalentTo("signedMandateId");
+            jedeclareClient.Verify(client => client.UploadSignedMandat(collection.Company.BankServicesProviderId!, collection.Bban.Bank.EbicsCardId!, mandateFile), Times.Once);
+        }
     }
 }

@@ -4,13 +4,12 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
+    using System;
     using Aspose.Pdf.Operators;
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
-    using KPMG.Pulse.Back.Accounting.Mandate.Exceptions;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using System;
 
     [ApiController]
     [Route("api/mandate")]

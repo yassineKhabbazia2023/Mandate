@@ -54,7 +54,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                             Pays = "country",
                             Ville = "city",
                             Rue = "street",
-                            CplRue = "street",
+                            CplRue = "streetT",
                         },
                     },
                 },
@@ -64,7 +64,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             jedeclareClient.Setup(c => c.CreateFolderAsync(It.IsAny<DossierClient>()))
                 .Callback<DossierClient>(dc =>
                 {
-                    var t = 2;
+                    dc.Client.Id.Should().Be("BSP1234");
+                    dc.Client.RaisonSociale.Should().Be("Example Company");
+                    dc.Client.Siret.Siren.Should().Be("123456789");
+                    dc.Client.Siret.Nic.Should().Be("01234");
+                    dc.Client.Responsable.Adresse.CodePostal.Should().Be("12345");
+                    dc.Client.Responsable.Adresse.CplRue.Should().Be("123 Main St");
+                    dc.Client.Responsable.Adresse.Pays.Should().Be("USA");
+                    dc.Client.Responsable.Adresse.Rue.Should().Be("123 Main St");
+                    dc.Client.Responsable.Adresse.Ville.Should().Be("New York");
+                    dc.Client.Responsable.Mail.Should().Be("john.doe@example.com");
+                    dc.Client.Responsable.Name.Should().Be("John Doe");
                 })
                 .ReturnsAsync(dossierClient)
                 .Verifiable();
@@ -73,6 +83,29 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var createdFolder = await adapter.CreateFolderAsync(company);
 
+            var expectedSignatory = new Signatory(
+                title: string.Empty,
+                firstName: "Maroo Elleuch",
+                lastName: "Maroo Elleuch",
+                email: "email@email.com");
+
+            var expectedAdress = new Address(
+                street: "street",
+                complements: "streetT",
+                zipCode: "zipcode",
+                city: "city",
+                country: "country");
+
+            var expectedCompany = new Company(
+                id: Guid.Empty,
+                name: "companyName",
+                siretNumber: "79887416000046",
+                erpId: string.Empty,
+                bankServicesProviderId: "12345",
+                signatory: expectedSignatory,
+                address: expectedAdress);
+
+            createdFolder.Should().BeEquivalentTo(expectedCompany);
         }
 
         [Fact]

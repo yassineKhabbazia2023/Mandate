@@ -8,7 +8,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
     public static class ServiceRegistration
     {
-        public static IServiceCollection AddMandateFormio(this IServiceCollection services, Action<FormioOptions> options)
+        public static IServiceCollection AddMandateFormio(this IServiceCollection services, Action<FormIoOptions> options)
         {
             if (services == null)
             {
@@ -18,7 +18,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
             services.AddOptions().Configure(options);
 
             services.AddConstellationHttpClient();
-            services.AddScoped<IFormioClientFactory, HttpFormioClientFactory>();
+            services.AddScoped<IFormIoClientFactory, HttpFormIoClientFactory>();
             services.AddScoped<IFormIoClient, HttpFormIoClient>();
 
             return services;

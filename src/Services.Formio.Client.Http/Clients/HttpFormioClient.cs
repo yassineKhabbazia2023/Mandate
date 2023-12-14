@@ -17,21 +17,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
     {
         private const string FormId = "demandemandat";
         private readonly ILogger<HttpFormIoClient> logger;
-        private readonly IFormioClientFactory factory;
+        private readonly IFormIoClientFactory factory;
 
-        public HttpFormIoClient(ILogger<HttpFormIoClient> logger, IFormioClientFactory factory)
+        public HttpFormIoClient(ILogger<HttpFormIoClient> logger, IFormIoClientFactory factory)
         {
             this.logger = logger;
             this.factory = factory;
         }
 
-        public async Task<FormioSubmissionCollection?> GetSubmissionsAsync(string formId, int skip, int? limit, FormioAuthToken authToken)
+        public async Task<FormIoSubmissionCollection?> GetSubmissionsAsync(string formId, int skip, int? limit, FormIoAuthToken authToken)
         {
             var queryStringDic = HttpUtility.ParseQueryString(string.Empty);
             queryStringDic["skip"] = $"{skip}";
             queryStringDic["limit"] = limit == null ? "50" : $"{limit}";
 
-            var subs = new FormioSubmissionCollection();
+            var subs = new FormIoSubmissionCollection();
 
             using var client = this.factory.Create(authToken);
 
@@ -86,7 +86,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
             return submissions.Count > 0;
         }
 
-        public async Task<bool> CheckCollecteConfigExistAsync(string formId, string codeBank, string bankAccountNumber, string bankSortCode, FormioAuthToken authToken)
+        public async Task<bool> CheckCollecteConfigExistAsync(string formId, string codeBank, string bankAccountNumber, string bankSortCode, FormIoAuthToken authToken)
         {
             using var client = this.factory.Create(authToken);
 
@@ -102,7 +102,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
             return JArray.Parse(responseBody).Count > 0;
         }
 
-        public async Task<JToken?> GetTemplateShemaAsync(string projectId, string codeBank, FormioAuthToken authToken)
+        public async Task<JToken?> GetTemplateShemaAsync(string projectId, string codeBank, FormIoAuthToken authToken)
         {
             using var client = this.factory.Create(authToken);
 
@@ -118,7 +118,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
             if (!response.IsSuccessStatusCode)
             {
-                var exception = new FormioApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
+                var exception = new FormIoApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
 
                 this.logger.LogError(
                     exception,
@@ -138,7 +138,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
             return templateSchemas.Count > 0 ? templateSchemas[0] : null;
         }
 
-        public async Task<JToken> GetSubmissionByIdAsync(string formId, string submissionId, FormioAuthToken authToken)
+        public async Task<JToken> GetSubmissionByIdAsync(string formId, string submissionId, FormIoAuthToken authToken)
         {
             using var client = this.factory.Create(authToken);
 
@@ -149,7 +149,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
             return JObject.Parse(responseBody);
         }
 
-        public async Task<FormioSubmissionPdf> DownloadSubmissionAsPDFWithTemplate(JToken form, JToken data, string downloadUrl, string pdfFileToken)
+        public async Task<FormIoSubmissionPdf> DownloadSubmissionAsPDFWithTemplate(JToken form, JToken data, string downloadUrl, string pdfFileToken)
         {
             using var client = this.factory.Create();
 
@@ -172,7 +172,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
             if (!response.IsSuccessStatusCode)
             {
-                var exception = new FormioApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
+                var exception = new FormIoApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
 
                 this.logger.LogError(
                     exception,
@@ -189,7 +189,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
             return await GetFormioSubmissionPdfAsync(data, response);
         }
 
-        public async Task<JToken> GetProjectDefinitionAsync(string formioProjectId, FormioAuthToken authToken)
+        public async Task<JToken> GetProjectDefinitionAsync(string formioProjectId, FormIoAuthToken authToken)
         {
             using var client = this.factory.Create(authToken);
 
@@ -202,7 +202,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
             return result;
         }
 
-        public async Task<FormioSubmissionCollection> GetSubmissionMandateAsync(string bankCode, string bankSortCode, string bankAccountNumber, string bankCheckNumber, FormioAuthToken authToken)
+        public async Task<FormIoSubmissionCollection> GetSubmissionMandateAsync(string bankCode, string bankSortCode, string bankAccountNumber, string bankCheckNumber, FormIoAuthToken authToken)
         {
             var queryBuilder = new QueryBuilder();
 
@@ -228,7 +228,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
             var uriQuery = queryBuilder.ToQueryString();
 
-            var subs = new FormioSubmissionCollection();
+            var subs = new FormIoSubmissionCollection();
 
             using var client = this.factory.Create(authToken);
 
@@ -243,13 +243,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
             return subs;
         }
 
-        private static async Task<FormioSubmissionPdf> GetFormioSubmissionPdfAsync(JToken data, HttpResponseMessage response)
+        private static async Task<FormIoSubmissionPdf> GetFormioSubmissionPdfAsync(JToken data, HttpResponseMessage response)
         {
             Stream responseStream = await response.Content.ReadAsStreamAsync();
             byte[] pdf = new byte[responseStream.Length];
             var bytesRead = responseStream.Read(pdf, 0, (int)responseStream.Length);
 
-            var formioSubmissionPdf = new FormioSubmissionPdf
+            var formioSubmissionPdf = new FormIoSubmissionPdf
             {
                 Data = bytesRead > 0 ? pdf : Array.Empty<byte>(),
                 Created = data["created"]?.Value<string>() !,
@@ -261,9 +261,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
             return formioSubmissionPdf;
         }
 
-        private static IList<FormioSubmission> DeserializeSubmissions(string responseBody)
+        private static IList<FormIoSubmission> DeserializeSubmissions(string responseBody)
         {
-            return JsonConvert.DeserializeObject<IList<FormioSubmission>>(responseBody) !;
+            return JsonConvert.DeserializeObject<IList<FormIoSubmission>>(responseBody) !;
         }
 
         private async Task<string> GetResponseBodyAsync(string formId, IHttpClient client, string requestUri)
@@ -273,7 +273,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
             if (!response.IsSuccessStatusCode)
             {
-                var exception = new FormioApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
+                var exception = new FormIoApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
 
                 this.logger.LogError(
                     exception,

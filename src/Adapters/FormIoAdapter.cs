@@ -17,12 +17,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public async Task<Collection?> GetSubmissionMandateAsync(Bban bban)
         {
-            FormioAuthToken token = new FormioAuthToken()
+            FormIoAuthToken token = new FormIoAuthToken()
             {
-                Type = FormioTokenType.App,
+                Type = FormIoTokenType.App,
             };
 
-            FormioSubmissionCollection submission = await this.formioClient.GetSubmissionMandateAsync(
+            FormIoSubmissionCollection submission = await this.formioClient.GetSubmissionMandateAsync(
                 bban.BankCode,
                 bban.BranchCode,
                 bban.AccountNumber,

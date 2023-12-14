@@ -33,9 +33,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var auth = new FormioAuthToken();
+            var auth = new FormIoAuthToken();
 
-            var factory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
+            var factory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
             factory.Setup(f => f.Create(auth))
                 .Returns(client.Object)
                 .Verifiable();
@@ -52,7 +52,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             Func<Task> act = async () => await jeDeclareClient.GetSubmissionsAsync("demandemandat", 0, 20, auth);
 
-            await act.Should().ThrowExactlyAsync<FormioApiException>()
+            await act.Should().ThrowExactlyAsync<FormIoApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message returned by formioApi'");
 
             client.VerifyAll();
@@ -79,7 +79,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var factory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
+            var factory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
             factory.Setup(f => f.Create())
                 .Returns(client.Object)
                 .Verifiable();
@@ -96,7 +96,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             Func<Task> act = async () => await jeDeclareClient.CheckJdcPartnerBankAsync("demandemandat", "codeBankT");
 
-            await act.Should().ThrowExactlyAsync<FormioApiException>()
+            await act.Should().ThrowExactlyAsync<FormIoApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message returned by formioApi'");
 
             client.VerifyAll();
@@ -123,7 +123,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var factory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
+            var factory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
             factory.Setup(f => f.Create())
                 .Returns(client.Object)
                 .Verifiable();
@@ -140,7 +140,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             Func<Task> act = async () => await jeDeclareClient.CheckMadateDematSupportedAsync("demandemandat", "codeBankT");
 
-            await act.Should().ThrowExactlyAsync<FormioApiException>()
+            await act.Should().ThrowExactlyAsync<FormIoApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message returned by formioApi'");
 
             client.VerifyAll();
@@ -167,9 +167,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var auth = new FormioAuthToken();
+            var auth = new FormIoAuthToken();
 
-            var factory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
+            var factory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
             factory.Setup(f => f.Create(auth))
                 .Returns(client.Object)
                 .Verifiable();
@@ -186,7 +186,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             Func<Task> act = async () => await jeDeclareClient.CheckCollecteConfigExistAsync("demandemandat", "bankCodeT", "bankAccountNumberT", "bankSortT", auth);
 
-            await act.Should().ThrowExactlyAsync<FormioApiException>()
+            await act.Should().ThrowExactlyAsync<FormIoApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message returned by formioApi'");
 
             client.VerifyAll();
@@ -213,9 +213,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var auth = new FormioAuthToken();
+            var auth = new FormIoAuthToken();
 
-            var factory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
+            var factory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
             factory.Setup(f => f.Create(auth))
                 .Returns(client.Object)
                 .Verifiable();
@@ -232,7 +232,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             Func<Task> act = async () => await jeDeclareClient.GetTemplateShemaAsync("projectIdT", "codeBankT", auth);
 
-            await act.Should().ThrowExactlyAsync<FormioApiException>()
+            await act.Should().ThrowExactlyAsync<FormIoApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message returned by formioApi'");
 
             client.VerifyAll();
@@ -259,9 +259,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var auth = new FormioAuthToken();
+            var auth = new FormIoAuthToken();
 
-            var factory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
+            var factory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
             factory.Setup(f => f.Create(auth))
                 .Returns(client.Object)
                 .Verifiable();
@@ -278,7 +278,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             Func<Task> act = async () => await jeDeclareClient.GetSubmissionByIdAsync("formIdT", "submissionIdT", auth);
 
-            await act.Should().ThrowExactlyAsync<FormioApiException>()
+            await act.Should().ThrowExactlyAsync<FormIoApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message returned by formioApi'");
 
             client.VerifyAll();
@@ -338,7 +338,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var factory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
+            var factory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
             factory.Setup(f => f.Create())
                 .Returns(client.Object)
                 .Verifiable();
@@ -355,7 +355,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             Func<Task> act = async () => await jeDeclareClient.DownloadSubmissionAsPDFWithTemplate(form, data, downloadUrl, fileToken);
 
-            await act.Should().ThrowExactlyAsync<FormioApiException>()
+            await act.Should().ThrowExactlyAsync<FormIoApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message returned by formioApi'");
 
             client.VerifyAll();
@@ -410,7 +410,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var factory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
+            var factory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
             factory.Setup(f => f.Create())
                 .Returns(client.Object)
                 .Verifiable();
@@ -455,9 +455,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var auth = new FormioAuthToken();
+            var auth = new FormIoAuthToken();
 
-            var factory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
+            var factory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
             factory.Setup(f => f.Create(auth))
                 .Returns(client.Object)
                 .Verifiable();
@@ -474,7 +474,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             Func<Task> act = async () => await jeDeclareClient.GetProjectDefinitionAsync("demandemandat", auth);
 
-            await act.Should().ThrowExactlyAsync<FormioApiException>()
+            await act.Should().ThrowExactlyAsync<FormIoApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message returned by formioApi'");
 
             client.VerifyAll();
@@ -484,7 +484,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
         [Fact]
         public async Task GetSubmissionMandateAsync_CaseOK()
         {
-            var submission1 = new FormioSubmission()
+            var submission1 = new FormIoSubmission()
             {
                 Id = "id1",
                 Modified = "modified1",
@@ -499,7 +499,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 },
             };
 
-            var formioSubmissionCollection = new FormioSubmissionCollection()
+            var formioSubmissionCollection = new FormIoSubmissionCollection()
             {
                 Limit = 0,
                 Skip = 0,
@@ -527,9 +527,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var auth = new FormioAuthToken();
+            var auth = new FormIoAuthToken();
 
-            var factory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
+            var factory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
             factory.Setup(f => f.Create(auth))
                 .Returns(client.Object)
                 .Verifiable();

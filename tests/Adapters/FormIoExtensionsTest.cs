@@ -11,14 +11,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         [Fact]
         public void ToCollection()
         {
-            var entity = new FormioSubmissionCollection()
+            var entity = new FormIoSubmissionCollection()
             {
                 Limit = 1,
                 Skip = 2,
                 Total = 3,
-                Submissions = new List<FormioSubmission>()
+                Submissions = new List<FormIoSubmission>()
                 {
-                    new FormioSubmission
+                    new FormIoSubmission
                     {
                         Id = "id",
                         Owner = string.Empty,
@@ -69,14 +69,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         [Fact]
         public void ToCollection_When_NoHeadOffice()
         {
-            var entity = new FormioSubmissionCollection()
+            var entity = new FormIoSubmissionCollection()
             {
                 Limit = 1,
                 Skip = 2,
                 Total = 3,
-                Submissions = new List<FormioSubmission>()
+                Submissions = new List<FormIoSubmission>()
                 {
-                    new FormioSubmission
+                    new FormIoSubmission
                     {
                         Id = "id",
                         Owner = string.Empty,

@@ -63,7 +63,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             sp.GetService<IJeDeclareClientFactory>().Should().NotBeNull();
             sp.GetService<IJeDeclareClient>().Should().NotBeNull();
             sp.GetService<IJeDeclareService>().Should().NotBeNull();
-            sp.GetService<IFormioClientFactory>().Should().NotBeNull();
+            sp.GetService<IFormIoClientFactory>().Should().NotBeNull();
             sp.GetService<IPortalProvider>().Should().NotBeNull();
             sp.GetService<IPortalClientFactory>().Should().NotBeNull();
             sp.GetService<IAuthenticationContext>().Should().NotBeNull();

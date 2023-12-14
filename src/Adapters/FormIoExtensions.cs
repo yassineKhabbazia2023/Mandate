@@ -11,9 +11,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
     public static class FormIoExtensions
     {
-        public static Collection ToCollection(this FormioSubmissionCollection source)
+        public static Collection ToCollection(this FormIoSubmissionCollection source)
         {
-            FormioSubmission mandate = source.Submissions.SingleOrDefault() !;
+            FormIoSubmission mandate = source.Submissions.SingleOrDefault() !;
             var node = JsonNode.Parse(JsonConvert.SerializeObject(mandate)) !.AsObject();
             var data = node["data"];
             var headOffice = data?["headOffice"];

@@ -45,16 +45,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 modified: ""2019-10-10T08:54:03.000Z""
             }]";
 
-            var sub = new FormioSubmissionCollection()
+            var sub = new FormIoSubmissionCollection()
             {
                 Limit = 1,
                 Skip = 0,
                 Total = 1,
-                Submissions = JsonConvert.DeserializeObject<List<FormioSubmission>>(data) !,
+                Submissions = JsonConvert.DeserializeObject<List<FormIoSubmission>>(data) !,
             };
 
             var formIoClient = new Mock<IFormIoClient>(MockBehavior.Strict);
-            formIoClient.Setup(item => item.GetSubmissionMandateAsync("13507", "00014", "31464482121", "77", It.IsAny<FormioAuthToken>()))
+            formIoClient.Setup(item => item.GetSubmissionMandateAsync("13507", "00014", "31464482121", "77", It.IsAny<FormIoAuthToken>()))
                 .ReturnsAsync(sub)
                 .Verifiable();
 
@@ -78,16 +78,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public async Task GetSubmissionMandateAsync_When_GetSubmissionMandateAsync_Return_NoResult()
         {
             Bban bban = new Bban("13507", "00014", "31464482121", "77", "8909440", null);
-            var sub = new FormioSubmissionCollection()
+            var sub = new FormIoSubmissionCollection()
             {
                 Limit = 1,
                 Skip = 0,
                 Total = 1,
-                Submissions = JsonConvert.DeserializeObject<List<FormioSubmission>>("[]") !,
+                Submissions = JsonConvert.DeserializeObject<List<FormIoSubmission>>("[]") !,
             };
 
             var formIoClient = new Mock<IFormIoClient>(MockBehavior.Strict);
-            formIoClient.Setup(item => item.GetSubmissionMandateAsync("13507", "00014", "31464482121", "77", It.IsAny<FormioAuthToken>()))
+            formIoClient.Setup(item => item.GetSubmissionMandateAsync("13507", "00014", "31464482121", "77", It.IsAny<FormIoAuthToken>()))
                 .ReturnsAsync(sub)
                 .Verifiable();
 

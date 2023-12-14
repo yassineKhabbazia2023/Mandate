@@ -25,8 +25,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             jedeclareClient.VerifyAll();
         }
 
-        [Fact]
-        public async Task CreateFolderAsync()
+        [Theory]
+        [InlineData("m Maroo ELLEUCH", "m", "Maroo", "ELLEUCH")]
+        [InlineData("mme Anne DE OLIVEIRA LAPIZE DE SALLEE", "mme", "Anne", "DE OLIVEIRA LAPIZE DE SALLEE")]
+        [InlineData("m Jean Claude GARAUDET", "m", "Jean Claude", "GARAUDET")]
+        public async Task CreateFolderAsync(string nom, string title, string firstName, string lastName)
         {
             var signatory = new Signatory("Mr.", "John", "Doe", "john.doe@example.com");
             var address = new Address("123 Main St", "Apt 4B", "12345", "New York", "USA");
@@ -46,7 +49,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                     },
                     Responsable = new Responsable()
                     {
-                        Name = $"Maroo Elleuch",
+                        Name = nom,
                         Mail = "email@email.com",
                         Adresse = new Adresse()
                         {
@@ -84,9 +87,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var createdFolder = await adapter.CreateFolderAsync(company);
 
             var expectedSignatory = new Signatory(
-                title: string.Empty,
-                firstName: "Maroo Elleuch",
-                lastName: "Maroo Elleuch",
+                title: title,
+                firstName: firstName,
+                lastName: lastName,
                 email: "email@email.com");
 
             var expectedAdress = new Address(
@@ -100,7 +103,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 id: Guid.Empty,
                 name: "companyName",
                 siretNumber: "79887416000046",
-                erpId: string.Empty,
+                erpId: null,
                 bankServicesProviderId: "12345",
                 signatory: expectedSignatory,
                 address: expectedAdress);

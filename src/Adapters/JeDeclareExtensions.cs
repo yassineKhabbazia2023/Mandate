@@ -55,10 +55,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public static Company ToCompany(this DossierClient dossierClient)
         {
+            var decomposedName = dossierClient.Client.Responsable.Name.ExtractPersonInfo();
+
             var signatory = new Signatory(
-                title: "",  // TO DO
-                firstName: dossierClient.Client.Responsable.Name, // TO DO
-                lastName: dossierClient.Client.Responsable.Name, // TO DO
+                title: decomposedName.sexe,
+                firstName: decomposedName.prenom,
+                lastName: decomposedName.nom,
                 email: dossierClient.Client.Responsable.Mail);
 
             var adresse = new Address(
@@ -69,10 +71,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 country: dossierClient.Client.Responsable.Adresse.Pays);
 
             return new Company(
-                id: Guid.Empty, // TO DO
+                id: Guid.Empty,
                 name: dossierClient.Client.RaisonSociale,
                 siretNumber: dossierClient.Client.Siret.Siren + dossierClient.Client.Siret.Nic,
-                erpId: "", // TO DO
+                erpId: null,
                 bankServicesProviderId: dossierClient.Client.Id,
                 signatory: signatory,
                 address: adresse);

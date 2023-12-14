@@ -4,7 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
-    using System;
     using Aspose.Pdf.Operators;
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
@@ -134,7 +133,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             var correlationId = "0"; // TODO
             if (!Guid.TryParse(mandateId, out var parsedMandateId))
             {
-                return this.BadRequest("Invalid mandate ID.");
+                return this.BadRequest(new Error("InvalidMandateId", correlationId, "MandateId should be an UUID"));
             }
 
             try
@@ -150,7 +149,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             catch (InvalidFileTypeException ex)
             {
                 this.logger.LogError(ex, "MandateAPI - {correlationId} - Invalid file type", correlationId);
-                return this.StatusCode(StatusCodes.Status400BadRequest, new Error("InvalidFileType", correlationId, ex.Message));
+                return this.BadRequest(new Error("InvalidFileType", correlationId, ex.Message));
             }
             catch (Exception ex)
             {

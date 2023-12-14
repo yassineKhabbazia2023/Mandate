@@ -1416,6 +1416,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             await context.SaveChangesAsync();
         }
 
+        public async Task<CompanyDb> GetCompanyByErpIdAsync(string erpId)
+        {
+            using var context = new MandateContext(this.options);
+            var company = context.Company
+                .Include(c => c.Personal)
+                .Include(c => c.JeDeclareFolder)
+                .AsNoTracking().Where(c => c.ErpId == erpId);
+            if (!await company.AnyAsync().ConfigureAwait(false))
+            {
+                throw CompanyNotFoundException.FromId(erpId);
+            }
+
+            return await company.SingleAsync().ConfigureAwait(false);
+        }
+
         private static CollectionDb GenerateFakeCollection(Guid collectionId, Guid companyId)
         {
             var rand = new Random();
@@ -1469,18 +1484,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 AccountNumber = rand.NextInt64().ToString().Substring(0, 11),
                 CheckDigits = "99",
             };
-        }
-        
-        public async Task<CompanyDb> GetCompanyByErpIdAsync(string erpId)
-        {
-            using var context = new MandateContext(this.options);
-            var company = context.Company.AsNoTracking().Where(c => c.ErpId == erpId);
-            if (!await company.AnyAsync().ConfigureAwait(false))
-            {
-                throw CompanyNotFoundException.FromId(erpId);
-            }
-
-            return await company.SingleAsync().ConfigureAwait(false);
         }
     }
 }

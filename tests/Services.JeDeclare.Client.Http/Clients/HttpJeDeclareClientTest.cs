@@ -845,7 +845,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
-                HistoryDateEnabledBanks = "bankCodeT;"
+                HistoryDateEnabledBanks = "bankCodeT",
             });
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);

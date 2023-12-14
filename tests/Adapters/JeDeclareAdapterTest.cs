@@ -76,8 +76,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 status);
             var mandateFile = new byte[] { 1, 2, 3, 4, 5 };
             var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+
             var bankServicesProviderId = collection.Company?.BankServicesProviderId;
             var ebicsCardId = collection.Bban?.Bank?.EbicsCardId;
+
             jedeclareClient.Setup(c => c.UploadSignedMandat(bankServicesProviderId!, ebicsCardId!, It.IsAny<byte[]>()))
                 .ReturnsAsync("signedMandateId")
                 .Verifiable();

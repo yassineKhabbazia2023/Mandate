@@ -1233,7 +1233,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.SaveChangesAsync();
 
             var sqlMandateRepository = new SqlMandateRepository(this.options);
-            var res = await sqlMandateRepository.GetCollaboratorByEmail("collab@email.com");
+            var res = await sqlMandateRepository.GetCollaboratorByEmailAsync("collab@email.com");
 
             res.Id.Should().Be(new PredictableGuid(104).NewGuid());
             res.Email.Should().Be("collab@email.com");
@@ -1257,7 +1257,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             }
 
             var sqlMandateRepository = new SqlMandateRepository(this.options);
-            Func<Task> act = async () => await sqlMandateRepository.GetCollaboratorByEmail("collaborator@email.com");
+            Func<Task> act = async () => await sqlMandateRepository.GetCollaboratorByEmailAsync("collaborator@email.com");
 
             await act.Should().ThrowAsync<Exception>();
         }

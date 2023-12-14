@@ -315,7 +315,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public async Task GetCollaboratorByEmail()
         {
             var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
-            repository.Setup(r => r.GetCollaboratorByEmail("collab@email.com"))
+            repository.Setup(r => r.GetCollaboratorByEmailAsync("collab@email.com"))
                 .ReturnsAsync(EntityDbFactory.CollaboratorDb)
                 .Verifiable();
 
@@ -332,7 +332,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public async Task GetCollaboratorByEmail_WhenGetCollaboratorByEmailThrow()
         {
             var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
-            repository.Setup(r => r.GetCollaboratorByEmail("collab@email.com"))
+            repository.Setup(r => r.GetCollaboratorByEmailAsync("collab@email.com"))
                 .ThrowsAsync(new Exception("message"))
                 .Verifiable();
 

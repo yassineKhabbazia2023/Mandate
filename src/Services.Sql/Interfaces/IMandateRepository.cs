@@ -80,6 +80,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         /// </returns>
         Task<CompanyDb> GetCompanyByErpIdAsync(string erpId);
 
-        Task<CollaboratorDb> GetCollaboratorByEmail(string collaboratorEmail);
+        /// <summary>
+        /// Asynchronously retrieves a collaborator by his email.
+        /// </summary>
+        /// <param name="collaboratorEmail">The email of the collaborator.</param>
+        /// <returns>The task result contains an instance of <see cref="CollaboratorDb"/> corresponding to the specified email.</returns>
+        Task<CollaboratorDb> GetCollaboratorByEmailAsync(string collaboratorEmail);
     }
 }

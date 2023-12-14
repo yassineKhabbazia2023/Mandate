@@ -58,6 +58,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 address);
         }
 
+        public static Collaborator ToModel(this Sql.CollaboratorDb source)
+        {
+            return new Collaborator(source.Id, source.Email, source.FirstName, source.LastName);
+        }
+
         public static Sql.CollectionQuery ToSql(this CollectionQueryDto source, Guid collaboratorId)
         {
             return new Sql.CollectionQuery
@@ -74,11 +79,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 SortCriteria = (Sql.CollectionSortCriteria)source.SortCriteria,
                 CollaboratorId = collaboratorId,
             };
-        }
-
-        public static Collaborator ToModel(this Sql.CollaboratorDb source)
-        {
-            return new Collaborator(source.Id, source.Email, source.FirstName, source.LastName);
         }
     }
 }

@@ -1217,5 +1217,49 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             await act.Should().ThrowAsync<CompanyNotFoundException>();
         }
+
+        [Fact]
+        public async Task GetCollaboratorByEmail()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            var collab = EntityDbFactory.CollaboratorDb;
+            var collab2 = EntityDbFactory.CollaboratorDb;
+            collab2.Id = new PredictableGuid(105).NewGuid();
+            collab2.Email = "collab2@email.com";
+            await context.Collaborator.AddAsync(collab);
+            await context.Collaborator.AddAsync(collab2);
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+            var res = await sqlMandateRepository.GetCollaboratorByEmail("collab@email.com");
+
+            res.Id.Should().Be(new PredictableGuid(104).NewGuid());
+            res.Email.Should().Be("collab@email.com");
+            res.FirstName.Should().Be("fname");
+            res.LastName.Should().Be("lname");
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task GetCollaboratorByEmail_WhenNoCollab(bool persistCollab)
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            if (persistCollab)
+            {
+                var collab = EntityDbFactory.CollaboratorDb;
+                await context.Collaborator.AddAsync(collab);
+                await context.SaveChangesAsync();
+            }
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+            Func<Task> act = async () => await sqlMandateRepository.GetCollaboratorByEmail("collaborator@email.com");
+
+            await act.Should().ThrowAsync<Exception>();
+        }
     }
 }

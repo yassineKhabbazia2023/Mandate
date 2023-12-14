@@ -391,7 +391,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             var mandateManager = new MandateManager(databaseService.Object, new Mock<ICompanyManager>(MockBehavior.Strict).Object, new Mock<IJeDeclareService>(MockBehavior.Strict).Object, null!);
 
-            var result = await mandateManager.GetAllCollectionsAsync(query).ConfigureAwait(false);
+            var result = await mandateManager.GetAllCollectionsAsync(query);
             result.Should().BeEquivalentTo(pagedMandate);
 
             databaseService.VerifyAll();

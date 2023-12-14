@@ -23,10 +23,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
 
             FormIoSubmissionCollection submission = await this.formioClient.GetSubmissionMandateAsync(
-                bban.BankCode,
-                bban.BranchCode,
-                bban.AccountNumber,
-                bban.CheckDigits,
+                bban?.BankCode!,
+                bban?.BranchCode!,
+                bban?.AccountNumber!,
+                bban?.CheckDigits!,
                 token);
 
             return submission.Submissions.Any() ? submission.ToCollection() : null;

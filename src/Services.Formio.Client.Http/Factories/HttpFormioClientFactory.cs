@@ -1,4 +1,4 @@
-﻿// <copyright file="HttpFormioClientFactory.cs" company="KPMG">
+﻿// <copyright file="HttpFormIoClientFactory.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 

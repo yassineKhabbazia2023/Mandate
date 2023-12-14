@@ -2,10 +2,10 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-using Newtonsoft.Json;
-
 namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Tests
 {
+    using Newtonsoft.Json;
+
     public class FormIoApiExceptionTest
     {
         [Fact]
@@ -55,11 +55,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Tests
             var exception = new FormIoApiException(customMessage, innerException);
 
             string jsonString;
-            FormIoApiException deserializedException;
 
             // Act
             jsonString = JsonConvert.SerializeObject(exception);
-            deserializedException = JsonConvert.DeserializeObject<FormIoApiException>(jsonString!);
+            FormIoApiException? deserializedException = JsonConvert.DeserializeObject<FormIoApiException>(jsonString);
 
             // Assert
             deserializedException?.Message.Should().Be(customMessage);

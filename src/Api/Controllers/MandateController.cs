@@ -109,7 +109,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             catch (ServicesProviderException ex)
             {
                 this.logger.LogError(ex, "[{correlationId}] - There is error when trying to download unsigned mandate [{mandateId}]", correlationId.ToString(), nameof(mandateId));
-                return this.NotFound(new Error("ServicesProviderError", correlationId.ToString(), ex.Message));
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("ServicesProviderError", correlationId.ToString(), ex.Message));
             }
             catch (Exception ex)
             {

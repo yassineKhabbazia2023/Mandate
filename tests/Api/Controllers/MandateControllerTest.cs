@@ -421,10 +421,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var result = await controller.UploadSignedMandateAsync(validMandateId, fileMock.Object);
 
             // Assert
-            var badRequestResult = result as ObjectResult;
+            var badRequestResult = result as BadRequestObjectResult;
             badRequestResult?.StatusCode.Should().Be(400);
             badRequestResult.Should().NotBeNull();
-            badRequestResult.Should().BeOfType<ObjectResult>();
+            badRequestResult.Should().BeOfType<BadRequestObjectResult>();
             mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()), Times.Never);
         }
 
@@ -454,10 +454,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var result = await controller.UploadSignedMandateAsync(validMandateId, null!);
 
             // Assert
-            var badRequestResult = result as ObjectResult;
+            var badRequestResult = result as BadRequestObjectResult;
             badRequestResult?.StatusCode.Should().Be(400);
             badRequestResult.Should().NotBeNull();
-            badRequestResult.Should().BeOfType<ObjectResult>();
+            badRequestResult.Should().BeOfType<BadRequestObjectResult>();
             mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()), Times.Never);
         }
 

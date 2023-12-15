@@ -99,5 +99,31 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             formIoClient.VerifyAll();
         }
+
+        [Fact]
+        public async Task GetSubmissionMandateAsync_When_bban_Null()
+        {
+            Bban bban = new Bban("13507", "00014", "31464482121", "77", "8909440", null);
+            var sub = new FormioSubmissionCollection()
+            {
+                Limit = 1,
+                Skip = 0,
+                Total = 1,
+                Submissions = JsonConvert.DeserializeObject<List<FormioSubmission>>("[]")!,
+            };
+
+            var formIoClient = new Mock<IFormioClient>(MockBehavior.Strict);
+            formIoClient.Setup(item => item.GetSubmissionMandateAsync(null!, null!, null!, null!, It.IsAny<FormioAuthToken>()))
+                .ReturnsAsync(sub)
+                .Verifiable();
+
+            var adapter = new FormioAdapter(formIoClient.Object);
+
+            var res = await adapter.GetSubmissionMandateAsync(null!);
+
+            res.Should().BeNull();
+
+            formIoClient.VerifyAll();
+        }
     }
 }

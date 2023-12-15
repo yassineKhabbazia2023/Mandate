@@ -25,7 +25,7 @@ extends:
     devIndex: ${{ parameters.devIndex }}
     deployType: ${{ parameters.deployType }}
     layer: Domain
-    domain: mandate
+    domain: mdt
     resource:
       id: '01'
       name: 'mandate'

@@ -1,4 +1,4 @@
-﻿// <copyright file="FormIoExtensions.cs" company="KPMG">
+﻿// <copyright file="FormioExtensions.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -9,11 +9,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client;
     using Newtonsoft.Json;
 
-    public static class FormIoExtensions
+    public static class FormioExtensions
     {
-        public static Collection ToCollection(this FormIoSubmissionCollection source)
+        public static Collection ToCollection(this FormioSubmissionCollection source)
         {
-            FormIoSubmission mandate = source.Submissions.SingleOrDefault() !;
+            FormioSubmission mandate = source.Submissions.SingleOrDefault() !;
             var node = JsonNode.Parse(JsonConvert.SerializeObject(mandate)) !.AsObject();
             var data = node["data"];
             var headOffice = data?["headOffice"];

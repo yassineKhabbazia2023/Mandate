@@ -1,4 +1,4 @@
-﻿// <copyright file="FormIoExtensionsTest.cs" company="KPMG">
+﻿// <copyright file="FormioExtensionsTest.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -6,19 +6,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client;
 
-    public class FormIoExtensionsTest
+    public class FormioExtensionsTest
     {
         [Fact]
         public void ToCollection()
         {
-            var entity = new FormIoSubmissionCollection()
+            var entity = new FormioSubmissionCollection()
             {
                 Limit = 1,
                 Skip = 2,
                 Total = 3,
-                Submissions = new List<FormIoSubmission>()
+                Submissions = new List<FormioSubmission>()
                 {
-                    new FormIoSubmission
+                    new FormioSubmission
                     {
                         Id = "id",
                         Owner = string.Empty,
@@ -69,14 +69,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         [Fact]
         public void ToCollection_When_NoHeadOffice()
         {
-            var entity = new FormIoSubmissionCollection()
+            var entity = new FormioSubmissionCollection()
             {
                 Limit = 1,
                 Skip = 2,
                 Total = 3,
-                Submissions = new List<FormIoSubmission>()
+                Submissions = new List<FormioSubmission>()
                 {
-                    new FormIoSubmission
+                    new FormioSubmission
                     {
                         Id = "id",
                         Owner = string.Empty,

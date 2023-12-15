@@ -351,7 +351,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 new DateTime(2019, 10, 10),
                 new Status(CollectionStatus.ToDo, "En Cours"));
 
-            var formIoManager = new Mock<IFormIoManager>(MockBehavior.Strict);
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
             formIoManager.Setup(item =>
                 item.GetCollectionByBban(
                     It.Is<Bban>(b =>
@@ -393,7 +393,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 
             Collection? collection = null;
 
-            var formIoManager = new Mock<IFormIoManager>(MockBehavior.Strict);
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
             formIoManager.Setup(item =>
                 item.GetCollectionByBban(
                     It.Is<Bban>(b =>
@@ -429,7 +429,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 
             var guidGenerator = new Mock<IGuidGenerator>();
 
-            var formIoManager = new Mock<IFormIoManager>(MockBehavior.Strict);
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
             formIoManager.Setup(item =>
                 item.GetCollectionByBban(
                     It.Is<Bban>(b =>

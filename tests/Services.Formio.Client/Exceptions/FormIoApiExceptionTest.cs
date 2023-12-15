@@ -1,4 +1,4 @@
-﻿// <copyright file="FormIoApiExceptionTest.cs" company="KPMG">
+﻿// <copyright file="FormioApiExceptionTest.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -6,16 +6,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Tests
 {
     using Newtonsoft.Json;
 
-    public class FormIoApiExceptionTest
+    public class FormioApiExceptionTest
     {
         [Fact]
         public void DefaultConstructor_ShouldInstantiateWithDefaultMessage()
         {
             // Act
-            var exception = new FormIoApiException();
+            var exception = new FormioApiException();
 
             // Assert
-            exception.Message.Should().Be("Exception of type 'KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.FormIoApiException' was thrown.");
+            exception.Message.Should().Be("Exception of type 'KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.FormioApiException' was thrown.");
         }
 
         [Fact]
@@ -25,7 +25,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Tests
             var customMessage = "Custom error message";
 
             // Act
-            var exception = new FormIoApiException(customMessage);
+            var exception = new FormioApiException(customMessage);
 
             // Assert
             exception.Message.Should().Be(customMessage);
@@ -39,7 +39,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Tests
             var innerException = new Exception("Inner exception message");
 
             // Act
-            var exception = new FormIoApiException(customMessage, innerException);
+            var exception = new FormioApiException(customMessage, innerException);
 
             // Assert
             exception.Message.Should().Be(customMessage);
@@ -52,13 +52,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Tests
             // Arrange
             var customMessage = "Custom error message";
             var innerException = new Exception("Inner exception message");
-            var exception = new FormIoApiException(customMessage, innerException);
+            var exception = new FormioApiException(customMessage, innerException);
 
             string jsonString;
 
             // Act
             jsonString = JsonConvert.SerializeObject(exception);
-            FormIoApiException? deserializedException = JsonConvert.DeserializeObject<FormIoApiException>(jsonString);
+            FormioApiException? deserializedException = JsonConvert.DeserializeObject<FormioApiException>(jsonString);
 
             // Assert
             deserializedException?.Message.Should().Be(customMessage);

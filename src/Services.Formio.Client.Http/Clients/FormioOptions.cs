@@ -1,10 +1,10 @@
-﻿// <copyright file="FormIoOptions.cs" company="KPMG">
+﻿// <copyright file="FormioOptions.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 {
-    public class FormIoOptions
+    public class FormioOptions
     {
         /// <summary>
         /// The '/' delimiter.
@@ -45,12 +45,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
         {
             if (this.BaseUri is null)
             {
-                throw new InvalidOperationException($"Instance of {nameof(FormIoOptions)} is invalid, {nameof(FormIoOptions.BaseUri)} is null");
+                throw new InvalidOperationException($"Instance of {nameof(FormioOptions)} is invalid, {nameof(FormioOptions.BaseUri)} is null");
             }
 
             if (string.IsNullOrEmpty(this.FormioApiKey))
             {
-                throw new InvalidOperationException($"Instance of {nameof(FormIoOptions)} is invalid, {nameof(FormIoOptions.FormioApiKey)} is null");
+                throw new InvalidOperationException($"Instance of {nameof(FormioOptions)} is invalid, {nameof(FormioOptions.FormioApiKey)} is null");
             }
         }
 

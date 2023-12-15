@@ -1,12 +1,12 @@
-﻿// <copyright file="FormIoAuthToken.cs" company="KPMG">
+﻿// <copyright file="FormioAuthToken.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client
 {
-    public class FormIoAuthToken
+    public class FormioAuthToken
     {
-        public FormIoTokenType Type { get; set; }
+        public FormioTokenType Type { get; set; }
 
         public string Value { get; set; } = null!;
     }

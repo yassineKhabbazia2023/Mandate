@@ -1,4 +1,4 @@
-﻿// <copyright file="HttpFormIoClientFactory.cs" company="KPMG">
+﻿// <copyright file="HttpFormioClientFactory.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -7,12 +7,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
     using Kpmg.Constellation.Net.Http;
     using Microsoft.Extensions.Options;
 
-    public class HttpFormIoClientFactory : IFormIoClientFactory
+    public class HttpFormioClientFactory : IFormioClientFactory
     {
-        private readonly IOptions<FormIoOptions> options;
+        private readonly IOptions<FormioOptions> options;
         private readonly IHttpClientFactory factory;
 
-        public HttpFormIoClientFactory(IOptions<FormIoOptions> options, IHttpClientFactory factory)
+        public HttpFormioClientFactory(IOptions<FormioOptions> options, IHttpClientFactory factory)
         {
             this.options = options ?? throw new ArgumentNullException(nameof(options));
             this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
@@ -29,7 +29,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
             return client;
         }
 
-        public IHttpClient Create(FormIoAuthToken authToken)
+        public IHttpClient Create(FormioAuthToken authToken)
         {
             var client = this.factory.Create(this.options.Value.BaseUri);
 
@@ -38,10 +38,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
             switch (authToken.Type)
             {
-                case FormIoTokenType.User:
+                case FormioTokenType.User:
                     client.DefaultRequestHeaders.Add("x-jwt-token", authToken.Value);
                     break;
-                case FormIoTokenType.App:
+                case FormioTokenType.App:
                     client.DefaultRequestHeaders.Add("x-token", this.options.Value.FormioApiKey);
                     break;
             }

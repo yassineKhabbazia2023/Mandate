@@ -1,4 +1,4 @@
-﻿// <copyright file="IFormIoClientFactory.cs" company="KPMG">
+﻿// <copyright file="IFormioClientFactory.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -6,10 +6,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client
 {
     using Kpmg.Constellation.Net.Http;
 
-    public interface IFormIoClientFactory
+    public interface IFormioClientFactory
     {
         IHttpClient Create();
 
-        IHttpClient Create(FormIoAuthToken authToken);
+        IHttpClient Create(FormioAuthToken authToken);
     }
 }

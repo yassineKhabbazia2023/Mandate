@@ -1,14 +1,14 @@
-﻿// <copyright file="FormIoManager.cs" company="KPMG">
+﻿// <copyright file="FormioManager.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
-    public class FormIoManager : IFormIoManager
+    public class FormioManager : IFormioManager
     {
-        private readonly IFormIoService formIoService;
+        private readonly IFormioService formIoService;
 
-        public FormIoManager(IFormIoService formIoService)
+        public FormioManager(IFormioService formIoService)
         {
             this.formIoService = formIoService;
         }

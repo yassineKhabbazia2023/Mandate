@@ -1,4 +1,4 @@
-﻿// <copyright file="HttpFormIoClientTestIntegrationTest.cs" company="KPMG">
+﻿// <copyright file="HttpFormioClientTestIntegrationTest.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -13,12 +13,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
-    public class HttpFormIoClientTestIntegrationTest
+    public class HttpFormioClientTestIntegrationTest
     {
         [Fact(Skip = "Integration Test")]
         public async Task GetSubmissions_IntegrationTest()
         {
-            var options = Options.Create(new FormIoOptions()
+            var options = Options.Create(new FormioOptions()
             {
                 BaseUri = new Uri("https://cst-d2-formio-api.azurewebsites.net/"),
                 FormioApiKey = "eNnPcMqUZhgY4Pz7bdiewTz8KlGQG4",
@@ -39,16 +39,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var auth = new FormIoAuthToken()
+            var auth = new FormioAuthToken()
             {
-                Type = FormIoTokenType.App,
+                Type = FormioTokenType.App,
             };
-            var formioFactory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
+            var formioFactory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
             formioFactory.Setup(f => f.Create(auth))
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -56,7 +56,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormIoClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
 
             var result = await formioClient.GetSubmissionsAsync("demandemandat", 0, 20, auth);
 
@@ -67,7 +67,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
         [Fact(Skip = "Integration Test")]
         public async Task CheckJdcPartnerBank_IntegrationTest()
         {
-            var options = Options.Create(new FormIoOptions()
+            var options = Options.Create(new FormioOptions()
             {
                 BaseUri = new Uri("https://cst-d2-formio-api.azurewebsites.net/"),
             });
@@ -86,12 +86,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var formioFactory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
+            var formioFactory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
             formioFactory.Setup(f => f.Create())
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -99,7 +99,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormIoClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
 
             var result = await formioClient.CheckJdcPartnerBankAsync("jdcsupportedbanks", "30004");
 
@@ -112,7 +112,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
         [Fact(Skip = "Integration Test")]
         public async Task CheckMadateDematSupported_IntegrationTest()
         {
-            var options = Options.Create(new FormIoOptions()
+            var options = Options.Create(new FormioOptions()
             {
                 BaseUri = new Uri("https://cst-d2-formio-api.azurewebsites.net/"),
                 FormioApiKey = "eNnPcMqUZhgY4Pz7bdiewTz8KlGQG4",
@@ -132,12 +132,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var formioFactory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
+            var formioFactory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
             formioFactory.Setup(f => f.Create())
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -145,7 +145,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormIoClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
 
             var result = await formioClient.CheckMadateDematSupportedAsync("jdcsupportedbanks", "30004");
 
@@ -155,7 +155,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
         [Fact(Skip = "Integration Test")]
         public async Task CheckCollecteConfigExist_IntegrationTest()
         {
-            var options = Options.Create(new FormIoOptions()
+            var options = Options.Create(new FormioOptions()
             {
                 BaseUri = new Uri("https://cst-d2-formio-api.azurewebsites.net/"),
                 FormioApiKey = "eNnPcMqUZhgY4Pz7bdiewTz8KlGQG4",
@@ -176,17 +176,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var auth = new FormIoAuthToken()
+            var auth = new FormioAuthToken()
             {
-                Type = FormIoTokenType.App,
+                Type = FormioTokenType.App,
             };
 
-            var formioFactory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
+            var formioFactory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
             formioFactory.Setup(f => f.Create(auth))
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -194,7 +194,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormIoClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
 
             var result = await formioClient.CheckCollecteConfigExistAsync("demandemandat", "30004", "00000000014", "00818", auth);
 
@@ -204,7 +204,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
         [Fact(Skip = "Integration Test")]
         public async Task GetTemplateShemaAsync_IntegrationTest()
         {
-            var options = Options.Create(new FormIoOptions()
+            var options = Options.Create(new FormioOptions()
             {
                 BaseUri = new Uri("https://cst-d2-formio-api.azurewebsites.net/"),
                 FormioApiKey = "eNnPcMqUZhgY4Pz7bdiewTz8KlGQG4",
@@ -225,17 +225,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var auth = new FormIoAuthToken()
+            var auth = new FormioAuthToken()
             {
-                Type = FormIoTokenType.App,
+                Type = FormioTokenType.App,
             };
 
-            var formioFactory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
+            var formioFactory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
             formioFactory.Setup(f => f.Create(auth))
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -243,7 +243,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormIoClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
 
             var result = await formioClient.GetTemplateShemaAsync("5ce57e521c42f37327ab37ab", "30004", auth);
 
@@ -253,7 +253,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
         [Fact(Skip = "Integration Test")]
         public async Task GetSubmissionByIdAsync_IntegrationTest()
         {
-            var options = Options.Create(new FormIoOptions()
+            var options = Options.Create(new FormioOptions()
             {
                 BaseUri = new Uri("https://cst-d2-formio-api.azurewebsites.net/"),
                 FormioApiKey = "eNnPcMqUZhgY4Pz7bdiewTz8KlGQG4",
@@ -274,16 +274,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var auth = new FormIoAuthToken()
+            var auth = new FormioAuthToken()
             {
-                Type = FormIoTokenType.App,
+                Type = FormioTokenType.App,
             };
-            var formioFactory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
+            var formioFactory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
             formioFactory.Setup(f => f.Create(auth))
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -291,7 +291,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormIoClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
 
             var result = await formioClient.GetSubmissionByIdAsync("demandemandat", "5dd29cae73ff997779932250", auth);
 
@@ -302,7 +302,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
         [Fact(Skip = "Integration Test")]
         public async Task GetProjectDefinitionAsync_IntegrationTest()
         {
-            var options = Options.Create(new FormIoOptions()
+            var options = Options.Create(new FormioOptions()
             {
                 BaseUri = new Uri("https://cst-d2-formio-api.azurewebsites.net/"),
                 FormioApiKey = "eNnPcMqUZhgY4Pz7bdiewTz8KlGQG4",
@@ -323,16 +323,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var auth = new FormIoAuthToken()
+            var auth = new FormioAuthToken()
             {
-                Type = FormIoTokenType.App,
+                Type = FormioTokenType.App,
             };
-            var formioFactory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
+            var formioFactory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
             formioFactory.Setup(f => f.Create(auth))
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -340,7 +340,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormIoClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
 
             var result = await formioClient.GetProjectDefinitionAsync("5ce57e521c42f37327ab37ab", auth);
 
@@ -353,7 +353,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
         {
             var fileToken = "aJVYt4fi8mA5p0IgvIUsXQkzKbNCql";
 
-            var options = Options.Create(new FormIoOptions()
+            var options = Options.Create(new FormioOptions()
             {
                 BaseUri = new Uri("https://cst-d2-formio-api.azurewebsites.net/"),
             });
@@ -407,12 +407,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             client.Setup(c => c.Dispose())
                 .Verifiable();
 
-            var formioFactory = new Mock<IFormIoClientFactory>(MockBehavior.Strict);
+            var formioFactory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
             formioFactory.Setup(f => f.Create())
                 .Returns(client.Object)
                 .Verifiable();
 
-            var logger = new Mock<ILogger<HttpFormIoClient>>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
             logger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
@@ -420,7 +420,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormIoClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
 
             var result = await formioClient.DownloadSubmissionAsPDFWithTemplate(form, data, downloadUrl, fileToken);
 
@@ -432,12 +432,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
         [Fact(Skip = "Integration Test")]
         public async Task IntegrationTest()
         {
-            var auth = new FormIoAuthToken()
+            var auth = new FormioAuthToken()
             {
-                Type = FormIoTokenType.App,
+                Type = FormioTokenType.App,
             };
 
-            var formioOptions = new FormIoOptions()
+            var formioOptions = new FormioOptions()
             {
                 BaseUri = new Uri("https://cst-d2-formio-api.azurewebsites.net/"),
                 FormioApiKey = "eNnPcMqUZhgY4Pz7bdiewTz8KlGQG4",
@@ -478,9 +478,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var factory = new HttpFormIoClientFactory(options, clientFactory.Object);
+            var factory = new HttpFormioClientFactory(options, clientFactory.Object);
 
-            var formioClient = new HttpFormIoClient((new NullLoggerFactory() as ILoggerFactory).CreateLogger<HttpFormIoClient>(), factory);
+            var formioClient = new HttpFormioClient((new NullLoggerFactory() as ILoggerFactory).CreateLogger<HttpFormioClient>(), factory);
 
             var result = await formioClient.CheckCollecteConfigExistAsync("demandemandat", "30004", "00000000014", "00818", auth);
 

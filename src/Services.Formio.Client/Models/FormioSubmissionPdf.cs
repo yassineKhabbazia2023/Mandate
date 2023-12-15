@@ -1,10 +1,10 @@
-﻿// <copyright file="FormIoSubmissionPdf.cs" company="KPMG">
+﻿// <copyright file="FormioSubmissionPdf.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client
 {
-    public class FormIoSubmissionPdf
+    public class FormioSubmissionPdf
     {
         public string Id { get; set; } = null!;
 

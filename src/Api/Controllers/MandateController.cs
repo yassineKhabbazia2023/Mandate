@@ -16,10 +16,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     {
         private readonly ILogger<MandateController> logger;
         private readonly IMandateManager mandateManager;
-        private readonly IFormIoManager formIoManager;
+        private readonly IFormioManager formIoManager;
         private readonly IGuidGenerator guidGenerator;
 
-        public MandateController(ILogger<MandateController> logger, IMandateManager mandateManager, IFormIoManager formIoManager, IGuidGenerator guidGenerator)
+        public MandateController(ILogger<MandateController> logger, IMandateManager mandateManager, IFormioManager formIoManager, IGuidGenerator guidGenerator)
         {
             this.logger = logger;
             this.mandateManager = mandateManager;

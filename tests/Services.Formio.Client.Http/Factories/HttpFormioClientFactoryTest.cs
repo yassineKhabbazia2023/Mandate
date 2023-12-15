@@ -1,4 +1,4 @@
-﻿// <copyright file="HttpFormIoClientFactoryTest.cs" company="KPMG">
+﻿// <copyright file="HttpFormioClientFactoryTest.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -6,7 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 {
     using Microsoft.Extensions.Options;
 
-    public class HttpFormIoClientFactoryTest
+    public class HttpFormioClientFactoryTest
     {
         [Fact]
         public void Constructor_CaseOptionsIsNull()
@@ -15,7 +15,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             Action act = () =>
             {
-                _ = new HttpFormIoClientFactory(null!, factory.Object);
+                _ = new HttpFormioClientFactory(null!, factory.Object);
             };
 
             act.Should().Throw<ArgumentNullException>();
@@ -24,7 +24,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
         [Fact]
         public void Constructor_CaseFactoryIsNull()
         {
-            var options = new FormIoOptions()
+            var options = new FormioOptions()
             {
                 BaseUri = new Uri("https://toto.com"),
                 FormioApiKey = "formioApiKeyT",
@@ -34,7 +34,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             Action act = () =>
             {
-                _ = new HttpFormIoClientFactory(formioOptions, null !);
+                _ = new HttpFormioClientFactory(formioOptions, null !);
             };
 
             act.Should().Throw<ArgumentNullException>();
@@ -43,7 +43,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
         [Fact]
         public void Create()
         {
-            var options = new FormIoOptions()
+            var options = new FormioOptions()
             {
                 BaseUri = new Uri("https://toto.com"),
                 FormioApiKey = "formioApiKeyT",
@@ -68,7 +68,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var httpFormioclientFactory = new HttpFormIoClientFactory(formioOptions, factory.Object);
+            var httpFormioclientFactory = new HttpFormioClientFactory(formioOptions, factory.Object);
             var httpClient = httpFormioclientFactory.Create();
 
             client.VerifyAll();
@@ -78,7 +78,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
         [Fact]
         public void Create_CaseUserAuthToken()
         {
-            var options = new FormIoOptions()
+            var options = new FormioOptions()
             {
                 BaseUri = new Uri("https://toto.com"),
                 FormioApiKey = "formioApiKeyT",
@@ -105,10 +105,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var httpFormioclientFactory = new HttpFormIoClientFactory(formioOptions, factory.Object);
-            var formioAuthToken = new FormIoAuthToken()
+            var httpFormioclientFactory = new HttpFormioClientFactory(formioOptions, factory.Object);
+            var formioAuthToken = new FormioAuthToken()
             {
-                Type = FormIoTokenType.User,
+                Type = FormioTokenType.User,
                 Value = "valueT",
             };
 
@@ -123,7 +123,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
         [Fact]
         public void Create_CaseAppAuthToken()
         {
-            var options = new FormIoOptions()
+            var options = new FormioOptions()
             {
                 BaseUri = new Uri("https://toto.com"),
                 FormioApiKey = "formioApiKeyT",
@@ -150,10 +150,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 .Returns(client.Object)
                 .Verifiable();
 
-            var httpFormioclientFactory = new HttpFormIoClientFactory(formioOptions, factory.Object);
-            var formioAuthToken = new FormIoAuthToken()
+            var httpFormioclientFactory = new HttpFormioClientFactory(formioOptions, factory.Object);
+            var formioAuthToken = new FormioAuthToken()
             {
-                Type = FormIoTokenType.App,
+                Type = FormioTokenType.App,
                 Value = "valueM",
             };
 

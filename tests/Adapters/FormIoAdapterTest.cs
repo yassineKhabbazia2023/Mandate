@@ -1,4 +1,4 @@
-﻿// <copyright file="FormIoAdapterTest.cs" company="KPMG">
+﻿// <copyright file="FormioAdapterTest.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -7,7 +7,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client;
     using Newtonsoft.Json;
 
-    public class FormIoAdapterTest
+    public class FormioAdapterTest
     {
         [Fact]
         public async Task GetSubmissionMandateAsync()
@@ -45,20 +45,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 modified: ""2019-10-10T08:54:03.000Z""
             }]";
 
-            var sub = new FormIoSubmissionCollection()
+            var sub = new FormioSubmissionCollection()
             {
                 Limit = 1,
                 Skip = 0,
                 Total = 1,
-                Submissions = JsonConvert.DeserializeObject<List<FormIoSubmission>>(data) !,
+                Submissions = JsonConvert.DeserializeObject<List<FormioSubmission>>(data) !,
             };
 
-            var formIoClient = new Mock<IFormIoClient>(MockBehavior.Strict);
-            formIoClient.Setup(item => item.GetSubmissionMandateAsync("13507", "00014", "31464482121", "77", It.IsAny<FormIoAuthToken>()))
+            var formIoClient = new Mock<IFormioClient>(MockBehavior.Strict);
+            formIoClient.Setup(item => item.GetSubmissionMandateAsync("13507", "00014", "31464482121", "77", It.IsAny<FormioAuthToken>()))
                 .ReturnsAsync(sub)
                 .Verifiable();
 
-            var adapter = new FormIoAdapter(formIoClient.Object);
+            var adapter = new FormioAdapter(formIoClient.Object);
 
             var res = await adapter.GetSubmissionMandateAsync(bban);
 
@@ -78,20 +78,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public async Task GetSubmissionMandateAsync_When_GetSubmissionMandateAsync_Return_NoResult()
         {
             Bban bban = new Bban("13507", "00014", "31464482121", "77", "8909440", null);
-            var sub = new FormIoSubmissionCollection()
+            var sub = new FormioSubmissionCollection()
             {
                 Limit = 1,
                 Skip = 0,
                 Total = 1,
-                Submissions = JsonConvert.DeserializeObject<List<FormIoSubmission>>("[]") !,
+                Submissions = JsonConvert.DeserializeObject<List<FormioSubmission>>("[]") !,
             };
 
-            var formIoClient = new Mock<IFormIoClient>(MockBehavior.Strict);
-            formIoClient.Setup(item => item.GetSubmissionMandateAsync("13507", "00014", "31464482121", "77", It.IsAny<FormIoAuthToken>()))
+            var formIoClient = new Mock<IFormioClient>(MockBehavior.Strict);
+            formIoClient.Setup(item => item.GetSubmissionMandateAsync("13507", "00014", "31464482121", "77", It.IsAny<FormioAuthToken>()))
                 .ReturnsAsync(sub)
                 .Verifiable();
 
-            var adapter = new FormIoAdapter(formIoClient.Object);
+            var adapter = new FormioAdapter(formIoClient.Object);
 
             var res = await adapter.GetSubmissionMandateAsync(bban);
 

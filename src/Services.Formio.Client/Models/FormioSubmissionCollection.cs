@@ -1,4 +1,4 @@
-﻿// <copyright file="FormIoSubmissionCollection.cs" company="KPMG">
+﻿// <copyright file="FormioSubmissionCollection.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -7,15 +7,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client
     using Newtonsoft.Json;
 
     [JsonObject]
-    public class FormIoSubmissionCollection
+    public class FormioSubmissionCollection
     {
-        public FormIoSubmissionCollection()
+        public FormioSubmissionCollection()
         {
-            this.Submissions = new List<FormIoSubmission> { };
+            this.Submissions = new List<FormioSubmission> { };
         }
 
         [JsonProperty("data")]
-        public List<FormIoSubmission> Submissions { get; set; }
+        public List<FormioSubmission> Submissions { get; set; }
 
         [JsonProperty("limit")]
         public int Limit { get; set; }

@@ -1,4 +1,4 @@
-﻿// <copyright file="FormIoAdapter.cs" company="KPMG">
+﻿// <copyright file="FormioAdapter.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -6,23 +6,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client;
 
-    public class FormIoAdapter : IFormIoService
+    public class FormioAdapter : IFormioService
     {
-        private readonly IFormIoClient formioClient;
+        private readonly IFormioClient formioClient;
 
-        public FormIoAdapter(IFormIoClient formioClient)
+        public FormioAdapter(IFormioClient formioClient)
         {
             this.formioClient = formioClient;
         }
 
         public async Task<Collection?> GetSubmissionMandateAsync(Bban bban)
         {
-            FormIoAuthToken token = new FormIoAuthToken()
+            FormioAuthToken token = new FormioAuthToken()
             {
-                Type = FormIoTokenType.App,
+                Type = FormioTokenType.App,
             };
 
-            FormIoSubmissionCollection submission = await this.formioClient.GetSubmissionMandateAsync(
+            FormioSubmissionCollection submission = await this.formioClient.GetSubmissionMandateAsync(
                 bban?.BankCode!,
                 bban?.BranchCode!,
                 bban?.AccountNumber!,

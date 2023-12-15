@@ -109,7 +109,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 Limit = 1,
                 Skip = 0,
                 Total = 1,
-                Submissions = JsonConvert.DeserializeObject<List<FormioSubmission>>("[]")!,
+                Submissions = JsonConvert.DeserializeObject<List<FormioSubmission>>("[]") !,
             };
 
             var formIoClient = new Mock<IFormioClient>(MockBehavior.Strict);

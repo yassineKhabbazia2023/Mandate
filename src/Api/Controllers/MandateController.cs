@@ -111,8 +111,36 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [HttpGet("{mandateId}/signed")]
         public async Task<IActionResult> DownloadSignedAsync([FromRoute] string mandateId)
         {
-            await Task.CompletedTask;
-            return this.Ok(); // TODO
+            var correlationId = this.guidGenerator.NewGuid();
+            try
+            {
+                // Assuming you have your file data as byte[]
+                byte[] fileData = await this.mandateManager.DownloadSignedAsync(Guid.Parse(mandateId));
+
+                // Get the file type (MIME type)
+                var contentType = "application/pdf";
+
+                // Set a file download name (optional)
+                var fileName = $"unsigned-mandate-{mandateId}.pdf";
+
+                // Return the file
+                return this.File(fileData, contentType, fileName);
+            }
+            catch (Sql.CollectionNotFoundException ex)
+            {
+                this.logger.LogError("[{correlationId}] - There is no mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                return this.NotFound(new Error("CollectionNotFound", correlationId.ToString(), ex.Message));
+            }
+            catch (FolderIdEmptyOrNullException ex)
+            {
+                this.logger.LogError("[{correlationId}] - There is no folderId in the mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                return this.NotFound(new Error("FolderIdEmptyOrNull", correlationId.ToString(), ex.Message));
+            }
+            catch (RibIdEmptyOrNullException ex)
+            {
+                this.logger.LogError("[{correlationId}] - There is no ridId in the mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                return this.NotFound(new Error("RibIdEmptyOrNull", correlationId.ToString(), ex.Message));
+            }
         }
 
         [HttpPost("{mandateId}/signed")]

@@ -7,6 +7,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
     using System;
     using System.Net;
     using System.Net.Http;
+    using System.Net.Http.Headers;
     using System.Text;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
@@ -95,6 +96,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
         public async Task<byte[]> GetMandatPdfAsync(string jdcFolderId, string jdcRibId)
         {
             using var client = this.factory.Create();
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/*"));
 
             var jdcCompteId = this.options.Value.JdcCompteId;
             var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/rib/{jdcRibId}/mandat";
@@ -362,7 +365,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
         private byte[] DeleteFirstPageMandatPdf(MemoryStream mandat)
         {
             // TODO Aspose
-           throw new NotImplementedException();
+            return mandat.ToArray();
         }
     }
 }

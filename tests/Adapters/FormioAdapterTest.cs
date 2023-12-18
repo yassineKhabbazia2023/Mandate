@@ -58,7 +58,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 .ReturnsAsync(sub)
                 .Verifiable();
 
-            var adapter = new FormioAdapters(formIoClient.Object);
+            var adapter = new FormioAdapter(formIoClient.Object);
 
             var res = await adapter.GetSubmissionMandateAsync(bban);
 
@@ -91,7 +91,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 .ReturnsAsync(sub)
                 .Verifiable();
 
-            var adapter = new FormioAdapters(formIoClient.Object);
+            var adapter = new FormioAdapter(formIoClient.Object);
 
             var res = await adapter.GetSubmissionMandateAsync(bban);
 
@@ -117,7 +117,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 .ReturnsAsync(sub)
                 .Verifiable();
 
-            var adapter = new FormioAdapters(formIoClient.Object);
+            var adapter = new FormioAdapter(formIoClient.Object);
 
             var res = await adapter.GetSubmissionMandateAsync(null!);
 

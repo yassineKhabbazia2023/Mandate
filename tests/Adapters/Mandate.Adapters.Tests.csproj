@@ -13,7 +13,6 @@
 		<ProjectReference Include="..\..\src\Services.Formio.Client.Http\Mandate.Formio.Client.Http.csproj" />
 		<ProjectReference Include="..\..\src\Services.Formio.Client\Mandate.Formio.Client.csproj" />
 		<ProjectReference Include="..\..\src\Services.Portal\Mandate.Portal.csproj" />
-		<ProjectReference Include="..\Application\Mandate.Application.Tests.csproj" />
 		<ProjectReference Include="..\Tools\Mandate.Tools.Tests.csproj" />
 		<ProjectReference Include="..\..\src\Services.JeDeclare.Client.Http\Mandate.JeDeclare.Client.Http.csproj" />
 		<ProjectReference Include="..\..\src\Services.Mongo.Implementation\Mandate.Mongo.Implementation.csproj" />

@@ -62,9 +62,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var collectionId = new PredictableGuid().NewGuid();
             var companyId = new PredictableGuid().NewGuid();
 
-            var company = TestHelper.GetCompany(companyId, "bankServicesProviderId");
-            Bban bban = TestHelper.GetBban("ebicsCardId", false);
-            Status status = TestHelper.GetStatus();
+            var company = EntityFactory.Company;
+            Bban bban = EntityFactory.Bban;
+            Status status = EntityFactory.Status();
 
             var collection = new Collection(
                 collectionId,
@@ -78,9 +78,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
 
             var bankServicesProviderId = collection.Company?.BankServicesProviderId;
-            var ebicsCardId = collection.Bban?.Bank?.EbicsCardId;
+            var bbanServicesProviderId = collection.Bban?.BbanServicesProviderId;
 
-            jedeclareClient.Setup(c => c.UploadSignedMandat(bankServicesProviderId!, ebicsCardId!, It.IsAny<byte[]>()))
+            jedeclareClient.Setup(c => c.UploadSignedMandat(bankServicesProviderId!, bbanServicesProviderId!, It.IsAny<byte[]>()))
                 .ReturnsAsync("signedMandateId")
                 .Verifiable();
 
@@ -88,7 +88,42 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var result = await adapter.UploadSignedMandate(collection, mandateFile);
 
             result.Should().BeEquivalentTo("signedMandateId");
-            jedeclareClient.Verify(client => client.UploadSignedMandat(bankServicesProviderId!, ebicsCardId!, mandateFile), Times.Once);
+            jedeclareClient.Verify(client => client.UploadSignedMandat(bankServicesProviderId!, bbanServicesProviderId!, mandateFile), Times.Once);
+        }
+
+        [Fact]
+        public async Task UploadSignedMandate_WithValidInputs_ThrowJeDeclareApiException()
+        {
+            var collectionId = new PredictableGuid().NewGuid();
+            var companyId = new PredictableGuid().NewGuid();
+
+            var company = EntityFactory.Company;
+            Bban bban = EntityFactory.Bban;
+            Status status = EntityFactory.Status();
+
+            var collection = new Collection(
+                collectionId,
+                "yourServiceProviderId",
+                company,
+                bban,
+                DateTime.Now,
+                DateTime.Now,
+                status);
+            var mandateFile = new byte[] { 1, 2, 3, 4, 5 };
+            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+
+            var bankServicesProviderId = collection.Company?.BankServicesProviderId;
+            var bbanServicesProviderId = collection.Bban?.BbanServicesProviderId;
+
+            jedeclareClient.Setup(c => c.UploadSignedMandat(bankServicesProviderId!, bbanServicesProviderId!, It.IsAny<byte[]>()))
+                  .ThrowsAsync(new JeDeclareApiException("message"))
+                  .Verifiable();
+
+            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            Func<Task> action = async () => await adapter.UploadSignedMandate(collection, mandateFile);
+            await action.Should().ThrowAsync<ServicesProviderException>().WithMessage("message");
+
+            jedeclareClient.Verify(client => client.UploadSignedMandat(bankServicesProviderId!, bbanServicesProviderId!, mandateFile), Times.Once);
         }
     }
 }

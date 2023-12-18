@@ -151,6 +151,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 this.logger.LogError(ex, "MandateAPI - {correlationId} - Invalid file type", correlationId);
                 return this.BadRequest(new Error("InvalidFileType", correlationId, ex.Message));
             }
+            catch (ServicesProviderException ex)
+            {
+                this.logger.LogError(ex, "[{correlationId}] - There is error when trying to upload signed mandate [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("ServicesProviderError", correlationId.ToString(), ex.Message));
+            }
             catch (Exception ex)
             {
                 this.logger.LogError(ex, "MandateAPI - {correlationId} - UploadSignedAsync", correlationId);

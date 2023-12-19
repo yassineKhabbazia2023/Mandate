@@ -4,6 +4,7 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
+    using Aspose.Pdf.Operators;
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using Microsoft.AspNetCore.Authorization;
@@ -93,18 +94,28 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             }
             catch (Sql.CollectionNotFoundException ex)
             {
-                this.logger.LogError("[{correlationId}] - There is no mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                this.logger.LogError(ex, "[{correlationId}] - There is no mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
                 return this.NotFound(new Error("CollectionNotFound", correlationId.ToString(), ex.Message));
             }
             catch (FolderIdEmptyOrNullException ex)
             {
-                this.logger.LogError("[{correlationId}] - There is no folderId in the mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                this.logger.LogError(ex, "[{correlationId}] - There is no folderId in the mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
                 return this.NotFound(new Error("FolderIdEmptyOrNull", correlationId.ToString(), ex.Message));
             }
             catch (RibIdEmptyOrNullException ex)
             {
-                this.logger.LogError("[{correlationId}] - There is no ridId in the mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                this.logger.LogError(ex, "[{correlationId}] - There is no ridId in the mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
                 return this.NotFound(new Error("RibIdEmptyOrNull", correlationId.ToString(), ex.Message));
+            }
+            catch (ServicesProviderException ex)
+            {
+                this.logger.LogError(ex, "[{correlationId}] - There is error when trying to download unsigned mandate [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("ServicesProviderError", correlationId.ToString(), ex.Message));
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "[{correlationId}] - [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("Exception", correlationId.ToString(), ex.Message));
             }
         }
 
@@ -145,10 +156,39 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
         [HttpPost("{mandateId}/signed")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadSignedAsync([FromRoute] string mandateId, [FromForm] IFormFile file)
+        public async Task<IActionResult> UploadSignedMandateAsync([FromRoute] string mandateId, [FromForm] IFormFile file)
         {
-            await Task.CompletedTask;
-            return this.NoContent(); // TODO
+            var correlationId = "0"; // TODO
+            if (!Guid.TryParse(mandateId, out var parsedMandateId))
+            {
+                return this.BadRequest(new Error("InvalidMandateId", correlationId, "MandateId should be an UUID"));
+            }
+
+            try
+            {
+                if (file == null || file.ContentType != "application/pdf")
+                {
+                    throw new InvalidFileTypeException("The file must be a PDF.");
+                }
+
+                var result = await this.mandateManager.UploadSignedMandateAsync(parsedMandateId, file.OpenReadStream());
+                return this.Ok(result);
+            }
+            catch (InvalidFileTypeException ex)
+            {
+                this.logger.LogError(ex, "MandateAPI - {correlationId} - Invalid file type", correlationId);
+                return this.BadRequest(new Error("InvalidFileType", correlationId, ex.Message));
+            }
+            catch (ServicesProviderException ex)
+            {
+                this.logger.LogError(ex, "[{correlationId}] - There is error when trying to upload signed mandate [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("ServicesProviderError", correlationId.ToString(), ex.Message));
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "MandateAPI - {correlationId} - UploadSignedAsync", correlationId);
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
+            }
         }
 
         [HttpPost("{mandateId}/deactivate")]

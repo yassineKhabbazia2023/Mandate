@@ -81,6 +81,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             return await this.databaseService.GetAllCollectionsAsync(query).ConfigureAwait(false);
         }
 
+        public async Task<string?> UploadSignedMandateAsync(Guid collectionId, Stream mandateFileStream)
+        {
+            using var memoryStream = new MemoryStream();
+            await mandateFileStream.CopyToAsync(memoryStream);
+            byte[] fileBytes = memoryStream.ToArray() !;
+
+            var collection = await this.databaseService.GetCollectionById(collectionId);
+            var isJdcPartner = this.IsJdcPartner(collection);
+
+            if (isJdcPartner)
+            {
+                return await this.jeDeclareService.UploadSignedMandate(collection, fileBytes);
+            }
+
+            return null;
+        }
+
         public async Task<byte[]> DownloadUnsignedAsync(Guid id)
         {
             var collection = await this.databaseService.GetCollectionById(id);

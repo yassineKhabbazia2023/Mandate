@@ -6,9 +6,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 {
     using System.Net;
     using System.Net.Http;
+    using System.Net.Http.Headers;
+    using System.Text;
     using Kpmg.Constellation.Net.Http;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
+    using Moq.Protected;
 
     public class HttpJeDeclareClientTest
     {
@@ -1279,6 +1282,118 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             client.VerifyAll();
             factory.VerifyAll();
+        }
+
+        [Fact]
+        public async Task GetMandatPdfAsync_CaseOK()
+        {
+            string content = Convert.ToBase64String(new byte[] { 0x20, 0x20, });
+            var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(content),
+            };
+
+            var client = new Mock<IHttpClient>(MockBehavior.Strict);
+            client.Setup(c => c.GetAsync("compte/19581575/dossierClient/jdcFolderId/rib/jdcRibId/mandat"))
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
+
+            client.Setup(c => c.Dispose())
+                .Verifiable();
+
+            client.Setup(c => c.DefaultRequestHeaders)
+                 .Returns(() =>
+                 {
+                     var httpClient = new HttpClient();
+                     httpClient.DefaultRequestHeaders.Accept.Clear();
+                     httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/*"));
+                     return httpClient.DefaultRequestHeaders;
+                 })
+                 .Verifiable();
+
+            var factory = new Mock<IJeDeclareClientFactory>(MockBehavior.Strict);
+            factory.Setup(f => f.Create())
+                .Returns(client.Object)
+                .Verifiable();
+
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "Login",
+                Password = "Password",
+            });
+
+            var logger = new Mock<ILogger<HttpJeDeclareClient>>(MockBehavior.Strict);
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            var restlt = await jeDeclareClient.GetMandatPdfAsync("jdcFolderId", "jdcRibId");
+
+            var convertedResult = Convert.ToBase64String(restlt);
+            restlt.Should().BeOfType<byte[]>();
+            convertedResult.Should().Be(content);
+
+            client.VerifyAll();
+            factory.VerifyAll();
+            logger.VerifyAll();
+        }
+
+        [Fact]
+        public async Task GetMandatPdfAsync_CaseThrowJeDeclareApiException()
+        {
+            var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent("error message"),
+            };
+
+            var client = new Mock<IHttpClient>(MockBehavior.Strict);
+            client.Setup(c => c.GetAsync("compte/19581575/dossierClient/jdcFolderId/rib/jdcRibId/mandat"))
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
+
+            client.Setup(c => c.Dispose())
+                .Verifiable();
+
+            client.Setup(c => c.DefaultRequestHeaders)
+                 .Returns(() =>
+                 {
+                     var httpClient = new HttpClient();
+                     httpClient.DefaultRequestHeaders.Accept.Clear();
+                     httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/*"));
+                     return httpClient.DefaultRequestHeaders;
+                 })
+                 .Verifiable();
+
+            var factory = new Mock<IJeDeclareClientFactory>(MockBehavior.Strict);
+            factory.Setup(f => f.Create())
+                .Returns(client.Object)
+                .Verifiable();
+
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "Login",
+                Password = "Password",
+            });
+
+            var logger = new Mock<ILogger<HttpJeDeclareClient>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
+
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            Func<Task> action = async () => await jeDeclareClient.GetMandatPdfAsync("jdcFolderId", "jdcRibId");
+            await action.Should().ThrowExactlyAsync<JeDeclareApiException>()
+                .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message'");
+
+            client.VerifyAll();
+            factory.VerifyAll();
+            logger.VerifyAll();
         }
     }
 }

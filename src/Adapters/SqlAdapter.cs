@@ -51,10 +51,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return company.ToModel();
         }
 
-        public Task<Company> CreateFolderAsync(string bankServicesProviderId, Guid companyId)
+        public async Task CreateFolderAsync(string bankServicesProviderId, Guid companyId)
         {
-            // Creation JeDeclare Folder
-            throw new NotImplementedException();
+            await this.mandateRepository.CreateFolderAsync(bankServicesProviderId, companyId);
         }
 
         public Task<Status> CreateStatus(Guid collectionId, Status status)
@@ -75,9 +74,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             throw new NotImplementedException();
         }
 
-        public Task<Collection> CreateCollection(string erpId, Guid companyId, Bban bban)
+        public async Task<Collection> CreateCollectionAsync(string erpId, Guid companyId, Bban bban)
         {
-            throw new NotImplementedException();
+            CollectionDb o = new CollectionDb()
+            {
+                AccountNumber = bban.AccountNumber,
+                BankCode = bban.BankCode,
+                BranchCode = bban.BranchCode,
+                CheckDigits = bban.CheckDigits,
+                CompanyId = companyId,
+                LinkType = 7,
+                RejectReason = null,
+            };
+
+            return (await this.mandateRepository.CreateCollectionAsync(o)).ToModel();
         }
 
         public Task<Collection> UpdateCollection(Guid id, Collection collection)
@@ -85,10 +95,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             throw new NotImplementedException();
         }
 
-        public async Task<Collection> GetCollectionById(Guid id)
+        public async Task<Collection> GetCollectionById(Guid collectionId)
         {
-            var collectionDb = await this.mandateRepository.GetCollectionById(id).ConfigureAwait(false);
-
+            var collectionDb = await this.mandateRepository.GetCollectionById(collectionId).ConfigureAwait(false);
             return collectionDb.ToModel();
         }
 

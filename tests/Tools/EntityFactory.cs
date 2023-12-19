@@ -8,7 +8,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
     {
         public static Address Address => new ("street", "complements", "75001", "Paris", "France");
 
-        public static Bank Bank => new ("code", "name", "group", string.Empty, BankAgreement);
+        public static Bank Bank => new ("code", "name", "group", "ebicsCardId", BankAgreement);
 
         public static BankAgreement BankAgreement => new (JdcPartnership.NonPartner);
 
@@ -17,5 +17,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         public static Company Company => new (new PredictableGuid().NewGuid(), "Raison Sociale", "siret", "ibsAccountNumber", "jdcDossierId", Signatory, Address);
 
         public static Signatory Signatory => new ("Mme", "First", "Last", "first.last@outlook.com");
+
+        public static Status Status(CollectionStatus collectionStatus = CollectionStatus.ToDo, string? statusName = null)
+        {
+            return new Status(collectionStatus, string.IsNullOrEmpty(statusName) ? "En Cours" : statusName);
+        }
     }
 }

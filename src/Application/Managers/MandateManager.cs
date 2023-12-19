@@ -58,7 +58,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 bank);
 
             // Création de la collecte
-            Collection collection = await this.databaseService.CreateCollection(mandateCreation.ErpId, dossierClient.Id, mandateCreation.Bban);
+            Collection collection = await this.databaseService.CreateCollectionAsync(mandateCreation.ErpId, dossierClient.Id, mandateCreation.Bban);
 
             // Creation du Status -1
             Status initStatus = new Status(CollectionStatus.ToDo, "En Cours");
@@ -91,6 +91,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         public async Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query)
         {
             return await this.databaseService.GetAllCollectionsAsync(query).ConfigureAwait(false);
+        }
+
+        public async Task<string?> UploadSignedMandateAsync(Guid collectionId, Stream mandateFileStream)
+        {
+            using var memoryStream = new MemoryStream();
+            await mandateFileStream.CopyToAsync(memoryStream);
+            byte[] fileBytes = memoryStream.ToArray() !;
+
+            var collection = await this.databaseService.GetCollectionById(collectionId);
+            var isJdcPartner = this.IsJdcPartner(collection);
+
+            if (isJdcPartner)
+            {
+                return await this.jeDeclareService.UploadSignedMandate(collection, fileBytes);
+            }
+
+            return null;
         }
 
         public async Task<byte[]> DownloadUnsignedAsync(Guid id)

@@ -125,5 +125,38 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             jedeclareClient.Verify(client => client.UploadSignedMandat(bankServicesProviderId!, bbanServicesProviderId!, mandateFile), Times.Once);
         }
+
+        [Fact]
+        public async Task GetSignedMandatPdfAsync_ReturnsPdf_WhenSuccessful()
+        {
+            // Arrange
+            var expectedPdf = new byte[] { 1, 2, 3, 4, 5 };
+
+            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            jedeclareClient.Setup(client => client.GetSignedMandatPdfAsync(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(expectedPdf);
+
+            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+
+            // Act
+            var result = await adapter.GetSignedMandatPdfAsync("jdcFolderId", "jdcRibId");
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedPdf);
+        }
+
+        [Fact]
+        public async Task GetSignedMandatPdfAsync_ThrowsServicesProviderException_WhenJeDeclareApiExceptionThrown()
+        {
+            // Arrange
+            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            jedeclareClient.Setup(client => client.GetSignedMandatPdfAsync(It.IsAny<string>(), It.IsAny<string>()))
+                .ThrowsAsync(new JeDeclareApiException("Error message"));
+
+            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ServicesProviderException>(() => adapter.GetSignedMandatPdfAsync("jdcFolderId", "jdcRibId"));
+        }
     }
 }

@@ -132,7 +132,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 var contentType = "application/pdf";
 
                 // Set a file download name (optional)
-                var fileName = $"unsigned-mandate-{mandateId}.pdf";
+                var fileName = $"signed-mandate-{mandateId}.pdf";
 
                 // Return the file
                 return this.File(fileData, contentType, fileName);
@@ -151,6 +151,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             {
                 this.logger.LogError("[{correlationId}] - There is no ridId in the mandate with this [{mandateId}]", correlationId.ToString(), nameof(mandateId));
                 return this.NotFound(new Error("RibIdEmptyOrNull", correlationId.ToString(), ex.Message));
+            }
+            catch (ServicesProviderException ex)
+            {
+                this.logger.LogError(ex, "[{correlationId}] - There is error when trying to download signed mandate [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("ServicesProviderError", correlationId.ToString(), ex.Message));
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "[{correlationId}] - [{mandateId}]", correlationId.ToString(), nameof(mandateId));
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("Exception", correlationId.ToString(), ex.Message));
             }
         }
 

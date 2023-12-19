@@ -42,9 +42,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
         public string Password { get; set; } = null!;
 
-        public string JdcCompteId { get; set; }
+        public string JdcCompteId { get; set; } = null!;
 
-        public string HistoryDateEnabledBanks { get; set; }
+        public string HistoryDateEnabledBanks { get; set; } = null!;
 
         /// <summary>
         /// Check if the object is filled with valid properties.
@@ -65,6 +65,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             if (string.IsNullOrEmpty(this.Password))
             {
                 throw new InvalidOperationException($"Instance of {nameof(JeDeclareOptions)} is invalid, {nameof(JeDeclareOptions.Password)} is null");
+            }
+
+            if (string.IsNullOrEmpty(this.JdcCompteId))
+            {
+                throw new InvalidOperationException($"Instance of {nameof(JeDeclareOptions)} is invalid, {nameof(JeDeclareOptions.JdcCompteId)} is null");
             }
         }
 

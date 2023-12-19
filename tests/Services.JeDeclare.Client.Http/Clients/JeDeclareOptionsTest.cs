@@ -14,6 +14,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             options.BaseUri.Should().BeNull();
             options.Login.Should().BeNull();
             options.Password.Should().BeNull();
+            options.HistoryDateEnabledBanks.Should().BeNull();
+            options.JdcCompteId.Should().BeNull();
         }
 
         [Fact]
@@ -36,6 +38,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
         }
 
         [Fact]
+        public void JeDeclareOptions_Validate_When_All_Variable_Entered()
+        {
+            var options = new JeDeclareOptions()
+            {
+                BaseUri = new Uri("https://toto.com/"),
+                Login = "loginT",
+                Password = "passwordT",
+                JdcCompteId = "JdcCompteId",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
+            };
+
+            var action = () => options.Validate();
+            action.Should().NotThrow<Exception>();
+        }
+
+        [Fact]
         public void JeDeclareOptions_Validate_WhenBaseUriIsNull()
         {
             var options = new JeDeclareOptions()
@@ -43,6 +61,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = null,
                 Login = "loginT",
                 Password = "passwordT",
+                JdcCompteId = "JdcCompteId",
             };
 
             var action = () => options.Validate();
@@ -73,6 +92,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             var action = () => options.Validate();
             action.Should().Throw<Exception>().WithMessage("Instance of JeDeclareOptions is invalid, Password is null");
+        }
+
+        [Fact]
+        public void JeDeclareOptions_Validate_WhenCompteId_IsNull()
+        {
+            var options = new JeDeclareOptions()
+            {
+                BaseUri = new Uri("https://toto.com"),
+                Login = "loginT",
+                Password = "Password",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
+            };
+
+            var action = () => options.Validate();
+            action.Should().Throw<Exception>().WithMessage("Instance of JeDeclareOptions is invalid, JdcCompteId is null");
         }
     }
 }

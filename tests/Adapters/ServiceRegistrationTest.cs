@@ -41,6 +41,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 opt.BaseUri = new Uri("https://recette.jedeclare.com/webservice/gestion/");
                 opt.Login = "loginT";
                 opt.Password = "passwordT";
+                opt.JdcCompteId = "JdcCompteId";
             });
             sc.AddMandateFormio(opt =>
             {

@@ -18,6 +18,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
         private readonly ILogger logger;
         private readonly IJeDeclareClientFactory factory;
         private readonly IOptions<JeDeclareOptions> options;
+        private readonly string state = "2";
+        private readonly string periodicityId = "1";
+        private readonly string typeLiaison = "2";
 
         public HttpJeDeclareClient(ILogger<HttpJeDeclareClient> logger, IJeDeclareClientFactory factory, IOptions<JeDeclareOptions> options)
         {
@@ -208,44 +211,71 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             throw exception;
         }
 
-        public async Task<Releve> CreateCollecteConfigurationAsync(string jdcFolderId, Releve releve)
+        public async Task<Releve> CreateCollecteConfigurationAsync(string jdcFolderId, Releve releve, string bankCode, string ebicsCardId)
         {
-            using var client = this.factory.Create();
-
-            var jdcCompteId = this.options.Value.JdcCompteId;
-            var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/releve";
-
-            var serializedReleve = releve.Serialize();
-
-            var content = new StringContent(
-               serializedReleve,
-               Encoding.UTF8,
-               "text/xml");
-
-            var response = await client.PostAsync(requestUri, content).ConfigureAwait(false);
-
-            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-            if (response.StatusCode == HttpStatusCode.Created)
+            if (releve == null)
             {
-                var releveSaved = responseBody.Deserialize<Releve>();
-                return releveSaved;
+                throw new ArgumentNullException(nameof(releve), "releve should not be null");
             }
+            else
+            {
+                releve.Etat = this.state;
+                releve.Periodicite = new Periodicite
+                {
+                    Id = this.periodicityId,
+                };
 
-            var exception = new JeDeclareApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
+                if (!string.IsNullOrWhiteSpace(ebicsCardId))
+                {
+                    releve.TypeLiaison = this.typeLiaison;
+                    releve.Card = new Carte
+                    {
+                        Id = ebicsCardId,
+                    };
+                }
 
-            this.logger.LogError(
-            exception,
-            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - serializedreleve : '{serializedReleve}' - Message : '{errorMessage}'",
-            nameof(HttpJeDeclareClient),
-            nameof(this.CreateCollecteConfigurationAsync),
-            response.StatusCode,
-            jdcCompteId,
-            jdcFolderId,
-            serializedReleve,
-            responseBody);
+                if (this.options.Value.HistoryDateEnabledBanks.Split(';').Contains(bankCode))
+                {
+                    releve.DateReprise = $"{DateTime.Now.Year}-01-01";
+                }
 
-            throw exception;
+                using var client = this.factory.Create();
+
+                var jdcCompteId = this.options.Value.JdcCompteId;
+                var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/releve";
+
+                var serializedReleve = releve.Serialize();
+
+                var content = new StringContent(
+                   serializedReleve,
+                   Encoding.UTF8,
+                   "text/xml");
+
+                var response = await client.PostAsync(requestUri, content).ConfigureAwait(false);
+
+                var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+                if (response.StatusCode == HttpStatusCode.Created)
+                {
+                    var releveSaved = responseBody.Deserialize<Releve>();
+                    return releveSaved;
+                }
+
+                var exception = new JeDeclareApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
+
+                this.logger.LogError(
+                exception,
+                "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - serializedreleve : '{serializedReleve}' - Message : '{errorMessage}'",
+                nameof(HttpJeDeclareClient),
+                nameof(this.CreateCollecteConfigurationAsync),
+                response.StatusCode,
+                jdcCompteId,
+                jdcFolderId,
+                serializedReleve,
+                responseBody);
+
+                throw exception;
+            }
         }
 
         public async Task<bool> UpdateCollecteConfigurationAsync(string jdcFolderId, Releve releve)

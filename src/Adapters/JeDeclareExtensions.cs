@@ -22,36 +22,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
         }
 
-        // déplacer vers infra jeDeclare
-        public static Releve ConstructReleve(this Rib source, string? bankCode, string? ebicsCardId, string historyDateEnabledBanks)
-        {
-            Releve releve = new Releve()
-            {
-                Rib = source,
-                Etat = "2",
-                Periodicite = new Periodicite
-                {
-                    Id = "1",
-                },
-            };
-
-            if (!string.IsNullOrWhiteSpace(ebicsCardId))
-            {
-                releve.TypeLiaison = "2";
-                releve.Card = new Carte
-                {
-                    Id = ebicsCardId,
-                };
-            }
-
-            if (historyDateEnabledBanks.Split(';').Contains(bankCode))
-            {
-                releve.DateReprise = $"{DateTime.Now.Year}-01-01";
-            }
-
-            return releve;
-        }
-
         public static DossierClient ToDossierClient(this Company company)
         {
             Client client = new Client()
@@ -81,6 +51,63 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             DossierClient dossier = new DossierClient() { Client = client };
 
             return dossier;
+        }
+
+        public static Company ToCompany(this DossierClient dossierClient, Signatory source)
+        {
+            var signatory = new Signatory(
+                title: source?.Title,
+                firstName: source?.FirstName,
+                lastName: source?.LastName,
+                email: source?.Email);
+
+            var adresse = new Address(
+                street: dossierClient?.Client.Responsable.Adresse.Rue,
+                complements: dossierClient?.Client.Responsable.Adresse.CplRue,
+                zipCode: dossierClient?.Client.Responsable.Adresse.CodePostal,
+                city: dossierClient?.Client.Responsable.Adresse.Ville,
+                country: dossierClient?.Client.Responsable.Adresse.Pays);
+
+            return new Company(
+                id: Guid.Empty,
+                name: dossierClient?.Client.RaisonSociale,
+                siretNumber: dossierClient?.Client.Siret.Siren + dossierClient?.Client.Siret.Nic,
+                erpId: null,
+                bankServicesProviderId: dossierClient?.Client.Id,
+                signatory: signatory,
+                address: adresse);
+        }
+
+        public static Releve ToReleve(this Bban rib, Signatory signatory)
+        {
+            var releve = new Releve()
+            {
+                Rib = new Rib()
+                {
+                    Etablissement = rib?.BankCode,
+                    Guichet = rib?.BranchCode,
+                    Cle = rib?.CheckDigits,
+                    CiviliteTitulaire = signatory?.Title,
+                    NomTitulaire = signatory?.LastName,
+                    PrenomTitulaire = signatory?.FirstName,
+                },
+            };
+
+            return releve;
+        }
+
+        public static Collection ToModel(this Releve source, Company company, Bban rib, Guid collectionId, Status initStatus)
+        {
+            Collection collection = new (
+                collectionId,
+                source?.Id,
+                company,
+                rib,
+                DateTime.UtcNow,
+                DateTime.UtcNow,
+                initStatus);
+
+            return collection;
         }
     }
 }

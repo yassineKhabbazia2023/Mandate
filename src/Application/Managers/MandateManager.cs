@@ -25,7 +25,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
             Bank bank = await this.databaseService.GetBankByCodeAsync(mandateCreation.Bban.BankCode);
 
-            Company dossierClient = await this.jeDeclareService.CreateFolderAsync(company);
+            Company toAdd = new Company(
+                Guid.Empty,
+                company.Name,
+                company.SiretNumber,
+                mandateCreation.ErpId,
+                null,
+                mandateCreation.Signatory,
+                mandateCreation.Address);
+
+            Company dossierClient = await this.jeDeclareService.CreateFolderAsync(toAdd);
 
             // Création du dossier coté SQL
             await this.databaseService.CreateFolderAsync(dossierClient.BankServicesProviderId!, dossierClient.Id);
@@ -45,8 +54,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             // Création du rib coté jeDeclare
             Bban rib = await this.jeDeclareService.AddRibToFolderAsync(
                 dossierClient.BankServicesProviderId,
-                mandateCreation.Bban,
-                mandateCreation.Signatory);
+                mandateCreation,
+                bank);
 
             // Création de la collecte
             Collection collection = await this.databaseService.CreateCollection(mandateCreation.ErpId, dossierClient.Id, mandateCreation.Bban);
@@ -58,7 +67,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             // création de la collecte coté jeDeclare
             Collection createdReleve = await this.jeDeclareService.CreateCollecteConfigurationAsync(
                 dossierClient.BankServicesProviderId!,
-                rib);
+                rib,
+                dossierClient,
+                collection.Id,
+                initStatus);
 
             // modification collect pour LinkType
             await this.databaseService.UpdateCollection(collection.Id, createdReleve);

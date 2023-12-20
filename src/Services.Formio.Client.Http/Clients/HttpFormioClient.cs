@@ -5,20 +5,21 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 {
     using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.Text;
     using System.Web;
     using Kpmg.Constellation.Net.Http;
+    using Microsoft.AspNetCore.Http.Extensions;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
     public class HttpFormioClient : IFormioClient
     {
-        private readonly ILogger logger;
+        private const string FormId = "demandemandat";
+        private readonly ILogger<HttpFormioClient> logger;
         private readonly IFormioClientFactory factory;
 
-        public HttpFormioClient(ILogger logger, IFormioClientFactory factory)
+        public HttpFormioClient(ILogger<HttpFormioClient> logger, IFormioClientFactory factory)
         {
             this.logger = logger;
             this.factory = factory;
@@ -199,6 +200,47 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
             var result = JObject.Parse(responseBody);
 
             return result;
+        }
+
+        public async Task<FormioSubmissionCollection> GetSubmissionMandateAsync(string bankCode, string bankSortCode, string bankAccountNumber, string bankCheckNumber, FormioAuthToken authToken)
+        {
+            var queryBuilder = new QueryBuilder();
+
+            if (bankCode != null)
+            {
+                queryBuilder.Add("data.bankCode", bankCode);
+            }
+
+            if (bankSortCode != null)
+            {
+                queryBuilder.Add("data.bankSortCode", bankSortCode);
+            }
+
+            if (bankAccountNumber != null)
+            {
+                queryBuilder.Add("data.bankAccountNumber", bankAccountNumber);
+            }
+
+            if (bankCheckNumber != null)
+            {
+                queryBuilder.Add("data.bankCheckNumber", bankCheckNumber);
+            }
+
+            var uriQuery = queryBuilder.ToQueryString();
+
+            var subs = new FormioSubmissionCollection();
+
+            using var client = this.factory.Create(authToken);
+
+            var requestUri = $"constellation/{FormId}/submission{uriQuery}";
+
+            var responseBody = await this.GetResponseBodyAsync(FormId, client, requestUri);
+
+            var submissions = DeserializeSubmissions(responseBody);
+
+            subs.Submissions.AddRange(submissions);
+
+            return subs;
         }
 
         private static async Task<FormioSubmissionPdf> GetFormioSubmissionPdfAsync(JToken data, HttpResponseMessage response)

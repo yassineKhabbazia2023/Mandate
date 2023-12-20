@@ -2,9 +2,11 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
+namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 {
     using KPMG.Constellation.Portal.Client;
+    using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
+    using KPMG.Pulse.Back.Accounting.Mandate.Application;
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
@@ -34,6 +36,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 .Build();
 
             var sc = new ServiceCollection();
+            sc.AddMandateApplication();
             sc.AddMandateAdapters();
             sc.AddMandateSql(opt => opt.ConnectionString = "a");
             sc.AddMandateJeDeclare(opt =>
@@ -41,7 +44,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 opt.BaseUri = new Uri("https://recette.jedeclare.com/webservice/gestion/");
                 opt.Login = "loginT";
                 opt.Password = "passwordT";
-                opt.JdcCompteId = "JdcCompteId";
+                opt.JdcCompteId = "jdcCompteIdT";
             });
             sc.AddMandateFormio(opt =>
             {
@@ -56,21 +59,29 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var sp = sc.BuildServiceProvider();
 
             // Make sure we don't forget services ; exclude services from Microsoft (IOption, ...)
-            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(12);
+            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(20);
 
             // Test all services ; number of tests below should match the number of services above
+            sp.GetService<IBankManager>().Should().NotBeNull();
+            sp.GetService<IBbanManager>().Should().NotBeNull();
+            sp.GetService<IMandateManager>().Should().NotBeNull();
+            sp.GetService<ICompanyManager>().Should().NotBeNull();
+            sp.GetService<IAsposeHelper>().Should().NotBeNull();
+            sp.GetService<IGuidGenerator>().Should().NotBeNull();
+            sp.GetService<IFormioManager>().Should().NotBeNull();
+            sp.GetService<IFakeDataManager>().Should().NotBeNull();
             sp.GetService<IDatabaseService>().Should().NotBeNull();
+            sp.GetService<IJeDeclareService>().Should().NotBeNull();
+            sp.GetService<IPortalManager>().Should().NotBeNull();
+            sp.GetService<IFormioService>().Should().NotBeNull();
             sp.GetService<IMandateRepository>().Should().NotBeNull();
             sp.GetService<IJeDeclareClientFactory>().Should().NotBeNull();
             sp.GetService<IJeDeclareClient>().Should().NotBeNull();
-            sp.GetService<IJeDeclareService>().Should().NotBeNull();
             sp.GetService<IFormioClientFactory>().Should().NotBeNull();
-            sp.GetService<IPortalProvider>().Should().NotBeNull();
+            sp.GetService<IFormioClient>().Should().NotBeNull();
             sp.GetService<IPortalClientFactory>().Should().NotBeNull();
             sp.GetService<IAuthenticationContext>().Should().NotBeNull();
-            sp.GetService<IPortalManager>().Should().NotBeNull();
-            sp.GetService<IFormioClient>().Should().NotBeNull();
-            sp.GetService<IFormioService>().Should().NotBeNull();
+            sp.GetService<IPortalProvider>().Should().NotBeNull();
         }
     }
 }

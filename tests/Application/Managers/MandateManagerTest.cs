@@ -573,7 +573,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         }
 
         [Fact]
-        public async Task DownloadSignedAsync_FolderIdEmpty_ThrowsFolderIdEmptyOrNullException()
+        public async Task DownloadSignedAsync_FolderIdEmptyAndCompanyNotNull_ThrowsFolderIdEmptyOrNullException()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -602,7 +602,35 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         }
 
         [Fact]
-        public async Task DownloadSignedAsync_RibIdEmpty_ThrowsRibIdEmptyOrNullException()
+        public async Task DownloadSignedAsync_FolderIdEmptyAndCompanyIsNull_ThrowsFolderIdEmptyOrNullException()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            Bban bban = TestHelper.GetBban("ebicsCardId", true);
+            Status status = TestHelper.GetStatus();
+            var collection = new Collection(
+                Guid.NewGuid(),
+                "yourServiceProviderId",
+                null,
+                bban,
+                DateTime.Now,
+                DateTime.Now,
+                status);
+            var expectedBytes = Array.Empty<byte>();
+
+            this.mockDatabaseService
+                .Setup(m => m.GetCollectionById(id))
+                .ReturnsAsync(collection);
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+
+            // Act & Assert
+            Func<Task> act = async () => await mandateManager.DownloadSignedAsync(id);
+            await act.Should().ThrowAsync<FolderIdEmptyOrNullException>("because the service should throw an exception in this scenario");
+        }
+
+        [Fact]
+        public async Task DownloadSignedAsync_RibIdEmptyAndBbanNotNull_ThrowsRibIdEmptyOrNullException()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -614,6 +642,38 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 "yourServiceProviderId",
                 company,
                 bban,
+                DateTime.Now,
+                DateTime.Now,
+                status);
+            var expectedBytes = Array.Empty<byte>();
+
+            this.mockDatabaseService
+                .Setup(m => m.GetCollectionById(id))
+                .ReturnsAsync(collection);
+
+            this.mockJeDeclareService
+                .Setup(m => m.GetSignedMandatPdfAsync(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(expectedBytes);
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+
+            // Act & Assert
+            Func<Task> act = async () => await mandateManager.DownloadSignedAsync(id);
+            await act.Should().ThrowAsync<RibIdEmptyOrNullException>("because the service should throw an exception in this scenario");
+        }
+
+        [Fact]
+        public async Task DownloadSignedAsync_RibIdEmptyAndBbanIsNull_ThrowsRibIdEmptyOrNullException()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "bankServicesProviderId");
+            Status status = TestHelper.GetStatus();
+            var collection = new Collection(
+                Guid.NewGuid(),
+                "yourServiceProviderId",
+                company,
+                null,
                 DateTime.Now,
                 DateTime.Now,
                 status);

@@ -117,8 +117,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         {
             var collection = await this.databaseService.GetCollectionById(id);
 
-            var folderId = collection?.Company?.BankServicesProviderId;
-            var ribId = collection?.Bban?.BbanServicesProviderId;
+            var folderId = collection!.Company?.BankServicesProviderId;
+            var ribId = collection!.Bban?.BbanServicesProviderId;
             this.ValidatePartnerCollection(collection!);
 
             return await this.jeDeclareService.GetSignedMandatPdfAsync(folderId !, ribId !);

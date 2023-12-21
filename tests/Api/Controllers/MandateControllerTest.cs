@@ -720,7 +720,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             logger.VerifyAll();
             guidGenerator.VerifyAll();
         }
-        
+
         [Fact]
         public async Task DownloadSignedAsync_WithValidMandateId_ReturnsOkResult()
         {

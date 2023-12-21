@@ -125,6 +125,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             }
         }
 
+        public async Task<byte[]> DownloadSignedAsync(Guid id)
+        {
+            var collection = await this.databaseService.GetCollectionById(id);
+
+            var folderId = collection!.Company?.BankServicesProviderId;
+            var ribId = collection!.Bban?.BbanServicesProviderId;
+            this.ValidatePartnerCollection(collection!);
+
+            return await this.jeDeclareService.GetSignedMandatPdfAsync(folderId !, ribId !);
+        }
+
         private bool IsJdcPartner(Collection collection)
         {
             return collection.Bban?.Bank?.JdcAgreement.JdcPartnership == JdcPartnership.Partner;

@@ -1,4 +1,4 @@
-﻿// <copyright file="FormIOAuthToken.cs" company="KPMG">
+﻿// <copyright file="FormioAuthToken.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 

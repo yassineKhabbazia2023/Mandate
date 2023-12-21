@@ -23,7 +23,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client
         {
         }
 
-        public FormioApiException(SerializationInfo info, StreamingContext context)
+        protected FormioApiException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

@@ -17,12 +17,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     {
         private readonly ILogger<MandateController> logger;
         private readonly IMandateManager mandateManager;
+        private readonly IFormioManager formIoManager;
         private readonly IGuidGenerator guidGenerator;
 
-        public MandateController(ILogger<MandateController> logger, IMandateManager mandateManager, IGuidGenerator guidGenerator)
+        public MandateController(ILogger<MandateController> logger, IMandateManager mandateManager, IFormioManager formIoManager, IGuidGenerator guidGenerator)
         {
             this.logger = logger;
             this.mandateManager = mandateManager;
+            this.formIoManager = formIoManager;
             this.guidGenerator = guidGenerator;
         }
 
@@ -206,6 +208,27 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         {
             await Task.CompletedTask;
             return this.NoContent(); // TODO
+        }
+
+        [HttpPost("recovery")]
+        public async Task<IActionResult> Recovery([FromBody] Bban rib)
+        {
+            var correlationId = "0"; // TODO
+            try
+            {
+                Collection? collection = await this.formIoManager.GetCollectionByBban(rib.ToModel());
+                if (collection != null)
+                {
+                    return this.Ok(collection.ToCollectionSummary());
+                }
+
+                return this.NoContent();
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.Recovery));
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
+            }
         }
     }
 }

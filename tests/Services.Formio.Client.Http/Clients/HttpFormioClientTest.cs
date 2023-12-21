@@ -5,6 +5,7 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 {
     using System.Net;
+    using System.Text.Json.Nodes;
     using Kpmg.Constellation.Net.Http;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
@@ -12,6 +13,64 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
     public class HttpFormioClientTest
     {
+        [Fact]
+        public async Task GetSubmissionsAsync_CaseOK()
+        {
+            var formiosubmission = new FormioSubmission()
+            {
+                Id = "idT",
+                Created = "createdT",
+                Modified = "modifiedT",
+                Owner = "ownerT",
+            };
+
+            var formiosubmissionList = new List<FormioSubmission>() { formiosubmission };
+            var serializedFormioSubmissionList = JsonNode.Parse(JsonConvert.SerializeObject(formiosubmissionList)) !.ToJsonString();
+
+            var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(serializedFormioSubmissionList, Encoding.UTF8, "application/json"),
+            };
+
+            var client = new Mock<IHttpClient>(MockBehavior.Strict);
+            client.Setup(c => c.GetAsync(It.IsAny<string>()))
+                .Callback<string>(url =>
+                {
+                    url.Should().Be($"constellation/demandemandat/submission?skip=0&limit=20");
+                })
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
+
+            client.Setup(c => c.Dispose())
+                .Verifiable();
+
+            var auth = new FormioAuthToken();
+
+            var factory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
+            factory.Setup(f => f.Create(auth))
+                .Returns(client.Object)
+                .Verifiable();
+
+            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
+
+            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+
+            var submissionResult = await jeDeclareClient.GetSubmissionsAsync("demandemandat", 0, 20, auth);
+
+            submissionResult.Should().NotBeNull();
+
+            submissionResult!.Submissions.Should().BeEquivalentTo(formiosubmissionList);
+
+            client.VerifyAll();
+            factory.VerifyAll();
+        }
+
         [Fact]
         public async Task GetSubmissionsAsync_CaseThrowExeption()
         {
@@ -480,5 +539,86 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             factory.VerifyAll();
         }
 
+        [Fact]
+        public async Task GetSubmissionMandateAsync_CaseOK()
+        {
+            var submission1 = new FormioSubmission()
+            {
+                Id = "id1",
+                Modified = "modified1",
+                Owner = "owner1",
+                Created = "created1",
+                Data = new
+                {
+                    bankCode = "123",
+                    bankSortCode = "456",
+                    bankAccountNumber = "789",
+                    bankCheckNumber = "46",
+                },
+            };
+
+            var formioSubmissionCollection = new FormioSubmissionCollection()
+            {
+                Limit = 0,
+                Skip = 0,
+                Total = 0,
+            };
+
+            formioSubmissionCollection.Submissions.Add(submission1);
+
+            var serializedFormioSubmissionCollection = JsonNode.Parse(JsonConvert.SerializeObject(formioSubmissionCollection.Submissions)) !.ToJsonString();
+
+            var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(serializedFormioSubmissionCollection, Encoding.UTF8, "application/json"),
+            };
+
+            var client = new Mock<IHttpClient>(MockBehavior.Strict);
+            client.Setup(c => c.GetAsync(It.IsAny<string>()))
+                .Callback<string>(url =>
+                {
+                    url.Should().Be($"constellation/demandemandat/submission?data.bankCode=123&data.bankSortCode=456&data.bankAccountNumber=789&data.bankCheckNumber=46");
+                })
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
+
+            client.Setup(c => c.Dispose())
+                .Verifiable();
+
+            var auth = new FormioAuthToken();
+
+            var factory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
+            factory.Setup(f => f.Create(auth))
+                .Returns(client.Object)
+                .Verifiable();
+
+            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
+
+            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+
+            var submissionMandate = await jeDeclareClient.GetSubmissionMandateAsync("123", "456", "789", "46", auth);
+
+            submissionMandate.Limit.Should().Be(0);
+            submissionMandate.Skip.Should().Be(0);
+
+            submissionMandate.Submissions.Count.Should().Be(1);
+            var submission = submissionMandate.Submissions[0];
+
+            var dataJtoken = JToken.FromObject(submission.Data);
+
+            ((string)dataJtoken["bankCode"] !).Should().Be("123");
+            ((string)dataJtoken["bankSortCode"] !).Should().Be("456");
+            ((string)dataJtoken["bankAccountNumber"] !).Should().Be("789");
+            ((string)dataJtoken["bankCheckNumber"] !).Should().Be("46");
+
+            client.VerifyAll();
+            factory.VerifyAll();
+        }
     }
 }

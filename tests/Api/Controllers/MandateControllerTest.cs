@@ -12,7 +12,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 
     public class MandateControllerTest
     {
-        [Fact]
+         [Fact]
         public async void GetCollectionsAsync_When_GetCollectionsAsync_OK()
         {
             var query = new CollectionQueryDto(
@@ -70,7 +70,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 .ReturnsAsync(pm)
                 .Verifiable();
 
-            var controller = new MandateController(logger.Object, manager.Object, null!);
+            var controller = new MandateController(logger.Object, manager.Object, null!, null!);
 
             var result = await controller.GetCollectionsAsync(
                 string.Empty,
@@ -132,7 +132,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 .ThrowsAsync(new Exception("message"))
                 .Verifiable();
 
-            var controller = new MandateController(logger.Object, manager.Object, null!);
+            var controller = new MandateController(logger.Object, manager.Object, null!, null!);
 
             var result = await controller.GetCollectionsAsync(
                 string.Empty,
@@ -188,7 +188,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 FileDownloadName = expectedFileName,
             };
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object);
 
             var result = await controller.DownloadUnsignedAsync(mandateId);
 
@@ -228,7 +228,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object);
 
             var result = await controller.DownloadUnsignedAsync(mandateId) as ObjectResult;
 
@@ -273,7 +273,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object);
 
             var result = await controller.DownloadUnsignedAsync(mandateId) as ObjectResult;
 
@@ -318,7 +318,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object);
 
             var result = await controller.DownloadUnsignedAsync(mandateId) as ObjectResult;
 
@@ -361,7 +361,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManagerMock.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, null!, guidGenerator.Object);
 
             var fileMock = new Mock<IFormFile>();
             fileMock.Setup(f => f.ContentType).Returns("application/pdf");
@@ -405,7 +405,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManagerMock.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, null!,  guidGenerator.Object);
 
             var fileMock = new Mock<IFormFile>();
             fileMock.Setup(f => f.ContentType).Returns("application/jpg");
@@ -448,7 +448,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManagerMock.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, null!,  guidGenerator.Object);
 
             // Act
             var result = await controller.UploadSignedMandateAsync(validMandateId, null!);
@@ -481,7 +481,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManagerMock.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, null!, guidGenerator.Object);
 
             var fileMock = new Mock<IFormFile>();
             fileMock.Setup(f => f.ContentType).Returns("application/pdf");
@@ -527,7 +527,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManagerMock.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, null!,  guidGenerator.Object);
 
             var fileMock = new Mock<IFormFile>();
             fileMock.Setup(f => f.ContentType).Returns("application/pdf");
@@ -574,7 +574,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManagerMock.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, null!, guidGenerator.Object);
 
             var fileMock = new Mock<IFormFile>();
             fileMock.Setup(f => f.ContentType).Returns("application/pdf");
@@ -597,6 +597,130 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()), Times.Once);
         }
 
+        [Fact]
+        public async Task Recovery()
+        {
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            var guidGenerator = new Mock<IGuidGenerator>();
+
+            var collection = new Mandate.Collection(
+                Guid.Empty,
+                "8909440",
+                EntityFactory.Company,
+                EntityFactory.Bban,
+                new DateTime(2019, 10, 10),
+                new DateTime(2019, 10, 10),
+                new Status(CollectionStatus.ToDo, "En Cours"));
+
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+            formIoManager.Setup(item =>
+                item.GetCollectionByBban(
+                    It.Is<Bban>(b =>
+                        b.BankCode == "12345" &&
+                        b.BranchCode == "54321" &&
+                        b.AccountNumber == "12345678901" &&
+                        b.CheckDigits == "01")))
+               .ReturnsAsync(collection)
+               .Verifiable();
+
+            var controller = new MandateController(logger.Object, null!, formIoManager.Object, guidGenerator.Object);
+
+            Client.Bban bban = new Client.Bban("12345", "54321", "12345678901", "01");
+            var result = await controller.Recovery(bban) as ObjectResult;
+
+            var summary = new Client.CollectionSummary(
+                Guid.Empty,
+                "ibsAccountNumber",
+                "Raison Sociale",
+                "name",
+                "12345678901",
+                new DateTime(2019, 10, 10),
+                new DateTime(2019, 10, 10),
+                20);
+
+            result.As<OkObjectResult>().StatusCode.Should().Be((int)HttpStatusCode.OK);
+            result.As<OkObjectResult>().Value.Should().BeEquivalentTo(summary);
+
+            formIoManager.VerifyAll();
+            logger.VerifyAll();
+            guidGenerator.VerifyAll();
+        }
+
+        [Fact]
+        public async Task Recovery_When_GetCollectionByBban_NoContent()
+        {
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            var guidGenerator = new Mock<IGuidGenerator>();
+
+            Collection? collection = null;
+
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+            formIoManager.Setup(item =>
+                item.GetCollectionByBban(
+                    It.Is<Bban>(b =>
+                        b.BankCode == "12345" &&
+                        b.BranchCode == "54321" &&
+                        b.AccountNumber == "12345678901" &&
+                        b.CheckDigits == "01")))
+               .ReturnsAsync(collection)
+               .Verifiable();
+
+            var controller = new MandateController(logger.Object, null!, formIoManager.Object, guidGenerator.Object);
+
+            Client.Bban bban = new Client.Bban("12345", "54321", "12345678901", "01");
+            var result = await controller.Recovery(bban) as NoContentResult;
+
+            result.As<NoContentResult>().StatusCode.Should().Be((int)HttpStatusCode.NoContent);
+
+            formIoManager.VerifyAll();
+            logger.VerifyAll();
+            guidGenerator.VerifyAll();
+        }
+
+        [Fact]
+        public async Task Recovery_When_GetCollectionByBban_Throw_Exception()
+        {
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception?>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
+
+            var guidGenerator = new Mock<IGuidGenerator>();
+
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+            formIoManager.Setup(item =>
+                item.GetCollectionByBban(
+                    It.Is<Bban>(b =>
+                        b.BankCode == "12345" &&
+                        b.BranchCode == "54321" &&
+                        b.AccountNumber == "12345678901" &&
+                        b.CheckDigits == "01")))
+               .ThrowsAsync(new Exception("message"))
+               .Verifiable();
+
+            var controller = new MandateController(logger.Object, null!, formIoManager.Object, guidGenerator.Object);
+
+            Client.Bban bban = new Client.Bban("12345", "54321", "12345678901", "01");
+            var result = await controller.Recovery(bban) as ObjectResult;
+
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
+
+            var errorType = result!.Value as Client.Error;
+            errorType.Should().NotBeNull();
+            errorType!.ErrorType.Should()
+                               .Be("TechnicalError");
+            errorType!.LogReference.Should()
+                                  .Be("0");
+
+            formIoManager.VerifyAll();
+            logger.VerifyAll();
+            guidGenerator.VerifyAll();
+        }
+        
         [Fact]
         public async Task DownloadSignedAsync_WithValidMandateId_ReturnsOkResult()
         {
@@ -628,7 +752,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 FileDownloadName = expectedFileName,
             };
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object);
 
             var result = await controller.DownloadSignedAsync(mandateId);
 
@@ -668,7 +792,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object);
 
             var result = await controller.DownloadSignedAsync(mandateId) as ObjectResult;
 
@@ -713,7 +837,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object);
 
             var result = await controller.DownloadSignedAsync(mandateId) as ObjectResult;
 
@@ -758,7 +882,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object);
 
             var result = await controller.DownloadSignedAsync(mandateId) as ObjectResult;
 
@@ -803,7 +927,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object);
 
             var result = await controller.DownloadSignedAsync(mandateId) as ObjectResult;
 
@@ -848,7 +972,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object);
 
             var result = await controller.DownloadSignedAsync(mandateId) as ObjectResult;
 

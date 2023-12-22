@@ -187,7 +187,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public async Task CreateCollecteConfigurationAsync()
         {
             var bankServicesProviderId = "bankServicesProviderIdT";
-            var collectionId = Guid.Empty;
             var signatory = new Signatory("Mr.", "John", "Doe", "john.doe@example.com");
 
             var rib = new Rib()
@@ -202,48 +201,29 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var releve = new Releve()
             {
+                Id = "releveId",
                 Rib = rib,
             };
 
             var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
-            jedeclareClient.Setup(dc => dc.CreateCollecteConfigurationAsync(It.IsAny<string>(), It.IsAny<Releve>(), It.IsAny<string>(), It.IsAny<string>()))
+            jedeclareClient.Setup(dc => dc.CreateCollecteConfigurationAsync(
+                "bankServicesProviderIdT", It.IsAny<Releve>(), "12345", "ebicsCardIdT"))
                 .Callback<string, Releve, string, string>((f, r, b, e) =>
                 {
-                    f.Should().Be(bankServicesProviderId);
-                    r.Should().BeEquivalentTo(releve);
-                    b.Should().Be("12345");
-                    e.Should().Be("ebicsCardIdT");
+                    r.Id.Should().BeNull();
+                    r.Rib.Should().BeEquivalentTo(rib);
                 })
                 .ReturnsAsync(releve)
                 .Verifiable();
 
-            Guid id = Guid.NewGuid();
-            Company company = new Company(Guid.NewGuid(), "mega", "45207964300014", "1999156874", string.Empty, signatory, null);
-            Bank? bank = new Bank("12345", "biap", "biap group", "ebicsCardIdT", null!);
+            Company company = new Company(Guid.NewGuid(), "mega", "45207964300014", "1999156874", bankServicesProviderId, signatory, null);
+            Bank? bank = new Bank("12345", "biap", "biap group", "ebicsCardIdT", new BankAgreement(JdcPartnership.NonPartner));
             Bban bban = new Bban("12345", "56789", "12345678901", "88", "6789", bank);
-            Status status = new Status(CollectionStatus.ToDo, "todo");
-
-            var expecedCollection = new Collection(
-                Guid.Empty,
-                releve.Id,
-                company,
-                bban,
-                DateTime.UtcNow,
-                DateTime.UtcNow,
-                status);
 
             var adapter = new JeDeclareAdapter(jedeclareClient.Object);
-            var result = await adapter.CreateCollecteConfigurationAsync(bankServicesProviderId, bban, company, collectionId, status);
+            var result = await adapter.CreateCollecteConfigurationAsync(company, bban);
 
-            result.Id.Should().Be(Guid.Empty);
-            result.CollectionServicesProviderId.Should().BeEquivalentTo(releve.Id);
-            result.Company.Should().BeEquivalentTo(company);
-            result.Bban.Should().BeEquivalentTo(bban);
-            result.Status.Should().BeEquivalentTo(status);
-            result.CreationDate.Year.Should().Be(DateTime.UtcNow.Year);
-            result.CreationDate.Month.Should().Be(DateTime.UtcNow.Month);
-            result.CreationDate.Day.Should().Be(DateTime.UtcNow.Day);
-            result.Status.Should().BeEquivalentTo(status);
+            result.Should().Be("releveId");
 
             jedeclareClient.VerifyAll();
         }

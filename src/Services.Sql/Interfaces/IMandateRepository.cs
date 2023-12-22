@@ -89,5 +89,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         Task CreateFolderAsync(string bankServicesProviderId, Guid companyId);
 
         Task<CollectionDb> CreateCollectionAsync(CollectionDb collection);
+
+        Task<bool> CheckCollecteConfigExistAsync(string bankCode, string branchCode, string accountNumber);
+
+        Task InsertServicesProviderIds(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId);
+
+        Task<StatusDb> CreateStatusAsync(Guid collectionId, StatusDb statusDb);
+
+        Task UpdateCurrentStatus(Guid collectionId);
     }
 }

@@ -4,12 +4,11 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 {
-    using System.Data;
     using System.Diagnostics;
     using Microsoft.Data.SqlClient;
     using Microsoft.SqlServer.Dac;
 
-    internal class SqlServerFixture : IDisposable
+    public class SqlServerFixture : IDisposable
     {
         private const string Instance = "cst-unit-tests";
         private const string DatabaseName = "Mandate.Sql.Database";
@@ -35,7 +34,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             this.Dispose(disposing: false);
         }
 
-        internal static string ConnectionString
+        public static string ConnectionString
         {
             get
             {
@@ -49,7 +48,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             GC.SuppressFinalize(this);
         }
 
-        internal static SqlServerDatabase CreateDatabase()
+        public static SqlServerDatabase CreateDatabase()
         {
             var dacDeployOptions = new DacDeployOptions()
             {

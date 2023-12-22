@@ -5,13 +5,21 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 {
     using System.IO;
+    using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Options;
 
+    [Collection("SerialExecutionPublishDb")]
     public class MandateManagerTest
     {
         private readonly Mock<IDatabaseService> mockDatabaseService;
         private readonly Mock<ICompanyManager> mockCompanyManager;
         private readonly Mock<IJeDeclareService> mockJeDeclareService;
         private readonly Mock<IAsposeHelper> mockAsposeHelper;
+        private readonly IOptions<SqlMandateRepositoryOptions> options;
 
         public MandateManagerTest()
         {
@@ -19,243 +27,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             this.mockCompanyManager = new Mock<ICompanyManager>(MockBehavior.Strict);
             this.mockJeDeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
             this.mockAsposeHelper = new Mock<IAsposeHelper>(MockBehavior.Strict);
-        }
-
-        [Fact]
-        public async Task CreateMandate()
-        {
-            var signatory = TestHelper.GetSignatory();
-            var adress = TestHelper.GetAddress();
-            Bban bban = TestHelper.GetBban();
-            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"));
-            var initStatus = new Status(CollectionStatus.ToDo, "En Cours");
-
-            CollectionCreationCommand mandate = new CollectionCreationCommand("1000332927", signatory, adress, bban);
-
-            var bank = TestHelper.GetBank("carteId", true);
-            var databaseService = new Mock<IDatabaseService>(MockBehavior.Strict);
-            databaseService.Setup(r => r.GetBankByCodeAsync("code"))
-                .ReturnsAsync(bank)
-                .Verifiable();
-
-            var companyManager = new Mock<ICompanyManager>(MockBehavior.Strict);
-            companyManager.Setup(r => r.GetCompanyByErpIdAsync("1000332927"))
-                .ReturnsAsync(company)
-                .Verifiable();
-
-            var createdCollectionSQL = TestHelper.GetCollection(new Guid("00000000-0000-0000-0000-000000000001"));
-            var createdCompany = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "12345");
-            var jeDeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
-            jeDeclareService.Setup(r => r.CreateFolderAsync(It.IsAny<Company>()))
-                .Callback<Company>(c =>
-                {
-                    c.Id.Should().Be(Guid.Empty);
-                    c.Name.Should().Be("SCI IMMO JACOBINS");
-                    c.SiretNumber.Should().Be("83030022400011");
-                    c.ErpId.Should().Be("1000332927");
-                    c.BankServicesProviderId.Should().BeNull();
-                    c.Signatory.Should().BeEquivalentTo(mandate.Signatory);
-                    c.Address.Should().BeEquivalentTo(mandate.Address);
-                })
-                .ReturnsAsync(createdCompany)
-                .Verifiable();
-
-            databaseService.Setup(ds => ds.CreateFolderAsync("12345", new Guid("00000000-0000-0000-0000-000000000001")))
-                .ReturnsAsync(It.Is<Company>(f => f != null))
-                .Verifiable();
-
-            databaseService.Setup(ds =>
-                ds.CheckCollecteConfigExist(
-                    It.Is<Bban>(b =>
-                        b.BankCode == bank.Code &&
-                        b.BranchCode == bban.BranchCode &&
-                        b.AccountNumber == bban.AccountNumber &&
-                        b.CheckDigits == bban.CheckDigits)))
-                .ReturnsAsync(false)
-                .Verifiable();
-
-            databaseService.Setup(ds => ds.SaveSignatoryAsync(It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<Signatory>(), It.IsAny<Address>()))
-                .Callback<Guid?, Guid?, Signatory, Address>((comp, coll, sign, adres) =>
-                {
-                    comp.Should().Be(company.Id);
-                    coll.Should().Be(createdCollectionSQL.Id);
-                    sign.Should().BeEquivalentTo(company.Signatory);
-                    adres.Should().BeEquivalentTo(company.Address);
-                })
-                .Returns(Task.CompletedTask)
-                .Verifiable();
-
-            var createdBban = TestHelper.GetBban("56789");
-            jeDeclareService.Setup(js => js.AddRibToFolderAsync("12345", mandate, bank))
-                .ReturnsAsync(createdBban)
-                .Verifiable();
-
-            databaseService.Setup(ds => ds.CreateCollection("1000332927", new Guid("00000000-0000-0000-0000-000000000001"), bban))
-                .ReturnsAsync(createdCollectionSQL)
-               .Verifiable();
-
-            var status = TestHelper.GetStatus();
-            databaseService.Setup(ds =>
-                ds.CreateStatus(
-                    It.Is<Guid>(g => g == createdCollectionSQL.Id),
-                    It.Is<Status>(s => s.StatusCode == status.StatusCode && s.StatusName == status.StatusName)))
-                .ReturnsAsync(It.Is<Status>(s => s != null))
-                .Verifiable();
-
-            var createdCollectionJdc = TestHelper.GetCollection(new Guid("00000000-0000-0000-0000-000000000001"), "0987");
-
-            jeDeclareService.Setup(js => js.CreateCollecteConfigurationAsync(It.IsAny<string>(), It.IsAny<Bban>(), It.IsAny<Company>(), It.IsAny<Guid>(), It.IsAny<Status>()))
-                .Callback<string, Bban, Company, Guid, Status>((s, b, c, g, a) =>
-                {
-                    s.Should().Be("12345");
-                    b.Should().BeEquivalentTo(createdBban);
-                    c.Should().BeEquivalentTo(createdCompany);
-                    g.Should().Be(createdCollectionSQL.Id);
-                    a.Should().BeEquivalentTo(initStatus);
-                })
-                .ReturnsAsync(createdCollectionJdc)
-                .Verifiable();
-
-            databaseService.Setup(ds => ds.UpdateCollection(createdCollectionSQL.Id, createdCollectionJdc))
-                .ReturnsAsync(It.Is<Collection>(c => c != null))
-                .Verifiable();
-
-            databaseService.Setup(ds => ds.InsertServicesProviderIds(createdCollectionSQL.Id, createdCollectionJdc.CollectionServicesProviderId, createdBban.BbanServicesProviderId))
-                .ReturnsAsync(It.Is<Collection>(jdc => jdc != null))
-                .Verifiable();
-
-            var statusCreated = TestHelper.GetStatus(CollectionStatus.InProgress, "Actif");
-
-            databaseService.Setup(ds =>
-                ds.CreateStatus(
-                    It.Is<Guid>(g => g == createdCollectionSQL.Id),
-                    It.Is<Status>(s => s.StatusCode == statusCreated.StatusCode && s.StatusName == statusCreated.StatusName)))
-                .ReturnsAsync(It.Is<Status>(s => s != null))
-                .Verifiable();
-
-            var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object, this.mockAsposeHelper.Object);
-
-            var result = await mandateManager.CreateMandate(mandate);
-            result.Should().Be(createdCollectionSQL.Id);
-
-            jeDeclareService.VerifyAll();
-            databaseService.VerifyAll();
-            companyManager.VerifyAll();
-        }
-
-        [Fact]
-        public async Task CreateMandate_Partner_Bank_Exception()
-        {
-            var signatory = TestHelper.GetSignatory();
-            var adress = TestHelper.GetAddress();
-            Bban bban = TestHelper.GetBban();
-            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"));
-            CollectionCreationCommand mandate = new CollectionCreationCommand("1000332927", signatory, adress, bban);
-
-            var bank = TestHelper.GetBank();
-            var databaseService = new Mock<IDatabaseService>(MockBehavior.Strict);
-            databaseService.Setup(r => r.GetBankByCodeAsync("code"))
-                .ReturnsAsync(bank)
-                .Verifiable();
-
-            var companyManager = new Mock<ICompanyManager>(MockBehavior.Strict);
-            companyManager.Setup(r => r.GetCompanyByErpIdAsync("1000332927"))
-                .ReturnsAsync(company)
-                .Verifiable();
-
-            var createdCompany = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "12345");
-            var jeDeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
-
-            jeDeclareService.Setup(r => r.CreateFolderAsync(It.IsAny<Company>()))
-                .Callback<Company>(c =>
-                {
-                    c.Id.Should().Be(Guid.Empty);
-                    c.Name.Should().Be("SCI IMMO JACOBINS");
-                    c.SiretNumber.Should().Be("83030022400011");
-                    c.ErpId.Should().Be("1000332927");
-                    c.BankServicesProviderId.Should().BeNull();
-                    c.Signatory.Should().BeEquivalentTo(mandate.Signatory);
-                    c.Address.Should().BeEquivalentTo(mandate.Address);
-                })
-                .ReturnsAsync(createdCompany)
-                .Verifiable();
-
-            databaseService.Setup(ds => ds.CreateFolderAsync("12345", new Guid("00000000-0000-0000-0000-000000000001")))
-                .ReturnsAsync(It.Is<Company>(f => f != null))
-                .Verifiable();
-
-            var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object, this.mockAsposeHelper.Object);
-
-            Func<Task> acttion = () => mandateManager.CreateMandate(mandate);
-            await acttion.Should().ThrowExactlyAsync<ApplicationException>()
-                .WithMessage("L'établissement bancaire code n'est pas partenaire de JeDeclare.com mais est défini sans connexion à une carte EBICs.");
-
-            jeDeclareService.VerifyAll();
-            databaseService.VerifyAll();
-            companyManager.VerifyAll();
-        }
-
-        [Fact]
-        public async Task CreateMandate_Collecte_Config_Exist_Exception()
-        {
-            var signatory = TestHelper.GetSignatory();
-            var adress = TestHelper.GetAddress();
-            Bban bban = TestHelper.GetBban();
-            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"));
-
-            CollectionCreationCommand mandate = new CollectionCreationCommand("1000332927", signatory, adress, bban);
-
-            var bank = TestHelper.GetBank("carteId", true);
-            var databaseService = new Mock<IDatabaseService>(MockBehavior.Strict);
-            databaseService.Setup(r => r.GetBankByCodeAsync("code"))
-                .ReturnsAsync(bank)
-                .Verifiable();
-
-            var companyManager = new Mock<ICompanyManager>(MockBehavior.Strict);
-            companyManager.Setup(r => r.GetCompanyByErpIdAsync("1000332927"))
-                .ReturnsAsync(company)
-                .Verifiable();
-
-            var createdCompany = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "12345");
-            var jeDeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
-
-            jeDeclareService.Setup(r => r.CreateFolderAsync(It.IsAny<Company>()))
-                .Callback<Company>(c =>
-                {
-                    c.Id.Should().Be(Guid.Empty);
-                    c.Name.Should().Be("SCI IMMO JACOBINS");
-                    c.SiretNumber.Should().Be("83030022400011");
-                    c.ErpId.Should().Be("1000332927");
-                    c.BankServicesProviderId.Should().BeNull();
-                    c.Signatory.Should().BeEquivalentTo(mandate.Signatory);
-                    c.Address.Should().BeEquivalentTo(mandate.Address);
-                })
-                .ReturnsAsync(createdCompany)
-                .Verifiable();
-
-            databaseService.Setup(ds => ds.CreateFolderAsync("12345", new Guid("00000000-0000-0000-0000-000000000001")))
-                .ReturnsAsync(It.Is<Company>(f => f != null))
-                .Verifiable();
-
-            databaseService.Setup(ds =>
-                ds.CheckCollecteConfigExist(
-                    It.Is<Bban>(b =>
-                        b.BankCode == bank.Code &&
-                        b.BranchCode == bban.BranchCode &&
-                        b.AccountNumber == bban.AccountNumber &&
-                        b.CheckDigits == bban.CheckDigits)))
-                .ReturnsAsync(true)
-                .Verifiable();
-
-            var mandateManager = new MandateManager(databaseService.Object, companyManager.Object, jeDeclareService.Object, this.mockAsposeHelper.Object);
-
-            Func<Task> acttion = () => mandateManager.CreateMandate(mandate);
-            await acttion.Should().ThrowExactlyAsync<ApplicationException>()
-                .WithMessage("Il existe une configuration de collecte pour ce RIB code-02408-00011269900-58.");
-
-            jeDeclareService.VerifyAll();
-            databaseService.VerifyAll();
-            companyManager.VerifyAll();
+            this.options = Options.Create(new SqlMandateRepositoryOptions()
+            {
+                ConnectionString = Sql.Implementation.Tests.SqlServerFixture.ConnectionString,
+            });
         }
 
         [Fact]
@@ -410,8 +185,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                   null,
                   10,
                   0,
-                  SortOrder.Ascending,
-                  CollectionSortCriteria.Name,
+                  Mandate.SortOrder.Ascending,
+                  Mandate.CollectionSortCriteria.Name,
                   Guid.Empty);
 
             Company company = new Company(
@@ -423,7 +198,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 null,
                 null);
 
-            Bank bank = new Bank("12345", "bn", "bg", string.Empty, new BankAgreement(JdcPartnership.NonPartner));
+            Bank bank = new Bank("12345", "bn", "bg", string.Empty, new BankAgreement(Mandate.JdcPartnership.NonPartner));
 
             Bban bban = new Bban("12345", "54321", "12345678901", "55", string.Empty, bank);
 
@@ -469,8 +244,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                   null,
                   10,
                   0,
-                  SortOrder.Ascending,
-                  CollectionSortCriteria.Name,
+                  Mandate.SortOrder.Ascending,
+                  Mandate.CollectionSortCriteria.Name,
                   Guid.Empty);
 
             var database = new Mock<IDatabaseService>(MockBehavior.Strict);
@@ -571,6 +346,158 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             result.Should().BeNull("signedMandateId");
             this.mockDatabaseService.Verify(m => m.GetCollectionById(collectionId), Times.Once);
             this.mockJeDeclareService.Verify(m => m.UploadSignedMandate(It.IsAny<Collection>(), It.IsAny<byte[]>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task CreateMandate_Case_Ok()
+        {
+            var bank = new Bank("CodeB", "name", "group", "ebicsCardId", new BankAgreement(Mandate.JdcPartnership.Partner));
+            var rib = new Bban("CodeB", "54321", "12345678901", "01", "ribId", bank);
+            var signature = new Signatory("M", "marwen", "elleuch", "maroo@email.com");
+            var adresse = new Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+
+            var command = new CollectionCreationCommand(
+                "1234567890",
+                signature,
+                adresse,
+                rib);
+
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            #region RefStatusCode
+            await context.RefStatusCode.AddAsync(new RefStatusCodeDb()
+            {
+                StatusCode = -1,
+                PulseCode = 30,
+                StatusNameFr = "En Cours",
+                StatusNameEn = "In Progress",
+            });
+
+            await context.RefStatusCode.AddAsync(new RefStatusCodeDb()
+            {
+                StatusCode = 10,
+                PulseCode = 20,
+                StatusNameFr = "En Cours",
+                StatusNameEn = "In Progress",
+            });
+            await context.SaveChangesAsync();
+            #endregion
+            #region Company
+            var companyDb = EntityDbFactory.CompanyDb;
+            await context.Company.AddAsync(companyDb);
+            await context.SaveChangesAsync();
+            #endregion
+            #region bank
+            var bankRef = EntityDbFactory.RefBankDb;
+            bankRef.BankCode = "CodeB";
+            bankRef.JdcPartnership = (JdcPartnership)3;
+            await context.RefBank.AddAsync(bankRef);
+            await context.SaveChangesAsync();
+            #endregion
+
+            var sqlRepo = new SqlMandateRepository(this.options);
+
+            var adapter = new SqlAdapter(sqlRepo);
+            var companyManager = new CompanyManager(adapter);
+
+            var dossierClient = new Company(companyDb.Id, "cn1", "12345678901234", "1234567890", "folderId", EntityFactory.Signatory, EntityFactory.Address);
+
+            this.mockJeDeclareService.Setup(item => item.CreateFolderAsync(
+                It.Is<Company>(c =>
+                    c.Id == companyDb.Id &&
+                    c.ErpId == "1234567890" &&
+                    c.Name == "cn1" &&
+                    c.SiretNumber == "12345678901234" &&
+                    c.BankServicesProviderId == null &&
+                    this.CompareSignatory(c.Signatory!, signature) &&
+                    this.CompareAdress(c.Address!, adresse))))
+                .ReturnsAsync(dossierClient)
+                .Verifiable();
+
+            this.mockJeDeclareService.Setup(item => item.AddRibToFolderAsync("folderId", command, It.Is<Bank>(b => b.Code == "CodeB")))
+                .ReturnsAsync(rib)
+                .Verifiable();
+
+            this.mockJeDeclareService.Setup(item => item.CreateCollecteConfigurationAsync(dossierClient, rib))
+               .ReturnsAsync("releveId")
+               .Verifiable();
+
+            var mandateManager = new MandateManager(adapter, companyManager, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+
+            Guid collectionId = await mandateManager.CreateMandate(command);
+
+            collectionId.Should().NotBeEmpty();
+
+            int count = context.Collection.Count();
+            count.Should().Be(1);
+
+            var collection = await context.Collection
+                .Include(item => item.Company).ThenInclude(c => c!.JeDeclareFolder)
+                .Include(item => item.Statuses)
+                .Include(c => c.JeDeclareCollection)
+                .Include(c => c.Personal)
+                .FirstOrDefaultAsync(item => item.Id == collectionId);
+
+            collection.Should().NotBeNull();
+            collection.Company.Should().NotBeNull();
+            collection.Company.JeDeclareFolder.Should().NotBeNull();
+            collection.JeDeclareCollection.Should().NotBeNull();
+            collection.Personal.Should().NotBeNull();
+            collection.Statuses.Should().NotBeNull();
+
+            var companyId = collection!.CompanyId;
+
+            collection!.Company!.JeDeclareFolder!.CompanyId.Should().Be(companyId);
+            collection!.Company!.JeDeclareFolder!.JdcDossierId.Should().Be("folderId");
+
+            collection!.JeDeclareCollection!.CollectionId.Should().Be(collectionId);
+            collection!.JeDeclareCollection!.JdcReleveId.Should().Be("releveId");
+            collection!.JeDeclareCollection!.JdcRibId.Should().Be("ribId");
+
+            collection!.Personal!.Title.Should().Be("M");
+            collection!.Personal!.FirstName.Should().Be("marwen");
+            collection!.Personal!.LastName.Should().Be("elleuch");
+            collection!.Personal!.Email.Should().Be("maroo@email.com");
+            collection!.Personal!.Street.Should().Be("LE ROUSSEL");
+            collection!.Personal!.Complements.Should().Be("complements");
+            collection!.Personal!.ZipCode.Should().Be("63520");
+            collection!.Personal!.City.Should().Be("DOMAIZE");
+            collection!.Personal!.Country.Should().Be("France");
+
+            collection.Statuses.Count.Should().Be(2);
+            collection.Statuses.Count(s => s.IsCurrent).Should().Be(1);
+            collection.Statuses.Count(s => !s.IsCurrent).Should().Be(1);
+
+            var creationStatus = collection.Statuses.Where(item => !item.IsCurrent).FirstOrDefault();
+            creationStatus.Should().NotBeNull();
+            creationStatus!.StatusCode.Should().Be(-1);
+            creationStatus!.CollectionId.Should().Be(collectionId);
+
+            var currentStatus = collection.Statuses.Where(item => item.IsCurrent).FirstOrDefault();
+            currentStatus.Should().NotBeNull();
+            currentStatus!.StatusCode.Should().Be(10);
+            currentStatus!.CollectionId.Should().Be(collectionId);
+
+            this.mockJeDeclareService.VerifyAll();
+            this.mockAsposeHelper.VerifyAll();
+        }
+
+        private bool CompareAdress(Address address1, Address address2)
+        {
+            return address1.City == address2.City &&
+                address1.Country == address2.Country &&
+                address1.Complements == address2.Complements &&
+                address1.Street == address2.Street &&
+                address1.ZipCode == address2.ZipCode;
+        }
+
+        private bool CompareSignatory(Signatory signatory1, Signatory signatory2)
+        {
+            return signatory1.FirstName == signatory2.FirstName &&
+                signatory1.LastName == signatory2.LastName &&
+                signatory1.Email == signatory2.Email &&
+                signatory1.Title == signatory2.Title;
         }
     }
 }

@@ -6,10 +6,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 {
     using System;
     using System.Data;
-    using System.Globalization;
     using Microsoft.Data.SqlClient;
 
-    internal sealed class SqlServerDatabase : IAsyncDisposable
+    public sealed class SqlServerDatabase : IAsyncDisposable
     {
         private SqlConnection connection;
 

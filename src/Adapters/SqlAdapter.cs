@@ -56,38 +56,41 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             await this.mandateRepository.CreateFolderAsync(bankServicesProviderId, companyId);
         }
 
-        public Task<Status> CreateStatus(Guid collectionId, Status status)
+        public async Task<Status> CreateStatus(Guid collectionId, int statusCode)
         {
-            // Création d'un status relié a une collecte
-            throw new NotImplementedException();
-        }
+            // update current Status to false
+            await this.mandateRepository.UpdateCurrentStatus(collectionId);
 
-        public Task<Collection> InsertServicesProviderIds(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId)
-        {
-            // Création de JeDeclare Collection
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> CheckCollecteConfigExist(Bban bban)
-        {
-            // Vérifier si le rib existe déja dans la base
-            throw new NotImplementedException();
-        }
-
-        public async Task<Collection> CreateCollectionAsync(string erpId, Guid companyId, Bban bban)
-        {
-            CollectionDb o = new CollectionDb()
+            // select de la ref pour avoir 
+            StatusDb statusDb = new Sql.StatusDb()
             {
-                AccountNumber = bban.AccountNumber,
-                BankCode = bban.BankCode,
-                BranchCode = bban.BranchCode,
-                CheckDigits = bban.CheckDigits,
-                CompanyId = companyId,
-                LinkType = 7,
-                RejectReason = null,
+                CollectionId = collectionId,
+                IsCurrent = true,
+                StatusCode = statusCode,
+                StatusDate = DateTime.UtcNow,
+                CreatedBy = string.Empty,
             };
 
-            return (await this.mandateRepository.CreateCollectionAsync(o)).ToModel();
+            // Création d'un status relié a une collecte
+            return (await this.mandateRepository.CreateStatusAsync(collectionId, statusDb)).ToModel();
+        }
+
+        public async Task InsertServicesProviderIds(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId)
+        {
+            // Création de JeDeclare Collection
+            await this.mandateRepository.InsertServicesProviderIds(collectionId, collectionServicesProviderId, bbanServicesProviderId);
+        }
+
+        public async Task<bool> CheckCollecteConfigExistAsync(Bban bban)
+        {
+            return await this.mandateRepository.CheckCollecteConfigExistAsync(bban.BankCode, bban.BranchCode, bban.AccountNumber);
+        }
+
+        public async Task<Guid> CreateCollectionAsync(CollectionCreationCommand mandateCreation, Guid companyId)
+        {
+            CollectionDb collection = mandateCreation.Bban.ToSql(companyId);
+            collection.Statuses = new List<StatusDb>() { SqlExtensions.DefaultStatus() };
+            return (await this.mandateRepository.CreateCollectionAsync(collection)).Id;
         }
 
         public Task<Collection> UpdateCollection(Guid id, Collection collection)

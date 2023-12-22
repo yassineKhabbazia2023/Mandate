@@ -32,17 +32,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 bank: bank);
         }
 
-        public async Task<Collection> CreateCollecteConfigurationAsync(string bankServicesProviderId, Bban rib, Company dossier, Guid collectionId, Status initStatus)
+        public async Task<string> CreateCollecteConfigurationAsync(Company dossier, Bban rib)
         {
             var releve = rib.ToReleve(dossier?.Signatory!);
 
             var collectConfigurationCreated = await this.jedeclareClient.CreateCollecteConfigurationAsync(
-                jdcFolderId: bankServicesProviderId,
+                jdcFolderId: dossier?.BankServicesProviderId!,
                 releve: releve,
                 bankCode: rib.Bank?.Code!,
                 ebicsCardId: rib.Bank?.EbicsCardId!);
 
-            return collectConfigurationCreated.ToModel(dossier!, rib, collectionId, initStatus);
+            return collectConfigurationCreated.Id!;
         }
 
         public async Task<Company> CreateFolderAsync(Company company)

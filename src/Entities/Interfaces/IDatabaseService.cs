@@ -18,15 +18,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<Collection> GetCollectionById(Guid collectionId);
 
-        Task<Collection> CreateCollectionAsync(string erpId, Guid companyId, Bban bban);
+        Task<Guid> CreateCollectionAsync(CollectionCreationCommand mandateCreation, Guid companyId);
 
         Task CreateFolderAsync(string bankServicesProviderId, Guid companyId);
 
-        Task<Status> CreateStatus(Guid collectionId, Status status);
+        Task<Status> CreateStatus(Guid collectionId, int statusCode);
 
-        Task<Collection> InsertServicesProviderIds(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId);
+        Task InsertServicesProviderIds(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId);
 
-        Task<bool> CheckCollecteConfigExist(Bban bban);
+        Task<bool> CheckCollecteConfigExistAsync(Bban bban);
 
         Task<Collection> UpdateCollection(Guid id, Collection collection);
 

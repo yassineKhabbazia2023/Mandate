@@ -86,12 +86,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             {
                 Rib = new Rib()
                 {
-                    Etablissement = rib.BankCode,
-                    Guichet = rib.BranchCode,
-                    Cle = rib.CheckDigits,
-                    CiviliteTitulaire = signatory.Title,
-                    NomTitulaire = signatory.LastName,
-                    PrenomTitulaire = signatory.FirstName,
+                    Etablissement = rib?.BankCode,
+                    Guichet = rib?.BranchCode,
+                    Cle = rib?.CheckDigits,
+                    CiviliteTitulaire = signatory?.Title,
+                    NomTitulaire = signatory?.LastName,
+                    PrenomTitulaire = signatory?.FirstName,
                 },
             };
 

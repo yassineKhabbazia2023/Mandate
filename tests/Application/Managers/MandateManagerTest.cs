@@ -499,5 +499,167 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 signatory1.Email == signatory2.Email &&
                 signatory1.Title == signatory2.Title;
         }
+
+        [Fact]
+        public async Task DownloadSignedAsync_ValidCollectionIdAndValidPartnerCollection_ReturnsPdf()
+        {
+            // Arrange
+            var id = new PredictableGuid().NewGuid();
+            var companyId = new PredictableGuid().NewGuid();
+
+            var company = TestHelper.GetCompany(companyId, "bankServicesProviderId");
+            Bban bban = TestHelper.GetBban("ebicsCardId", true);
+            Status status = TestHelper.GetStatus();
+            var collection = new Collection(
+                Guid.NewGuid(),
+                "yourServiceProviderId",
+                company,
+                bban,
+                DateTime.Now,
+                DateTime.Now,
+                status);
+            var expectedBytes = Array.Empty<byte>();
+
+            this.mockDatabaseService
+                .Setup(m => m.GetCollectionById(id))
+                .ReturnsAsync(collection);
+
+            this.mockJeDeclareService
+                .Setup(m => m.GetSignedMandatPdfAsync(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(expectedBytes);
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+
+            // Act
+            var result = await mandateManager.DownloadSignedAsync(id);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedBytes, "because the service should return the expected PDF data");
+            result.Should().NotBeNull("because the method should return a non-null PDF data");
+            this.mockDatabaseService.Verify(m => m.GetCollectionById(id), Times.Once);
+            this.mockJeDeclareService.Verify(m => m.GetSignedMandatPdfAsync(company.BankServicesProviderId!, bban.BbanServicesProviderId!), Times.Once);
+        }
+
+        [Fact]
+        public async Task DownloadSignedAsync_FolderIdEmptyAndCompanyNotNull_ThrowsFolderIdEmptyOrNullException()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), string.Empty);
+            Bban bban = TestHelper.GetBban("ebicsCardId", true);
+            Status status = TestHelper.GetStatus();
+            var collection = new Collection(
+                Guid.NewGuid(),
+                "yourServiceProviderId",
+                company,
+                bban,
+                DateTime.Now,
+                DateTime.Now,
+                status);
+            var expectedBytes = Array.Empty<byte>();
+
+            this.mockDatabaseService
+                .Setup(m => m.GetCollectionById(id))
+                .ReturnsAsync(collection);
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+
+            // Act & Assert
+            Func<Task> act = async () => await mandateManager.DownloadSignedAsync(id);
+            await act.Should().ThrowAsync<FolderIdEmptyOrNullException>("because the service should throw an exception in this scenario");
+        }
+
+        [Fact]
+        public async Task DownloadSignedAsync_FolderIdEmptyAndCompanyIsNull_ThrowsFolderIdEmptyOrNullException()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            Bban bban = TestHelper.GetBban("ebicsCardId", true);
+            Status status = TestHelper.GetStatus();
+            var collection = new Collection(
+                Guid.NewGuid(),
+                "yourServiceProviderId",
+                null,
+                bban,
+                DateTime.Now,
+                DateTime.Now,
+                status);
+            var expectedBytes = Array.Empty<byte>();
+
+            this.mockDatabaseService
+                .Setup(m => m.GetCollectionById(id))
+                .ReturnsAsync(collection);
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+
+            // Act & Assert
+            Func<Task> act = async () => await mandateManager.DownloadSignedAsync(id);
+            await act.Should().ThrowAsync<FolderIdEmptyOrNullException>("because the service should throw an exception in this scenario");
+        }
+
+        [Fact]
+        public async Task DownloadSignedAsync_RibIdEmptyAndBbanNotNull_ThrowsRibIdEmptyOrNullException()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "bankServicesProviderId");
+            Bban bban = TestHelper.GetBban(string.Empty, true);
+            Status status = TestHelper.GetStatus();
+            var collection = new Collection(
+                Guid.NewGuid(),
+                "yourServiceProviderId",
+                company,
+                bban,
+                DateTime.Now,
+                DateTime.Now,
+                status);
+            var expectedBytes = Array.Empty<byte>();
+
+            this.mockDatabaseService
+                .Setup(m => m.GetCollectionById(id))
+                .ReturnsAsync(collection);
+
+            this.mockJeDeclareService
+                .Setup(m => m.GetSignedMandatPdfAsync(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(expectedBytes);
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+
+            // Act & Assert
+            Func<Task> act = async () => await mandateManager.DownloadSignedAsync(id);
+            await act.Should().ThrowAsync<RibIdEmptyOrNullException>("because the service should throw an exception in this scenario");
+        }
+
+        [Fact]
+        public async Task DownloadSignedAsync_RibIdEmptyAndBbanIsNull_ThrowsRibIdEmptyOrNullException()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "bankServicesProviderId");
+            Status status = TestHelper.GetStatus();
+            var collection = new Collection(
+                Guid.NewGuid(),
+                "yourServiceProviderId",
+                company,
+                null,
+                DateTime.Now,
+                DateTime.Now,
+                status);
+            var expectedBytes = Array.Empty<byte>();
+
+            this.mockDatabaseService
+                .Setup(m => m.GetCollectionById(id))
+                .ReturnsAsync(collection);
+
+            this.mockJeDeclareService
+                .Setup(m => m.GetSignedMandatPdfAsync(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(expectedBytes);
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+
+            // Act & Assert
+            Func<Task> act = async () => await mandateManager.DownloadSignedAsync(id);
+            await act.Should().ThrowAsync<RibIdEmptyOrNullException>("because the service should throw an exception in this scenario");
+        }
     }
 }

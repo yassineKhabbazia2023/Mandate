@@ -79,5 +79,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 throw new ServicesProviderException(ex.Message, ex);
             }
         }
+
+        public async Task<byte[]> GetSignedMandatPdfAsync(string jdcFolderId, string jdcRibId)
+        {
+            try
+            {
+                return await this.jedeclareClient.GetSignedMandatPdfAsync(jdcFolderId, jdcRibId);
+            }
+            catch (JeDeclareApiException ex)
+            {
+                throw new ServicesProviderException(ex.Message, ex);
+            }
+        }
     }
 }

@@ -112,63 +112,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         }
 
         [Fact]
-        public async Task AddRibToFolderAsync()
-        {
-            var signatory = new Signatory("M", "Ludovic", "TYREL DE POIX", "toto@gmail.com.fr");
-            var adress = new Address("1 Rue du Capitaine Floch", string.Empty, "72000", "Le Mans", "FRANCE");
-            var bankAgrement = new BankAgreement(JdcPartnership.Partner);
-
-            var bank = new Bank("code", "name", "group", "ebicsCardId", bankAgrement);
-            Bban bban = new Bban("code", "02408", "00011269900", "58", "bbanServicesProviderId", bank);
-
-            var bankServicesProviderId = "bankServicesProviderIdT";
-            var mandateCreation = new CollectionCreationCommand("1000332927", signatory, adress, bban);
-
-            var ribSaved = new Rib()
-            {
-                Id = "idT",
-                Etablissement = "12345",
-                Guichet = "54321",
-                NumCompte = "12345678910",
-                Cle = "12",
-                CiviliteTitulaire = "M",
-                PrenomTitulaire = "Maroo",
-                NomTitulaire = "Elleuch",
-            };
-
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
-            jedeclareClient.Setup(dc => dc.AddRibToFolderAsync(It.IsAny<string>(), It.IsAny<Rib>()))
-                .Callback<string, Rib>((s, r) =>
-                {
-                    s.Should().Be(bankServicesProviderId);
-                    r.Etablissement.Should().Be("code");
-                    r.Guichet.Should().Be("02408");
-                    r.NumCompte.Should().Be("00011269900");
-                    r.Cle.Should().Be("58");
-                    r.CiviliteTitulaire.Should().Be("M");
-                    r.NomTitulaire.Should().Be("TYREL DE POIX");
-                    r.PrenomTitulaire.Should().Be("Ludovic");
-                })
-                .ReturnsAsync(ribSaved)
-                .Verifiable();
-
-            var expextedBban = new Bban(
-                bankCode: "12345",
-                branchCode: "54321",
-                accountNumber: "12345678910",
-                checkDigits: "12",
-                bbanServicesProviderId: "idT",
-                bank: bank);
-
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
-            var result = await adapter.AddRibToFolderAsync(bankServicesProviderId, mandateCreation, bank);
-
-            result.Should().BeEquivalentTo(expextedBban);
-
-            jedeclareClient.VerifyAll();
-        }
-
-        [Fact]
         public async Task GetMandatPdfAsync_when_GetMandatPdfAsync_Throw_JeDeclareApiException()
         {
             var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
@@ -312,6 +255,95 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             await action.Should().ThrowAsync<ServicesProviderException>().WithMessage("message");
 
             jedeclareClient.Verify(client => client.UploadSignedMandat(bankServicesProviderId!, bbanServicesProviderId!, mandateFile), Times.Once);
+        }
+
+        [Fact]
+        public async Task AddRibToFolderAsync()
+        {
+            var signatory = new Signatory("M", "Ludovic", "TYREL DE POIX", "toto@gmail.com.fr");
+            var adress = new Address("1 Rue du Capitaine Floch", string.Empty, "72000", "Le Mans", "FRANCE");
+            var bankAgrement = new BankAgreement(JdcPartnership.Partner);
+
+            var bank = new Bank("code", "name", "group", "ebicsCardId", bankAgrement);
+            Bban bban = new Bban("code", "02408", "00011269900", "58", "bbanServicesProviderId", bank);
+
+            var bankServicesProviderId = "bankServicesProviderIdT";
+            var mandateCreation = new CollectionCreationCommand("1000332927", signatory, adress, bban);
+
+            var ribSaved = new Rib()
+            {
+                Id = "idT",
+                Etablissement = "12345",
+                Guichet = "54321",
+                NumCompte = "12345678910",
+                Cle = "12",
+                CiviliteTitulaire = "M",
+                PrenomTitulaire = "Maroo",
+                NomTitulaire = "Elleuch",
+            };
+
+            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            jedeclareClient.Setup(dc => dc.AddRibToFolderAsync(It.IsAny<string>(), It.IsAny<Rib>()))
+                .Callback<string, Rib>((s, r) =>
+                {
+                    s.Should().Be(bankServicesProviderId);
+                    r.Etablissement.Should().Be("code");
+                    r.Guichet.Should().Be("02408");
+                    r.NumCompte.Should().Be("00011269900");
+                    r.Cle.Should().Be("58");
+                    r.CiviliteTitulaire.Should().Be("M");
+                    r.NomTitulaire.Should().Be("TYREL DE POIX");
+                    r.PrenomTitulaire.Should().Be("Ludovic");
+                })
+                .ReturnsAsync(ribSaved)
+                .Verifiable();
+
+            var expextedBban = new Bban(
+                bankCode: "12345",
+                branchCode: "54321",
+                accountNumber: "12345678910",
+                checkDigits: "12",
+                bbanServicesProviderId: "idT",
+                bank: bank);
+
+            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            var result = await adapter.AddRibToFolderAsync(bankServicesProviderId, mandateCreation, bank);
+
+            result.Should().BeEquivalentTo(expextedBban);
+            jedeclareClient.VerifyAll();
+        }
+
+        [Fact]
+        public async Task GetSignedMandatPdfAsync_ReturnsPdf_WhenSuccessful()
+        {
+            // Arrange
+            var expectedPdf = new byte[] { 1, 2, 3, 4, 5 };
+
+            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            jedeclareClient.Setup(client => client.GetSignedMandatPdfAsync(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(expectedPdf);
+
+            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+
+            // Act
+            var result = await adapter.GetSignedMandatPdfAsync("jdcFolderId", "jdcRibId");
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedPdf);
+        }
+
+        [Fact]
+        public async Task GetSignedMandatPdfAsync_ThrowsServicesProviderException_WhenJeDeclareApiExceptionThrown()
+        {
+            // Arrange
+            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            jedeclareClient.Setup(client => client.GetSignedMandatPdfAsync(It.IsAny<string>(), It.IsAny<string>()))
+                .ThrowsAsync(new JeDeclareApiException("Error message"));
+
+            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ServicesProviderException>(() => adapter.GetSignedMandatPdfAsync("jdcFolderId", "jdcRibId"));
         }
     }
 }

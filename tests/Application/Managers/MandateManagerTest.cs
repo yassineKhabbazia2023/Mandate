@@ -406,8 +406,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                     c.Name == "cn1" &&
                     c.SiretNumber == "12345678901234" &&
                     c.BankServicesProviderId == null &&
-                    this.CompareSignatory(c.Signatory!, signature) &&
-                    this.CompareAdress(c.Address!, adresse))))
+                    CompareSignatory(c.Signatory!, signature) &&
+                    CompareAdress(c.Address!, adresse))))
                 .ReturnsAsync(dossierClient)
                 .Verifiable();
 

@@ -71,7 +71,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         public static Status ToModel(this Sql.StatusDb source)
         {
             return new Status(
-                (CollectionStatus)source?.StatusCode!,
+                (CollectionStatus)source?.RefStatusCode?.PulseCode!,
                 source?.RefStatusCode?.StatusNameFr!);
         }
 

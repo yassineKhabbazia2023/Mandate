@@ -61,7 +61,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             // update current Status to false
             await this.mandateRepository.UpdateCurrentStatus(collectionId);
 
-            // select de la ref pour avoir 
+            // select de la ref pour avoir
             StatusDb statusDb = new Sql.StatusDb()
             {
                 CollectionId = collectionId,

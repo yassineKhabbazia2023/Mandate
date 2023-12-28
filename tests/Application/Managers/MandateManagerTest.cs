@@ -365,7 +365,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             await using var database = SqlServerFixture.CreateDatabase();
             using var context = new MandateContext(this.options);
 
-            #region RefStatusCode
             await context.RefStatusCode.AddAsync(new RefStatusCodeDb()
             {
                 StatusCode = -1,
@@ -382,19 +381,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 StatusNameEn = "In Progress",
             });
             await context.SaveChangesAsync();
-            #endregion
-            #region Company
+
             var companyDb = EntityDbFactory.CompanyDb;
             await context.Company.AddAsync(companyDb);
             await context.SaveChangesAsync();
-            #endregion
-            #region bank
+
             var bankRef = EntityDbFactory.RefBankDb;
             bankRef.BankCode = "CodeB";
             bankRef.JdcPartnership = (JdcPartnership)3;
             await context.RefBank.AddAsync(bankRef);
             await context.SaveChangesAsync();
-            #endregion
 
             var sqlRepo = new SqlMandateRepository(this.options);
 
@@ -440,8 +436,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .FirstOrDefaultAsync(item => item.Id == collectionId);
 
             collection.Should().NotBeNull();
-            collection.Company.Should().NotBeNull();
-            collection.Company.JeDeclareFolder.Should().NotBeNull();
+            collection!.Company.Should().NotBeNull();
+            collection!.Company!.JeDeclareFolder.Should().NotBeNull();
             collection.JeDeclareCollection.Should().NotBeNull();
             collection.Personal.Should().NotBeNull();
             collection.Statuses.Should().NotBeNull();
@@ -481,23 +477,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             this.mockJeDeclareService.VerifyAll();
             this.mockAsposeHelper.VerifyAll();
-        }
-
-        private bool CompareAdress(Address address1, Address address2)
-        {
-            return address1.City == address2.City &&
-                address1.Country == address2.Country &&
-                address1.Complements == address2.Complements &&
-                address1.Street == address2.Street &&
-                address1.ZipCode == address2.ZipCode;
-        }
-
-        private bool CompareSignatory(Signatory signatory1, Signatory signatory2)
-        {
-            return signatory1.FirstName == signatory2.FirstName &&
-                signatory1.LastName == signatory2.LastName &&
-                signatory1.Email == signatory2.Email &&
-                signatory1.Title == signatory2.Title;
         }
 
         [Fact]
@@ -657,9 +636,25 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
 
-            // Act & Assert
             Func<Task> act = async () => await mandateManager.DownloadSignedAsync(id);
             await act.Should().ThrowAsync<RibIdEmptyOrNullException>("because the service should throw an exception in this scenario");
+        }
+
+        private static bool CompareAdress(Address address1, Address address2)
+        {
+            return address1.City == address2.City &&
+                address1.Country == address2.Country &&
+                address1.Complements == address2.Complements &&
+                address1.Street == address2.Street &&
+                address1.ZipCode == address2.ZipCode;
+        }
+
+        private static bool CompareSignatory(Signatory signatory1, Signatory signatory2)
+        {
+            return signatory1.FirstName == signatory2.FirstName &&
+                signatory1.LastName == signatory2.LastName &&
+                signatory1.Email == signatory2.Email &&
+                signatory1.Title == signatory2.Title;
         }
     }
 }

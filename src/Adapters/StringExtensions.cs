@@ -18,6 +18,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public static bool AllCharactersUpperCase(string chaine)
         {
+            if (string.IsNullOrEmpty(chaine))
+            {
+                return false;
+            }
+
             foreach (char character in chaine)
             {
                 if (!char.IsUpper(character))
@@ -33,14 +38,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             if (!IsValid(chaine))
             {
-                throw new InvalidOperationException($"{nameof(StringExtensions)} - la chaine {chaine} n'est pas valide");
+                throw new InvalidOperationException($"{nameof(StringExtensions)} - {chaine} n'est pas valide");
             }
 
             string[] mots = chaine.Split(' ');
 
             // Le premier mot est le sexe
             string sexe = mots[0];
-            mots = mots.ToList().Skip(1).ToArray();
+            mots = mots.AsEnumerable().Skip(1).ToArray();
 
             List<string> nomArray = new List<string>();
             List<string> prenomArray = new List<string>();

@@ -8,12 +8,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
     public static class SqlExtensions
     {
-        public static Bank ToModel(this Sql.RefBankDb source)
-        {
-            var bankagreement = new BankAgreement((JdcPartnership)source.JdcPartnership);
-            return new Bank(source.BankCode, source.BankName, source.BankGroup, source.EbicsCardId, bankagreement);
-        }
-
         public static Signatory ToSignatory(this Sql.PersonalDb source)
         {
             return new Signatory(source.Title, source.FirstName, source.LastName, source.Email);
@@ -22,6 +16,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         public static Address ToAdress(this Sql.PersonalDb source)
         {
             return new Address(source.Street, source.Complements, source.ZipCode, source.City, source.Country);
+        }
+
+        public static Bank ToModel(this Sql.RefBankDb source)
+        {
+            var bankagreement = new BankAgreement((JdcPartnership)source.JdcPartnership);
+            return new Bank(source.BankCode, source.BankName, source.BankGroup, source.EbicsCardId, bankagreement);
         }
 
         public static Collection ToModel(this Sql.CollectionDb source)
@@ -42,9 +42,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             var currentStatus = source.Statuses?.SingleOrDefault(i => i.IsCurrent);
             var creationStatus = source.Statuses?.SingleOrDefault(i => i.StatusCode == -1);
 
-            Status status = new Status(
-                (CollectionStatus)currentStatus?.RefStatusCode!.PulseCode!,
-                currentStatus.RefStatusCode?.StatusNameFr!);
+            Status? status = currentStatus != null ? currentStatus.ToModel() : null;
 
             return new Collection(
                 id: source.Id,
@@ -52,8 +50,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 company: company,
                 bban: bban,
                 creationDate: (creationStatus?.StatusDate!).Value,
-                modificationDate: (currentStatus.StatusDate!).Value,
-                status: status);
+                modificationDate: (currentStatus?.StatusDate!).Value,
+                status: status!);
         }
 
         public static Company ToModel(this Sql.CompanyDb source)
@@ -68,6 +66,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 source.JeDeclareFolder?.JdcDossierId,
                 signatory,
                 address);
+        }
+
+        public static Status ToModel(this Sql.StatusDb source)
+        {
+            return new Status(
+                (CollectionStatus)source?.StatusCode!,
+                source?.RefStatusCode?.StatusNameFr!);
         }
 
         public static Sql.CollectionQuery ToSql(this CollectionQueryDto source)
@@ -115,11 +120,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 City = source.Address.City,
                 Country = source.Address.Country,
             };
-        }
-
-        public static Status ToModel(this Sql.StatusDb source)
-        {
-            return new Status((CollectionStatus)source.StatusCode, source.RefStatusCode.StatusNameFr);
         }
 
         public static Sql.StatusDb DefaultStatus()

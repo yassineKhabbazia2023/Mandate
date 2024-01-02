@@ -42,12 +42,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             }
         }
 
-        public void Dispose()
-        {
-            this.Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
         public static SqlServerDatabase CreateDatabase()
         {
             var dacDeployOptions = new DacDeployOptions()
@@ -61,6 +55,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var database = new SqlServerDatabase(connectionString);
             Connect(database);
             return database;
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
         internal static async Task DropDatabase(SqlServerDatabase database)

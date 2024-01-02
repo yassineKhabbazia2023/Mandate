@@ -38,13 +38,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                     Adresse = new Adresse()
                     {
                         CodePostal = company.Address?.ZipCode!,
-                        CplRue = company.Address?.Street!,
+                        CplRue = company.Address?.Complements!,
                         Pays = company.Address?.Country!,
                         Rue = company.Address?.Street!,
                         Ville = company.Address?.City!,
                     },
-                    Mail = company.Signatory?.Email!,
-                    Name = $"{company.Signatory?.FirstName!} {company.Signatory?.LastName!}",
+                    Mail = !string.IsNullOrEmpty(company.Signatory?.Email!) ? company.Signatory?.Email! : null,
+                    Name = $"{company.Signatory?.Title!} {company.Signatory?.FirstName!} {company.Signatory?.LastName!.ToUpper()}",
                 },
             };
 
@@ -86,8 +86,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             {
                 Rib = new Rib()
                 {
+                    Id = rib?.BbanServicesProviderId,
                     Etablissement = rib?.BankCode,
                     Guichet = rib?.BranchCode,
+                    NumCompte = rib?.AccountNumber,
                     Cle = rib?.CheckDigits,
                     CiviliteTitulaire = signatory?.Title,
                     NomTitulaire = signatory?.LastName,
@@ -96,6 +98,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
 
             return releve;
+        }
+
+        public static Bban ToModel(this Rib source, Bank? bank)
+        {
+            return new Bban(
+                bankCode: source.Etablissement!,
+                branchCode: source.Guichet!,
+                accountNumber: source.NumCompte!,
+                checkDigits: source.Cle!,
+                bbanServicesProviderId: source.Id,
+                bank: bank);
         }
 
         public static Collection ToModel(this Releve source, Company company, Bban rib, Guid collectionId, Status initStatus)

@@ -23,13 +23,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 jdcFolderId: bankServicesProviderId!,
                 ribClient: rib);
 
-            return new Bban(
-                bankCode: ribSaved.Etablissement!,
-                branchCode: ribSaved.Guichet!,
-                accountNumber: ribSaved.NumCompte!,
-                checkDigits: ribSaved.Cle!,
-                bbanServicesProviderId: ribSaved.Id,
-                bank: bank);
+            return ribSaved.ToModel(bank);
         }
 
         public async Task<string> CreateCollecteConfigurationAsync(Company dossier, Bban rib)

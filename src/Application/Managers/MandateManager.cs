@@ -39,7 +39,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             Company dossierClient = await this.jeDeclareService.CreateFolderAsync(toAdd);
 
             // Création du dossier coté SQL
-            await this.databaseService.CreateFolderAsync(dossierClient.BankServicesProviderId!, dossierClient.Id);
+            await this.databaseService.CreateOrUpdateFolderAsync(dossierClient.BankServicesProviderId!, company.Id);
 
             // Verification du bank partenaire ou non partenaire
             if (bank.JdcAgreement.JdcPartnership != JdcPartnership.Partner && string.IsNullOrWhiteSpace(bank.EbicsCardId))
@@ -60,7 +60,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 bank);
 
             // Création de la collecte
-            Guid collectionId = await this.databaseService.CreateCollectionAsync(mandateCreation, dossierClient.Id);
+            Guid collectionId = await this.databaseService.CreateCollectionAsync(rib, company.Id);
 
             // création de la collecte coté jeDeclare
             string createdReleveId = await this.jeDeclareService.CreateCollecteConfigurationAsync(
@@ -68,7 +68,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 rib);
 
             // save Signatory
-            await this.databaseService.SaveSignatoryAsync(company.Id, collectionId, mandateCreation.Signatory, mandateCreation.Address);
+            await this.databaseService.SaveSignatoryAsync(null, collectionId, mandateCreation.Signatory, mandateCreation.Address);
 
             // crétaion JeDeclareCollection coté sql
             await this.databaseService.InsertServicesProviderIds(collectionId, createdReleveId, rib?.BbanServicesProviderId!);

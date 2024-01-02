@@ -1431,15 +1431,34 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             return await company.SingleAsync().ConfigureAwait(false);
         }
 
-        public async Task CreateFolderAsync(string bankServicesProviderId, Guid companyId)
+        public async Task CreateOrUpdateFolderAsync(string bankServicesProviderId, Guid companyId)
         {
             using var context = new MandateContext(this.options);
-            JeDeclareFolderDb jeDeclareFolder = new JeDeclareFolderDb
+
+            var folder = await context.JeDeclareFolder
+                .Where(item => item.CompanyId == companyId && item.JdcDossierId == bankServicesProviderId)
+                .FirstOrDefaultAsync().ConfigureAwait(false);
+
+            if (folder == null)
             {
-                CompanyId = companyId,
-                JdcDossierId = bankServicesProviderId,
-            };
-            await context.JeDeclareFolder.AddAsync(jeDeclareFolder);
+                JeDeclareFolderDb jeDeclareFolder = new JeDeclareFolderDb
+                {
+                    CompanyId = companyId,
+                    JdcDossierId = bankServicesProviderId,
+                };
+                await context.JeDeclareFolder.AddAsync(jeDeclareFolder);
+            }
+            else
+            {
+                JeDeclareFolderDb jeDeclareFolder = new JeDeclareFolderDb
+                {
+                    Id = folder.Id,
+                    CompanyId = companyId,
+                    JdcDossierId = bankServicesProviderId,
+                };
+                context.Entry(folder).CurrentValues.SetValues(jeDeclareFolder);
+            }
+
             await context.SaveChangesAsync();
         }
 

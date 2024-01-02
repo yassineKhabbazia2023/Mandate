@@ -18,9 +18,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<Collection> GetCollectionById(Guid collectionId);
 
-        Task<Guid> CreateCollectionAsync(CollectionCreationCommand mandateCreation, Guid companyId);
+        Task<Guid> CreateCollectionAsync(Bban bban, Guid companyId);
 
-        Task CreateFolderAsync(string bankServicesProviderId, Guid companyId);
+        Task CreateOrUpdateFolderAsync(string bankServicesProviderId, Guid companyId);
 
         Task<Status> CreateStatus(Guid collectionId, int statusCode);
 

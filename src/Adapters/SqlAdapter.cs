@@ -51,9 +51,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return company.ToModel();
         }
 
-        public async Task CreateFolderAsync(string bankServicesProviderId, Guid companyId)
+        public async Task CreateOrUpdateFolderAsync(string bankServicesProviderId, Guid companyId)
         {
-            await this.mandateRepository.CreateFolderAsync(bankServicesProviderId, companyId);
+            await this.mandateRepository.CreateOrUpdateFolderAsync(bankServicesProviderId, companyId);
         }
 
         public async Task<Status> CreateStatus(Guid collectionId, int statusCode)
@@ -86,9 +86,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return await this.mandateRepository.CheckCollecteConfigExistAsync(bban.BankCode, bban.BranchCode, bban.AccountNumber);
         }
 
-        public async Task<Guid> CreateCollectionAsync(CollectionCreationCommand mandateCreation, Guid companyId)
+        public async Task<Guid> CreateCollectionAsync(Bban bban, Guid companyId)
         {
-            CollectionDb collection = mandateCreation.Bban.ToSql(companyId);
+            CollectionDb collection = bban.ToSql(companyId);
             collection.Statuses = new List<StatusDb>() { SqlExtensions.DefaultStatus() };
             return (await this.mandateRepository.CreateCollectionAsync(collection)).Id;
         }

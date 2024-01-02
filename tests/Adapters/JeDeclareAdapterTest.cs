@@ -31,7 +31,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         [InlineData("m Jean Claude GARAUDET", "m", "Jean Claude", "GARAUDET")]
         public async Task CreateFolderAsync(string nom, string title, string firstName, string lastName)
         {
-            var signatory = new Signatory("Mr.", "John", "Doe", "john.doe@example.com");
+            var signatory = new Signatory(title, firstName, lastName, "john.doe@example.com");
             var address = new Address("123 Main St", "Apt 4B", "12345", "New York", "USA");
 
             var company = new Company(Guid.NewGuid(), "Example Company", "12345678901234", "testErpId", "BSP1234", signatory, address);
@@ -57,7 +57,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                             Pays = "country",
                             Ville = "city",
                             Rue = "street",
-                            CplRue = "streetT",
+                            CplRue = "Apt 4B",
                         },
                     },
                 },
@@ -72,12 +72,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                     dc.Client.Siret.Siren.Should().Be("123456789");
                     dc.Client.Siret.Nic.Should().Be("01234");
                     dc.Client.Responsable.Adresse.CodePostal.Should().Be("12345");
-                    dc.Client.Responsable.Adresse.CplRue.Should().Be("123 Main St");
+                    dc.Client.Responsable.Adresse.CplRue.Should().Be("Apt 4B");
                     dc.Client.Responsable.Adresse.Pays.Should().Be("USA");
                     dc.Client.Responsable.Adresse.Rue.Should().Be("123 Main St");
                     dc.Client.Responsable.Adresse.Ville.Should().Be("New York");
                     dc.Client.Responsable.Mail.Should().Be("john.doe@example.com");
-                    dc.Client.Responsable.Name.Should().Be("John Doe");
+                    dc.Client.Responsable.Name.Should().Be(nom);
                 })
                 .ReturnsAsync(dossierClient)
                 .Verifiable();
@@ -94,7 +94,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var expectedAdress = new Address(
                 street: "street",
-                complements: "streetT",
+                complements: "Apt 4B",
                 zipCode: "zipcode",
                 city: "city",
                 country: "country");
@@ -134,8 +134,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var rib = new Rib()
             {
+                Id = "6789",
                 Etablissement = "12345",
                 Guichet = "56789",
+                NumCompte = "12345678901",
                 Cle = "88",
                 CiviliteTitulaire = "Mr.",
                 PrenomTitulaire = "John",
@@ -150,12 +152,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
             jedeclareClient.Setup(dc => dc.CreateCollecteConfigurationAsync(
-                "bankServicesProviderIdT", It.IsAny<Releve>(), "12345", "ebicsCardIdT"))
-                .Callback<string, Releve, string, string>((f, r, b, e) =>
-                {
-                    r.Id.Should().BeNull();
-                    r.Rib.Should().BeEquivalentTo(rib);
-                })
+                "bankServicesProviderIdT",
+                It.Is<Releve>(item => CompareRib(item.Rib!, rib)),
+                "12345",
+                "ebicsCardIdT"))
                 .ReturnsAsync(releve)
                 .Verifiable();
 
@@ -344,6 +344,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             // Act & Assert
             await Assert.ThrowsAsync<ServicesProviderException>(() => adapter.GetSignedMandatPdfAsync("jdcFolderId", "jdcRibId"));
+        }
+
+        private bool CompareRib(Rib rib1, Rib rib2)
+        {
+            return rib1.Etablissement == rib2.Etablissement &&
+                rib1.NumCompte == rib2.NumCompte &&
+                rib1.Guichet == rib2.Guichet &&
+                rib1.Cle == rib2.Cle &&
+                rib1.CiviliteTitulaire == rib2.CiviliteTitulaire &&
+                rib1.NomTitulaire == rib2.NomTitulaire &&
+                rib1.PrenomTitulaire == rib2.PrenomTitulaire &&
+                rib1.Id == rib2.Id &&
+                rib1.Libelle == rib2.Libelle;
         }
     }
 }

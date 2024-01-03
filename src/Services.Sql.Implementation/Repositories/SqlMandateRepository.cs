@@ -1424,7 +1424,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             };
         }
 
-        private static IQueryable<CollectionDb> PrepareSortedQuery(IQueryable<CollectionDb> mandates)
+        private static IQueryable<CollectionDb> PrepareUnSortedQuery(IQueryable<CollectionDb> mandates)
         {
             return mandates
                 .Where(collection => collection.Statuses.Any(status => status.IsCurrent))
@@ -1447,16 +1447,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
         private static IQueryable<CollectionDb> ApplyModificationDateSort(IQueryable<CollectionDb> mandates, bool isAscending)
         {
-            var sorted = PrepareSortedQuery(mandates);
-            return isAscending ? sorted.OrderBy(collection => collection.Statuses.Min(status => status.StatusDate)) :
-                                 sorted.OrderByDescending(collection => collection.Statuses.Min(status => status.StatusDate));
+            var unSorted = PrepareUnSortedQuery(mandates);
+            return isAscending ? unSorted.OrderBy(collection => collection.Statuses.Min(status => status.StatusDate)) :
+                                 unSorted.OrderByDescending(collection => collection.Statuses.Min(status => status.StatusDate));
         }
 
         private static IQueryable<CollectionDb> ApplyStatusSort(IQueryable<CollectionDb> mandates, bool isAscending)
         {
-            var sorted = PrepareSortedQuery(mandates);
-            return isAscending ? sorted.OrderBy(collection => collection.Statuses.Min(status => status.RefStatusCode!.PulseCode)) :
-                                 sorted.OrderByDescending(collection => collection.Statuses.Min(status => status.RefStatusCode!.PulseCode));
+            var unSorted = PrepareUnSortedQuery(mandates);
+            return isAscending ? unSorted.OrderBy(collection => collection.Statuses.Min(status => status.RefStatusCode!.PulseCode)) :
+                                 unSorted.OrderByDescending(collection => collection.Statuses.Min(status => status.RefStatusCode!.PulseCode));
         }
 
         private static async Task<List<CollectionDb>> PaginatedListAsync(IQueryable<CollectionDb> mandates, CollectionQuery query)

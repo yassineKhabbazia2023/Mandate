@@ -1436,8 +1436,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             using var context = new MandateContext(this.options);
 
             var folder = await context.JeDeclareFolder
-                .Where(item => item.CompanyId == companyId && item.JdcDossierId == bankServicesProviderId)
-                .FirstOrDefaultAsync().ConfigureAwait(false);
+                .Where(item => item.CompanyId == companyId)
+                .SingleOrDefaultAsync().ConfigureAwait(false);
 
             if (folder == null)
             {
@@ -1456,7 +1456,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                     CompanyId = companyId,
                     JdcDossierId = bankServicesProviderId,
                 };
+
+                folder.JdcDossierId = bankServicesProviderId;
                 context.Entry(folder).CurrentValues.SetValues(jeDeclareFolder);
+
+                await context.SaveChangesAsync();
             }
 
             await context.SaveChangesAsync();

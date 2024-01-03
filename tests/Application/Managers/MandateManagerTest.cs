@@ -480,6 +480,132 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         }
 
         [Fact]
+        public async Task CreateMandate_Case_JdcPartnership_NoCard()
+        {
+            var bank = new Bank("CodeB", "name", "group", null, new BankAgreement(Mandate.JdcPartnership.NonPartner));
+            var rib = new Bban("CodeB", "54321", "12345678901", "01", "ribId", bank);
+            var signature = new Signatory("M", "marwen", "elleuch", "maroo@email.com");
+            var adresse = new Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+
+            var command = new CollectionCreationCommand(
+                "1234567890",
+                signature,
+                adresse,
+                rib);
+
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            var companyDb = EntityDbFactory.CompanyDb;
+            await context.Company.AddAsync(companyDb);
+            await context.SaveChangesAsync();
+
+            var bankRef = EntityDbFactory.RefBankDb;
+            bankRef.BankCode = "CodeB";
+            bankRef.JdcPartnership = (JdcPartnership)2;
+            await context.RefBank.AddAsync(bankRef);
+            await context.SaveChangesAsync();
+
+            var sqlRepo = new SqlMandateRepository(this.options);
+
+            var adapter = new SqlAdapter(sqlRepo);
+            var companyManager = new CompanyManager(adapter);
+
+            var dossierClient = new Company(companyDb.Id, "cn1", "12345678901234", "1234567890", "folderId", EntityFactory.Signatory, EntityFactory.Address);
+
+            this.mockJeDeclareService.Setup(item => item.CreateFolderAsync(
+                It.Is<Company>(c =>
+                    c.Id == companyDb.Id &&
+                    c.ErpId == "1234567890" &&
+                    c.Name == "cn1" &&
+                    c.SiretNumber == "12345678901234" &&
+                    c.BankServicesProviderId == null &&
+                    CompareSignatory(c.Signatory!, signature) &&
+                    CompareAdress(c.Address!, adresse))))
+                .ReturnsAsync(dossierClient)
+                .Verifiable();
+
+            var mandateManager = new MandateManager(adapter, companyManager, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+
+            Func<Task> acttion = () => mandateManager.CreateMandate(command);
+
+            int count = context.Collection.Count();
+            count.Should().Be(0);
+
+            await acttion.Should().ThrowExactlyAsync<ApplicationException>()
+                    .WithMessage("L'établissement bancaire CodeB n'est pas partenaire de JeDeclare.com mais est défini sans connexion à une carte EBICs.");
+
+            this.mockJeDeclareService.VerifyAll();
+            this.mockAsposeHelper.VerifyAll();
+        }
+
+        [Fact]
+        public async Task CreateMandate_Case_Collection_Exist()
+        {
+            var bank = new Bank("CodeB", "name", "group", "cardId", new BankAgreement(Mandate.JdcPartnership.NonPartner));
+            var rib = new Bban("CodeB", "23456", "12345678901", "55", "ribId", bank);
+            var signature = new Signatory("M", "marwen", "elleuch", "maroo@email.com");
+            var adresse = new Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+
+            var command = new CollectionCreationCommand(
+                "1234567890",
+                signature,
+                adresse,
+                rib);
+
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            var companyDb = EntityDbFactory.CompanyDb;
+            await context.Company.AddAsync(companyDb);
+            await context.SaveChangesAsync();
+
+            var bankRef = EntityDbFactory.RefBankDb;
+            bankRef.BankCode = "CodeB";
+            bankRef.JdcPartnership = (JdcPartnership)2;
+            bankRef.EbicsCardId = "cardId";
+            await context.RefBank.AddAsync(bankRef);
+            await context.SaveChangesAsync();
+
+            var coll = EntityDbFactory.CollectionDb;
+            coll.BankCode = "CodeB";
+            await context.Collection.AddAsync(coll);
+            await context.SaveChangesAsync();
+
+            var sqlRepo = new SqlMandateRepository(this.options);
+
+            var adapter = new SqlAdapter(sqlRepo);
+            var companyManager = new CompanyManager(adapter);
+
+            var dossierClient = new Company(companyDb.Id, "cn1", "12345678901234", "1234567890", "folderId", EntityFactory.Signatory, EntityFactory.Address);
+
+            this.mockJeDeclareService.Setup(item => item.CreateFolderAsync(
+                It.Is<Company>(c =>
+                    c.Id == companyDb.Id &&
+                    c.ErpId == "1234567890" &&
+                    c.Name == "cn1" &&
+                    c.SiretNumber == "12345678901234" &&
+                    c.BankServicesProviderId == null &&
+                    CompareSignatory(c.Signatory!, signature) &&
+                    CompareAdress(c.Address!, adresse))))
+                .ReturnsAsync(dossierClient)
+                .Verifiable();
+
+            var mandateManager = new MandateManager(adapter, companyManager, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+
+            Func<Task> acttion = () => mandateManager.CreateMandate(command);
+
+            int count = context.Collection.Count();
+            count.Should().Be(1);
+
+            await acttion.Should().ThrowExactlyAsync<ApplicationException>()
+                    .WithMessage("Il existe une configuration de collecte pour ce RIB CodeB-23456-12345678901-55.");
+
+            this.mockJeDeclareService.VerifyAll();
+            this.mockAsposeHelper.VerifyAll();
+        }
+
+        [Fact]
         public async Task DownloadSignedAsync_ValidCollectionIdAndValidPartnerCollection_ReturnsPdf()
         {
             // Arrange

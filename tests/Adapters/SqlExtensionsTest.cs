@@ -129,5 +129,130 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             result.Address.City.Should().BeNull();
             result.Address.Country.Should().BeNull();
         }
+
+        [Fact]
+        public void ToModel()
+        {
+            Bban entity = EntityFactory.Bban;
+
+            var res = entity.ToSql(new Guid("5f42f533-f73c-408b-a4b3-a014096e97e2"));
+
+            var expected = new Sql.CollectionDb()
+            {
+                BankCode = "12345",
+                BranchCode = "54321",
+                AccountNumber = "12345678901",
+                CheckDigits = "01",
+                CompanyId = new Guid("5f42f533-f73c-408b-a4b3-a014096e97e2"),
+            };
+            res.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void ToPersonalCollection()
+        {
+            var entity = new CollectionCreationCommand(
+                "12345",
+                EntityFactory.Signatory,
+                EntityFactory.Address,
+                EntityFactory.Bban);
+
+            var result = entity.ToPersonalCollection();
+
+            var expected = new Sql.PersonalDb
+            {
+                Title = "Mme",
+                FirstName = "First",
+                LastName = "Last",
+                Email = "first.last@outlook.com",
+                City = "Paris",
+                ZipCode = "75001",
+                Street = "street",
+                Complements = "complements",
+                Country = "France",
+            };
+
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void DefaultStatus()
+        {
+            Sql.StatusDb status = SqlExtensions.DefaultStatus();
+
+            status.IsCurrent.Should().BeTrue();
+            status.StatusCode.Should().Be(-1);
+            status.StatusDate.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
+        }
+
+        [Fact]
+        public void Status_ToMoel()
+        {
+            var entity = new Sql.StatusDb()
+            {
+                RefStatusCode = new Sql.RefStatusCodeDb()
+                {
+                    PulseCode = 30,
+                    StatusCode = 1,
+                    StatusNameFr = "statusName",
+                },
+            };
+
+            var result = entity.ToModel();
+
+            result.Should().BeEquivalentTo(new Status(CollectionStatus.InProgress, "statusName"));
+        }
+
+        [Fact]
+        public void ToSignatory()
+        {
+            var entity = new Sql.PersonalDb()
+            {
+                Id = Guid.NewGuid(),
+                City = "city",
+                Complements = "comp",
+                ZipCode = "43598",
+                Country = "country",
+                Street = "street",
+                FirstName = "first",
+                LastName = "last",
+                Title = "M",
+                Email = "email@email.com",
+                CompanyId = Guid.NewGuid(),
+                CollectionId = Guid.NewGuid(),
+            };
+
+            var result = entity.ToSignatory();
+
+            var expected = new Signatory("M", "first", "last", "email@email.com");
+
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void ToAdress()
+        {
+            var entity = new Sql.PersonalDb()
+            {
+                Id = Guid.NewGuid(),
+                City = "city",
+                Complements = "comp",
+                ZipCode = "43598",
+                Country = "country",
+                Street = "street",
+                FirstName = "first",
+                LastName = "last",
+                Title = "M",
+                Email = "email@email.com",
+                CompanyId = Guid.NewGuid(),
+                CollectionId = Guid.NewGuid(),
+            };
+
+            var result = entity.ToAdress();
+
+            var expected = new Address("street", "comp", "43598", "city", "country");
+
+            result.Should().BeEquivalentTo(expected);
+        }
     }
 }

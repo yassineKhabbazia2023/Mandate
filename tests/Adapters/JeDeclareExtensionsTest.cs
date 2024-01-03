@@ -35,7 +35,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public void ToDossierClient()
         {
             Signatory signatory = new Signatory("M", "Maroo", "Elleuch", "email@email.com");
-            Address? address = new Address("street", null, "zipcode", "city", "country");
+            Address? address = new Address("street", "cmp", "zipcode", "city", "country");
             var entity = new Company(
                 new Guid("00000001-0000-0000-0000-000000000000"),
                 "companyName",
@@ -61,7 +61,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                     },
                     Responsable = new Responsable()
                     {
-                        Name = $"Maroo Elleuch",
+                        Name = $"M Maroo ELLEUCH",
                         Mail = "email@email.com",
                         Adresse = new Adresse()
                         {
@@ -69,7 +69,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                             Pays = "country",
                             Ville = "city",
                             Rue = "street",
-                            CplRue = "street",
+                            CplRue = "cmp",
                         },
                     },
                 },

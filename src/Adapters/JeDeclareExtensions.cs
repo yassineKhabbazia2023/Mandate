@@ -38,13 +38,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                     Adresse = new Adresse()
                     {
                         CodePostal = company.Address?.ZipCode!,
-                        CplRue = company.Address?.Street!,
+                        CplRue = company.Address?.Complements!,
                         Pays = company.Address?.Country!,
                         Rue = company.Address?.Street!,
                         Ville = company.Address?.City!,
                     },
-                    Mail = company.Signatory?.Email!,
-                    Name = $"{company.Signatory?.FirstName!} {company.Signatory?.LastName!}",
+                    Mail = !string.IsNullOrEmpty(company.Signatory?.Email!) ? company.Signatory?.Email! : null,
+                    Name = $"{company.Signatory?.Title!} {company.Signatory?.FirstName!} {company.Signatory?.LastName!.ToUpper()}",
                 },
             };
 
@@ -53,27 +53,29 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return dossier;
         }
 
-        public static Company ToCompany(this DossierClient dossierClient, Signatory source)
+        public static Company ToCompany(this DossierClient dossierClient)
         {
+            var decomposedName = dossierClient.Client.Responsable.Name.ExtractPersonInfo();
+
             var signatory = new Signatory(
-                title: source?.Title,
-                firstName: source?.FirstName,
-                lastName: source?.LastName,
-                email: source?.Email);
+                title: decomposedName.sexe,
+                firstName: decomposedName.prenom,
+                lastName: decomposedName.nom,
+                email: dossierClient.Client.Responsable.Mail);
 
             var adresse = new Address(
-                street: dossierClient?.Client.Responsable.Adresse.Rue,
-                complements: dossierClient?.Client.Responsable.Adresse.CplRue,
-                zipCode: dossierClient?.Client.Responsable.Adresse.CodePostal,
-                city: dossierClient?.Client.Responsable.Adresse.Ville,
-                country: dossierClient?.Client.Responsable.Adresse.Pays);
+                street: dossierClient.Client.Responsable.Adresse.Rue,
+                complements: dossierClient.Client.Responsable.Adresse.CplRue,
+                zipCode: dossierClient.Client.Responsable.Adresse.CodePostal,
+                city: dossierClient.Client.Responsable.Adresse.Ville,
+                country: dossierClient.Client.Responsable.Adresse.Pays);
 
             return new Company(
                 id: Guid.Empty,
-                name: dossierClient?.Client.RaisonSociale,
-                siretNumber: dossierClient?.Client.Siret.Siren + dossierClient?.Client.Siret.Nic,
+                name: dossierClient.Client.RaisonSociale,
+                siretNumber: dossierClient.Client.Siret.Siren + dossierClient.Client.Siret.Nic,
                 erpId: null,
-                bankServicesProviderId: dossierClient?.Client.Id,
+                bankServicesProviderId: dossierClient.Client.Id,
                 signatory: signatory,
                 address: adresse);
         }
@@ -84,8 +86,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             {
                 Rib = new Rib()
                 {
+                    Id = rib?.BbanServicesProviderId,
                     Etablissement = rib?.BankCode,
                     Guichet = rib?.BranchCode,
+                    NumCompte = rib?.AccountNumber,
                     Cle = rib?.CheckDigits,
                     CiviliteTitulaire = signatory?.Title,
                     NomTitulaire = signatory?.LastName,
@@ -96,11 +100,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return releve;
         }
 
+        public static Bban ToModel(this Rib source, Bank? bank)
+        {
+            return new Bban(
+                bankCode: source.Etablissement!,
+                branchCode: source.Guichet!,
+                accountNumber: source.NumCompte!,
+                checkDigits: source.Cle!,
+                bbanServicesProviderId: source.Id,
+                bank: bank);
+        }
+
         public static Collection ToModel(this Releve source, Company company, Bban rib, Guid collectionId, Status initStatus)
         {
-            Collection collection = new (
+            Collection collection = new Collection(
                 collectionId,
-                source?.Id,
+                source.Id,
                 company,
                 rib,
                 DateTime.UtcNow,

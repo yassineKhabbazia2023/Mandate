@@ -1431,6 +1431,115 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             return await company.SingleAsync().ConfigureAwait(false);
         }
 
+        public async Task CreateOrUpdateFolderAsync(string bankServicesProviderId, Guid companyId)
+        {
+            using var context = new MandateContext(this.options);
+
+            var folder = await context.JeDeclareFolder
+                .Where(item => item.CompanyId == companyId)
+                .SingleOrDefaultAsync().ConfigureAwait(false);
+
+            if (folder == null)
+            {
+                JeDeclareFolderDb jeDeclareFolder = new JeDeclareFolderDb
+                {
+                    CompanyId = companyId,
+                    JdcDossierId = bankServicesProviderId,
+                };
+                await context.JeDeclareFolder.AddAsync(jeDeclareFolder);
+            }
+            else
+            {
+                JeDeclareFolderDb jeDeclareFolder = new JeDeclareFolderDb
+                {
+                    Id = folder.Id,
+                    CompanyId = companyId,
+                    JdcDossierId = bankServicesProviderId,
+                };
+
+                context.Entry(folder).CurrentValues.SetValues(jeDeclareFolder);
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<CollectionDb> CreateCollectionAsync(CollectionDb collection)
+        {
+            using var context = new MandateContext(this.options);
+
+            await context.Collection.AddAsync(collection);
+            await context.SaveChangesAsync();
+
+            return collection;
+        }
+
+        public async Task<bool> CheckCollecteConfigExistAsync(string bankCode, string branchCode, string accountNumber)
+        {
+            using var context = new MandateContext(this.options);
+            return await context.Collection
+                .AsNoTracking()
+                .AnyAsync(c =>
+                    c.BankCode == bankCode &&
+                    c.BranchCode == branchCode &&
+                    c.AccountNumber == accountNumber);
+        }
+
+        public async Task InsertServicesProviderIds(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId)
+        {
+            using var context = new MandateContext(this.options);
+            JeDeclareCollectionDb jeDeclareCollectionDb = new JeDeclareCollectionDb()
+            {
+                CollectionId = collectionId,
+                JdcReleveId = collectionServicesProviderId,
+                JdcRibId = bbanServicesProviderId,
+            };
+
+            await context.JeDeclareCollection.AddAsync(jeDeclareCollectionDb);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<StatusDb> CreateStatusAsync(Guid collectionId, StatusDb statusDb)
+        {
+            using var context = new MandateContext(this.options);
+
+            await context.Status.AddAsync(statusDb);
+            await context.SaveChangesAsync();
+
+            return await context.Status
+                .Include(item => item.RefStatusCode)
+                .Where(item => item.CollectionId == collectionId &&
+                    item.StatusCode == statusDb.StatusCode &&
+                    item.StatusDate == statusDb.StatusDate)
+                .SingleAsync()
+                .ConfigureAwait(false);
+        }
+
+        public async Task UpdateCurrentStatus(Guid collectionId)
+        {
+            using var context = new MandateContext(this.options);
+            var statusDb = await context.Status.SingleOrDefaultAsync(item => item.CollectionId == collectionId && item.IsCurrent);
+
+            if (statusDb == null)
+            {
+                throw StatusNotFoundException.FromId(collectionId);
+            }
+
+            StatusDb toUpdate = new StatusDb
+            {
+                Id = statusDb.Id,
+                StatusCode = statusDb.StatusCode,
+                CollectionId = statusDb.CollectionId,
+                CollectionStatusCode = statusDb.CollectionStatusCode,
+                CreatedBy = statusDb.CreatedBy,
+                IsCurrent = false,
+                MandateFile = statusDb.MandateFile,
+                StatusDate = statusDb.StatusDate,
+            };
+
+            context.Entry(statusDb).CurrentValues.SetValues(toUpdate);
+            await context.SaveChangesAsync();
+        }
+
         private static CollectionDb GenerateFakeCollection(Guid collectionId, Guid companyId)
         {
             var rand = new Random();

@@ -37,14 +37,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 .Include(item => item.Statuses).ThenInclude(item => item.RefStatusCode)
                 .AsQueryable();
 
-            mandates = this.ApplySearchTermFilter(mandates, query);
-            mandates = this.ApplyStatusCodesFilter(mandates, query);
-            mandates = this.ApplyCreationDateFilter(mandates, query);
-            mandates = this.ApplyModificationDateFilter(mandates, query);
+            mandates = ApplySearchTermFilter(mandates, query);
+            mandates = ApplyStatusCodesFilter(mandates, query);
+            mandates = ApplyCreationDateFilter(mandates, query);
+            mandates = ApplyModificationDateFilter(mandates, query);
 
-            mandates = this.ApplySorting(mandates, query);
+            mandates = ApplySorting(mandates, query);
 
-            var list = await this.PaginatedListAsync(mandates, query).ConfigureAwait(false);
+            var list = await PaginatedListAsync(mandates, query).ConfigureAwait(false);
             var count = await mandates.CountAsync();
 
             return (list, count);
@@ -1325,7 +1325,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             };
         }
 
-        private IQueryable<CollectionDb> ApplySearchTermFilter(IQueryable<CollectionDb> mandates, CollectionQuery query)
+        private static IQueryable<CollectionDb> ApplySearchTermFilter(IQueryable<CollectionDb> mandates, CollectionQuery query)
         {
             if (!string.IsNullOrEmpty(query.SearchTerm))
             {
@@ -1339,7 +1339,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             return mandates;
         }
 
-        private IQueryable<CollectionDb> ApplyStatusCodesFilter(IQueryable<CollectionDb> mandates, CollectionQuery query)
+        private static IQueryable<CollectionDb> ApplyStatusCodesFilter(IQueryable<CollectionDb> mandates, CollectionQuery query)
         {
             if (query.StatusCodes != null && query.StatusCodes.Any())
             {
@@ -1350,7 +1350,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             return mandates;
         }
 
-        private IQueryable<CollectionDb> ApplyCreationDateFilter(IQueryable<CollectionDb> mandates, CollectionQuery query)
+        private static IQueryable<CollectionDb> ApplyCreationDateFilter(IQueryable<CollectionDb> mandates, CollectionQuery query)
         {
             if (query.CreationDateStart.HasValue && query.CreationDateEnd.HasValue)
             {
@@ -1365,7 +1365,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             return mandates;
         }
 
-        private IQueryable<CollectionDb> ApplyModificationDateFilter(IQueryable<CollectionDb> mandates, CollectionQuery query)
+        private static IQueryable<CollectionDb> ApplyModificationDateFilter(IQueryable<CollectionDb> mandates, CollectionQuery query)
         {
             if (query.ModificationDateStart.HasValue && query.ModificationDateEnd.HasValue)
             {
@@ -1380,7 +1380,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             return mandates;
         }
 
-        private IQueryable<CollectionDb> ApplySorting(IQueryable<CollectionDb> mandates, CollectionQuery query)
+        private static IQueryable<CollectionDb> ApplySorting(IQueryable<CollectionDb> mandates, CollectionQuery query)
         {
             switch (query.SortCriteria, query.SortOrder)
             {
@@ -1516,7 +1516,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             return mandates;
         }
 
-        private async Task<List<CollectionDb>> PaginatedListAsync(IQueryable<CollectionDb> mandates, CollectionQuery query)
+        private static async Task<List<CollectionDb>> PaginatedListAsync(IQueryable<CollectionDb> mandates, CollectionQuery query)
         {
             return await mandates
                 .Skip(query.Skip.HasValue ? query.Skip.Value : 0)

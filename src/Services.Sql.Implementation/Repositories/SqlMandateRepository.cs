@@ -1437,6 +1437,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             return await company.SingleAsync().ConfigureAwait(false);
         }
 
+        public async Task<CollaboratorDb> GetCollaboratorByEmailAsync(string collaboratorEmail)
+        {
+            using var context = new MandateContext(this.options);
+
+            var collab = context.Collaborator.AsNoTracking()
+                .Where(c => c.Email.ToLower() == collaboratorEmail.ToLower());
+
+            return await collab.SingleAsync();
+        }
+
         private static CollectionDb GenerateFakeCollection(Guid collectionId, Guid companyId)
         {
             var rand = new Random();
@@ -1490,16 +1500,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 AccountNumber = rand.NextInt64().ToString().Substring(0, 11),
                 CheckDigits = "99",
             };
-        }
-
-        public async Task<CollaboratorDb> GetCollaboratorByEmailAsync(string collaboratorEmail)
-        {
-            using var context = new MandateContext(this.options);
-
-            var collab = context.Collaborator.AsNoTracking()
-                .Where(c => c.Email.ToLower() == collaboratorEmail.ToLower());
-
-            return await collab.SingleAsync();
         }
     }
 }

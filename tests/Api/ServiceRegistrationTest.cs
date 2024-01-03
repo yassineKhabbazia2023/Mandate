@@ -59,7 +59,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var sp = sc.BuildServiceProvider();
 
             // Make sure we don't forget services ; exclude services from Microsoft (IOption, ...)
-            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(20);
+            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(21);
 
             // Test all services ; number of tests below should match the number of services above
             sp.GetService<IBankManager>().Should().NotBeNull();
@@ -79,6 +79,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             sp.GetService<IJeDeclareClient>().Should().NotBeNull();
             sp.GetService<IFormioClientFactory>().Should().NotBeNull();
             sp.GetService<IFormioClient>().Should().NotBeNull();
+            sp.GetService<IFormioManager>().Should().NotBeNull();
             sp.GetService<IPortalClientFactory>().Should().NotBeNull();
             sp.GetService<IAuthenticationContext>().Should().NotBeNull();
             sp.GetService<IPortalProvider>().Should().NotBeNull();

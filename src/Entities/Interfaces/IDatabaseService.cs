@@ -32,8 +32,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<Collaborator> GetCollaboratorByEmail(string collaboratorEmail);
 
-        Task<Collection> GetCollectionById(Guid id);
-
         Task SaveSignatoryAsync(Guid? companyId, Guid? collectionId, Signatory signatory, Address address);
 
         Task CreateFakeRefAsync();

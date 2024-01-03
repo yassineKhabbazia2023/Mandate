@@ -40,10 +40,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             if (!string.IsNullOrEmpty(query.SearchTerm))
             {
                 mandates = mandates.Where(item =>
-                    (item.AccountNumber == query.SearchTerm) ||
-                    (item.Bank!.BankName == query.SearchTerm) ||
-                    (item.Company!.Name == query.SearchTerm) ||
-                    (item.Company!.ErpId == query.SearchTerm));
+                    item.AccountNumber.Contains(query.SearchTerm) ||
+                    item.Bank!.BankName!.Contains(query.SearchTerm) ||
+                    item.Company!.Name!.Contains(query.SearchTerm) ||
+                    item.Company!.ErpId!.Contains(query.SearchTerm));
             }
 
             if (query.StatusCodes != null && query.StatusCodes.Any())

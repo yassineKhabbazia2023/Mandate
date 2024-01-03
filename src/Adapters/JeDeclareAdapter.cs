@@ -12,27 +12,84 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public JeDeclareAdapter(IJeDeclareClient jedeclareClient)
         {
-           this.jedeclareClient = jedeclareClient;
+            this.jedeclareClient = jedeclareClient;
         }
 
-        public Task<Bban> AddRibToFolderAsync(string? bankServicesProviderId, Bban bban, Signatory signatory)
+        public async Task<Bban> AddRibToFolderAsync(string? bankServicesProviderId, CollectionCreationCommand mandateCreation, Bank bank)
         {
-            throw new NotImplementedException();
+            var rib = mandateCreation.ToRibClient();
+
+            var ribSaved = await this.jedeclareClient.AddRibToFolderAsync(
+                jdcFolderId: bankServicesProviderId!,
+                ribClient: rib);
+
+            return new Bban(
+                bankCode: ribSaved.Etablissement!,
+                branchCode: ribSaved.Guichet!,
+                accountNumber: ribSaved.NumCompte!,
+                checkDigits: ribSaved.Cle!,
+                bbanServicesProviderId: ribSaved.Id,
+                bank: bank);
         }
 
-        public Task<Collection> CreateCollecteConfigurationAsync(string bankServicesProviderId, Bban rib)
+        public async Task<Collection> CreateCollecteConfigurationAsync(string bankServicesProviderId, Bban rib, Company dossier, Guid collectionId, Status initStatus)
         {
-            throw new NotImplementedException();
+            var releve = rib.ToReleve(dossier?.Signatory!);
+
+            var collectConfigurationCreated = await this.jedeclareClient.CreateCollecteConfigurationAsync(
+                jdcFolderId: bankServicesProviderId,
+                releve: releve,
+                bankCode: rib.Bank?.Code!,
+                ebicsCardId: rib.Bank?.EbicsCardId!);
+
+            return collectConfigurationCreated.ToModel(dossier!, rib, collectionId, initStatus);
         }
 
-        public Task<Company> CreateFolderAsync(Company company)
+        public async Task<Company> CreateFolderAsync(Company company)
         {
-            throw new NotImplementedException();
+            var dossierClient = company.ToDossierClient();
+
+            var createdFolder = await this.jedeclareClient.CreateFolderAsync(dossierClient);
+
+            return createdFolder.ToCompany(company.Signatory!);
         }
 
         public async Task<byte[]> GetMandatPdfAsync(string jdcFolderId, string jdcRibId)
         {
-            return await this.jedeclareClient.GetMandatPdfAsync(jdcFolderId, jdcRibId);
+            try
+            {
+                return await this.jedeclareClient.GetMandatPdfAsync(jdcFolderId, jdcRibId);
+            }
+            catch (JeDeclareApiException ex)
+            {
+                throw new ServicesProviderException(ex.Message, ex);
+            }
+        }
+
+        public async Task<string> UploadSignedMandate(Collection collection, byte[] mandateFile)
+        {
+            try
+            {
+                var folderId = collection?.Company?.BankServicesProviderId;
+                var ribId = collection?.Bban?.BbanServicesProviderId;
+                return await this.jedeclareClient.UploadSignedMandat(folderId!, ribId!, mandateFile);
+            }
+            catch (JeDeclareApiException ex)
+            {
+                throw new ServicesProviderException(ex.Message, ex);
+            }
+        }
+
+        public async Task<byte[]> GetSignedMandatPdfAsync(string jdcFolderId, string jdcRibId)
+        {
+            try
+            {
+                return await this.jedeclareClient.GetSignedMandatPdfAsync(jdcFolderId, jdcRibId);
+            }
+            catch (JeDeclareApiException ex)
+            {
+                throw new ServicesProviderException(ex.Message, ex);
+            }
         }
     }
 }

@@ -19,6 +19,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
             services.AddConstellationHttpClient();
             services.AddScoped<IFormioClientFactory, HttpFormioClientFactory>();
+            services.AddScoped<IFormioClient, HttpFormioClient>();
 
             return services;
         }

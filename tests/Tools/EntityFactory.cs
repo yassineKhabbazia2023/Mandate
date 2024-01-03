@@ -8,7 +8,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
     {
         public static Address Address => new ("street", "complements", "75001", "Paris", "France");
 
-        public static Bank Bank => new ("code", "name", "group", string.Empty, BankAgreement);
+        public static Bank Bank => new ("code", "name", "group", "ebicsCardId", BankAgreement);
 
         public static BankAgreement BankAgreement => new (JdcPartnership.NonPartner);
 
@@ -25,5 +25,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         public static Collaborator Collaborator => new (new PredictableGuid().NewGuid(), "collab@email.com", "fname", "lname");
 
         public static PagedMandate PagedMandate(List<Collection> collections) => new (Counters, collections);
+        
+        public static Status Status(CollectionStatus collectionStatus = CollectionStatus.ToDo, string? statusName = null)
+        {
+            return new Status(collectionStatus, string.IsNullOrEmpty(statusName) ? "En Cours" : statusName);
+        }
     }
 }

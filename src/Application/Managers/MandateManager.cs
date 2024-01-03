@@ -25,7 +25,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
             Bank bank = await this.databaseService.GetBankByCodeAsync(mandateCreation.Bban.BankCode);
 
-            Company dossierClient = await this.jeDeclareService.CreateFolderAsync(company);
+            Company toAdd = new Company(
+                Guid.Empty,
+                company.Name,
+                company.SiretNumber,
+                mandateCreation.ErpId,
+                null,
+                mandateCreation.Signatory,
+                mandateCreation.Address);
+
+            Company dossierClient = await this.jeDeclareService.CreateFolderAsync(toAdd);
 
             // Création du dossier coté SQL
             await this.databaseService.CreateFolderAsync(dossierClient.BankServicesProviderId!, dossierClient.Id);
@@ -45,8 +54,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             // Création du rib coté jeDeclare
             Bban rib = await this.jeDeclareService.AddRibToFolderAsync(
                 dossierClient.BankServicesProviderId,
-                mandateCreation.Bban,
-                mandateCreation.Signatory);
+                mandateCreation,
+                bank);
 
             // Création de la collecte
             Collection collection = await this.databaseService.CreateCollection(mandateCreation.ErpId, dossierClient.Id, mandateCreation.Bban);
@@ -58,7 +67,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             // création de la collecte coté jeDeclare
             Collection createdReleve = await this.jeDeclareService.CreateCollecteConfigurationAsync(
                 dossierClient.BankServicesProviderId!,
-                rib);
+                rib,
+                dossierClient,
+                collection.Id,
+                initStatus);
 
             // modification collect pour LinkType
             await this.databaseService.UpdateCollection(collection.Id, createdReleve);
@@ -82,6 +94,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             return await this.databaseService.GetAllCollectionsAsync(query, collaborator.Id).ConfigureAwait(false);
         }
 
+        public async Task<string?> UploadSignedMandateAsync(Guid collectionId, Stream mandateFileStream)
+        {
+            using var memoryStream = new MemoryStream();
+            await mandateFileStream.CopyToAsync(memoryStream);
+            byte[] fileBytes = memoryStream.ToArray() !;
+
+            var collection = await this.databaseService.GetCollectionById(collectionId);
+            var isJdcPartner = this.IsJdcPartner(collection);
+
+            if (isJdcPartner)
+            {
+                return await this.jeDeclareService.UploadSignedMandate(collection, fileBytes);
+            }
+
+            return null;
+        }
+
         public async Task<byte[]> DownloadUnsignedAsync(Guid id)
         {
             var collection = await this.databaseService.GetCollectionById(id);
@@ -95,6 +124,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             {
                 return await this.GeneratePdfForNonPartner(collection);
             }
+        }
+
+        public async Task<byte[]> DownloadSignedAsync(Guid id)
+        {
+            var collection = await this.databaseService.GetCollectionById(id);
+
+            var folderId = collection!.Company?.BankServicesProviderId;
+            var ribId = collection!.Bban?.BbanServicesProviderId;
+            this.ValidatePartnerCollection(collection!);
+
+            return await this.jeDeclareService.GetSignedMandatPdfAsync(folderId !, ribId !);
         }
 
         private bool IsJdcPartner(Collection collection)

@@ -92,10 +92,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return collabDb.ToModel();
         }
 
-        public async Task<Collection> GetCollectionById(Guid id)
+        public async Task<Collection> GetCollectionById(Guid collectionId)
         {
-            var collectionDb = await this.mandateRepository.GetCollectionById(id).ConfigureAwait(false);
-
+            var collectionDb = await this.mandateRepository.GetCollectionById(collectionId).ConfigureAwait(false);
             return collectionDb.ToModel();
         }
 

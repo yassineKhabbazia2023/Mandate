@@ -281,7 +281,7 @@ paths:
         - Mandate
       summary: Uploads a signed mandate
       description: Uploads a signed mandate
-      operationId: UploadSignedAsync
+      operationId: UploadSignedMandateAsync
       parameters:
       - in: path
         name: mandateId

@@ -33,6 +33,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
         {
             var client = this.factory.Create(this.options.Value.BaseUri);
 
+            client.EnsureHttpClientCreated();
             client.DefaultRequestHeaders.Accept.Clear();
 
             switch (authToken.Type)

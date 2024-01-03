@@ -16,7 +16,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
 
         Task<Rib> AddRibToFolderAsync(string jdcFolderId, Rib ribClient);
 
-        Task<Releve> CreateCollecteConfigurationAsync(string jdcFolderId, Releve releve);
+        Task<Releve> CreateCollecteConfigurationAsync(string jdcFolderId, Releve releve, string bankCode, string ebicsCardId);
 
         Task<bool> UpdateCollecteConfigurationAsync(string jdcFolderId, Releve releve);
 

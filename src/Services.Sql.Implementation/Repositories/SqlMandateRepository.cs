@@ -1457,10 +1457,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                     JdcDossierId = bankServicesProviderId,
                 };
 
-                folder.JdcDossierId = bankServicesProviderId;
                 context.Entry(folder).CurrentValues.SetValues(jeDeclareFolder);
-
-                await context.SaveChangesAsync();
             }
 
             await context.SaveChangesAsync();

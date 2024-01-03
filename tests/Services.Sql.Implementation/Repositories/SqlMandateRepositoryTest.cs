@@ -1074,7 +1074,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             var sqlMandateRepository = new SqlMandateRepository(this.options);
 
-            await sqlMandateRepository.CreateOrUpdateFolderAsync("folderId2", new PredictableGuid(102).NewGuid());
+            await sqlMandateRepository.CreateOrUpdateFolderAsync("folderId", new PredictableGuid(102).NewGuid());
             var all = await context.JeDeclareFolder.ToListAsync();
             var companyFolder = await context.JeDeclareFolder
                 .Where(item => item.CompanyId == new PredictableGuid(102).NewGuid())
@@ -1082,7 +1082,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             companyFolder.Count.Should().Be(1);
             companyFolder.Single().CompanyId.Should().Be(new PredictableGuid(102).NewGuid());
-            companyFolder.Single().JdcDossierId.Should().Be("folderId2");
+            companyFolder.Single().JdcDossierId.Should().Be("folderId");
         }
     }
 }

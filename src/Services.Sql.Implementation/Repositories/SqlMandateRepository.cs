@@ -1424,9 +1424,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             };
         }
 
-        private static IQueryable<CollectionDb> ApplyModificationDateSort(IQueryable<CollectionDb> mandates, bool isAscending)
+        private static IQueryable<CollectionDb> PrepareSortedQuery(IQueryable<CollectionDb> mandates)
         {
-            var sorted = mandates
+            return mandates
                 .Where(collection => collection.Statuses.Any(status => status.IsCurrent))
                 .Select(collection => new CollectionDb
                 {
@@ -1443,35 +1443,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                     AccountNumber = collection.AccountNumber,
                     Statuses = collection.Statuses.Where(status => status.IsCurrent).ToList(),
                 });
+        }
 
+        private static IQueryable<CollectionDb> ApplyModificationDateSort(IQueryable<CollectionDb> mandates, bool isAscending)
+        {
+            var sorted = PrepareSortedQuery(mandates);
             return isAscending ? sorted.OrderBy(collection => collection.Statuses.Min(status => status.StatusDate)) :
                                  sorted.OrderByDescending(collection => collection.Statuses.Min(status => status.StatusDate));
         }
 
         private static IQueryable<CollectionDb> ApplyStatusSort(IQueryable<CollectionDb> mandates, bool isAscending)
         {
-            var sorted = mandates
-                .Where(collection => collection.Statuses.Any(status => status.IsCurrent))
-                .Select(collection => new CollectionDb
-                {
-                    Id = collection.Id,
-                    Bank = collection.Bank,
-                    BankCode = collection.BankCode,
-                    BranchCode = collection.BranchCode,
-                    CheckDigits = collection.CheckDigits,
-                    Company = collection.Company,
-                    CompanyId = collection.CompanyId,
-                    JeDeclareCollection = collection.JeDeclareCollection,
-                    LinkType = collection.LinkType,
-                    RejectReason = collection.RejectReason,
-                    AccountNumber = collection.AccountNumber,
-                    Statuses = collection.Statuses.Where(status => status.IsCurrent).ToList(),
-                });
-
+            var sorted = PrepareSortedQuery(mandates);
             return isAscending ? sorted.OrderBy(collection => collection.Statuses.Min(status => status.RefStatusCode!.PulseCode)) :
                                  sorted.OrderByDescending(collection => collection.Statuses.Min(status => status.RefStatusCode!.PulseCode));
         }
-
 
         private static async Task<List<CollectionDb>> PaginatedListAsync(IQueryable<CollectionDb> mandates, CollectionQuery query)
         {

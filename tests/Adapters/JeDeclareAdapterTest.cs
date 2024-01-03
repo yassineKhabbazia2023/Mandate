@@ -346,7 +346,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             await Assert.ThrowsAsync<ServicesProviderException>(() => adapter.GetSignedMandatPdfAsync("jdcFolderId", "jdcRibId"));
         }
 
-        private bool CompareRib(Rib rib1, Rib rib2)
+        private static bool CompareRib(Rib rib1, Rib rib2)
         {
             return rib1.Etablissement == rib2.Etablissement &&
                 rib1.NumCompte == rib2.NumCompte &&

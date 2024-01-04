@@ -45,6 +45,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 opt.Login = "loginT";
                 opt.Password = "passwordT";
                 opt.JdcCompteId = "jdcCompteIdT";
+                opt.HistoryDateEnabledBanks = "HistoryDateEnabledBanks";
             });
             sc.AddMandateFormio(opt =>
             {

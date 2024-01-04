@@ -42,6 +42,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 opt.Login = "loginT";
                 opt.Password = "passwordT";
                 opt.JdcCompteId = "JdcCompteId";
+                opt.HistoryDateEnabledBanks = "HistoryDateEnabledBanks";
             });
             sc.AddMandateFormio(opt =>
             {

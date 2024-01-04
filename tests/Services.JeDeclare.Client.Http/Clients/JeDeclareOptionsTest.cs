@@ -108,5 +108,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             var action = () => options.Validate();
             action.Should().Throw<Exception>().WithMessage("Instance of JeDeclareOptions is invalid, JdcCompteId is null");
         }
+
+        [Fact]
+        public void JeDeclareOptions_Validate_WhenHistoryBank_IsNull()
+        {
+            var options = new JeDeclareOptions()
+            {
+                BaseUri = new Uri("https://toto.com"),
+                Login = "loginT",
+                Password = "Password",
+                JdcCompteId = "JdcCompteId",
+            };
+
+            var action = () => options.Validate();
+            action.Should().Throw<Exception>().WithMessage("Instance of JeDeclareOptions is invalid, HistoryDateEnabledBanks is null");
+        }
     }
 }

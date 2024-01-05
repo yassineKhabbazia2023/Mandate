@@ -80,6 +80,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             CollaboratorId = new PredictableGuid(104).NewGuid(),
         };
 
+        public static JeDeclareFolderDb JeDeclareFolderDb => new ()
+        {
+            Id = new PredictableGuid(104).NewGuid(),
+            CompanyId = new PredictableGuid(102).NewGuid(),
+            JdcDossierId = "folderId",
+        };
+
         public static T? FromRow<T>(DataRow source)
             where T : class
         {

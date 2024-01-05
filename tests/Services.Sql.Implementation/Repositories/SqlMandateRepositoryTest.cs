@@ -4,6 +4,7 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 {
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
 
     [Collection("SerialExecutionPublishDb")]
@@ -526,10 +527,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 CollaboratorId = new PredictableGuid(104).NewGuid(),
             };
             var response59 = await sqlMandateRepository.SearchCollectionsAsync(query59);
-            response59.Item2.Should().Be(2);
-            response59.Item1.Count.Should().Be(2);
+            response59.Item2.Should().Be(5);
+            response59.Item1.Count.Should().Be(5);
             response59.Item1[0].AccountNumber.Should().Be("12345678901");
             response59.Item1[1].AccountNumber.Should().Be("12345678902");
+            response59.Item1[2].AccountNumber.Should().Be("12345678903");
+            response59.Item1[3].AccountNumber.Should().Be("12345678904");
+            response59.Item1[4].AccountNumber.Should().Be("12345678905");
 
             // Filter creation date
             var query42 = new CollectionQuery()
@@ -1260,6 +1264,56 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             Func<Task> act = async () => await sqlMandateRepository.GetCollaboratorByEmailAsync("collaborator@email.com");
 
             await act.Should().ThrowAsync<Exception>();
+        }
+
+        [Fact]
+        public async Task CreateOrUpdateFolderAsync_Case_Create()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            var company1 = EntityDbFactory.CompanyDb;
+            await context.Company.AddAsync(company1);
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            await sqlMandateRepository.CreateOrUpdateFolderAsync("folderId2", new PredictableGuid(102).NewGuid());
+
+            var companyFolder = await context.JeDeclareFolder
+                .Where(item => item.CompanyId == new PredictableGuid(102).NewGuid())
+                .ToListAsync();
+
+            companyFolder.Count.Should().Be(1);
+            companyFolder.Single().CompanyId.Should().Be(new PredictableGuid(102).NewGuid());
+            companyFolder.Single().JdcDossierId.Should().Be("folderId2");
+        }
+
+        [Fact]
+        public async Task CreateOrUpdateFolderAsync_Case_Update()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            var company1 = EntityDbFactory.CompanyDb;
+            await context.Company.AddAsync(company1);
+            await context.SaveChangesAsync();
+
+            var jdcFolder = EntityDbFactory.JeDeclareFolderDb;
+            await context.JeDeclareFolder.AddAsync(jdcFolder);
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            await sqlMandateRepository.CreateOrUpdateFolderAsync("folderId", new PredictableGuid(102).NewGuid());
+            var all = await context.JeDeclareFolder.ToListAsync();
+            var companyFolder = await context.JeDeclareFolder
+                .Where(item => item.CompanyId == new PredictableGuid(102).NewGuid())
+                .ToListAsync();
+
+            companyFolder.Count.Should().Be(1);
+            companyFolder.Single().CompanyId.Should().Be(new PredictableGuid(102).NewGuid());
+            companyFolder.Single().JdcDossierId.Should().Be("folderId");
         }
     }
 }

@@ -23,26 +23,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 jdcFolderId: bankServicesProviderId!,
                 ribClient: rib);
 
-            return new Bban(
-                bankCode: ribSaved.Etablissement!,
-                branchCode: ribSaved.Guichet!,
-                accountNumber: ribSaved.NumCompte!,
-                checkDigits: ribSaved.Cle!,
-                bbanServicesProviderId: ribSaved.Id,
-                bank: bank);
+            return ribSaved.ToModel(bank);
         }
 
-        public async Task<Collection> CreateCollecteConfigurationAsync(string bankServicesProviderId, Bban rib, Company dossier, Guid collectionId, Status initStatus)
+        public async Task<string> CreateCollecteConfigurationAsync(Company dossier, Bban rib)
         {
             var releve = rib.ToReleve(dossier?.Signatory!);
 
             var collectConfigurationCreated = await this.jedeclareClient.CreateCollecteConfigurationAsync(
-                jdcFolderId: bankServicesProviderId,
+                jdcFolderId: dossier?.BankServicesProviderId!,
                 releve: releve,
                 bankCode: rib.Bank?.Code!,
                 ebicsCardId: rib.Bank?.EbicsCardId!);
 
-            return collectConfigurationCreated.ToModel(dossier!, rib, collectionId, initStatus);
+            return collectConfigurationCreated.Id!;
         }
 
         public async Task<Company> CreateFolderAsync(Company company)
@@ -51,7 +45,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
             var createdFolder = await this.jedeclareClient.CreateFolderAsync(dossierClient);
 
-            return createdFolder.ToCompany(company.Signatory!);
+            return createdFolder.ToCompany();
         }
 
         public async Task<byte[]> GetMandatPdfAsync(string jdcFolderId, string jdcRibId)

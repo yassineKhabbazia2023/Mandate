@@ -8,7 +8,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
     {
         Task<Bban> AddRibToFolderAsync(string? bankServicesProviderId, CollectionCreationCommand mandateCreation, Bank bank);
 
-        Task<Collection> CreateCollecteConfigurationAsync(string bankServicesProviderId, Bban rib, Company dossier, Guid collectionId, Status initStatus);
+        Task<string> CreateCollecteConfigurationAsync(Company dossier, Bban rib);
 
         Task<Company> CreateFolderAsync(Company company);
 

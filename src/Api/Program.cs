@@ -118,6 +118,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 opt.Login = builder.Configuration["MandateJeDeclareLogin"];
                 opt.Password = builder.Configuration["MandateJeDeclarePassword"];
                 opt.JdcCompteId = builder.Configuration["MandateJeDeclareCompteId"];
+                opt.HistoryDateEnabledBanks = builder.Configuration["MandateJeDeclareHistoryDateEnabledBanks"];
             });
 
             builder.Services.AddMandateFormio(opt =>

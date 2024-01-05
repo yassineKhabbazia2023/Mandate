@@ -7,7 +7,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
 
-    internal class MandateContext : DbContext
+    public class MandateContext : DbContext
     {
         private readonly IOptions<SqlMandateRepositoryOptions> options;
 
@@ -22,27 +22,27 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             this.options = options;
         }
 
-        internal DbSet<CollaboratorDb> Collaborator { get; set; } = null!;
+        public DbSet<CollaboratorDb> Collaborator { get; set; } = null!;
 
-        internal DbSet<CollectionDb> Collection { get; set; } = null!;
+        public DbSet<CollectionDb> Collection { get; set; } = null!;
 
-        internal DbSet<CompanyCollaboratorDb> CompanyCollaborator { get; set; } = null!;
+        public DbSet<CompanyCollaboratorDb> CompanyCollaborator { get; set; } = null!;
 
-        internal DbSet<CompanyDb> Company { get; set; } = null!;
+        public DbSet<CompanyDb> Company { get; set; } = null!;
 
-        internal DbSet<PersonalDb> Personal { get; set; } = null!;
+        public DbSet<PersonalDb> Personal { get; set; } = null!;
 
-        internal DbSet<JeDeclareCollectionDb> JeDeclareCollection { get; set; } = null!;
+        public DbSet<JeDeclareCollectionDb> JeDeclareCollection { get; set; } = null!;
 
-        internal DbSet<JeDeclareFolderDb> JeDeclareFolder { get; set; } = null!;
+        public DbSet<JeDeclareFolderDb> JeDeclareFolder { get; set; } = null!;
 
-        internal DbSet<RefBankDb> RefBank { get; set; } = null!;
+        public DbSet<RefBankDb> RefBank { get; set; } = null!;
 
-        internal DbSet<RefPdfTemplateDb> RefPdfTemplate { get; set; } = null!;
+        public DbSet<RefPdfTemplateDb> RefPdfTemplate { get; set; } = null!;
 
-        internal DbSet<RefStatusCodeDb> RefStatusCode { get; set; } = null!;
+        public DbSet<RefStatusCodeDb> RefStatusCode { get; set; } = null!;
 
-        internal DbSet<StatusDb> Status { get; set; } = null!;
+        public DbSet<StatusDb> Status { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

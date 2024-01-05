@@ -109,6 +109,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
             });
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
@@ -187,6 +188,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
             });
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
@@ -235,6 +237,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
             });
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
@@ -284,6 +287,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
             });
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
@@ -368,6 +372,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
             });
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
@@ -462,6 +467,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
             });
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
@@ -531,6 +537,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
             });
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
@@ -607,6 +614,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
             });
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
@@ -954,6 +962,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
             });
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
@@ -1058,6 +1067,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
             });
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
@@ -1115,6 +1125,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
             });
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
@@ -1171,6 +1182,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
             });
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
@@ -1220,6 +1232,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
             });
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
@@ -1271,6 +1284,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("http://example.com"),
                 Login = "yourLogin",
                 Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
             });
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
@@ -1322,6 +1336,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("http://example.com"),
                 Login = "Login",
                 Password = "Password",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
             });
 
             var logger = new Mock<ILogger<HttpJeDeclareClient>>(MockBehavior.Strict);
@@ -1375,6 +1390,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 BaseUri = new Uri("http://example.com"),
                 Login = "Login",
                 Password = "Password",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
             });
 
             var logger = new Mock<ILogger<HttpJeDeclareClient>>(MockBehavior.Strict);

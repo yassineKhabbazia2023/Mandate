@@ -6,6 +6,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 {
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
+    using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+    using System;
 
     public class SqlMandateRepository : IMandateRepository
     {
@@ -37,184 +39,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 .Include(item => item.Statuses).ThenInclude(item => item.RefStatusCode)
                 .AsQueryable();
 
-            mandates = mandates
-                .Where(item => context.CompanyCollaborator
-                    .Where(item => item.CollaboratorId == query.CollaboratorId)
-                    .Select(cc => cc.CompanyId)
-                    .Contains(item.CompanyId));
+            mandates = ApplayCollaboratorFilter(mandates, query.CollaboratorId, context);
+            mandates = ApplySearchTermFilter(mandates, query);
+            mandates = ApplyStatusCodesFilter(mandates, query);
+            mandates = ApplyCreationDateFilter(mandates, query);
+            mandates = ApplyModificationDateFilter(mandates, query);
 
-            if (!string.IsNullOrEmpty(query.SearchTerm))
-            {
-                mandates = mandates.Where(item =>
-                    (item.AccountNumber == query.SearchTerm) ||
-                    (item.Bank!.BankName == query.SearchTerm) ||
-                    (item.Company!.Name == query.SearchTerm) ||
-                    (item.Company!.ErpId == query.SearchTerm));
-            }
+            mandates = ApplySorting(mandates, query);
 
-            if (query.StatusCodes != null && query.StatusCodes.Any())
-            {
-                mandates = mandates.Where(item =>
-                    item.Statuses.Any(s => s.IsCurrent && query.StatusCodes.Any(scp => s.RefStatusCode!.PulseCode == scp)));
-            }
+            var list = await PaginatedListAsync(mandates, query).ConfigureAwait(false);
+            var count = await mandates.CountAsync();
 
-            if (query.CreationDateStart.HasValue && query.CreationDateEnd.HasValue)
-            {
-                mandates = mandates.Where(item =>
-                    item.Statuses.Any(s =>
-                        s.StatusCode == -1 &&
-                        (s.StatusDate.HasValue &&
-                        s.StatusDate.Value.Date >= query.CreationDateStart.Value.Date &&
-                        s.StatusDate.Value.Date <= query.CreationDateEnd.Value.Date)));
-            }
-
-            if (query.ModificationDateStart.HasValue && query.ModificationDateEnd.HasValue)
-            {
-                mandates = mandates.Where(item =>
-                    item.Statuses.Any(s =>
-                        s.IsCurrent &&
-                        (s.StatusDate.HasValue &&
-                        s.StatusDate.Value.Date >= query.ModificationDateStart.Value.Date &&
-                        s.StatusDate.Value.Date <= query.ModificationDateEnd.Value.Date)));
-            }
-
-            switch (query.SortCriteria, query.SortOrder)
-            {
-                case (CollectionSortCriteria.ErpId, SortOrder.Ascending):
-                    mandates = mandates.OrderBy(item => item.Company!.ErpId);
-                    break;
-
-                case (CollectionSortCriteria.Name, SortOrder.Ascending):
-                    mandates = mandates.OrderBy(item => item.Company!.Name);
-                    break;
-
-                case (CollectionSortCriteria.AccountNumber, SortOrder.Ascending):
-                    mandates = mandates.OrderBy(item => item.AccountNumber);
-                    break;
-
-                case (CollectionSortCriteria.BankName, SortOrder.Ascending):
-                    mandates = mandates.OrderBy(item => item.Bank!.BankName);
-                    break;
-
-                case (CollectionSortCriteria.CreationDate, SortOrder.Ascending):
-                    mandates = mandates
-                    .Where(collection => collection.Statuses.Any(status => status.RefStatusCode!.StatusCode == -1))
-                    .OrderBy(collection => collection.Statuses.Min(status => status.StatusDate));
-                    break;
-
-                case (CollectionSortCriteria.ModificationDate, SortOrder.Ascending):
-                    mandates = mandates
-                        .Where(collection => collection.Statuses.Any(status => status.IsCurrent))
-                        .Select(collection => new CollectionDb
-                        {
-                            Id = collection.Id,
-                            Bank = collection.Bank,
-                            BankCode = collection.BankCode,
-                            BranchCode = collection.BranchCode,
-                            CheckDigits = collection.CheckDigits,
-                            Company = collection.Company,
-                            CompanyId = collection.CompanyId,
-                            JeDeclareCollection = collection.JeDeclareCollection,
-                            LinkType = collection.LinkType,
-                            RejectReason = collection.RejectReason,
-                            AccountNumber = collection.AccountNumber,
-                            Statuses = collection.Statuses.Where(status => status.IsCurrent).ToList(),
-                        }).OrderBy(collection => collection.Statuses.Min(status => status.StatusDate));
-                    break;
-
-                case (CollectionSortCriteria.Status, SortOrder.Ascending):
-                    mandates = mandates
-                       .Where(collection => collection.Statuses.Any(status => status.IsCurrent))
-                       .Select(collection => new CollectionDb
-                       {
-                           Id = collection.Id,
-                           Bank = collection.Bank,
-                           BankCode = collection.BankCode,
-                           BranchCode = collection.BranchCode,
-                           CheckDigits = collection.CheckDigits,
-                           Company = collection.Company,
-                           CompanyId = collection.CompanyId,
-                           JeDeclareCollection = collection.JeDeclareCollection,
-                           LinkType = collection.LinkType,
-                           RejectReason = collection.RejectReason,
-                           AccountNumber = collection.AccountNumber,
-                           Statuses = collection.Statuses.Where(status => status.IsCurrent).ToList(),
-                       }).OrderBy(collection => collection.Statuses.Min(status => status.RefStatusCode!.PulseCode));
-                    break;
-
-                case (CollectionSortCriteria.ErpId, SortOrder.Descending):
-                    mandates = mandates.OrderByDescending(item => item.Company!.ErpId);
-                    break;
-
-                case (CollectionSortCriteria.Name, SortOrder.Descending):
-                    mandates = mandates.OrderByDescending(item => item.Company!.Name);
-                    break;
-
-                case (CollectionSortCriteria.AccountNumber, SortOrder.Descending):
-                    mandates = mandates.OrderByDescending(item => item.AccountNumber);
-                    break;
-
-                case (CollectionSortCriteria.BankName, SortOrder.Descending):
-                    mandates = mandates.OrderByDescending(item => item.Bank!.BankName);
-                    break;
-
-                case (CollectionSortCriteria.CreationDate, SortOrder.Descending):
-                    mandates = mandates
-                    .Where(collection => collection.Statuses.Any(status => status.RefStatusCode!.StatusCode == -1))
-                    .OrderByDescending(collection => collection.Statuses.Min(status => status.StatusDate));
-                    break;
-
-                case (CollectionSortCriteria.ModificationDate, SortOrder.Descending):
-                    mandates = mandates
-                        .Where(collection => collection.Statuses.Any(status => status.IsCurrent))
-                        .Select(collection => new CollectionDb
-                        {
-                            Id = collection.Id,
-                            Bank = collection.Bank,
-                            BankCode = collection.BankCode,
-                            BranchCode = collection.BranchCode,
-                            CheckDigits = collection.CheckDigits,
-                            Company = collection.Company,
-                            CompanyId = collection.CompanyId,
-                            JeDeclareCollection = collection.JeDeclareCollection,
-                            LinkType = collection.LinkType,
-                            RejectReason = collection.RejectReason,
-                            AccountNumber = collection.AccountNumber,
-                            Statuses = collection.Statuses.Where(status => status.IsCurrent).ToList(),
-                        }).OrderByDescending(collection => collection.Statuses.Min(status => status.StatusDate));
-                    break;
-
-                case (CollectionSortCriteria.Status, SortOrder.Descending):
-                    mandates = mandates
-                       .Where(collection => collection.Statuses.Any(status => status.IsCurrent))
-                       .Select(collection => new CollectionDb
-                       {
-                           Id = collection.Id,
-                           Bank = collection.Bank,
-                           BankCode = collection.BankCode,
-                           BranchCode = collection.BranchCode,
-                           CheckDigits = collection.CheckDigits,
-                           Company = collection.Company,
-                           CompanyId = collection.CompanyId,
-                           JeDeclareCollection = collection.JeDeclareCollection,
-                           LinkType = collection.LinkType,
-                           RejectReason = collection.RejectReason,
-                           AccountNumber = collection.AccountNumber,
-                           Statuses = collection.Statuses.Where(status => status.IsCurrent).ToList(),
-                       })
-                       .OrderByDescending(collection => collection.Statuses.Min(status => status.RefStatusCode!.PulseCode));
-                    break;
-
-                default:
-                    break;
-            }
-
-            var list = await mandates
-                .Skip(query.Skip.HasValue ? query.Skip.Value : 0)
-                .Take(query.Limit.HasValue ? query.Limit.Value : mandates.Count())
-                .ToListAsync().ConfigureAwait(false);
-
-            return (list, await mandates.CountAsync());
+            return (list, count);
         }
 
         public async Task<List<CompanyDb?>> GetAllCompaniesByCollaboratorAsync(string email)
@@ -1446,6 +1282,115 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
             return await collab.SingleAsync();
         }
+        
+        public async Task CreateOrUpdateFolderAsync(string bankServicesProviderId, Guid companyId)
+        {
+            using var context = new MandateContext(this.options);
+
+            var folder = await context.JeDeclareFolder
+                .Where(item => item.CompanyId == companyId)
+                .SingleOrDefaultAsync().ConfigureAwait(false);
+
+            if (folder == null)
+            {
+                JeDeclareFolderDb jeDeclareFolder = new JeDeclareFolderDb
+                {
+                    CompanyId = companyId,
+                    JdcDossierId = bankServicesProviderId,
+                };
+                await context.JeDeclareFolder.AddAsync(jeDeclareFolder);
+            }
+            else
+            {
+                JeDeclareFolderDb jeDeclareFolder = new JeDeclareFolderDb
+                {
+                    Id = folder.Id,
+                    CompanyId = companyId,
+                    JdcDossierId = bankServicesProviderId,
+                };
+
+                context.Entry(folder).CurrentValues.SetValues(jeDeclareFolder);
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<CollectionDb> CreateCollectionAsync(CollectionDb collection)
+        {
+            using var context = new MandateContext(this.options);
+
+            await context.Collection.AddAsync(collection);
+            await context.SaveChangesAsync();
+
+            return collection;
+        }
+
+        public async Task<bool> CheckCollecteConfigExistAsync(string bankCode, string branchCode, string accountNumber)
+        {
+            using var context = new MandateContext(this.options);
+            return await context.Collection
+                .AsNoTracking()
+                .AnyAsync(c =>
+                    c.BankCode == bankCode &&
+                    c.BranchCode == branchCode &&
+                    c.AccountNumber == accountNumber);
+        }
+
+        public async Task InsertServicesProviderIdsAsync(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId)
+        {
+            using var context = new MandateContext(this.options);
+            JeDeclareCollectionDb jeDeclareCollectionDb = new JeDeclareCollectionDb()
+            {
+                CollectionId = collectionId,
+                JdcReleveId = collectionServicesProviderId,
+                JdcRibId = bbanServicesProviderId,
+            };
+
+            await context.JeDeclareCollection.AddAsync(jeDeclareCollectionDb);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<StatusDb> CreateStatusAsync(Guid collectionId, StatusDb statusDb)
+        {
+            using var context = new MandateContext(this.options);
+
+            await context.Status.AddAsync(statusDb);
+            await context.SaveChangesAsync();
+
+            return await context.Status
+                .Include(item => item.RefStatusCode)
+                .Where(item => item.CollectionId == collectionId &&
+                    item.StatusCode == statusDb.StatusCode &&
+                    item.StatusDate == statusDb.StatusDate)
+                .SingleAsync()
+                .ConfigureAwait(false);
+        }
+
+        public async Task UpdateCurrentStatusAsync(Guid collectionId)
+        {
+            using var context = new MandateContext(this.options);
+            var statusDb = await context.Status.SingleOrDefaultAsync(item => item.CollectionId == collectionId && item.IsCurrent);
+
+            if (statusDb == null)
+            {
+                throw StatusNotFoundException.FromId(collectionId);
+            }
+
+            StatusDb toUpdate = new StatusDb
+            {
+                Id = statusDb.Id,
+                StatusCode = statusDb.StatusCode,
+                CollectionId = statusDb.CollectionId,
+                CollectionStatusCode = statusDb.CollectionStatusCode,
+                CreatedBy = statusDb.CreatedBy,
+                IsCurrent = false,
+                MandateFile = statusDb.MandateFile,
+                StatusDate = statusDb.StatusDate,
+            };
+
+            context.Entry(statusDb).CurrentValues.SetValues(toUpdate);
+            await context.SaveChangesAsync();
+        }
 
         private static CollectionDb GenerateFakeCollection(Guid collectionId, Guid companyId)
         {
@@ -1500,6 +1445,159 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 AccountNumber = rand.NextInt64().ToString().Substring(0, 11),
                 CheckDigits = "99",
             };
+        }
+
+        private static IQueryable<CollectionDb> ApplySearchTermFilter(IQueryable<CollectionDb> mandates, CollectionQuery query)
+        {
+            if (!string.IsNullOrEmpty(query.SearchTerm))
+            {
+                return mandates.Where(item =>
+                    item.AccountNumber.Contains(query.SearchTerm) ||
+                    item.Bank!.BankName!.Contains(query.SearchTerm) ||
+                    item.Company!.Name!.Contains(query.SearchTerm) ||
+                    item.Company!.ErpId!.Contains(query.SearchTerm));
+            }
+
+            return mandates;
+        }
+
+        private static IQueryable<CollectionDb> ApplyStatusCodesFilter(IQueryable<CollectionDb> mandates, CollectionQuery query)
+        {
+            if (query.StatusCodes != null && query.StatusCodes.Any())
+            {
+                return mandates.Where(item =>
+                    item.Statuses.Any(s => s.IsCurrent && query.StatusCodes.Any(scp => s.RefStatusCode!.PulseCode == scp)));
+            }
+
+            return mandates;
+        }
+
+        private static IQueryable<CollectionDb> ApplyCreationDateFilter(IQueryable<CollectionDb> mandates, CollectionQuery query)
+        {
+            if (query.CreationDateStart.HasValue && query.CreationDateEnd.HasValue)
+            {
+                return mandates.Where(item =>
+                    item.Statuses.Any(s =>
+                        s.StatusCode == -1 &&
+                        (s.StatusDate.HasValue &&
+                        s.StatusDate.Value.Date >= query.CreationDateStart.Value.Date &&
+                        s.StatusDate.Value.Date <= query.CreationDateEnd.Value.Date)));
+            }
+
+            return mandates;
+        }
+
+        private static IQueryable<CollectionDb> ApplyModificationDateFilter(IQueryable<CollectionDb> mandates, CollectionQuery query)
+        {
+            if (query.ModificationDateStart.HasValue && query.ModificationDateEnd.HasValue)
+            {
+                return mandates.Where(item =>
+                    item.Statuses.Any(s =>
+                        s.IsCurrent &&
+                        (s.StatusDate.HasValue &&
+                        s.StatusDate.Value.Date >= query.ModificationDateStart.Value.Date &&
+                        s.StatusDate.Value.Date <= query.ModificationDateEnd.Value.Date)));
+            }
+
+            return mandates;
+        }
+
+        private static IQueryable<CollectionDb> ApplayCollaboratorFilter(IQueryable<CollectionDb> mandates, Guid collaboratorId, MandateContext context)
+        {
+            mandates = mandates
+                .Where(item => context.CompanyCollaborator
+                    .Where(item => item.CollaboratorId == collaboratorId)
+                    .Select(cc => cc.CompanyId)
+                    .Contains(item.CompanyId));
+
+            return mandates;
+        }
+
+        private static IQueryable<CollectionDb> ApplySorting(IQueryable<CollectionDb> mandates, CollectionQuery query)
+        {
+            return query.SortOrder switch
+            {
+                SortOrder.Ascending => ApplyAscendingSort(mandates, query.SortCriteria),
+                SortOrder.Descending => ApplyDescendingSort(mandates, query.SortCriteria),
+                _ => mandates
+            };
+        }
+
+        private static IQueryable<CollectionDb> ApplyAscendingSort(IQueryable<CollectionDb> mandates, CollectionSortCriteria sortCriteria)
+        {
+            return sortCriteria switch
+            {
+                CollectionSortCriteria.ErpId => mandates.OrderBy(item => item.Company!.ErpId),
+                CollectionSortCriteria.Name => mandates.OrderBy(item => item.Company!.Name),
+                CollectionSortCriteria.AccountNumber => mandates.OrderBy(item => item.AccountNumber),
+                CollectionSortCriteria.BankName => mandates.OrderBy(item => item.Bank!.BankName),
+                CollectionSortCriteria.CreationDate => mandates
+                    .Where(collection => collection.Statuses.Any(status => status.RefStatusCode!.StatusCode == -1))
+                    .OrderBy(collection => collection.Statuses.Min(status => status.StatusDate)),
+                CollectionSortCriteria.ModificationDate => ApplyModificationDateSort(mandates, true),
+                CollectionSortCriteria.Status => ApplyStatusSort(mandates, true),
+                _ => mandates
+            };
+        }
+
+        private static IQueryable<CollectionDb> ApplyDescendingSort(IQueryable<CollectionDb> mandates, CollectionSortCriteria sortCriteria)
+        {
+            return sortCriteria switch
+            {
+                CollectionSortCriteria.ErpId => mandates.OrderByDescending(item => item.Company!.ErpId),
+                CollectionSortCriteria.Name => mandates.OrderByDescending(item => item.Company!.Name),
+                CollectionSortCriteria.AccountNumber => mandates.OrderByDescending(item => item.AccountNumber),
+                CollectionSortCriteria.BankName => mandates.OrderByDescending(item => item.Bank!.BankName),
+                CollectionSortCriteria.CreationDate => mandates
+                    .Where(collection => collection.Statuses.Any(status => status.RefStatusCode!.StatusCode == -1))
+                    .OrderByDescending(collection => collection.Statuses.Min(status => status.StatusDate)),
+                CollectionSortCriteria.ModificationDate => ApplyModificationDateSort(mandates, false),
+                CollectionSortCriteria.Status => ApplyStatusSort(mandates, false),
+                _ => mandates
+            };
+        }
+
+        private static IQueryable<CollectionDb> PrepareUnSortedQuery(IQueryable<CollectionDb> mandates)
+        {
+            return mandates
+                .Where(collection => collection.Statuses.Any(status => status.IsCurrent))
+                .Select(collection => new CollectionDb
+                {
+                    Id = collection.Id,
+                    Bank = collection.Bank,
+                    BankCode = collection.BankCode,
+                    BranchCode = collection.BranchCode,
+                    CheckDigits = collection.CheckDigits,
+                    Company = collection.Company,
+                    CompanyId = collection.CompanyId,
+                    JeDeclareCollection = collection.JeDeclareCollection,
+                    LinkType = collection.LinkType,
+                    RejectReason = collection.RejectReason,
+                    AccountNumber = collection.AccountNumber,
+                    Statuses = collection.Statuses.Where(status => status.IsCurrent).ToList(),
+                });
+        }
+
+        private static IQueryable<CollectionDb> ApplyModificationDateSort(IQueryable<CollectionDb> mandates, bool isAscending)
+        {
+            var unSorted = PrepareUnSortedQuery(mandates);
+            return isAscending ? unSorted.OrderBy(collection => collection.Statuses.Min(status => status.StatusDate)) :
+                                 unSorted.OrderByDescending(collection => collection.Statuses.Min(status => status.StatusDate));
+        }
+
+        private static IQueryable<CollectionDb> ApplyStatusSort(IQueryable<CollectionDb> mandates, bool isAscending)
+        {
+            var unSorted = PrepareUnSortedQuery(mandates);
+            return isAscending ? unSorted.OrderBy(collection => collection.Statuses.Min(status => status.RefStatusCode!.PulseCode)) :
+                                 unSorted.OrderByDescending(collection => collection.Statuses.Min(status => status.RefStatusCode!.PulseCode));
+        }
+
+        private static async Task<List<CollectionDb>> PaginatedListAsync(IQueryable<CollectionDb> mandates, CollectionQuery query)
+        {
+            return await mandates
+                .Skip(query.Skip.HasValue ? query.Skip.Value : 0)
+                .Take(query.Limit.HasValue ? query.Limit.Value : mandates.Count())
+                .ToListAsync();
         }
     }
 }

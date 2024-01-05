@@ -4,6 +4,8 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
+    using KPMG.Pulse.Back.Accounting.Mandate.Models.Enums;
+
     public class MandateManager : IMandateManager
     {
         private readonly IDatabaseService databaseService;
@@ -26,7 +28,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             Bank bank = await this.databaseService.GetBankByCodeAsync(mandateCreation.Bban.BankCode);
 
             Company toAdd = new Company(
-                Guid.Empty,
+                company.Id,
                 company.Name,
                 company.SiretNumber,
                 mandateCreation.ErpId,
@@ -37,7 +39,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             Company dossierClient = await this.jeDeclareService.CreateFolderAsync(toAdd);
 
             // Création du dossier coté SQL
-            await this.databaseService.CreateFolderAsync(dossierClient.BankServicesProviderId!, dossierClient.Id);
+            await this.databaseService.CreateOrUpdateFolderAsync(dossierClient.BankServicesProviderId!, company.Id);
 
             // Verification du bank partenaire ou non partenaire
             if (bank.JdcAgreement.JdcPartnership != JdcPartnership.Partner && string.IsNullOrWhiteSpace(bank.EbicsCardId))
@@ -46,7 +48,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             }
 
             // vérifier si la collecte existe
-            if (await this.databaseService.CheckCollecteConfigExist(mandateCreation.Bban))
+            if (await this.databaseService.CheckCollecteConfigExistAsync(mandateCreation.Bban))
             {
                 throw new ApplicationException($"Il existe une configuration de collecte pour ce RIB {StringExtensions.Concat(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber, mandateCreation.Bban.CheckDigits)}.");
             }
@@ -58,34 +60,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 bank);
 
             // Création de la collecte
-            Collection collection = await this.databaseService.CreateCollection(mandateCreation.ErpId, dossierClient.Id, mandateCreation.Bban);
-
-            // Creation du Status -1
-            Status initStatus = new Status(CollectionStatus.ToDo, "En Cours");
-            await this.databaseService.CreateStatus(collection.Id, initStatus);
+            Guid collectionId = await this.databaseService.CreateCollectionAsync(rib, company.Id);
 
             // création de la collecte coté jeDeclare
-            Collection createdReleve = await this.jeDeclareService.CreateCollecteConfigurationAsync(
-                dossierClient.BankServicesProviderId!,
-                rib,
+            string createdReleveId = await this.jeDeclareService.CreateCollecteConfigurationAsync(
                 dossierClient,
-                collection.Id,
-                initStatus);
-
-            // modification collect pour LinkType
-            await this.databaseService.UpdateCollection(collection.Id, createdReleve);
-
-            // crétaion JeDeclareCollection coté sql
-            await this.databaseService.InsertServicesProviderIds(collection.Id, createdReleve?.CollectionServicesProviderId!, rib?.BbanServicesProviderId!);
-
-            // Creation mandate Status 10
-            Status createdStatus = new Status(CollectionStatus.InProgress, "Actif");
-            await this.databaseService.CreateStatus(collection.Id, createdStatus);
+                rib);
 
             // save Signatory
-            await this.databaseService.SaveSignatoryAsync(company.Id, collection.Id, mandateCreation.Signatory, mandateCreation.Address);
+            await this.databaseService.SaveSignatoryAsync(null, collectionId, mandateCreation.Signatory, mandateCreation.Address);
 
-            return collection.Id!;
+            // crétaion JeDeclareCollection coté sql
+            await this.databaseService.InsertServicesProviderIds(collectionId, createdReleveId, rib?.BbanServicesProviderId!);
+
+            // Creation mandate Status 10
+            await this.databaseService.CreateStatus(collectionId, (int)JdcCollectionStatus.Activation_Requested_Coollection_Pending);
+
+            return collectionId;
         }
 
         public async Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query)

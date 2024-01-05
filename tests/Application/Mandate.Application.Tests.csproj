@@ -10,6 +10,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\src\Adapters\Mandate.Adapters.csproj" />
+		<ProjectReference Include="..\..\src\Services.Sql.Implementation\Mandate.Sql.Implementation.csproj" />
+		<ProjectReference Include="..\Services.Sql.Implementation\Mandate.Sql.Implementation.Tests.csproj" />
 		<ProjectReference Include="..\Tools\Mandate.Tools.Tests.csproj" />
 		<ProjectReference Include="..\..\src\Application\Mandate.Application.csproj" />
 	</ItemGroup>

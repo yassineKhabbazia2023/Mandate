@@ -17,15 +17,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     {
         private readonly ILogger<MandateController> logger;
         private readonly IMandateManager mandateManager;
-        private readonly IFormioManager formIoManager;
+        private readonly IAuthenticationServices authenticationContext;
         private readonly IGuidGenerator guidGenerator;
+        private readonly IFormioManager formIoManager;
 
-        public MandateController(ILogger<MandateController> logger, IMandateManager mandateManager, IFormioManager formIoManager, IGuidGenerator guidGenerator)
+        public MandateController(ILogger<MandateController> logger, IMandateManager mandateManager, IAuthenticationServices authenticationContext, IGuidGenerator guidGenerator, IFormioManager formIoManager)
         {
             this.logger = logger;
             this.mandateManager = mandateManager;
             this.formIoManager = formIoManager;
             this.guidGenerator = guidGenerator;
+            this.authenticationContext = authenticationContext;
         }
 
         [HttpGet]
@@ -39,10 +41,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             try
             {
+                string email = this.authenticationContext.Email!;
                 sortOrder ??= "Ascending";
                 sortCriteria ??= "Name";
 
-                var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria, string.Empty);
+                var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria, email);
                 this.logger.LogInformation($"{collectionQuery}");
                 var result = await this.mandateManager.GetAllCollectionsAsync(collectionQuery.ToModel());
                 return this.Ok(result.ToPageMandateDetails());

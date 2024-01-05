@@ -6,6 +6,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 {
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
+    using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+    using System;
 
     public class SqlMandateRepository : IMandateRepository
     {
@@ -37,6 +39,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 .Include(item => item.Statuses).ThenInclude(item => item.RefStatusCode)
                 .AsQueryable();
 
+            mandates = ApplayCollaboratorFilter(mandates, query.CollaboratorId, context);
             mandates = ApplySearchTermFilter(mandates, query);
             mandates = ApplyStatusCodesFilter(mandates, query);
             mandates = ApplyCreationDateFilter(mandates, query);
@@ -1270,6 +1273,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             return await company.SingleAsync().ConfigureAwait(false);
         }
 
+        public async Task<CollaboratorDb> GetCollaboratorByEmailAsync(string collaboratorEmail)
+        {
+            using var context = new MandateContext(this.options);
+
+            var collab = context.Collaborator.AsNoTracking()
+                .Where(c => c.Email.ToLower() == collaboratorEmail.ToLower());
+
+            return await collab.SingleAsync();
+        }
+        
         public async Task CreateOrUpdateFolderAsync(string bankServicesProviderId, Guid companyId)
         {
             using var context = new MandateContext(this.options);
@@ -1323,7 +1336,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                     c.AccountNumber == accountNumber);
         }
 
-        public async Task InsertServicesProviderIds(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId)
+        public async Task InsertServicesProviderIdsAsync(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId)
         {
             using var context = new MandateContext(this.options);
             JeDeclareCollectionDb jeDeclareCollectionDb = new JeDeclareCollectionDb()
@@ -1353,7 +1366,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 .ConfigureAwait(false);
         }
 
-        public async Task UpdateCurrentStatus(Guid collectionId)
+        public async Task UpdateCurrentStatusAsync(Guid collectionId)
         {
             using var context = new MandateContext(this.options);
             var statusDb = await context.Status.SingleOrDefaultAsync(item => item.CollectionId == collectionId && item.IsCurrent);
@@ -1485,6 +1498,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                         s.StatusDate.Value.Date >= query.ModificationDateStart.Value.Date &&
                         s.StatusDate.Value.Date <= query.ModificationDateEnd.Value.Date)));
             }
+
+            return mandates;
+        }
+
+        private static IQueryable<CollectionDb> ApplayCollaboratorFilter(IQueryable<CollectionDb> mandates, Guid collaboratorId, MandateContext context)
+        {
+            mandates = mandates
+                .Where(item => context.CompanyCollaborator
+                    .Where(item => item.CollaboratorId == collaboratorId)
+                    .Select(cc => cc.CompanyId)
+                    .Contains(item.CompanyId));
 
             return mandates;
         }

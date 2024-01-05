@@ -68,7 +68,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 throw new InvalidCastException($"Invalid SortCriteria. Allowed values are [ {allowedSortCriteria}]");
             }
 
-            return new CollectionQueryDto(source.SearchTerm, source.CreationDateStart, source.CreationDateEnd, source.ModificationDateStart, source.ModificationDateEnd, source.StatusCodes, source.Limit, source.Skip, sortOrder, sortCriteria, default);
+            return new CollectionQueryDto(source.SearchTerm, source.CreationDateStart, source.CreationDateEnd, source.ModificationDateStart, source.ModificationDateEnd, source.StatusCodes, source.Limit, source.Skip, sortOrder, sortCriteria, source.CollaboratorEmail);
         }
 
         public static Signatory ToModel(this Client.Signatory source)

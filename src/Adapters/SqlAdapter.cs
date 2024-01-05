@@ -36,9 +36,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return await this.mandateRepository.GetPdfTemplateByCodeAsync(bankCode).ConfigureAwait(false);
         }
 
-        public async Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query)
+        public async Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query, Guid collaboratorId)
         {
-            (List<Sql.CollectionDb>, int) tuple = await this.mandateRepository.SearchCollectionsAsync(query.ToSql());
+            (List<Sql.CollectionDb>, int) tuple = await this.mandateRepository.SearchCollectionsAsync(query.ToSql(collaboratorId));
 
             return new PagedMandate(
                 new Counters(tuple.Item2, 0, 0, 0, 0, 0),
@@ -59,7 +59,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         public async Task<Status> CreateStatus(Guid collectionId, int statusCode)
         {
             // update current Status to false
-            await this.mandateRepository.UpdateCurrentStatus(collectionId);
+            await this.mandateRepository.UpdateCurrentStatusAsync(collectionId);
 
             // select de la ref pour avoir
             StatusDb statusDb = new Sql.StatusDb()
@@ -78,7 +78,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         public async Task InsertServicesProviderIds(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId)
         {
             // Création de JeDeclare Collection
-            await this.mandateRepository.InsertServicesProviderIds(collectionId, collectionServicesProviderId, bbanServicesProviderId);
+            await this.mandateRepository.InsertServicesProviderIdsAsync(collectionId, collectionServicesProviderId, bbanServicesProviderId);
         }
 
         public async Task<bool> CheckCollecteConfigExistAsync(Bban bban)
@@ -96,6 +96,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         public Task<Collection> UpdateCollection(Guid id, Collection collection)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<Collaborator> GetCollaboratorByEmail(string collaboratorEmail)
+        {
+            var collabDb = await this.mandateRepository.GetCollaboratorByEmailAsync(collaboratorEmail).ConfigureAwait(false);
+
+            return collabDb.ToModel();
         }
 
         public async Task<Collection> GetCollectionById(Guid collectionId)

@@ -81,7 +81,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
         public async Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query)
         {
-            return await this.databaseService.GetAllCollectionsAsync(query).ConfigureAwait(false);
+            Collaborator collaborator = await this.databaseService.GetCollaboratorByEmail(query.CollaboratorEmail);
+            return await this.databaseService.GetAllCollectionsAsync(query, collaborator.Id).ConfigureAwait(false);
         }
 
         public async Task<string?> UploadSignedMandateAsync(Guid collectionId, Stream mandateFileStream)

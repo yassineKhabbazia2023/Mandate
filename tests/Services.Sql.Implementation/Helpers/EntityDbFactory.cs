@@ -66,6 +66,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             CreatedBy = "created1",
         };
 
+        public static CollaboratorDb CollaboratorDb => new ()
+        {
+            Id = new PredictableGuid(104).NewGuid(),
+            Email = "collab@email.com",
+            FirstName = "fname",
+            LastName = "lname",
+        };
+
+        public static CompanyCollaboratorDb CompanyCollaboratorDb => new ()
+        {
+            CompanyId = new PredictableGuid(102).NewGuid(),
+            CollaboratorId = new PredictableGuid(104).NewGuid(),
+        };
+
         public static JeDeclareFolderDb JeDeclareFolderDb => new ()
         {
             Id = new PredictableGuid(104).NewGuid(),

@@ -177,92 +177,110 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         public async Task GetAllCollectionsAsync_Case_OK()
         {
             var query = new CollectionQueryDto(
-                  string.Empty,
-                  null,
-                  null,
-                  null,
-                  null,
-                  null,
-                  10,
-                  0,
-                  Mandate.SortOrder.Ascending,
-                  Mandate.CollectionSortCriteria.Name,
-                  Guid.Empty);
+                 "search",
+                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                 new List<int>() { -1, 3 },
+                 10,
+                 0,
+                 Mandate.SortOrder.Ascending,
+                 Mandate.CollectionSortCriteria.AccountNumber,
+                 "collab@email.com");
 
-            Company company = new Company(
-                new Guid("00000001-0000-0000-0000-000000000000"),
-                "cn",
-                "12345678910",
-                "123456789",
-                string.Empty,
-                null,
-                null);
+            Collaborator collaborator = EntityFactory.Collaborator;
 
+            var databaseService = new Mock<IDatabaseService>(MockBehavior.Strict);
+            databaseService.Setup(r => r.GetCollaboratorByEmail("collab@email.com"))
+                .ReturnsAsync(collaborator)
+                .Verifiable();
+                
             Bank bank = new Bank("12345", "bn", "bg", string.Empty, new BankAgreement(Mandate.JdcPartnership.NonPartner));
 
-            Bban bban = new Bban("12345", "54321", "12345678901", "55", string.Empty, bank);
-
-            Collection collection = new Collection(
-                    new Guid("00000002-0000-0000-0000-000000000000"),
-                    string.Empty,
-                    company,
-                    bban,
-                    new DateTime(2022, 1, 1),
-                    new DateTime(2022, 1, 1),
-                    new Status(CollectionStatus.InProgress, "En cours"));
-
-            var counters = new Counters(1, 1, 0, 0, 0, 0);
-            var pm = new PagedMandate(counters, new List<Collection> { collection });
-
-            var database = new Mock<IDatabaseService>(MockBehavior.Strict);
-            database.Setup(i => i.GetAllCollectionsAsync(query))
-                .ReturnsAsync(pm)
+            PagedMandate pagedMandate = EntityFactory.PagedMandate(new List<Collection> { EntityFactory.Collection });
+            databaseService.Setup(r => r.GetAllCollectionsAsync(query, new Guid("00000001-0000-0000-0000-000000000000")))
+                .ReturnsAsync(pagedMandate)
                 .Verifiable();
 
             MandateManager manager = new MandateManager(
-                database.Object,
+                databaseService.Object,
                 new Mock<ICompanyManager>(MockBehavior.Strict).Object,
                 new Mock<IJeDeclareService>(MockBehavior.Strict).Object,
                 null!);
 
-            var result = await manager.GetAllCollectionsAsync(query);
+            var mandateManager = new MandateManager(databaseService.Object, new Mock<ICompanyManager>(MockBehavior.Strict).Object, new Mock<IJeDeclareService>(MockBehavior.Strict).Object, null!);
 
-            result.Should().BeEquivalentTo(pm);
+            var result = await mandateManager.GetAllCollectionsAsync(query);
+            result.Should().BeEquivalentTo(pagedMandate);
 
-            database.VerifyAll();
+            databaseService.VerifyAll();
         }
 
         [Fact]
-        public async Task GetAllCollectionsAsync_When_Service_Throw_Exception()
+        public async Task GetAllCollectionsAsync_When_GetCollaboratorByEmail_Throw_Exception()
         {
             var query = new CollectionQueryDto(
-                  string.Empty,
-                  null,
-                  null,
-                  null,
-                  null,
-                  null,
-                  10,
-                  0,
-                  Mandate.SortOrder.Ascending,
-                  Mandate.CollectionSortCriteria.Name,
-                  Guid.Empty);
+                 "search",
+                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                 new List<int>() { -1, 3 },
+                 10,
+                 0,
+                 Mandate.SortOrder.Ascending,
+                 Mandate.CollectionSortCriteria.AccountNumber,
+                 "collab@email.com");
 
-            var database = new Mock<IDatabaseService>(MockBehavior.Strict);
-            database.Setup(i => i.GetAllCollectionsAsync(query))
-                .ThrowsAsync(new Exception("message"))
-                .Verifiable();
+            // Arrange
+            var databaseService = new Mock<IDatabaseService>();
+            databaseService.Setup(x => x.GetCollaboratorByEmail("collab@email.com"))
+                               .ThrowsAsync(new Exception("message"));
 
-            MandateManager manager = new MandateManager(
-                database.Object,
+            MandateManager mandateManager = new MandateManager(
+                databaseService.Object,
                 new Mock<ICompanyManager>(MockBehavior.Strict).Object,
                 new Mock<IJeDeclareService>(MockBehavior.Strict).Object,
                 null!);
 
-            Func<Task> action = async () => await manager.GetAllCollectionsAsync(query);
+            Func<Task> action = async () => await mandateManager.GetAllCollectionsAsync(query);
             await action.Should().ThrowAsync<Exception>().WithMessage("message");
 
-            database.VerifyAll();
+            databaseService.VerifyAll();
+        }
+
+        [Fact]
+        public async Task GetAllCollectionsAsync_Throw_Exception()
+        {
+            var query = new CollectionQueryDto(
+                 "search",
+                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                 new List<int>() { -1, 3 },
+                 10,
+                 0,
+                 Mandate.SortOrder.Ascending,
+                 Mandate.CollectionSortCriteria.AccountNumber,
+                 "collab@email.com");
+
+            Collaborator collaborator = new Collaborator(new Guid("00000001-0000-0000-0000-000000000000"), "collab@email.com", "fname", "lname");
+
+            var databaseService = new Mock<IDatabaseService>();
+            databaseService.Setup(x => x.GetCollaboratorByEmail("collab@email.com"))
+                               .ReturnsAsync(collaborator);
+
+            databaseService.Setup(x => x.GetAllCollectionsAsync(query, new Guid("00000001-0000-0000-0000-000000000000")))
+                   .ThrowsAsync(new Exception("message"));
+
+            var mandateManager = new MandateManager(databaseService.Object, new Mock<ICompanyManager>(MockBehavior.Strict).Object, new Mock<IJeDeclareService>(MockBehavior.Strict).Object, null!);
+
+            Func<Task> action = async () => await mandateManager.GetAllCollectionsAsync(query);
+            await action.Should().ThrowAsync<Exception>().WithMessage("message");
+
+            databaseService.VerifyAll();
         }
 
         [Fact]

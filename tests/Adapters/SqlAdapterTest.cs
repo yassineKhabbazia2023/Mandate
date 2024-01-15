@@ -27,7 +27,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             SqlAdapter adapter = new SqlAdapter(mandateRepository.Object);
 
-            var res = await adapter.GetAllCollectionsAsync(new CollectionQueryDto(null, null, null, null, null, null, null, null, Mandate.SortOrder.Ascending, Mandate.CollectionSortCriteria.Name, default));
+            var res = await adapter.GetAllCollectionsAsync(
+                new CollectionQueryDto(null, null, null, null, null, null, null, null, Mandate.SortOrder.Ascending, Mandate.CollectionSortCriteria.Name, "collab@email.com"),
+                new PredictableGuid(101).NewGuid());
 
             Counters expectedCounters = new Counters(1, 0, 0, 0, 0, 0);
             List<Collection> expectedCollections = new List<Collection>()
@@ -307,6 +309,39 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             // Assert
             result.Should().BeEquivalentTo(expectedResult);
             repository.Verify(r => r.GetCompanyByErpIdAsync(erpId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetCollaboratorByEmail()
+        {
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.GetCollaboratorByEmailAsync("collab@email.com"))
+                .ReturnsAsync(EntityDbFactory.CollaboratorDb)
+                .Verifiable();
+
+            var adapter = new SqlAdapter(repository.Object);
+
+            var result = await adapter.GetCollaboratorByEmail("collab@email.com");
+
+            result.Should().BeEquivalentTo(new Collaborator(new PredictableGuid(104).NewGuid(), "collab@email.com", "fname", "lname"));
+
+            repository.VerifyAll();
+        }
+
+        [Fact]
+        public async Task GetCollaboratorByEmail_WhenGetCollaboratorByEmailThrow()
+        {
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.GetCollaboratorByEmailAsync("collab@email.com"))
+                .ThrowsAsync(new Exception("message"))
+                .Verifiable();
+
+            var adapter = new SqlAdapter(repository.Object);
+
+            Func<Task> action = () => adapter.GetCollaboratorByEmail("collab@email.com");
+            await action.Should().ThrowAsync<Exception>().WithMessage("message");
+
+            repository.VerifyAll();
         }
     }
 }

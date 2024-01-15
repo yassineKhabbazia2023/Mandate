@@ -36,9 +36,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return await this.mandateRepository.GetPdfTemplateByCodeAsync(bankCode).ConfigureAwait(false);
         }
 
-        public async Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query)
+        public async Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query, Guid collaboratorId)
         {
-            (List<Sql.CollectionDb>, int) tuple = await this.mandateRepository.SearchCollectionsAsync(query.ToSql());
+            (List<Sql.CollectionDb>, int) tuple = await this.mandateRepository.SearchCollectionsAsync(query.ToSql(collaboratorId));
 
             return new PagedMandate(
                 new Counters(tuple.Item2, 0, 0, 0, 0, 0),
@@ -51,38 +51,58 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return company.ToModel();
         }
 
-        public Task<Company> CreateFolderAsync(string bankServicesProviderId, Guid companyId)
+        public async Task CreateOrUpdateFolderAsync(string bankServicesProviderId, Guid companyId)
         {
-            // Creation JeDeclare Folder
-            throw new NotImplementedException();
+            await this.mandateRepository.CreateOrUpdateFolderAsync(bankServicesProviderId, companyId);
         }
 
-        public Task<Status> CreateStatus(Guid collectionId, Status status)
+        public async Task<Status> CreateStatus(Guid collectionId, int statusCode)
         {
+            // update current Status to false
+            await this.mandateRepository.UpdateCurrentStatusAsync(collectionId);
+
+            // select de la ref pour avoir
+            StatusDb statusDb = new Sql.StatusDb()
+            {
+                CollectionId = collectionId,
+                IsCurrent = true,
+                StatusCode = statusCode,
+                StatusDate = DateTime.UtcNow,
+                CreatedBy = string.Empty,
+            };
+
             // Création d'un status relié a une collecte
-            throw new NotImplementedException();
+            return (await this.mandateRepository.CreateStatusAsync(collectionId, statusDb)).ToModel();
         }
 
-        public Task<Collection> InsertServicesProviderIds(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId)
+        public async Task InsertServicesProviderIds(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId)
         {
             // Création de JeDeclare Collection
-            throw new NotImplementedException();
+            await this.mandateRepository.InsertServicesProviderIdsAsync(collectionId, collectionServicesProviderId, bbanServicesProviderId);
         }
 
-        public Task<bool> CheckCollecteConfigExist(Bban bban)
+        public async Task<bool> CheckCollecteConfigExistAsync(Bban bban)
         {
-            // Vérifier si le rib existe déja dans la base
-            throw new NotImplementedException();
+            return await this.mandateRepository.CheckCollecteConfigExistAsync(bban.BankCode, bban.BranchCode, bban.AccountNumber);
         }
 
-        public Task<Collection> CreateCollection(string erpId, Guid companyId, Bban bban)
+        public async Task<Guid> CreateCollectionAsync(Bban bban, Guid companyId)
         {
-            throw new NotImplementedException();
+            CollectionDb collection = bban.ToSql(companyId);
+            collection.Statuses = new List<StatusDb>() { SqlExtensions.DefaultStatus() };
+            return (await this.mandateRepository.CreateCollectionAsync(collection)).Id;
         }
 
         public Task<Collection> UpdateCollection(Guid id, Collection collection)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<Collaborator> GetCollaboratorByEmail(string collaboratorEmail)
+        {
+            var collabDb = await this.mandateRepository.GetCollaboratorByEmailAsync(collaboratorEmail).ConfigureAwait(false);
+
+            return collabDb.ToModel();
         }
 
         public async Task<Collection> GetCollectionById(Guid collectionId)

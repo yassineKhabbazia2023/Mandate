@@ -26,7 +26,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 0,
                 SortOrder.Ascending,
                 CollectionSortCriteria.Name,
-                Guid.Empty);
+                "collab@email.com");
 
             var company = new Company(
                 new Guid("00000001-0000-0000-0000-000000000000"),
@@ -70,7 +70,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 .ReturnsAsync(pm)
                 .Verifiable();
 
-            var controller = new MandateController(logger.Object, manager.Object, null!);
+            var authenticationContext = new Mock<IAuthenticationServices>(MockBehavior.Strict);
+            authenticationContext.Setup(item => item.Email)
+                .Returns("collab@email.com")
+                .Verifiable();
+
+            var guidGenerator = new Mock<IGuidGenerator>();
+
+            var controller = new MandateController(logger.Object, manager.Object, authenticationContext.Object, guidGenerator.Object, null!);
 
             var result = await controller.GetCollectionsAsync(
                 string.Empty,
@@ -101,7 +108,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                expectedCollection,
             };
 
-            result.As<OkObjectResult>().StatusCode.Should().Be((int)HttpStatusCode.OK);
+            result.As<OkObjectResult>().StatusCode.Should().Be(200);
             result.As<OkObjectResult>().Value.Should().BeEquivalentTo(new Client.PagedMandate(expectedCounters, expectedCollections));
 
             logger.VerifyAll();
@@ -122,7 +129,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 0,
                 SortOrder.Ascending,
                 CollectionSortCriteria.Name,
-                Guid.Empty);
+                "collab@email.com");
 
             var logger = new Mock<ILogger<MandateController>>(MockBehavior.Loose);
             var manager = new Mock<IMandateManager>(MockBehavior.Strict);
@@ -132,7 +139,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 .ThrowsAsync(new Exception("message"))
                 .Verifiable();
 
-            var controller = new MandateController(logger.Object, manager.Object, null!);
+            var authenticationContext = new Mock<IAuthenticationServices>(MockBehavior.Strict);
+            authenticationContext.Setup(item => item.Email)
+                .Returns("collab@email.com")
+                .Verifiable();
+
+            var guidGenerator = new Mock<IGuidGenerator>();
+
+            var controller = new MandateController(logger.Object, manager.Object, authenticationContext.Object, guidGenerator.Object, null!);
 
             var result = await controller.GetCollectionsAsync(
                 string.Empty,
@@ -188,7 +202,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 FileDownloadName = expectedFileName,
             };
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
 
             var result = await controller.DownloadUnsignedAsync(mandateId);
 
@@ -228,7 +242,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
 
             var result = await controller.DownloadUnsignedAsync(mandateId) as ObjectResult;
 
@@ -273,7 +287,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
 
             var result = await controller.DownloadUnsignedAsync(mandateId) as ObjectResult;
 
@@ -318,7 +332,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
 
             var result = await controller.DownloadUnsignedAsync(mandateId) as ObjectResult;
 
@@ -361,7 +375,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManagerMock.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, null!, guidGenerator.Object, null!);
 
             var fileMock = new Mock<IFormFile>();
             fileMock.Setup(f => f.ContentType).Returns("application/pdf");
@@ -405,7 +419,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManagerMock.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, null!, guidGenerator.Object, null!);
 
             var fileMock = new Mock<IFormFile>();
             fileMock.Setup(f => f.ContentType).Returns("application/jpg");
@@ -448,7 +462,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManagerMock.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, null!, guidGenerator.Object, null!);
 
             // Act
             var result = await controller.UploadSignedMandateAsync(validMandateId, null!);
@@ -481,7 +495,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManagerMock.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, null!, guidGenerator.Object, null!);
 
             var fileMock = new Mock<IFormFile>();
             fileMock.Setup(f => f.ContentType).Returns("application/pdf");
@@ -527,7 +541,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManagerMock.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, null!, guidGenerator.Object, null!);
 
             var fileMock = new Mock<IFormFile>();
             fileMock.Setup(f => f.ContentType).Returns("application/pdf");
@@ -574,7 +588,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManagerMock.Object, guidGenerator.Object);
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, null!, guidGenerator.Object, null!);
 
             var fileMock = new Mock<IFormFile>();
             fileMock.Setup(f => f.ContentType).Returns("application/pdf");
@@ -595,6 +609,400 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             internalServerErrorResult.Should().NotBeNull();
             internalServerErrorResult.Should().BeOfType<ObjectResult>();
             mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task Recovery()
+        {
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            var guidGenerator = new Mock<IGuidGenerator>();
+
+            var collection = new Mandate.Collection(
+                Guid.Empty,
+                "8909440",
+                EntityFactory.Company,
+                EntityFactory.Bban,
+                new DateTime(2019, 10, 10),
+                new DateTime(2019, 10, 10),
+                new Status(CollectionStatus.ToDo, "En Cours"));
+
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+            formIoManager.Setup(item =>
+                item.GetCollectionByBban(
+                    It.Is<Bban>(b =>
+                        b.BankCode == "12345" &&
+                        b.BranchCode == "54321" &&
+                        b.AccountNumber == "12345678901" &&
+                        b.CheckDigits == "01")))
+               .ReturnsAsync(collection)
+               .Verifiable();
+
+            var controller = new MandateController(logger.Object, null!, null!, null!, formIoManager.Object);
+
+            Client.Bban bban = new Client.Bban("12345", "54321", "12345678901", "01");
+            var result = await controller.Recovery(bban) as ObjectResult;
+
+            var summary = new Client.CollectionSummary(
+                Guid.Empty,
+                "ibsAccountNumber",
+                "Raison Sociale",
+                "name",
+                "12345678901",
+                new DateTime(2019, 10, 10),
+                new DateTime(2019, 10, 10),
+                20);
+
+            result.As<OkObjectResult>().StatusCode.Should().Be((int)HttpStatusCode.OK);
+            result.As<OkObjectResult>().Value.Should().BeEquivalentTo(summary);
+
+            formIoManager.VerifyAll();
+            logger.VerifyAll();
+            guidGenerator.VerifyAll();
+        }
+
+        [Fact]
+        public async Task Recovery_When_GetCollectionByBban_NoContent()
+        {
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            var guidGenerator = new Mock<IGuidGenerator>();
+
+            Collection? collection = null;
+
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+            formIoManager.Setup(item =>
+                item.GetCollectionByBban(
+                    It.Is<Bban>(b =>
+                        b.BankCode == "12345" &&
+                        b.BranchCode == "54321" &&
+                        b.AccountNumber == "12345678901" &&
+                        b.CheckDigits == "01")))
+               .ReturnsAsync(collection)
+               .Verifiable();
+
+            var controller = new MandateController(logger.Object, null!, null!, guidGenerator.Object, formIoManager.Object);
+
+            Client.Bban bban = new Client.Bban("12345", "54321", "12345678901", "01");
+            var result = await controller.Recovery(bban) as NoContentResult;
+
+            result.As<NoContentResult>().StatusCode.Should().Be((int)HttpStatusCode.NoContent);
+
+            formIoManager.VerifyAll();
+            logger.VerifyAll();
+            guidGenerator.VerifyAll();
+        }
+
+        [Fact]
+        public async Task Recovery_When_GetCollectionByBban_Throw_Exception()
+        {
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception?>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
+
+            var guidGenerator = new Mock<IGuidGenerator>();
+
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+            formIoManager.Setup(item =>
+                item.GetCollectionByBban(
+                    It.Is<Bban>(b =>
+                        b.BankCode == "12345" &&
+                        b.BranchCode == "54321" &&
+                        b.AccountNumber == "12345678901" &&
+                        b.CheckDigits == "01")))
+               .ThrowsAsync(new Exception("message"))
+               .Verifiable();
+
+            var controller = new MandateController(logger.Object, null!, null!, guidGenerator.Object, formIoManager.Object);
+
+            Client.Bban bban = new Client.Bban("12345", "54321", "12345678901", "01");
+            var result = await controller.Recovery(bban) as ObjectResult;
+
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
+
+            var errorType = result!.Value as Client.Error;
+            errorType.Should().NotBeNull();
+            errorType!.ErrorType.Should()
+                               .Be("TechnicalError");
+            errorType!.LogReference.Should()
+                                  .Be("0");
+
+            formIoManager.VerifyAll();
+            logger.VerifyAll();
+            guidGenerator.VerifyAll();
+        }
+
+        [Fact]
+        public async Task DownloadSignedAsync_WithValidMandateId_ReturnsOkResult()
+        {
+            var guidGenerator = new Mock<IGuidGenerator>();
+
+            var mandateId = "00000001-0000-0000-0000-000000000000";
+            byte[] expectedFileData = { 0, 16, 104, 213 };
+
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(m => m.DownloadSignedAsync(It.IsAny<Guid>()))
+                .Callback<Guid>(m =>
+                {
+                    m.Should().Be(Guid.Parse(mandateId));
+                })
+                .ReturnsAsync(expectedFileData);
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception?>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
+            var expectedContentType = "application/pdf";
+            var expectedFileName = $"signed-mandate-{mandateId}.pdf";
+
+            var expectedResult = new FileContentResult(expectedFileData, expectedContentType)
+            {
+                FileDownloadName = expectedFileName,
+            };
+
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
+
+            var result = await controller.DownloadSignedAsync(mandateId);
+
+            result.Should().NotBeNull();
+            var fileResult = result.Should().BeOfType<FileContentResult>().Subject;
+            fileResult.FileContents.Should().BeEquivalentTo(expectedFileData);
+            fileResult.ContentType.Should().Be(expectedContentType);
+            fileResult.FileDownloadName.Should().Be(expectedFileName);
+
+            mandateManager.VerifyAll();
+            guidGenerator.VerifyAll();
+        }
+
+        [Fact]
+        public async Task DownloadSignedAsync_CaseCollectionNotFoundException()
+        {
+            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
+            var guidGenerator = new Mock<IGuidGenerator>();
+            guidGenerator.Setup(g => g.NewGuid())
+                .Returns(newGuid);
+
+            var mandateId = "00000001-0000-0000-0000-000000000000";
+
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(m => m.DownloadSignedAsync(It.IsAny<Guid>()))
+                .Callback<Guid>(m =>
+                {
+                    m.Should().Be(Guid.Parse(mandateId));
+                })
+                .Throws(new Sql.CollectionNotFoundException());
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception?>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
+
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
+
+            var result = await controller.DownloadSignedAsync(mandateId) as ObjectResult;
+
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be((int)HttpStatusCode.NotFound);
+
+            var errorType = result!.Value as Client.Error;
+            errorType.Should().NotBeNull();
+            errorType!.ErrorType.Should()
+                               .Be("CollectionNotFound");
+            errorType!.LogReference.Should()
+                                  .Be(newGuid.ToString());
+
+            mandateManager.VerifyAll();
+            logger.VerifyAll();
+            guidGenerator.VerifyAll();
+        }
+
+        [Fact]
+        public async Task DownloadSignedAsync_CaseFolderIdEmptyOrNullException()
+        {
+            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
+            var guidGenerator = new Mock<IGuidGenerator>();
+            guidGenerator.Setup(g => g.NewGuid())
+                .Returns(newGuid);
+
+            var mandateId = "00000001-0000-0000-0000-000000000000";
+
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(m => m.DownloadSignedAsync(It.IsAny<Guid>()))
+                .Callback<Guid>(m =>
+                {
+                    m.Should().Be(Guid.Parse(mandateId));
+                })
+                .Throws(new FolderIdEmptyOrNullException());
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception?>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
+
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
+
+            var result = await controller.DownloadSignedAsync(mandateId) as ObjectResult;
+
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be((int)HttpStatusCode.NotFound);
+
+            var errorType = result!.Value as Client.Error;
+            errorType.Should().NotBeNull();
+            errorType!.ErrorType.Should()
+                               .Be("FolderIdEmptyOrNull");
+            errorType!.LogReference.Should()
+                                  .Be(newGuid.ToString());
+
+            mandateManager.VerifyAll();
+            logger.VerifyAll();
+            guidGenerator.VerifyAll();
+        }
+
+        [Fact]
+        public async Task DownloadSignedAsync_CaseRibIdEmptyOrNullException()
+        {
+            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
+            var guidGenerator = new Mock<IGuidGenerator>();
+            guidGenerator.Setup(g => g.NewGuid())
+                .Returns(newGuid);
+
+            var mandateId = "00000001-0000-0000-0000-000000000000";
+
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(m => m.DownloadSignedAsync(It.IsAny<Guid>()))
+                .Callback<Guid>(m =>
+                {
+                    m.Should().Be(Guid.Parse(mandateId));
+                })
+                .Throws(new RibIdEmptyOrNullException());
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception?>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
+
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
+
+            var result = await controller.DownloadSignedAsync(mandateId) as ObjectResult;
+
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be((int)HttpStatusCode.NotFound);
+
+            var errorType = result!.Value as Client.Error;
+            errorType.Should().NotBeNull();
+            errorType!.ErrorType.Should()
+                               .Be("RibIdEmptyOrNull");
+            errorType!.LogReference.Should()
+                                  .Be(newGuid.ToString());
+
+            mandateManager.VerifyAll();
+            logger.VerifyAll();
+            guidGenerator.VerifyAll();
+        }
+
+        [Fact]
+        public async Task DownloadSignedAsync_CaseServicesProviderException()
+        {
+            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
+            var guidGenerator = new Mock<IGuidGenerator>();
+            guidGenerator.Setup(g => g.NewGuid())
+                .Returns(newGuid);
+
+            var mandateId = "00000001-0000-0000-0000-000000000000";
+
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(m => m.DownloadSignedAsync(It.IsAny<Guid>()))
+                .Callback<Guid>(m =>
+                {
+                    m.Should().Be(Guid.Parse(mandateId));
+                })
+                .Throws(new ServicesProviderException());
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception?>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
+
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
+
+            var result = await controller.DownloadSignedAsync(mandateId) as ObjectResult;
+
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
+
+            var errorType = result!.Value as Client.Error;
+            errorType.Should().NotBeNull();
+            errorType!.ErrorType.Should()
+                               .Be("ServicesProviderError");
+            errorType!.LogReference.Should()
+                                  .Be(newGuid.ToString());
+
+            mandateManager.VerifyAll();
+            logger.VerifyAll();
+            guidGenerator.VerifyAll();
+        }
+
+        [Fact]
+        public async Task DownloadSignedAsync_CaseException()
+        {
+            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
+            var guidGenerator = new Mock<IGuidGenerator>();
+            guidGenerator.Setup(g => g.NewGuid())
+                .Returns(newGuid);
+
+            var mandateId = "00000001-0000-0000-0000-000000000000";
+
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(m => m.DownloadSignedAsync(It.IsAny<Guid>()))
+                .Callback<Guid>(m =>
+                {
+                    m.Should().Be(Guid.Parse(mandateId));
+                })
+                .Throws(new Exception());
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception?>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
+
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
+
+            var result = await controller.DownloadSignedAsync(mandateId) as ObjectResult;
+
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
+
+            var errorType = result!.Value as Client.Error;
+            errorType.Should().NotBeNull();
+            errorType!.ErrorType.Should()
+                               .Be("Exception");
+            errorType!.LogReference.Should()
+                                  .Be(newGuid.ToString());
+
+            mandateManager.VerifyAll();
+            logger.VerifyAll();
+            guidGenerator.VerifyAll();
         }
     }
 }

@@ -14,21 +14,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<byte[]> GetPdfTemplateByBankCodeAsync(string bankCode);
 
-        Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query);
+        Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query, Guid collaboratorId);
 
         Task<Collection> GetCollectionById(Guid collectionId);
 
-        Task<Collection> CreateCollection(string erpId, Guid companyId, Bban bban);
+        Task<Guid> CreateCollectionAsync(Bban bban, Guid companyId);
 
-        Task<Company> CreateFolderAsync(string bankServicesProviderId, Guid companyId);
+        Task CreateOrUpdateFolderAsync(string bankServicesProviderId, Guid companyId);
 
-        Task<Status> CreateStatus(Guid collectionId, Status status);
+        Task<Status> CreateStatus(Guid collectionId, int statusCode);
 
-        Task<Collection> InsertServicesProviderIds(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId);
+        Task InsertServicesProviderIds(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId);
 
-        Task<bool> CheckCollecteConfigExist(Bban bban);
+        Task<bool> CheckCollecteConfigExistAsync(Bban bban);
 
         Task<Collection> UpdateCollection(Guid id, Collection collection);
+
+        Task<Collaborator> GetCollaboratorByEmail(string collaboratorEmail);
 
         Task SaveSignatoryAsync(Guid? companyId, Guid? collectionId, Signatory signatory, Address address);
 

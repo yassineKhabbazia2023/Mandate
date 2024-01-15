@@ -71,6 +71,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             {
                 throw new InvalidOperationException($"Instance of {nameof(JeDeclareOptions)} is invalid, {nameof(JeDeclareOptions.JdcCompteId)} is null");
             }
+
+            if (string.IsNullOrEmpty(this.HistoryDateEnabledBanks))
+            {
+                throw new InvalidOperationException($"Instance of {nameof(JeDeclareOptions)} is invalid, {nameof(JeDeclareOptions.HistoryDateEnabledBanks)} is null");
+            }
         }
 
         /// <summary>

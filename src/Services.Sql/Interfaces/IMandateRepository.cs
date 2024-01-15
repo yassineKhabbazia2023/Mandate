@@ -79,5 +79,30 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         /// The task result contains an instance of <see cref="CompanyDb"/> corresponding to the specified ERP ID.
         /// </returns>
         Task<CompanyDb> GetCompanyByErpIdAsync(string erpId);
+
+        /// <summary>
+        /// Asynchronously retrieves a collaborator by his email.
+        /// </summary>
+        /// <param name="collaboratorEmail">The email of the collaborator.</param>
+        /// <returns>The task result contains an instance of <see cref="CollaboratorDb"/> corresponding to the specified email.</returns>
+        Task<CollaboratorDb> GetCollaboratorByEmailAsync(string collaboratorEmail);
+
+        /// <summary>
+        /// Save JeDeclare folder identifier.
+        /// </summary>
+        /// <param name="bankServicesProviderId">JeDeclare Folder identifier.</param>
+        /// <param name="companyId">the Ccompany identifier.</param>
+        /// <returns>A task result.</returns>
+        Task CreateOrUpdateFolderAsync(string bankServicesProviderId, Guid companyId);
+
+        Task<CollectionDb> CreateCollectionAsync(CollectionDb collection);
+
+        Task<bool> CheckCollecteConfigExistAsync(string bankCode, string branchCode, string accountNumber);
+
+        Task InsertServicesProviderIdsAsync(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId);
+
+        Task<StatusDb> CreateStatusAsync(Guid collectionId, StatusDb statusDb);
+
+        Task UpdateCurrentStatusAsync(Guid collectionId);
     }
 }

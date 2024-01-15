@@ -13,7 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
         public string Name { get; set; } = null!;
 
         [XmlElement("mel")]
-        public string Mail { get; set; } = null!;
+        public string? Mail { get; set; } = null!;
 
         [XmlElement("adresse")]
         public Adresse Adresse { get; set; } = null!;

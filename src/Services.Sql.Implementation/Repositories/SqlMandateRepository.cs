@@ -44,7 +44,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             mandates = ApplyStatusCodesFilter(mandates, query);
             mandates = ApplyCreationDateFilter(mandates, query);
             mandates = ApplyModificationDateFilter(mandates, query);
-
             mandates = ApplySorting(mandates, query);
 
             var list = await PaginatedListAsync(mandates, query).ConfigureAwait(false);
@@ -1574,7 +1573,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                     LinkType = collection.LinkType,
                     RejectReason = collection.RejectReason,
                     AccountNumber = collection.AccountNumber,
-                    Statuses = collection.Statuses.Where(status => status.IsCurrent).ToList(),
+                    Statuses = collection.Statuses.ToList(),
                 });
         }
 

@@ -8,6 +8,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
     using Microsoft.Extensions.Options;
     using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
     using System;
+    using System.Linq.Expressions;
 
     public class SqlMandateRepository : IMandateRepository
     {
@@ -1580,8 +1581,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
         private static IQueryable<CollectionDb> ApplyModificationDateSort(IQueryable<CollectionDb> mandates, bool isAscending)
         {
             var unSorted = PrepareUnSortedQuery(mandates);
-            return isAscending ? unSorted.OrderBy(collection => collection.Statuses.Min(status => status.StatusDate)) :
-                                 unSorted.OrderByDescending(collection => collection.Statuses.Min(status => status.StatusDate));
+
+            Expression<Func<CollectionDb, DateTime?>> sortingExpression = collection =>
+            collection.Statuses
+                  .Where(status => status.IsCurrent)
+                  .Min(status => status.StatusDate);
+
+            return isAscending ? unSorted.OrderBy(sortingExpression) :
+                                 unSorted.OrderByDescending(sortingExpression);
         }
 
         private static IQueryable<CollectionDb> ApplyStatusSort(IQueryable<CollectionDb> mandates, bool isAscending)

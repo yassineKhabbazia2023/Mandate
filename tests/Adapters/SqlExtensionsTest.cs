@@ -2,6 +2,8 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
     public class SqlExtensionsTest
@@ -253,6 +255,124 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var expected = new Address("street", "comp", "43598", "city", "country");
 
             result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void ToBbanModel()
+        {
+            var entity = new Sql.CollectionDb()
+            {
+                Id = Guid.NewGuid(),
+                BankCode = "30003",
+                BranchCode = "12345",
+                AccountNumber = "12345678901",
+                CheckDigits = "11",
+                JeDeclareCollection = new Sql.JeDeclareCollectionDb()
+                {
+                    JdcReleveId = "6789",
+                    JdcRibId = "6781",
+                },
+                Bank = new Sql.RefBankDb()
+                {
+                    BankCode = "c",
+                    BankName = "n",
+                    BankGroup = "g",
+                    EbicsCardId = "e",
+                    JdcPartnership = (Sql.JdcPartnership)2,
+                },
+            };
+
+            var result = entity.ToBbanModel();
+
+            var expected = new Bban(
+                "30003",
+                "12345",
+                "12345678901",
+                "11",
+                "6781",
+                new Bank("c", "n", "g", "e", new BankAgreement(JdcPartnership.NonPartner)));
+
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void ToModelCollection_ThrowApplicationException_WhenNoCurrentStatus()
+        {
+            var entity = new Sql.CollectionDb()
+            {
+                Id = Guid.NewGuid(),
+                BankCode = "30003",
+                BranchCode = "12345",
+                AccountNumber = "12345678901",
+                CheckDigits = "11",
+                JeDeclareCollection = new Sql.JeDeclareCollectionDb()
+                {
+                    JdcReleveId = "6789",
+                    JdcRibId = "6781",
+                },
+                Bank = new Sql.RefBankDb()
+                {
+                    BankCode = "c",
+                    BankName = "n",
+                    BankGroup = "g",
+                    EbicsCardId = "e",
+                    JdcPartnership = (Sql.JdcPartnership)2,
+                },
+                Statuses = new List<StatusDb>
+                {
+                    new StatusDb()
+                    {
+                        Id = Guid.NewGuid(),
+                        IsCurrent = false,
+                        StatusDate = DateTime.Now,
+                        StatusCode = -1,
+                    },
+                },
+            };
+
+            var act = () => entity.ToModel();
+
+            act.Should().Throw<ApplicationException>().WithMessage("SqlExtensions - ToModel : Error while parsing Collection currentStatus is null.");
+        }
+
+        [Fact]
+        public void ToModelCollection_ThrowApplicationException_WhenNoCreationStatus()
+        {
+            var entity = new Sql.CollectionDb()
+            {
+                Id = Guid.NewGuid(),
+                BankCode = "30003",
+                BranchCode = "12345",
+                AccountNumber = "12345678901",
+                CheckDigits = "11",
+                JeDeclareCollection = new Sql.JeDeclareCollectionDb()
+                {
+                    JdcReleveId = "6789",
+                    JdcRibId = "6781",
+                },
+                Bank = new Sql.RefBankDb()
+                {
+                    BankCode = "c",
+                    BankName = "n",
+                    BankGroup = "g",
+                    EbicsCardId = "e",
+                    JdcPartnership = (Sql.JdcPartnership)2,
+                },
+                Statuses = new List<StatusDb>
+                {
+                    new StatusDb()
+                    {
+                        Id = Guid.NewGuid(),
+                        IsCurrent = true,
+                        StatusDate = DateTime.Now,
+                        StatusCode = 20,
+                    },
+                },
+            };
+
+            var act = () => entity.ToModel();
+
+            act.Should().Throw<ApplicationException>().WithMessage("SqlExtensions - ToModel : Error while parsing Collection creationStatus is null.");
         }
     }
 }

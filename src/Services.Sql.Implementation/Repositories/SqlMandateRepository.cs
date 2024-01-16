@@ -1282,7 +1282,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
             return await collab.SingleAsync();
         }
-        
+
         public async Task CreateOrUpdateFolderAsync(string bankServicesProviderId, Guid companyId)
         {
             using var context = new MandateContext(this.options);

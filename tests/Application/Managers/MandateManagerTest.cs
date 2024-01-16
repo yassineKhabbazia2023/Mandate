@@ -195,7 +195,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             databaseService.Setup(r => r.GetCollaboratorByEmail("collab@email.com"))
                 .ReturnsAsync(collaborator)
                 .Verifiable();
-                
+
             Bank bank = new Bank("12345", "bn", "bg", string.Empty, new BankAgreement(Mandate.JdcPartnership.NonPartner));
 
             PagedMandate pagedMandate = EntityFactory.PagedMandate(new List<Collection> { EntityFactory.Collection });

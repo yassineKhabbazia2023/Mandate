@@ -134,6 +134,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Portal", "src\Servi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Portal.Tests", "tests\Services.Portal\Mandate.Portal.Tests.csproj", "{F8669C15-D649-4136-A045-B3B92EEE3E0C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.AzureFunctions", "src\Mandate.AzureFunctions\Mandate.AzureFunctions.csproj", "{97179940-CCEE-4A90-99A0-7C73784156D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mandate.AzureFunctions.Tests", "tests\Mandate.AzureFunctions.Tests\Mandate.AzureFunctions.Tests.csproj", "{6CB6B4B9-6418-482C-8DBF-DA7CEF054C72}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -270,6 +274,14 @@ Global
 		{F8669C15-D649-4136-A045-B3B92EEE3E0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8669C15-D649-4136-A045-B3B92EEE3E0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8669C15-D649-4136-A045-B3B92EEE3E0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97179940-CCEE-4A90-99A0-7C73784156D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97179940-CCEE-4A90-99A0-7C73784156D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97179940-CCEE-4A90-99A0-7C73784156D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97179940-CCEE-4A90-99A0-7C73784156D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CB6B4B9-6418-482C-8DBF-DA7CEF054C72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CB6B4B9-6418-482C-8DBF-DA7CEF054C72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CB6B4B9-6418-482C-8DBF-DA7CEF054C72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CB6B4B9-6418-482C-8DBF-DA7CEF054C72}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -325,6 +337,8 @@ Global
 		{54A3BABD-AF98-4304-83BC-10859286F3E6} = {EE6267B4-407D-41DA-8EF1-F74120752372}
 		{8B75ECB6-04F6-4011-A15D-66511DD74B44} = {54A3BABD-AF98-4304-83BC-10859286F3E6}
 		{F8669C15-D649-4136-A045-B3B92EEE3E0C} = {54A3BABD-AF98-4304-83BC-10859286F3E6}
+		{97179940-CCEE-4A90-99A0-7C73784156D1} = {BEBE4B63-38E1-4956-93EB-8C28E1737EF3}
+		{6CB6B4B9-6418-482C-8DBF-DA7CEF054C72} = {BEBE4B63-38E1-4956-93EB-8C28E1737EF3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {97AB0967-2109-4F52-B629-DEA955BFEF4D}

@@ -34,7 +34,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Portal
                     var auths = headers["Authorization"];
                     foreach (var auth in auths)
                     {
-                        if (auth.Contains("Bearer"))
+                        if (auth != null && auth.Contains("Bearer"))
                         {
                             return auth.Replace("Bearer", string.Empty).Trim();
                         }

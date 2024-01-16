@@ -26,7 +26,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     [ExcludeFromCodeCoverage]
     public static class Program
     {
-        private static ClientCredential? clientCredential; 
+        private static ClientCredential? clientCredential;
 
         public static void Main(string[] args)
         {
@@ -55,21 +55,25 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 throw new InvalidOperationException($"Allowed origins list is not definied (Missing setting: MANDATE_FRONTENDS_URL)");
             }
 
-            var frontEndsUri = builder.Configuration["MANDATE_FRONTENDS_URL"].Split(';', StringSplitOptions.RemoveEmptyEntries);
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy(
-                    "CorsPolicy",
-                    builder =>
-                    {
-                        builder
-                            .WithOrigins(frontEndsUri)
-                            .AllowAnyHeader()
-                            .AllowAnyMethod()
-                            .AllowCredentials();
-                    });
-            });
+            var frontEndsUri = builder.Configuration["MANDATE_FRONTENDS_URL"]?.Split(';', StringSplitOptions.RemoveEmptyEntries);
 
+            if (frontEndsUri != null && frontEndsUri.Length > 0)
+            {
+                builder.Services.AddCors(options =>
+                {
+                    options.AddPolicy(
+                        "CorsPolicy",
+                        builder =>
+                        {
+                            builder
+                                .WithOrigins(frontEndsUri)
+                                .AllowAnyHeader()
+                                .AllowAnyMethod()
+                                .AllowCredentials();
+                        });
+                });
+            }
+            
             // Add services to the container.
             builder.Services
                 .AddControllers()
@@ -114,17 +118,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             builder.Services.AddMandateSql(opt => opt.ConnectionString = builder.Configuration["MandateDbConnectionString"]);
             builder.Services.AddMandateJeDeclare(opt =>
             {
-                opt.BaseUri = new Uri(builder.Configuration["MandateJeDeclareBaseUri"]);
-                opt.Login = builder.Configuration["MandateJeDeclareLogin"];
-                opt.Password = builder.Configuration["MandateJeDeclarePassword"];
-                opt.JdcCompteId = builder.Configuration["MandateJeDeclareCompteId"];
-                opt.HistoryDateEnabledBanks = builder.Configuration["MandateJeDeclareHistoryDateEnabledBanks"];
+                opt.BaseUri = new Uri(builder.Configuration["MandateJeDeclareBaseUri"]!);
+                opt.Login = builder.Configuration["MandateJeDeclareLogin"]!;
+                opt.Password = builder.Configuration["MandateJeDeclarePassword"]!;
+                opt.JdcCompteId = builder.Configuration["MandateJeDeclareCompteId"]!;
+                opt.HistoryDateEnabledBanks = builder.Configuration["MandateJeDeclareHistoryDateEnabledBanks"]!;
             });
 
             builder.Services.AddMandateFormio(opt =>
             {
-                opt.BaseUri = new Uri(builder.Configuration["MandateFormioBaseUri"]);
-                opt.FormioApiKey = builder.Configuration["MandateFormioApiKey"];
+                opt.BaseUri = new Uri(builder.Configuration["MandateFormioBaseUri"]!);
+                opt.FormioApiKey = builder.Configuration["MandateFormioApiKey"]!;
             });
 
             builder.Services.AddMandateApplication();

@@ -77,6 +77,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<CompanyCollaboratorDb>().Property(cc => cc.CollaboratorId).IsRequired(true);
             modelBuilder.Entity<CompanyCollaboratorDb>()
                 .HasKey(cc => new { cc.CompanyId, cc.CollaboratorId });
+
             // Configure the many-to-many relationship
             modelBuilder.Entity<CompanyCollaboratorDb>()
                 .HasOne(cc => cc.Company)

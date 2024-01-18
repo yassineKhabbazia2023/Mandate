@@ -59,7 +59,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
 
             // Act
             jsonString = JsonConvert.SerializeObject(exception);
-            deserializedException = JsonConvert.DeserializeObject<CollectionNotFoundException>(jsonString!);
+            deserializedException = JsonConvert.DeserializeObject<CollectionNotFoundException>(jsonString!) !;
 
             // Assert
             deserializedException?.Message.Should().Be(customMessage);

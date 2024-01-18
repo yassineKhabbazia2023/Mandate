@@ -44,12 +44,24 @@ extends:
         test:
         - name: KPMG.Pulse.Back.Accounting.Mandate_tests
           netcoreProjects: |
-            tests/**/*.Tests.csproj
+            '**/*.Tests.csproj'
        # publishFeed:
        #   feedName: Constellation/KPMGPulse
        #   packageName: KPMG.Pulse.Back.Accounting.Mandate
        #   description: |
        #     KPMG.Pulse.Back.Accounting.Mandate v$(GitVersion.number)
+      - type: dotnetcore
+        name: PreloadFunction
+        netcoreProjects: src/Mandate.AzureFunctions/Mandate.AzureFunctions.csproj
+        test: 
+        - name: PreloadFunction_tests
+          netcoreProjects: |
+            '**/*.Tests.csproj'
+        # publishFeed:
+          # feedName: Constellation/KPMGPulse
+          # packageName: function-preload
+          # description: |
+            # Preload Function v$(GitVersion.number)
 
     deploy:
       environments:

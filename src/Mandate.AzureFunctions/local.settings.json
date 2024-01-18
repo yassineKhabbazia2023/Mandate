@@ -1,0 +1,15 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "MANDATE_API_URL": "https://localhost:61046/",
+    "ConstellationClientId": "e90c4fff-87c7-4c05-b3fd-a2a06650b380",
+    "ConstellationSecret": "Q2vq5CTpXuXFovHZjQfMWTj92x1E9AApZgm6vWZeZws=",
+    "ConstellationAudience": "client_credentials",
+    "ConstellationTenant": "//prekpmgnetfr.onmicrosoft.com/CSTD2API/.default"
+  },
+  "ApplicationInsights": {
+    "ConnectionString": "Add App Insight Connection String Here"
+  }
+}

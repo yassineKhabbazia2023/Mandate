@@ -10,6 +10,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
     public class ListeReleves
     {
         [XmlElement(ElementName = "releve")]
-        public Releve[]? Releve { get; set; }
+        public Releve[] ? Releve { get; set; }
     }
 }

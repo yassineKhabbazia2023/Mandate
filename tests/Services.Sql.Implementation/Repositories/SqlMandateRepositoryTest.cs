@@ -917,6 +917,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             response2.Item1[0].AccountNumber.Should().Be("12345678903");
         }
 
+        [Fact]
         public async Task GetCollectionById()
         {
             await using var database = SqlServerFixture.CreateDatabase();

@@ -4,8 +4,8 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.Models.Enums;
     using System.Runtime.CompilerServices;
+    using KPMG.Pulse.Back.Accounting.Mandate.Models.Enums;
 
     public static class SqlExtensions
     {
@@ -170,12 +170,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             if (currentStatus == null)
             {
-                throw new ApplicationException($"{nameof(SqlExtensions)} - {nameof(ToModel)} : Error while parsing Collection currentStatus is null.");
+                throw new ApplicationException($"{nameof(SqlExtensions)} - {nameof(ToModel)} : Error while parsing Collection {nameof(currentStatus)} is null.");
             }
 
             if (creationStatus == null)
             {
-                throw new ApplicationException($"{nameof(SqlExtensions)} - {nameof(ToModel)} : Error while parsing Collection creationStatus is null.");
+                throw new ApplicationException($"{nameof(SqlExtensions)} - {nameof(ToModel)} : Error while parsing Collection {nameof(creationStatus)} is null.");
             }
         }
     }

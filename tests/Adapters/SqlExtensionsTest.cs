@@ -4,8 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.Sql;
-
     public class SqlExtensionsTest
     {
         [Fact]
@@ -318,9 +316,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                     EbicsCardId = "e",
                     JdcPartnership = (Sql.JdcPartnership)2,
                 },
-                Statuses = new List<StatusDb>
+                Statuses = new List<Sql.StatusDb>
                 {
-                    new StatusDb()
+                    new Sql.StatusDb()
                     {
                         Id = Guid.NewGuid(),
                         IsCurrent = false,
@@ -358,9 +356,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                     EbicsCardId = "e",
                     JdcPartnership = (Sql.JdcPartnership)2,
                 },
-                Statuses = new List<StatusDb>
+                Statuses = new List<Sql.StatusDb>
                 {
-                    new StatusDb()
+                    new Sql.StatusDb()
                     {
                         Id = Guid.NewGuid(),
                         IsCurrent = true,

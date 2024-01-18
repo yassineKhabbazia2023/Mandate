@@ -1411,5 +1411,199 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             factory.VerifyAll();
             logger.VerifyAll();
         }
+
+        [Fact]
+        public async Task DeactivateCollection_Ok()
+        {
+            var destinataire = new Destinataire()
+            {
+                Id = "destinataireIdT",
+            };
+
+            var rib = new Rib()
+            {
+                Id = "1234",
+                Libelle = "libelleM",
+                CiviliteTitulaire = "Mme",
+                NomTitulaire = "nomTitulaireT",
+                PrenomTitulaire = "prenomTitulaireM",
+                Etablissement = "30003",
+                Guichet = "03558",
+                NumCompte = "00020006536",
+                Cle = "41",
+            };
+
+            var card = new Carte()
+            {
+                Id = "carteIdT",
+                Statut = "statutT",
+                CodeBanque = "codeBanqueT",
+                NomConfig = "nomConfigT",
+                UserId = "userIdT",
+                PartnerId = "partnerIdT",
+                EmailResponsable = "emailResponsableT",
+                FileFormat = "formatT",
+                CarteEBICs = "carteEbicsT",
+            };
+
+            var periodicite = new Periodicite()
+            {
+                Id = "periodiciteIdT",
+            };
+
+            var releve = new Releve()
+            {
+                Id = "idT",
+                Etat = "etatT",
+                TypeLiaison = "typeLiaisonT",
+                CauseRejet = "causeRejetT",
+                Destinataire = destinataire,
+                Rib = rib,
+                Card = card,
+                Periodicite = periodicite,
+                DateReprise = "dateT",
+            };
+
+            var newReleve = new Releve()
+            {
+                Id = "idT",
+                Etat = "3",
+                TypeLiaison = "typeLiaisonT",
+                CauseRejet = "causeRejetT",
+                Destinataire = destinataire,
+                Rib = rib,
+                Card = card,
+                Periodicite = periodicite,
+                DateReprise = "dateT",
+            };
+
+            var listeReleves = new ListeReleves()
+            {
+                Releve = new Releve[] { releve },
+            };
+
+            var serializedlisteReleves = listeReleves.Serialize();
+
+            var httpResponseMessage1 = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(serializedlisteReleves, Encoding.UTF8, "text/xml"),
+            };
+
+            var client = new Mock<IHttpClient>(MockBehavior.Strict);
+            client.Setup(c => c.GetAsync(It.IsAny<string>()))
+                .Callback<string>(url =>
+                {
+                    url.Should().Be($"compte/19581575/dossierClient/21570139/releve");
+                })
+                .ReturnsAsync(httpResponseMessage1)
+                .Verifiable();
+
+            var serializedReleve = newReleve.Serialize();
+
+            var httpResponseMessage2 = new HttpResponseMessage(HttpStatusCode.Created)
+            {
+                Content = new StringContent(serializedReleve, Encoding.UTF8, "text/xml"),
+            };
+
+            var httpContent = new StringContent(serializedReleve, Encoding.UTF8, "text/xml");
+
+            client.Setup(c => c.PutAsync(It.IsAny<string>(), It.IsAny<HttpContent>()))
+                .Callback<string, HttpContent>((url, content) =>
+                {
+                    url.Should().Be($"compte/19581575/dossierClient/21570139/releve/idT");
+                    content.Should().BeEquivalentTo(httpContent);
+                })
+                .ReturnsAsync(httpResponseMessage2)
+                .Verifiable();
+            client.Setup(c => c.Dispose())
+                .Verifiable();
+
+            var factory = new Mock<IJeDeclareClientFactory>(MockBehavior.Strict);
+            factory.Setup(f => f.Create())
+                .Returns(client.Object)
+                .Verifiable();
+
+            var logger = new Mock<ILogger<HttpJeDeclareClient>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
+
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
+            });
+
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            var result = await jeDeclareClient.DeactivateCollection("21570139", "idT");
+            result.Should().BeTrue();
+
+            client.VerifyAll();
+            factory.VerifyAll();
+        }
+
+        [Fact]
+        public async Task DeactivateCollection_Ko()
+        {
+            var listeReleves = new ListeReleves()
+            {
+                Releve = Array.Empty<Releve>(),
+            };
+
+            var serializedlisteReleves = listeReleves.Serialize();
+
+            var httpResponseMessage1 = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(serializedlisteReleves, Encoding.UTF8, "text/xml"),
+            };
+
+            var client = new Mock<IHttpClient>(MockBehavior.Strict);
+            client.Setup(c => c.GetAsync(It.IsAny<string>()))
+                .Callback<string>(url =>
+                {
+                    url.Should().Be($"compte/19581575/dossierClient/21570139/releve");
+                })
+                .ReturnsAsync(httpResponseMessage1)
+                .Verifiable();
+            client.Setup(c => c.Dispose())
+                .Verifiable();
+
+            var factory = new Mock<IJeDeclareClientFactory>(MockBehavior.Strict);
+            factory.Setup(f => f.Create())
+                .Returns(client.Object)
+                .Verifiable();
+
+            var logger = new Mock<ILogger<HttpJeDeclareClient>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
+
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
+            });
+
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            Func<Task> action = async () => await jeDeclareClient.DeactivateCollection("21570139", "x");
+            await action.Should().ThrowAsync<JeDeclareApiException>();
+
+            client.VerifyAll();
+            factory.VerifyAll();
+        }
     }
 }

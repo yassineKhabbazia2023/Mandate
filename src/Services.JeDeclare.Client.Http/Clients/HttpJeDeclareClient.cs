@@ -392,6 +392,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             throw exception;
         }
 
+        public async Task<bool> DeactivateCollection(string jdcFolderId, string jdcReleveId)
+        {
+            var releves = await this.GetAllConfigurationFromFolderAsync(jdcFolderId).ConfigureAwait(false);
+            var releve = releves.Releve?.Single(r => r.Id == jdcReleveId) ?? throw new JeDeclareApiException($"Releve with id '{jdcFolderId}/{jdcReleveId}' not found in JeDeclare");
+            releve.Etat = "3";
+            var updated = await this.UpdateCollecteConfigurationAsync(jdcFolderId, releve).ConfigureAwait(false);
+
+            return updated;
+        }
+
         private byte[] DeleteFirstPageMandatPdf(MemoryStream mandat)
         {
             // TODO Aspose

@@ -6,9 +6,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 {
     using System.Net;
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
+    using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Logging.Abstractions;
 
     public class MandateControllerTest
     {
@@ -219,11 +221,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         [Fact]
         public async Task DownloadUnsignedAsync_CaseCollectionNotFoundException()
         {
-            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
-            var guidGenerator = new Mock<IGuidGenerator>();
-            guidGenerator.Setup(g => g.NewGuid())
-                .Returns(newGuid);
-
             var mandateId = "00000001-0000-0000-0000-000000000000";
 
             var mandateManager = new Mock<IMandateManager>();
@@ -242,7 +239,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, null!);
 
             var result = await controller.DownloadUnsignedAsync(mandateId) as ObjectResult;
 
@@ -254,21 +251,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             errorType!.ErrorType.Should()
                                .Be("CollectionNotFound");
             errorType!.LogReference.Should()
-                                  .Be(newGuid.ToString());
+                                  .Be("0");
 
             mandateManager.VerifyAll();
             logger.VerifyAll();
-            guidGenerator.VerifyAll();
         }
 
         [Fact]
         public async Task DownloadUnsignedAsync_CaseFolderIdEmptyOrNullException()
         {
-            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
-            var guidGenerator = new Mock<IGuidGenerator>();
-            guidGenerator.Setup(g => g.NewGuid())
-                .Returns(newGuid);
-
             var mandateId = "00000001-0000-0000-0000-000000000000";
 
             var mandateManager = new Mock<IMandateManager>();
@@ -287,7 +278,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, null!);
 
             var result = await controller.DownloadUnsignedAsync(mandateId) as ObjectResult;
 
@@ -299,21 +290,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             errorType!.ErrorType.Should()
                                .Be("FolderIdEmptyOrNull");
             errorType!.LogReference.Should()
-                                  .Be(newGuid.ToString());
+                                  .Be("0");
 
             mandateManager.VerifyAll();
             logger.VerifyAll();
-            guidGenerator.VerifyAll();
         }
 
         [Fact]
         public async Task DownloadUnsignedAsync_CaseRibIdEmptyOrNullException()
         {
-            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
-            var guidGenerator = new Mock<IGuidGenerator>();
-            guidGenerator.Setup(g => g.NewGuid())
-                .Returns(newGuid);
-
             var mandateId = "00000001-0000-0000-0000-000000000000";
 
             var mandateManager = new Mock<IMandateManager>();
@@ -332,7 +317,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, null!);
 
             var result = await controller.DownloadUnsignedAsync(mandateId) as ObjectResult;
 
@@ -344,22 +329,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             errorType!.ErrorType.Should()
                                .Be("RibIdEmptyOrNull");
             errorType!.LogReference.Should()
-                                  .Be(newGuid.ToString());
+                                  .Be("0");
 
             mandateManager.VerifyAll();
             logger.VerifyAll();
-            guidGenerator.VerifyAll();
         }
 
         [Fact]
         public async Task UploadSignedMandateAsync_WithValidPdfFile_ReturnsOkResult()
         {
             // Arrange
-            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
-            var guidGenerator = new Mock<IGuidGenerator>();
-            guidGenerator.Setup(g => g.NewGuid())
-                .Returns(newGuid);
-
             var validMandateId = "00000001-0000-0000-0000-000000000000";
 
             var mandateManagerMock = new Mock<IMandateManager>();
@@ -375,7 +354,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManagerMock.Object, null!, guidGenerator.Object, null!);
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, null!, null!, null!);
 
             var fileMock = new Mock<IFormFile>();
             fileMock.Setup(f => f.ContentType).Returns("application/pdf");
@@ -783,11 +762,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         [Fact]
         public async Task DownloadSignedAsync_CaseCollectionNotFoundException()
         {
-            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
-            var guidGenerator = new Mock<IGuidGenerator>();
-            guidGenerator.Setup(g => g.NewGuid())
-                .Returns(newGuid);
-
             var mandateId = "00000001-0000-0000-0000-000000000000";
 
             var mandateManager = new Mock<IMandateManager>();
@@ -806,7 +780,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, null!);
 
             var result = await controller.DownloadSignedAsync(mandateId) as ObjectResult;
 
@@ -818,21 +792,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             errorType!.ErrorType.Should()
                                .Be("CollectionNotFound");
             errorType!.LogReference.Should()
-                                  .Be(newGuid.ToString());
+                                  .Be("0");
 
             mandateManager.VerifyAll();
             logger.VerifyAll();
-            guidGenerator.VerifyAll();
         }
 
         [Fact]
         public async Task DownloadSignedAsync_CaseFolderIdEmptyOrNullException()
         {
-            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
-            var guidGenerator = new Mock<IGuidGenerator>();
-            guidGenerator.Setup(g => g.NewGuid())
-                .Returns(newGuid);
-
             var mandateId = "00000001-0000-0000-0000-000000000000";
 
             var mandateManager = new Mock<IMandateManager>();
@@ -851,7 +819,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, null!);
 
             var result = await controller.DownloadSignedAsync(mandateId) as ObjectResult;
 
@@ -863,21 +831,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             errorType!.ErrorType.Should()
                                .Be("FolderIdEmptyOrNull");
             errorType!.LogReference.Should()
-                                  .Be(newGuid.ToString());
+                                  .Be("0");
 
             mandateManager.VerifyAll();
             logger.VerifyAll();
-            guidGenerator.VerifyAll();
         }
 
         [Fact]
         public async Task DownloadSignedAsync_CaseRibIdEmptyOrNullException()
         {
-            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
-            var guidGenerator = new Mock<IGuidGenerator>();
-            guidGenerator.Setup(g => g.NewGuid())
-                .Returns(newGuid);
-
             var mandateId = "00000001-0000-0000-0000-000000000000";
 
             var mandateManager = new Mock<IMandateManager>();
@@ -896,7 +858,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, null!);
 
             var result = await controller.DownloadSignedAsync(mandateId) as ObjectResult;
 
@@ -908,21 +870,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             errorType!.ErrorType.Should()
                                .Be("RibIdEmptyOrNull");
             errorType!.LogReference.Should()
-                                  .Be(newGuid.ToString());
+                                  .Be("0");
 
             mandateManager.VerifyAll();
             logger.VerifyAll();
-            guidGenerator.VerifyAll();
         }
 
         [Fact]
         public async Task DownloadSignedAsync_CaseServicesProviderException()
         {
-            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
-            var guidGenerator = new Mock<IGuidGenerator>();
-            guidGenerator.Setup(g => g.NewGuid())
-                .Returns(newGuid);
-
             var mandateId = "00000001-0000-0000-0000-000000000000";
 
             var mandateManager = new Mock<IMandateManager>();
@@ -941,7 +897,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, null!);
 
             var result = await controller.DownloadSignedAsync(mandateId) as ObjectResult;
 
@@ -953,21 +909,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             errorType!.ErrorType.Should()
                                .Be("ServicesProviderError");
             errorType!.LogReference.Should()
-                                  .Be(newGuid.ToString());
+                                  .Be("0");
 
             mandateManager.VerifyAll();
             logger.VerifyAll();
-            guidGenerator.VerifyAll();
         }
 
         [Fact]
         public async Task DownloadSignedAsync_CaseException()
         {
-            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
-            var guidGenerator = new Mock<IGuidGenerator>();
-            guidGenerator.Setup(g => g.NewGuid())
-                .Returns(newGuid);
-
             var mandateId = "00000001-0000-0000-0000-000000000000";
 
             var mandateManager = new Mock<IMandateManager>();
@@ -986,7 +936,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, null!);
 
             var result = await controller.DownloadSignedAsync(mandateId) as ObjectResult;
 
@@ -998,11 +948,59 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             errorType!.ErrorType.Should()
                                .Be("Exception");
             errorType!.LogReference.Should()
-                                  .Be(newGuid.ToString());
+                                  .Be("0");
 
             mandateManager.VerifyAll();
             logger.VerifyAll();
-            guidGenerator.VerifyAll();
+        }
+
+        [Fact]
+        public async Task DeactivateAsync_Ok()
+        {
+            var mandateId = new PredictableGuid().NewGuid();
+
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(m => m.DeactivateCollectionAsync(mandateId))
+                .ReturnsAsync(true);
+
+            var controller = new MandateController((new NullLoggerFactory() as ILoggerFactory).CreateLogger<MandateController>(), mandateManager.Object, null!, null!, null!);
+
+            var result = await controller.DeactivateAsync(mandateId.ToString());
+
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
+
+            mandateManager.VerifyAll();
+        }
+
+        [Fact]
+        public async Task DeactivateAsync_Ko()
+        {
+            var mandateId = new PredictableGuid().NewGuid();
+
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(m => m.DeactivateCollectionAsync(mandateId))
+                .ReturnsAsync(false);
+
+            var controller = new MandateController((new NullLoggerFactory() as ILoggerFactory).CreateLogger<MandateController>(), mandateManager.Object, null!, null!, null!);
+
+            var result = await controller.DeactivateAsync(mandateId.ToString());
+
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NotFoundResult>();
+
+            mandateManager.VerifyAll();
+        }
+
+        [Fact]
+        public async Task DeactivateAsync_Throws()
+        {
+            var controller = new MandateController((new NullLoggerFactory() as ILoggerFactory).CreateLogger<MandateController>(), null!, null!, null!, null!);
+
+            var result = await controller.DeactivateAsync("x");
+
+            result.Should().NotBeNull();
+            result.Should().BeOfType<BadRequestObjectResult>();
         }
     }
 }

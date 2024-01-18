@@ -784,6 +784,32 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             await act.Should().ThrowAsync<RibIdEmptyOrNullException>("because the service should throw an exception in this scenario");
         }
 
+        [Fact]
+        public async Task DeactivateCollectionAsync_Ok()
+        {
+            // Arrange
+            var mandateId = new PredictableGuid().NewGuid();
+            var collection = new Collection(mandateId, null!, null!, null!, DateTime.MinValue, DateTime.MinValue, null!);
+
+            this.mockDatabaseService
+                .Setup(m => m.GetCollectionById(mandateId))
+                .ReturnsAsync(collection);
+
+            this.mockJeDeclareService
+                .Setup(m => m.DeactivateCollection(collection))
+                .ReturnsAsync(true);
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, null!, this.mockJeDeclareService.Object, null!);
+
+            // Act
+            var result = await mandateManager.DeactivateCollectionAsync(mandateId);
+
+            // Assert
+            result.Should().BeTrue();
+            this.mockDatabaseService.VerifyAll();
+            this.mockJeDeclareService.VerifyAll();
+        }
+
         private static bool CompareAdress(Address address1, Address address2)
         {
             return address1.City == address2.City &&

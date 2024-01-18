@@ -346,6 +346,32 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             await Assert.ThrowsAsync<ServicesProviderException>(() => adapter.GetSignedMandatPdfAsync("jdcFolderId", "jdcRibId"));
         }
 
+        [Fact]
+        public async Task DeactivateCollection_Ok()
+        {
+            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            jedeclareClient.Setup(client => client.DeactivateCollection("f", "r"))
+                .ReturnsAsync(true);
+
+            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            var result = await adapter.DeactivateCollection(new Collection(Guid.Empty, "r", new Company(Guid.Empty, null!, null!, null!, "f", null!, null!), null!, DateTime.MinValue, DateTime.MinValue, null!));
+
+            result.Should().BeTrue();
+            jedeclareClient.VerifyAll();
+        }
+
+        [Fact]
+        public async Task DeactivateCollection_Throws()
+        {
+            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            jedeclareClient.Setup(client => client.DeactivateCollection("f", "r"))
+                .ThrowsAsync(new JeDeclareApiException("Error message"));
+
+            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            Func<Task> action = async () => await adapter.DeactivateCollection(new Collection(Guid.Empty, "r", new Company(Guid.Empty, null!, null!, null!, "f", null!, null!), null!, DateTime.MinValue, DateTime.MinValue, null!));
+            await action.Should().ThrowAsync<ServicesProviderException>();
+        }
+
         private static bool CompareRib(Rib rib1, Rib rib2)
         {
             return rib1.Etablissement == rib2.Etablissement &&

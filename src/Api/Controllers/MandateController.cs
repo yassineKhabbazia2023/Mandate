@@ -37,7 +37,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetCollectionsAsync([FromQuery] string? searchTerm, [FromQuery] DateTime? creationDateStart, [FromQuery] DateTime? creationDateEnd, [FromQuery] DateTime? modificationDateStart, [FromQuery] DateTime? modificationDateEnd, [FromQuery] List<int>? statusCodes, [FromQuery] int? limit, [FromQuery] int? skip, [FromQuery] string? sortOrder, [FromQuery] string? sortCriteria)
         {
-            string correlationId = Guid.NewGuid().ToString();
+            var correlationId = "0"; // TODO
 
             try
             {
@@ -60,7 +60,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [HttpPost]
         public async Task<IActionResult> PostCollectionAsync([FromBody] CollectionCreationCommand collectionCreationCommand)
         {
-            string correlationId = Guid.NewGuid().ToString();
+            var correlationId = "0"; // TODO
 
             try
             {
@@ -82,7 +82,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DownloadUnsignedAsync([FromRoute] string mandateId)
         {
-            var correlationId = this.guidGenerator.NewGuid();
+            var correlationId = "0"; // TODO
             try
             {
                 // Assuming you have your file data as byte[]
@@ -127,7 +127,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [HttpGet("{mandateId}/signed")]
         public async Task<IActionResult> DownloadSignedAsync([FromRoute] string mandateId)
         {
-            var correlationId = this.guidGenerator.NewGuid();
+            var correlationId = "0"; // TODO
             try
             {
                 // Assuming you have your file data as byte[]
@@ -209,8 +209,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [HttpPost("{mandateId}/deactivate")]
         public async Task<IActionResult> DeactivateAsync([FromRoute] string mandateId)
         {
-            await Task.CompletedTask;
-            return this.NoContent(); // TODO
+            var correlationId = "0"; // TODO
+            if (!Guid.TryParse(mandateId, out var parsedMandateId))
+            {
+                return this.BadRequest(new Error("InvalidMandateId", correlationId, "MandateId should be an UUID"));
+            }
+
+            if (await this.mandateManager.DeactivateCollectionAsync(parsedMandateId))
+            {
+                return this.NoContent();
+            }
+            else
+            {
+                return this.NotFound();
+            }
         }
 
         [HttpPost("recovery")]

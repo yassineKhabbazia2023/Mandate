@@ -89,7 +89,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         {
             using var memoryStream = new MemoryStream();
             await mandateFileStream.CopyToAsync(memoryStream);
-            byte[] fileBytes = memoryStream.ToArray() !;
+            byte[] fileBytes = memoryStream.ToArray()!;
 
             var collection = await this.databaseService.GetCollectionById(collectionId);
             var isJdcPartner = this.IsJdcPartner(collection);
@@ -125,7 +125,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             var ribId = collection!.Bban?.BbanServicesProviderId;
             this.ValidatePartnerCollection(collection!);
 
-            return await this.jeDeclareService.GetSignedMandatPdfAsync(folderId !, ribId !);
+            return await this.jeDeclareService.GetSignedMandatPdfAsync(folderId!, ribId!);
+        }
+
+        public async Task<bool> DeactivateCollectionAsync(Guid collectionId)
+        {
+            var collection = await this.databaseService.GetCollectionById(collectionId);
+            return await this.jeDeclareService.DeactivateCollection(collection);
         }
 
         private bool IsJdcPartner(Collection collection)

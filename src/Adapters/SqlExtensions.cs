@@ -5,6 +5,7 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Models.Enums;
+    using System.Runtime.CompilerServices;
 
     public static class SqlExtensions
     {
@@ -51,17 +52,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             var currentStatus = source.Statuses?.SingleOrDefault(i => i.IsCurrent);
             var creationStatus = source.Statuses?.SingleOrDefault(i => i.StatusCode == -1);
 
-            if (currentStatus == null)
-            {
-                throw new ApplicationException($"{nameof(SqlExtensions)} - {nameof(ToModel)} : Error while parsing Collection currentStatus is null.");
-            }
+            ValidateStatuses(currentStatus, creationStatus);
 
-            if (creationStatus == null)
-            {
-                throw new ApplicationException($"{nameof(SqlExtensions)} - {nameof(ToModel)} : Error while parsing Collection creationStatus is null.");
-            }
-
-            Status? status = currentStatus.ToModel();
+            Status? status = currentStatus!.ToModel();
 
             return new Collection(
                 id: source.Id,
@@ -69,7 +62,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 company: company,
                 bban: bban,
                 creationDate: GetCreationDate(creationStatus),
-                modificationDate: GetModificationDate(currentStatus, creationStatus),
+                modificationDate: GetModificationDate(currentStatus!, creationStatus!),
                 status: status!);
         }
 
@@ -170,6 +163,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             else
             {
                 return currentStatus.StatusDate!.Value;
+            }
+        }
+
+        private static void ValidateStatuses(Sql.StatusDb? currentStatus, Sql.StatusDb? creationStatus)
+        {
+            if (currentStatus == null)
+            {
+                throw new ApplicationException($"{nameof(SqlExtensions)} - {nameof(ToModel)} : Error while parsing Collection currentStatus is null.");
+            }
+
+            if (creationStatus == null)
+            {
+                throw new ApplicationException($"{nameof(SqlExtensions)} - {nameof(ToModel)} : Error while parsing Collection creationStatus is null.");
             }
         }
     }

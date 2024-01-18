@@ -4,11 +4,11 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 {
+    using System;
+    using System.Linq.Expressions;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
     using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-    using System;
-    using System.Linq.Expressions;
 
     public class SqlMandateRepository : IMandateRepository
     {
@@ -1282,7 +1282,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
             return await collab.SingleAsync();
         }
-        
+
         public async Task CreateOrUpdateFolderAsync(string bankServicesProviderId, Guid companyId)
         {
             using var context = new MandateContext(this.options);

@@ -2,10 +2,10 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-using KPMG.Pulse.Back.Accounting.Mandate.Sql;
-
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+
     public class SqlExtensionsTest
     {
         [Fact]

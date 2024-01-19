@@ -42,7 +42,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 .Verifiable();
 
             var jedeclareFactory = new Mock<IJeDeclareClientFactory>(MockBehavior.Strict);
-            jedeclareFactory.Setup(f => f.Create())
+            jedeclareFactory.Setup(f => f.Create(true))
                 .Returns(client.Object)
                 .Verifiable();
 
@@ -95,7 +95,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             var factory = new Mock<IJeDeclareClientFactory>(MockBehavior.Strict);
 
-            factory.Setup(f => f.Create())
+            factory.Setup(f => f.Create(true))
                    .Returns(client.Object)
                    .Verifiable();
 
@@ -146,7 +146,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 .Verifiable();
 
             var factory = new Mock<IJeDeclareClientFactory>(MockBehavior.Strict);
-            factory.Setup(f => f.Create())
+            factory.Setup(f => f.Create(true))
                    .Returns(client.Object)
                    .Verifiable();
 
@@ -240,7 +240,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             var authent = new BasicHttpClientAuthentication("kpmg-test@jedeclare.com", "****");
             var factory = new Mock<IJeDeclareClientFactory>(MockBehavior.Strict);
 
-            factory.Setup(f => f.Create())
+            factory.Setup(f => f.Create(true))
                    .Returns(client.Object)
                    .Verifiable();
 
@@ -318,7 +318,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             var factory = new Mock<IJeDeclareClientFactory>(MockBehavior.Strict);
 
-            factory.Setup(f => f.Create())
+            factory.Setup(f => f.Create(true))
                    .Returns(client.Object)
                    .Verifiable();
 
@@ -406,7 +406,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             var authent = new BasicHttpClientAuthentication("kpmg-test@jedeclare.com", "****");
             var factory = new Mock<IJeDeclareClientFactory>(MockBehavior.Strict);
 
-            factory.Setup(f => f.Create())
+            factory.Setup(f => f.Create(true))
                    .Returns(client.Object)
                    .Verifiable();
 
@@ -493,7 +493,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             var factory = new Mock<IJeDeclareClientFactory>(MockBehavior.Strict);
 
-            factory.Setup(f => f.Create())
+            factory.Setup(f => f.Create(true))
                    .Returns(client.Object)
                    .Verifiable();
 

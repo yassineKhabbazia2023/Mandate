@@ -8,6 +8,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
 
     public interface IJeDeclareClientFactory
     {
-        IHttpClient Create();
+        IHttpClient Create(bool allowAcceptXml = true);
     }
 }

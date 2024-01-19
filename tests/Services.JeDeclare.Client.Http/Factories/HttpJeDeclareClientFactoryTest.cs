@@ -13,7 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests.Factori
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task Create(bool allowAcceptXml)
+        public void Create(bool allowAcceptXml)
         {
             var options = Options.Create(new JeDeclareOptions()
             {
@@ -42,7 +42,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests.Factori
                 .Verifiable();
 
             HttpJeDeclareClientFactory jeDeclareClientFactory = new HttpJeDeclareClientFactory(options, factory.Object);
-
             IHttpClient httpClient = jeDeclareClientFactory.Create(allowAcceptXml);
 
             httpClient.Should().NotBeNull();

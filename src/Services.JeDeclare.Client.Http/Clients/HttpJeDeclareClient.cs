@@ -65,7 +65,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
         public async Task<byte[]> GetSignedMandatPdfAsync(string jdcFolderId, string jdcRibId)
         {
-            using var client = this.factory.Create();
+            using var client = this.factory.Create(false);
 
             var jdcCompteId = this.options.Value.JdcCompteId;
             var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/rib/{jdcRibId}/mandatSigne";
@@ -98,9 +98,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
         // missing UT => to code it when finishing aspose.
         public async Task<byte[]> GetMandatPdfAsync(string jdcFolderId, string jdcRibId)
         {
-            using var client = this.factory.Create();
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/*"));
+            using var client = this.factory.Create(false);
 
             var jdcCompteId = this.options.Value.JdcCompteId;
             var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/rib/{jdcRibId}/mandat";

@@ -15,5 +15,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         Task<string?> UploadSignedMandateAsync(Guid collectionId, Stream mandateFileStream);
 
         Task<byte[]> DownloadSignedAsync(Guid id);
+
+        Task<bool> DeactivateCollectionAsync(Guid collectionId);
     }
 }

@@ -4,9 +4,17 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<IsPackable>false</IsPackable>
+		<IsPackable>true</IsPackable>
 		<AssemblyName>KPMG.Pulse.Back.Accounting.Mandate.Client</AssemblyName>
 		<RootNamespace>KPMG.Pulse.Back.Accounting.Mandate.Client</RootNamespace>
+		<PackageId>KPMG.Pulse.Back.Accounting.Mandate.Client</PackageId>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Description>Abstractions and models of proxy client to Constellation Mandate API</Description>
+		<PackageProjectUrl>https://dev.azure.com/kpmgfr/Constellation/</PackageProjectUrl>
+		<RepositoryUrl>https://dev.azure.com/kpmgfr/Constellation/_git/KPMG.Pulse.Back.Accounting.Mandate</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageReleaseNotes>1.0.0 - Initial version</PackageReleaseNotes>
+		<SignAssembly>false</SignAssembly>
 	</PropertyGroup>
 
 	<ItemGroup>

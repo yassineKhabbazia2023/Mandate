@@ -20,7 +20,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             options.Value.Validate();
         }
 
-        public IHttpClient Create()
+        public IHttpClient Create(bool allowAcceptXml = true)
         {
             var authentication = new BasicHttpClientAuthentication(this.options.Value.Login, this.options.Value.Password);
 
@@ -29,7 +29,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             client.EnsureHttpClientCreated();
 
             client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xml"));
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(allowAcceptXml ? "application/xml" : "application/*"));
 
             return client;
         }

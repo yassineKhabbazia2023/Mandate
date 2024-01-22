@@ -9,4 +9,8 @@
 		<RootNamespace>KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Tests</RootNamespace>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\..\src\Client.Http\Mandate.Client.Http.csproj" />
+	</ItemGroup>
+
 </Project>

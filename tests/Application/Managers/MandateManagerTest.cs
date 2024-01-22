@@ -195,7 +195,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             databaseService.Setup(r => r.GetCollaboratorByEmail("collab@email.com"))
                 .ReturnsAsync(collaborator)
                 .Verifiable();
-                
+
             Bank bank = new Bank("12345", "bn", "bg", string.Empty, new BankAgreement(Mandate.JdcPartnership.NonPartner));
 
             PagedMandate pagedMandate = EntityFactory.PagedMandate(new List<Collection> { EntityFactory.Collection });
@@ -782,6 +782,32 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             Func<Task> act = async () => await mandateManager.DownloadSignedAsync(id);
             await act.Should().ThrowAsync<RibIdEmptyOrNullException>("because the service should throw an exception in this scenario");
+        }
+
+        [Fact]
+        public async Task DeactivateCollectionAsync_Ok()
+        {
+            // Arrange
+            var mandateId = new PredictableGuid().NewGuid();
+            var collection = new Collection(mandateId, null!, null!, null!, DateTime.MinValue, DateTime.MinValue, null!);
+
+            this.mockDatabaseService
+                .Setup(m => m.GetCollectionById(mandateId))
+                .ReturnsAsync(collection);
+
+            this.mockJeDeclareService
+                .Setup(m => m.DeactivateCollection(collection))
+                .ReturnsAsync(true);
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, null!, this.mockJeDeclareService.Object, null!);
+
+            // Act
+            var result = await mandateManager.DeactivateCollectionAsync(mandateId);
+
+            // Assert
+            result.Should().BeTrue();
+            this.mockDatabaseService.VerifyAll();
+            this.mockJeDeclareService.VerifyAll();
         }
 
         private static bool CompareAdress(Address address1, Address address2)

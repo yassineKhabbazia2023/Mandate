@@ -106,7 +106,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Portal.Tests
                             new RoleResponseJson
                             {
                                 RoleFunctionName = "roleName",
-                                Contact =  new ContactResponseJson()
+                                Contact = new ContactResponseJson()
                                 {
                                     Id = new Guid("00000002-0000-0000-0000-000000000000"),
                                     ConactFirstName = "maroo",

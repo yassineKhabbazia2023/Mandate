@@ -4,10 +4,11 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 {
+    using System;
+    using System.Linq.Expressions;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
     using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-    using System;
 
     public class SqlMandateRepository : IMandateRepository
     {
@@ -44,7 +45,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             mandates = ApplyStatusCodesFilter(mandates, query);
             mandates = ApplyCreationDateFilter(mandates, query);
             mandates = ApplyModificationDateFilter(mandates, query);
-
             mandates = ApplySorting(mandates, query);
 
             var list = await PaginatedListAsync(mandates, query).ConfigureAwait(false);
@@ -1282,7 +1282,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
             return await collab.SingleAsync();
         }
-        
+
         public async Task CreateOrUpdateFolderAsync(string bankServicesProviderId, Guid companyId)
         {
             using var context = new MandateContext(this.options);
@@ -1574,15 +1574,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                     LinkType = collection.LinkType,
                     RejectReason = collection.RejectReason,
                     AccountNumber = collection.AccountNumber,
-                    Statuses = collection.Statuses.Where(status => status.IsCurrent).ToList(),
+                    Statuses = collection.Statuses.ToList(),
                 });
         }
 
         private static IQueryable<CollectionDb> ApplyModificationDateSort(IQueryable<CollectionDb> mandates, bool isAscending)
         {
             var unSorted = PrepareUnSortedQuery(mandates);
-            return isAscending ? unSorted.OrderBy(collection => collection.Statuses.Min(status => status.StatusDate)) :
-                                 unSorted.OrderByDescending(collection => collection.Statuses.Min(status => status.StatusDate));
+
+            Expression<Func<CollectionDb, DateTime?>> sortingExpression = collection =>
+            collection.Statuses
+                  .Where(status => status.IsCurrent)
+                  .Min(status => status.StatusDate);
+
+            return isAscending ? unSorted.OrderBy(sortingExpression) :
+                                 unSorted.OrderByDescending(sortingExpression);
         }
 
         private static IQueryable<CollectionDb> ApplyStatusSort(IQueryable<CollectionDb> mandates, bool isAscending)

@@ -74,6 +74,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             }
         }
 
+        public async Task<bool> DeactivateCollection(Collection collection)
+        {
+            try
+            {
+                var folderId = collection.Company?.BankServicesProviderId ?? throw new ServicesProviderException($"BankServicesProviderId is null for {collection.Id}");
+                var releveId = collection.CollectionServicesProviderId ?? throw new ServicesProviderException($"CollectionServicesProviderId is null for {collection.Id}");
+
+                return await this.jedeclareClient.DeactivateCollection(folderId!, releveId!);
+            }
+            catch (JeDeclareApiException ex)
+            {
+                throw new ServicesProviderException(ex.Message, ex);
+            }
+        }
+
         public async Task<byte[]> GetSignedMandatPdfAsync(string jdcFolderId, string jdcRibId)
         {
             try

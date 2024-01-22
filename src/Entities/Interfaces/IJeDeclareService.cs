@@ -16,6 +16,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<string> UploadSignedMandate(Collection collection, byte[] mandateFile);
 
+        Task<bool> DeactivateCollection(Collection collection);
+
         Task<byte[]> GetSignedMandatPdfAsync(string jdcFolderId, string jdcRibId);
     }
 }

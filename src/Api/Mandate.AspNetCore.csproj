@@ -11,16 +11,19 @@
 
 	<ItemGroup>
 		<PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.2.2" />
-		<PackageReference Include="Azure.Identity" Version="1.10.3" />
+		<PackageReference Include="Azure.Identity" Version="1.10.4" />
 		<PackageReference Include="Kpmg.AspNetCore.Authentication.ConstellationIdentityService" Version="1.1.0.3" />
 		<PackageReference Include="Kpmg.Constellation.AspNetCore.Mvc" Version="1.2.1.2" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.21" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.4" />
 		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.2.0" />
+		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.35.0" />
 		<PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.24" />
 		<PackageReference Include="PosInformatique.MSBuild.Yaml" Version="1.0.2" />
 		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.5.0" />
 		<PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.35.0" />
 		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="7.0.3" />
 		<PackageReference Include="System.Security.Cryptography.Xml" Version="7.0.1" />
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />

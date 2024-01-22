@@ -4,6 +4,7 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
+    using System.Runtime.CompilerServices;
     using KPMG.Pulse.Back.Accounting.Mandate.Models.Enums;
 
     public static class SqlExtensions
@@ -24,6 +25,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return new Bank(source.BankCode, source.BankName, source.BankGroup, source.EbicsCardId, bankagreement);
         }
 
+        public static Bban ToBbanModel(this Sql.CollectionDb source)
+        {
+            return new Bban(
+                source.BankCode!,
+                source.BranchCode!,
+                source.AccountNumber!,
+                source.CheckDigits!,
+                source.JeDeclareCollection?.JdcRibId,
+                source.Bank?.ToModel());
+        }
+
         public static Collection ToModel(this Sql.CollectionDb source)
         {
             Company company = new Company(
@@ -35,22 +47,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 source.Personal?.ToSignatory(),
                 source.Personal?.ToAdress());
 
-            Bank? bank = source.Bank?.ToModel();
-
-            Bban? bban = new Bban(source.BankCode!, source.BranchCode!, source.AccountNumber!, source.CheckDigits!, source.JeDeclareCollection?.JdcRibId, bank);
+            Bban? bban = source.ToBbanModel();
 
             var currentStatus = source.Statuses?.SingleOrDefault(i => i.IsCurrent);
             var creationStatus = source.Statuses?.SingleOrDefault(i => i.StatusCode == -1);
 
-            Status? status = currentStatus != null ? currentStatus.ToModel() : null;
+            ValidateStatuses(currentStatus, creationStatus);
+
+            Status? status = currentStatus!.ToModel();
 
             return new Collection(
                 id: source.Id,
                 collectionServicesProviderId: source.JeDeclareCollection?.JdcReleveId,
                 company: company,
                 bban: bban,
-                creationDate: (creationStatus?.StatusDate!).Value,
-                modificationDate: (currentStatus?.StatusDate!).Value,
+                creationDate: GetCreationDate(creationStatus),
+                modificationDate: GetModificationDate(currentStatus!, creationStatus!),
                 status: status!);
         }
 
@@ -135,6 +147,36 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 StatusCode = (int)JdcCollectionStatus.InitialCreate,
                 StatusDate = DateTime.UtcNow,
             };
+        }
+
+        private static DateTime GetCreationDate(Sql.StatusDb? creationStatus)
+        {
+            return creationStatus!.StatusDate!.Value;
+        }
+
+        private static DateTime GetModificationDate(Sql.StatusDb currentStatus, Sql.StatusDb creationStatus)
+        {
+            if (currentStatus.StatusCode == creationStatus.StatusCode)
+            {
+                return creationStatus.StatusDate!.Value;
+            }
+            else
+            {
+                return currentStatus.StatusDate!.Value;
+            }
+        }
+
+        private static void ValidateStatuses(Sql.StatusDb? currentStatus, Sql.StatusDb? creationStatus)
+        {
+            if (currentStatus == null)
+            {
+                throw new ApplicationException($"{nameof(SqlExtensions)} - {nameof(ToModel)} : Error while parsing Collection {nameof(currentStatus)} is null.");
+            }
+
+            if (creationStatus == null)
+            {
+                throw new ApplicationException($"{nameof(SqlExtensions)} - {nameof(ToModel)} : Error while parsing Collection {nameof(creationStatus)} is null.");
+            }
         }
     }
 }

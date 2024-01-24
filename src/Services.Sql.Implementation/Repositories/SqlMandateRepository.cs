@@ -1609,8 +1609,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
         private static IQueryable<CollectionDb> ApplyStatusSort(IQueryable<CollectionDb> mandates, bool isAscending)
         {
             var unSorted = PrepareUnSortedQuery(mandates);
-            return isAscending ? unSorted.OrderBy(collection => collection.Statuses.Min(status => status.RefStatusCode!.PulseCode)) :
-                                 unSorted.OrderByDescending(collection => collection.Statuses.Min(status => status.RefStatusCode!.PulseCode));
+            return isAscending ? unSorted.OrderBy(collection => collection.Statuses.Single(c => c.IsCurrent).RefStatusCode!.PulseCode) :
+                                 unSorted.OrderByDescending(collection => collection.Statuses.Single(c => c.IsCurrent).RefStatusCode!.PulseCode);
         }
 
         private static async Task<List<CollectionDb>> PaginatedListAsync(IQueryable<CollectionDb> mandates, CollectionQuery query)

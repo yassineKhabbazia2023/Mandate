@@ -29,6 +29,6 @@ extends:
     resource:
       id: '02'
       name: 'mdtFunction'
-      path: src\Api\Mandate.AspNetCore.csproj
+      path: src\Mandate.AzureFunctions\Mandate.AzureFunctions.csproj
       type: 'functionApp' 
     dotnetcore: 6.x

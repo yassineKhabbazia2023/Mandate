@@ -27,8 +27,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
         public async Task<CompanyDb> GetCompanyBySiretAsync(string siret)
         {
-            await Task.CompletedTask;
-            throw new NotImplementedException();
+            using var context = new MandateContext(this.options);
+
+            return await context.Company
+                .Include(c => c.Personal)
+                .Include(c => c.JeDeclareFolder)
+                .AsNoTracking()
+                .SingleOrDefaultAsync(_ => _.SiretNumber == siret) ?? throw CompanyNotFoundException.FromSiret(siret);
         }
 
         public async Task<(List<CollectionDb>, int)> SearchCollectionsAsync(CollectionQuery query)
@@ -1389,6 +1394,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             };
 
             context.Entry(statusDb).CurrentValues.SetValues(toUpdate);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task InsertFormIOCollectionAsync(CollectionDb collection)
+        {
+            using var context = new MandateContext(this.options);
+            collection.JeDeclareCollection!.Id = Guid.NewGuid();
+            collection.Personal!.Id = Guid.NewGuid();
+            collection.Company!.JeDeclareFolder!.Id = Guid.NewGuid();
+            await context.AddAsync(collection);
             await context.SaveChangesAsync();
         }
 

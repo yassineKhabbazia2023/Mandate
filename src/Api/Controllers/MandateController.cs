@@ -234,7 +234,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 Collection? collection = await this.formIoManager.GetCollectionByBban(rib.ToModel());
                 if (collection != null)
                 {
-                    return this.Ok(collection.ToCollectionSummary());
+                    await this.mandateManager.InsertFormIOCollectionAsync(collection);
+                    return this.Ok();
                 }
 
                 return this.NoContent();

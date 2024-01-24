@@ -160,5 +160,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             await this.mandateRepository.DeleteFakeDataAsync().ConfigureAwait(false);
         }
+
+        public async Task InsertFormIOCollectionAsync(Collection collection, Company company)
+        {
+            var collectionDb = collection.ToCollectionDB(company);
+            await this.mandateRepository.InsertFormIOCollectionAsync(collectionDb);
+        }
     }
 }

@@ -29,6 +29,6 @@ extends:
     resource:
       id: '01'
       name: 'mandate'
-      path: src\Mandate.AzureFunctions\Mandate.AzureFunctions.csproj
+      path: src\Api\Mandate.AspNetCore.csproj
       type: 'webApp' 
     dotnetcore: 6.x

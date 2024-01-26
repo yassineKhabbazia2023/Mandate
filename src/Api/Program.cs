@@ -13,6 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
+    using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
     using KPMG.Pulse.Back.Accounting.Mandate.Portal;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
     using Microsoft.AspNetCore.Authorization;
@@ -73,7 +74,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                         });
                 });
             }
-            
+
             // Add services to the container.
             builder.Services
                 .AddControllers()
@@ -134,6 +135,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             builder.Services.AddMandateApplication();
             builder.Services.AddMandateAdapters();
             builder.Services.AddPortailApi(builder.Configuration);
+            builder.Services.AddNotificationsApi(builder.Configuration);
 
             var app = builder.Build();
 

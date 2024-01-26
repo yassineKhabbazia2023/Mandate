@@ -12,13 +12,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         private readonly ICompanyManager companyManager;
         private readonly IJeDeclareService jeDeclareService;
         private readonly IAsposeHelper asposeHelper;
+        private readonly INotificationsService notificationsService;
 
-        public MandateManager(IDatabaseService databaseService, ICompanyManager companyManager, IJeDeclareService jeDeclareService, IAsposeHelper asposeHelper)
+        public MandateManager(IDatabaseService databaseService, ICompanyManager companyManager, IJeDeclareService jeDeclareService, IAsposeHelper asposeHelper, INotificationsService notificationsService)
         {
             this.databaseService = databaseService;
             this.companyManager = companyManager;
             this.jeDeclareService = jeDeclareService;
             this.asposeHelper = asposeHelper;
+            this.notificationsService = notificationsService;
         }
 
         public async Task<Guid> CreateMandate(CollectionCreationCommand mandateCreation)
@@ -98,8 +100,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             {
                 return await this.jeDeclareService.UploadSignedMandate(collection, fileBytes);
             }
-
-            return null;
+            else
+            {
+                var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(collectionId);
+                await this.notificationsService.SendEmailAsync(emailCommand);
+                return null;
+            }
         }
 
         public async Task<byte[]> DownloadUnsignedAsync(Guid id)
@@ -131,7 +137,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         public async Task<bool> DeactivateCollectionAsync(Guid collectionId)
         {
             var collection = await this.databaseService.GetCollectionById(collectionId);
-            return await this.jeDeclareService.DeactivateCollection(collection);
+            var isJdcPartner = this.IsJdcPartner(collection);
+
+            if (isJdcPartner)
+            {
+                return await this.jeDeclareService.DeactivateCollection(collection);
+            }
+            else
+            {
+                var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collectionId);
+                await this.notificationsService.SendEmailAsync(emailCommand);
+                return true;
+            }
         }
 
         public async Task InsertFormIOCollectionAsync(Collection collection)

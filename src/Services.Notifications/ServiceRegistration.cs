@@ -10,7 +10,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications
 
     public static class ServiceRegistration
     {
-        public static IServiceCollection AddPortailApi(this IServiceCollection services, ConfigurationManager configuration)
+        public static IServiceCollection AddNotificationsApi(this IServiceCollection services, ConfigurationManager configuration)
         {
             if (services == null)
             {

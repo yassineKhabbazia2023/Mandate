@@ -1316,5 +1316,130 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             companyFolder.Single().CompanyId.Should().Be(new PredictableGuid(102).NewGuid());
             companyFolder.Single().JdcDossierId.Should().Be("folderId");
         }
+
+        [Fact]
+        public async Task InsertFormIOCollectionAsync()
+        {
+            // Arrange
+            var collection = EntityDbFactory.CollectionDb;
+            collection.Bank = EntityDbFactory.RefBankDb;
+            collection.Company = EntityDbFactory.CompanyDb;
+            collection.Company.JeDeclareFolder = EntityDbFactory.JeDeclareFolderDb;
+            collection.JeDeclareCollection = EntityDbFactory.JeDeclareCollectionDb;
+            collection.Personal = EntityDbFactory.PersonalDb;
+            collection.Statuses = EntityDbFactory.Statuses;
+
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            // Act
+            await sqlMandateRepository.InsertFormIOCollectionAsync(collection);
+
+            // Assert
+            var dbCollection = await context.Collection
+                                            .Include(_ => _.Bank)
+                                            .Include(_ => _.Company)
+                                            .Include(_ => _.JeDeclareCollection)
+                                            .Include(_ => _.Personal)
+                                            .Include(_ => _.Statuses)
+                                            .FirstOrDefaultAsync(_ => _.Id == collection.Id);
+
+            dbCollection.Should().NotBeNull();
+            dbCollection!.Id.Should().Be(collection.Id);
+            dbCollection!.Bank!.BankCode.Should().Be(collection.Bank!.BankCode);
+            dbCollection!.Company!.Id.Should().Be(collection.Company!.Id);
+            dbCollection!.JeDeclareCollection!.Id.Should().Be(collection.JeDeclareCollection!.Id);
+            dbCollection!.Personal!.Id.Should().Be(collection.Personal!.Id);
+            dbCollection!.Statuses[0].Id!.Should().Be(collection.Statuses[0].Id);
+            dbCollection!.Statuses.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public async Task GetCompanyBySiretAsync_ShouldReturnCompany_WhenCompanyExists()
+        {
+            // Arrange
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            PredictableGuid generator = new PredictableGuid();
+            Guid companyId = generator.NewGuid();  // Ensure this is the same ID used for the foreign key in CollectionDb
+            var erpId = "validErpId";
+            var siretNumber = "40930900600031";
+
+            var refBankDb = new RefBankDb()
+            {
+                BankCode = "12345",
+                BankName = "bn1",
+                BankCommercialName = "bcn",
+                BankCategory = "bca",
+                BankGroup = "bg",
+                IsJdcScrapable = true,
+                IsJdcPartner = false,
+                HasReleveAgreement = false,
+                HasLiasseAgreement = null,
+                AllowsDemat = true,
+                JdcPartnership = (JdcPartnership)2,
+                EbicsCardId = null,
+            };
+
+            await context.RefBank.AddAsync(refBankDb);
+
+            var expectedCompany = new CompanyDb
+            {
+                Id = companyId,
+                Name = "Dior",
+                SiretNumber = siretNumber,
+                ErpId = erpId,
+            };
+
+            await context.Company.AddAsync(expectedCompany);
+            await context.SaveChangesAsync();
+
+            Guid collectionId = generator.NewGuid();
+            var collectionDb = new CollectionDb()
+            {
+                Id = collectionId,
+                CompanyId = companyId,  // This must match the ID of the Company record
+                BankCode = "12345",
+                BranchCode = "23456",
+                AccountNumber = "12345678901",
+                CheckDigits = "55",
+                LinkType = 7,
+                RejectReason = "reason1",
+            };
+
+            await context.Collection.AddAsync(collectionDb);
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            // Act
+            var result = await sqlMandateRepository.GetCompanyBySiretAsync(siretNumber);
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.Id.Should().Be(expectedCompany.Id);
+            result!.ErpId.Should().Be(expectedCompany.ErpId);
+            result!.SiretNumber.Should().Be(expectedCompany.SiretNumber);
+            result!.Name.Should().Be(expectedCompany.Name);
+        }
+
+        [Fact]
+        public async Task GetCompanyBySiretAsync_Should_Throws_Exception_WhenCompanyDoNotExists()
+        {
+            // Arrange
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            // Act
+            Func<Task> act = async () => await sqlMandateRepository.GetCompanyBySiretAsync("12345");
+
+            // Assert
+            await act.Should().ThrowAsync<CompanyNotFoundException>();
+        }
     }
 }

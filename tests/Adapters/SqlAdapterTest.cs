@@ -6,6 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests;
+    using Moq;
 
     public class SqlAdapterTest
     {
@@ -340,6 +341,65 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             Func<Task> action = () => adapter.GetCollaboratorByEmail("collab@email.com");
             await action.Should().ThrowAsync<Exception>().WithMessage("message");
+
+            repository.VerifyAll();
+        }
+
+        [Fact]
+        public async Task InsertFormIOCollectionAsync()
+        {
+            // Arrange
+            var collectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111");
+            var companyId = Guid.Parse("b1111111-1111-1111-1111-111111111111");
+
+            var collection = new CollectionDb()
+            {
+                Id = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
+                CompanyId = Guid.Parse("b1111111-1111-1111-1111-111111111111"),
+                BankCode = "12345",
+                BranchCode = "23456",
+                AccountNumber = "12345678901",
+                CheckDigits = "55",
+                LinkType = 7,
+                RejectReason = "reason1",
+            };
+
+            var refStatusCode = new RefStatusCodeDb()
+            {
+                StatusCode = -1,
+                PulseCode = 30,
+                StatusNameFr = "En cours",
+                StatusNameEn = "In progress",
+            };
+            var statusdb = new StatusDb()
+            {
+                Id = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
+                CollectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
+                StatusCode = -1,
+                IsCurrent = true,
+                StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
+                MandateFile = null,
+                CreatedBy = "created1",
+                RefStatusCode = refStatusCode,
+            };
+
+            collection.Company = new CompanyDb()
+            {
+                Id = companyId,
+                Name = "cn1",
+                SiretNumber = "12345678901234",
+                ErpId = "1234567890",
+            };
+            collection.Bank = EntityDbFactory.RefBankDb;
+            collection.Statuses = new List<StatusDb>() { statusdb };
+
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.InsertFormIOCollectionAsync(It.IsAny<CollectionDb>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+            var adapter = new SqlAdapter(repository.Object);
+
+            await adapter.InsertFormIOCollectionAsync(collection.ToModel(), collection.Company.ToModel());
 
             repository.VerifyAll();
         }

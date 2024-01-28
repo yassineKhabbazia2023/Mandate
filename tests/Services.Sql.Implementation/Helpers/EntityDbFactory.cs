@@ -87,6 +87,42 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             JdcDossierId = "folderId",
         };
 
+        public static PersonalDb? PersonalDb => new ()
+        {
+            Id = Guid.NewGuid(),
+            CollectionId = new PredictableGuid(101).NewGuid(),
+            Title = "M",
+            FirstName = "Clément",
+            LastName = "Prati",
+            Email = "clementprati@kpmg.fr",
+            Street = "36 Rue de Liège",
+            Complements = "4ème étage",
+            ZipCode = "75008",
+            City = "Paris",
+            Country = "France",
+        };
+
+        public static JeDeclareCollectionDb? JeDeclareCollectionDb => new ()
+        {
+            Id = Guid.NewGuid(),
+            CollectionId = new PredictableGuid(101).NewGuid(),
+            JdcReleveId = "12346",
+            JdcRibId = "12347",
+        };
+
+        public static List<StatusDb> Statuses => new ()
+        {
+            new ()
+            {
+                Id = Guid.NewGuid(),
+                CollectionId = new PredictableGuid(101).NewGuid(),
+                StatusCode = -1,
+                IsCurrent = false,
+                StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
+                RefStatusCode = RefStatusCodeDb,
+            },
+        };
+
         public static T? FromRow<T>(DataRow source)
             where T : class
         {

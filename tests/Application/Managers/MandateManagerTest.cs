@@ -11,6 +11,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
+    using Moq;
 
     [Collection("SerialExecutionPublishDb")]
     public class MandateManagerTest
@@ -808,6 +809,79 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             result.Should().BeTrue();
             this.mockDatabaseService.VerifyAll();
             this.mockJeDeclareService.VerifyAll();
+        }
+
+        [Fact]
+        public async Task InsertFormIOCollectionAsync()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "bankServicesProviderId");
+            Bban bban = TestHelper.GetBban(string.Empty, true);
+            Status status = TestHelper.GetStatus();
+            var collection = new Collection(
+                Guid.NewGuid(),
+                "yourServiceProviderId",
+                company,
+                bban,
+                DateTime.Now,
+                DateTime.Now,
+                status);
+
+            this.mockDatabaseService
+               .Setup(m => m.InsertFormIOCollectionAsync(collection, company))
+               .Returns(Task.CompletedTask);
+
+            this.mockDatabaseService.Setup(r => r.CheckCollecteConfigExistAsync(bban))
+                .ReturnsAsync(false)
+                .Verifiable();
+
+            this.mockDatabaseService.Setup(r => r.GetCompanyBySiretAsync(company.SiretNumber))
+                .ReturnsAsync(company)
+                .Verifiable();
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+
+            // Act
+            await mandateManager.InsertFormIOCollectionAsync(collection);
+
+            // Assert
+            this.mockDatabaseService.VerifyAll();
+        }
+
+        [Fact]
+        public async Task InsertFormIOCollectionAsync_Throw_Exception_When_Collect_Exists()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "bankServicesProviderId");
+            Bban bban = TestHelper.GetBban(string.Empty, true);
+            Status status = TestHelper.GetStatus();
+            var collection = new Collection(
+                Guid.NewGuid(),
+                "yourServiceProviderId",
+                company,
+                bban,
+                DateTime.Now,
+                DateTime.Now,
+                status);
+
+            this.mockDatabaseService.Setup(r => r.CheckCollecteConfigExistAsync(bban))
+                .ReturnsAsync(true)
+                .Verifiable();
+
+            this.mockDatabaseService.Setup(r => r.GetCompanyBySiretAsync(company.SiretNumber))
+                .ReturnsAsync(company)
+                .Verifiable();
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+
+            // Act
+            Func<Task> act = async () => await mandateManager.InsertFormIOCollectionAsync(collection);
+
+            // Assert
+            await act.Should().ThrowAsync<ApplicationException>();
+            this.mockDatabaseService.VerifyAll();
         }
 
         private static bool CompareAdress(Address address1, Address address2)

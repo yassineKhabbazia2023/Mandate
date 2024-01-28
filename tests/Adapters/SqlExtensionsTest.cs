@@ -372,5 +372,219 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             act.Should().Throw<ApplicationException>().WithMessage("SqlExtensions - ToModel : Error while parsing Collection creationStatus is null.");
         }
+
+        [Fact]
+        public void ToStatusesDB()
+        {
+            // Arrange
+            Bban bban1 = new Bban("13507", "00014", "31464482121", "77", "8909441", null);
+            var address = new Address("12 RUE DES 2 NATIONS", string.Empty, "59250", "HALLUIN", "France");
+            var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
+            var company = new Company(Guid.Empty, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
+            Status status = new Status(CollectionStatus.ToDo, "En cours");
+            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
+
+            var expected = new List<Sql.StatusDb>()
+            {
+                new ()
+                    {
+                        Id = Guid.NewGuid(),
+                        CollectionId = collection.Id,
+                        StatusCode = -1,
+                        IsCurrent = false,
+                        StatusDate = DateTime.UtcNow,
+                    },
+                new ()
+                    {
+                        CollectionId = collection.Id,
+                        CollectionStatusCode = (int)collection.Status.StatusCode,
+                        CreatedBy = string.Empty,
+                        IsCurrent = true,
+                        MandateFile = null,
+                        RefStatusCode = null,
+                        StatusCode = (int)collection.Status.StatusCode,
+                        Id = Guid.NewGuid(),
+                        StatusDate = null,
+                    },
+            };
+
+            // Act
+            var result = collection.ToStatusesDB();
+
+            // Assert
+            result.Should().HaveCount(2);
+
+            result.First().CollectionId.Should().Be(collection.Id);
+            result.First().CollectionStatusCode.Should().Be(expected.First().CollectionStatusCode);
+            result.First().CreatedBy.Should().Be(expected.First().CreatedBy);
+            result.First().IsCurrent.Should().Be(false);
+            result.First().MandateFile.Should().BeEquivalentTo(expected.First().MandateFile);
+            result.First().RefStatusCode.Should().Be(expected.First().RefStatusCode);
+            result.First().StatusCode.Should().Be(-1);
+
+            result[1].CollectionId.Should().Be(collection.Id);
+            result[1].CollectionStatusCode.Should().Be(expected[1].CollectionStatusCode);
+            result[1].CreatedBy.Should().Be(expected[1].CreatedBy);
+            result[1].IsCurrent.Should().Be(expected[1].IsCurrent);
+            result[1].MandateFile.Should().BeEquivalentTo(expected[1].MandateFile);
+            result[1].RefStatusCode.Should().Be(expected[1].RefStatusCode);
+            result[1].StatusCode.Should().Be(expected[1].StatusCode);
+            result[1].StatusDate.Should().Be(expected[1].StatusDate);
+        }
+
+        [Fact]
+        public void ToPersonalDb()
+        {
+            // Arrange
+            Bban bban1 = new Bban("13507", "00014", "31464482121", "77", "8909441", null);
+            var address = new Address("12 RUE DES 2 NATIONS", string.Empty, "59250", "HALLUIN", "France");
+            var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
+            var company = new Company(Guid.Empty, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
+            Status status = new Status(CollectionStatus.ToDo, "En cours");
+            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
+
+            var expected = new Sql.PersonalDb()
+            {
+                City = collection.Company?.Address?.City,
+                Country = collection.Company?.Address?.Country,
+                Email = collection.Company?.Signatory?.Email!,
+                CompanyId = collection.Company?.Id,
+                FirstName = collection.Company?.Signatory?.FirstName,
+                LastName = collection.Company?.Signatory?.LastName,
+                Street = collection.Company?.Address?.Street,
+                ZipCode = collection.Company?.Address?.ZipCode,
+                Complements = collection.Company?.Address?.Complements,
+                Title = collection.Company?.Signatory?.Title,
+            };
+
+            // Act
+            var result = collection.Company!.ToPersonalDb();
+
+            // Assert
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void ToDeclareCollectionDb()
+        {
+            // Arrange
+            Bban bban1 = new Bban("13507", "00014", "31464482121", "77", "8909441", null);
+            var address = new Address("12 RUE DES 2 NATIONS", string.Empty, "59250", "HALLUIN", "France");
+            var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
+            var company = new Company(Guid.Empty, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
+            Status status = new Status(CollectionStatus.ToDo, "En cours");
+            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
+
+            var expected = new Sql.JeDeclareCollectionDb()
+            {
+                CollectionId = collection.Id,
+                JdcReleveId = collection.CollectionServicesProviderId,
+                JdcRibId = collection.Bban?.BbanServicesProviderId,
+            };
+
+            // Act
+            var result = collection.ToDeclareCollectionDb();
+
+            // Assert
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void ToJeDeclareFolderDb()
+        {
+            // Arrange
+            Bban bban1 = new Bban("13507", "00014", "31464482121", "77", "8909441", null);
+            var address = new Address("12 RUE DES 2 NATIONS", string.Empty, "59250", "HALLUIN", "France");
+            var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
+            var company = new Company(Guid.Empty, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
+            Status status = new Status(CollectionStatus.ToDo, "En cours");
+            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
+
+            var expected = new Sql.JeDeclareFolderDb()
+            {
+                CompanyId = company.Id,
+                JdcDossierId = company.BankServicesProviderId,
+            };
+
+            // Act
+            var result = company.ToJeDeclareFolderDb();
+
+            // Assert
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void ToCompanyDB()
+        {
+            // Arrange
+            Bban bban1 = new Bban("13507", "00014", "31464482121", "77", "8909441", null);
+            var address = new Address("12 RUE DES 2 NATIONS", string.Empty, "59250", "HALLUIN", "France");
+            var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
+            var company = new Company(Guid.Empty, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
+            Status status = new Status(CollectionStatus.ToDo, "En cours");
+            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
+
+            var expected = new Sql.CompanyDb()
+            {
+                Id = collection.Company!.Id,
+                Name = collection.Company.Name,
+                ErpId = collection.Company.ErpId,
+                SiretNumber = collection.Company.SiretNumber,
+                CompanyCollaborators = new List<Sql.CompanyCollaboratorDb>(),
+                JeDeclareFolder = collection.Company.ToJeDeclareFolderDb(),
+            };
+
+            // Act
+            var result = collection.Company.ToSql();
+
+            // Assert
+            result.Id.Should().Be(collection.Company.Id);
+            result.Name.Should().Be(collection.Company.Name);
+            result.ErpId.Should().Be(collection.Company.ErpId);
+            result.SiretNumber.Should().Be(collection.Company.SiretNumber);
+            result.CompanyCollaborators.Should().BeEquivalentTo(expected.CompanyCollaborators);
+        }
+
+        [Fact]
+        public void ToCollectionDB()
+        {
+            // Arrange
+            var bankAgrement = new BankAgreement(JdcPartnership.Partner);
+            var bank = new Bank("code", "name", "group", "ebicsCardId", bankAgrement);
+            Bban bban1 = new Bban("13507", "00014", "31464482121", "77", "8909441", bank);
+            var address = new Address("12 RUE DES 2 NATIONS", string.Empty, "59250", "HALLUIN", "France");
+            var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
+            var company = new Company(Guid.Empty, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
+            Status status = new Status(CollectionStatus.ToDo, "En cours");
+            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
+
+            var expected = new Sql.CollectionDb()
+            {
+                Id = collection.Id,
+                AccountNumber = collection.Bban!.AccountNumber.ToString(),
+                BranchCode = collection.Bban!.BranchCode,
+                CheckDigits = collection.Bban!.CheckDigits,
+                BankCode = collection.Bban!.BankCode,
+                Company = company.ToSql(),
+                JeDeclareCollection = collection.ToDeclareCollectionDb(),
+                LinkType = null,
+                Personal = collection.Company!.ToPersonalDb(),
+                CompanyId = collection.Company!.Id,
+                RejectReason = null,
+                Statuses = collection.ToStatusesDB(),
+            };
+
+            // Act
+            var result = collection.ToCollectionDB(company);
+
+            // Assert
+            result.Id.Should().Be(collection.Id);
+            result.AccountNumber.Should().Be(expected.AccountNumber);
+            result.BranchCode.Should().Be(expected.BranchCode);
+            result.CheckDigits.Should().Be(expected.CheckDigits);
+            result.BankCode.Should().Be(expected.BankCode);
+            result.CompanyId.Should().Be(expected.CompanyId);
+            result.RejectReason.Should().Be(expected.RejectReason);
+        }
     }
 }

@@ -4,7 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
-    using System.Runtime.CompilerServices;
     using KPMG.Pulse.Back.Accounting.Mandate.Models.Enums;
 
     public static class SqlExtensions
@@ -123,6 +122,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
         }
 
+        public static Sql.CompanyDb ToSql(this Company company)
+        {
+            return new Sql.CompanyDb()
+            {
+                Id = company!.Id,
+                Name = company.Name,
+                ErpId = company.ErpId,
+                SiretNumber = company.SiretNumber,
+                CompanyCollaborators = new List<Sql.CompanyCollaboratorDb>(),
+                JeDeclareFolder = company.ToJeDeclareFolderDb(),
+            };
+        }
+
         public static Sql.PersonalDb ToPersonalCollection(this CollectionCreationCommand source)
         {
             return new Sql.PersonalDb()
@@ -146,6 +158,85 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 IsCurrent = true,
                 StatusCode = (int)JdcCollectionStatus.InitialCreate,
                 StatusDate = DateTime.UtcNow,
+            };
+        }
+
+        public static Sql.JeDeclareFolderDb ToJeDeclareFolderDb(this Company company)
+        {
+            return new Sql.JeDeclareFolderDb()
+            {
+                CompanyId = company!.Id,
+                JdcDossierId = company!.BankServicesProviderId,
+            };
+        }
+
+        public static Sql.JeDeclareCollectionDb ToDeclareCollectionDb(this Collection collection)
+        {
+            return new Sql.JeDeclareCollectionDb()
+            {
+                CollectionId = collection!.Id,
+                JdcReleveId = collection!.CollectionServicesProviderId,
+                JdcRibId = collection!.Bban?.BbanServicesProviderId,
+            };
+        }
+
+        public static Sql.PersonalDb ToPersonalDb(this Company company)
+        {
+            return new Sql.PersonalDb()
+            {
+                City = company.Address?.City,
+                Country = company.Address?.Country,
+                Email = company.Signatory?.Email!,
+                CompanyId = company.Id,
+                FirstName = company.Signatory?.FirstName,
+                LastName = company.Signatory?.LastName,
+                Street = company.Address?.Street,
+                ZipCode = company.Address?.ZipCode,
+                Complements = company.Address?.Complements,
+                Title = company.Signatory?.Title,
+            };
+        }
+
+        public static List<Sql.StatusDb> ToStatusesDB(this Collection collection)
+        {
+            return new List<Sql.StatusDb>()
+            {
+                new ()
+                    {
+                        Id = Guid.NewGuid(),
+                        CollectionId = collection.Id,
+                        StatusCode = -1,
+                        IsCurrent = false,
+                        StatusDate = DateTime.UtcNow,
+                    },
+                new ()
+                    {
+                        CollectionId = collection.Id,
+                        CollectionStatusCode = (int)collection.Status.StatusCode,
+                        CreatedBy = string.Empty,
+                        IsCurrent = true,
+                        MandateFile = null,
+                        RefStatusCode = null,
+                        StatusCode = (int)collection.Status.StatusCode,
+                        Id = Guid.NewGuid(),
+                        StatusDate = null,
+                    },
+            };
+        }
+
+        public static Sql.CollectionDb ToCollectionDB(this Collection collection, Company company)
+        {
+            return new Sql.CollectionDb()
+            {
+                Id = collection.Id,
+                AccountNumber = collection.Bban!.AccountNumber.ToString(),
+                BranchCode = collection.Bban!.BranchCode,
+                CheckDigits = collection.Bban!.CheckDigits,
+                BankCode = collection.Bban!.BankCode,
+                JeDeclareCollection = collection.ToDeclareCollectionDb(),
+                Personal = company!.ToPersonalDb(),
+                CompanyId = company!.Id,
+                Statuses = collection.ToStatusesDB(),
             };
         }
 

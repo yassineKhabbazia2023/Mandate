@@ -102,8 +102,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 to: to,
                 cc: cc,
                 attachements: attachments ?? new List<AttachmentFileCommand>(),
-                variables: new Dictionary<string, string> { { "body", emailBody } }
-            );
+                variables: new Dictionary<string, string> { { "body", emailBody! } });
         }
 
         private static (string templateName, string from, string to, List<string> cc) GetEmailProperties(MandateEmailOptions options, EmailType emailType)
@@ -114,6 +113,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                     (options.MandateCancellationTemplateName, options.MandateCancellationFromEmail, options.MandateCancellationToEmail, options.MandateCancellationCcEmails),
                 EmailType.MandateUploaded =>
                     (options.MandateUploadedTemplateName, options.MandateUploadedFromEmail, options.MandateUploadedToEmail, options.MandateUploadedCcEmails),
+                _ => default,
             };
         }
     }

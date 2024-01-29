@@ -41,7 +41,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             sc.AddMandateApplication(opt =>
             {
                 opt.MandateCancellationSubject = "MandateCancellationSubject";
-                opt.MandateCancellationTemplateName ="MandateCancellationTemplateName";
+                opt.MandateCancellationTemplateName = "MandateCancellationTemplateName";
                 opt.MandateCancellationFromEmail = "MandateCancellationFromEmail";
                 opt.MandateCancellationToEmail = "MandateCancellationToEmail";
                 opt.MandateCancellationCcEmails = new List<string>();

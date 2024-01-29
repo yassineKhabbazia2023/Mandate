@@ -23,8 +23,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 to: "to@example.com",
                 cc: new List<string> { "cc1@example.com", "cc2@example.com" },
                 attachements: new List<AttachmentFileCommand>(),
-                variables: new Dictionary<string, string> { { "key", "value" } }
-            );
+                variables: new Dictionary<string, string> { { "key", "value" } });
 
             // Act
             await adapter.SendEmailAsync(emailCommand);

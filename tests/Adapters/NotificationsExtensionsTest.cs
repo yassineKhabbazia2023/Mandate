@@ -21,8 +21,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                     new AttachmentFileCommand("file1.txt", "content1"),
                     new AttachmentFileCommand("file2.txt", "content2"),
                 },
-                variables: new Dictionary<string, string> { { "key", "value" } }
-            );
+                variables: new Dictionary<string, string> { { "key", "value" } });
 
             // Act
             var emailRequest = emailCommand.ToEmailRequest();

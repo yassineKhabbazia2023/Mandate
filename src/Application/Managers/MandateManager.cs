@@ -5,6 +5,7 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Models.Enums;
+    using Microsoft.Extensions.Options;
 
     public class MandateManager : IMandateManager
     {
@@ -13,14 +14,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         private readonly IJeDeclareService jeDeclareService;
         private readonly IAsposeHelper asposeHelper;
         private readonly INotificationsService notificationsService;
+        private readonly IOptions<MandateEmailOptions> options;
 
-        public MandateManager(IDatabaseService databaseService, ICompanyManager companyManager, IJeDeclareService jeDeclareService, IAsposeHelper asposeHelper, INotificationsService notificationsService)
+        public MandateManager(IDatabaseService databaseService, ICompanyManager companyManager, IJeDeclareService jeDeclareService, IAsposeHelper asposeHelper, INotificationsService notificationsService, IOptions<MandateEmailOptions> options)
         {
             this.databaseService = databaseService;
             this.companyManager = companyManager;
             this.jeDeclareService = jeDeclareService;
             this.asposeHelper = asposeHelper;
             this.notificationsService = notificationsService;
+
+            this.options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
         public async Task<Guid> CreateMandate(CollectionCreationCommand mandateCreation)
@@ -102,7 +106,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             }
             else
             {
-                var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(collectionId);
+                string fileName = $@"uploaded-signed-mandate-{collection.Id}.pdf";
+                string fileContent = Convert.ToBase64String(fileBytes);
+                var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(collection, this.options.Value, fileContent, fileName);
                 await this.notificationsService.SendEmailAsync(emailCommand);
                 return null;
             }
@@ -145,7 +151,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             }
             else
             {
-                var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collectionId);
+                var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collection, this.options.Value);
                 await this.notificationsService.SendEmailAsync(emailCommand);
                 return true;
             }

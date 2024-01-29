@@ -19,6 +19,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             services.AddScoped<IJeDeclareService, JeDeclareAdapter>();
             services.AddScoped<IPortalManager, PortalAdapter>();
             services.AddScoped<IFormioService, FormioAdapter>();
+            services.AddScoped<INotificationsService, NotificationsAdapter>();
 
             return services;
         }

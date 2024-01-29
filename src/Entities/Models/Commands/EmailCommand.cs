@@ -13,7 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
             this.From = from;
             this.To = to;
             this.Cc = cc;
-            this.Attachements = attachements;
+            this.Attachements = attachements ?? new List<AttachmentFileCommand>();
             this.Variables = variables;
         }
 

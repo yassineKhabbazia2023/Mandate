@@ -6,62 +6,93 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
     public static class EmailCommandBuilder
     {
-        public static EmailCommand CreateMandateCancellationEmail(Guid collectionId)
+        public static EmailCommand CreateMandateCancellationEmail(Collection collection, MandateEmailOptions options)
         {
+            var (collaboratorEmail, ibs, siretNumber, signatoryName, bankName, bankCode, branchCode, accountNumber, checkDigits) = ExtractEmailData(collection);
+
             string emailBody = $@"
                 Bonjour,<br><br>
-                Nous vous informons que le mandat pour la collection avec l'ID <b>{collectionId}</b> a été annulé.<br><br>
-                Si vous avez des questions ou avez besoin d'assistance, n'hésitez pas à nous contacter.<br><br>
-                Cordialement,<br>
-                L’équipe KPMG Pulse";
+                Désactivation de collecte<br><br>
+                La collecte a été désactivée pour le compte suivant :<br><br>
 
-            return new EmailCommand(
-                subject: "Annulation de Mandat",
-                templateName: "Generique-Mypulsev2",
-                from: "contact@kpmg.fr",
-                to: "",
-                cc: new List<string>
-                {
-                    "smedini+mandat@kpmg.onmicrosoft.com",
-                    "clementprati+mandat@kpmg.onmicrosoft.com",
-                    "fmanadi+mandat@kpmg.onmicrosoft.com",
-                    "katiasana+mandat@kpmg.onmicrosoft.com",
-                },
-                attachements: null!,
-                variables: new Dictionary<string, string>
-                {
-                    { "title", $"Annulation de Mandat pour la Collection {collectionId}" },
-                    { "body", emailBody },
-                });
+               {GenerateEmailListContent(collaboratorEmail, ibs, siretNumber, signatoryName, bankName, bankCode, branchCode, accountNumber, checkDigits)}
+
+
+                L'équipe myPulse<br><br>
+                Ce message est envoyé automatiquement, merci de ne pas répondre.
+               ";
+
+            return GenerateEmailCommand(ibs, branchCode, accountNumber, checkDigits, emailBody, options.MandateCancellationSubject, options, new List<AttachmentFileCommand>());
         }
 
-        public static EmailCommand CreateSignedMandateUploadedEmail(Guid collectionId)
+        public static EmailCommand CreateSignedMandateUploadedEmail(Collection collection, MandateEmailOptions options, string fileContent, string fileName)
         {
+            var (collaboratorEmail, ibs, siretNumber, signatoryName, bankName, bankCode, branchCode, accountNumber, checkDigits) = ExtractEmailData(collection);
+
             string emailBody = $@"
                 Bonjour,<br><br>
-                Nous sommes heureux de vous informer qu'un mandat signé pour la collection avec l'ID <b>{collectionId}</b> a été téléchargé avec succès.<br><br>
-                Vous pouvez vérifier et gérer le mandat dans votre espace client.<br><br>
-                Cordialement,<br>
-                L’équipe KPMG Pulse";
+                Nouvelle demande de mandat Non Dématérialisé<br><br>
+                Une nouvelle demande de mandat a été soumise pour une banque non dématérialisée pour le compte suivant :
 
+               {GenerateEmailListContent(collaboratorEmail, ibs, siretNumber, signatoryName, bankName, bankCode, branchCode, accountNumber, checkDigits)}
+
+                Vous trouverez ci-joint le PDF du mandat signé.<br><br>
+                L'équipe myPulse<br><br>
+                Ce message est envoyé automatiquement, merci de ne pas répondre.";
+
+            var attachments = new List<AttachmentFileCommand>()
+            {
+                new AttachmentFileCommand(fileName: fileName, content: fileContent),
+            };
+
+            return GenerateEmailCommand(ibs, branchCode, accountNumber, checkDigits, emailBody, options.MandateUploadedSubject, options, attachments);
+        }
+
+        private static (string? collaboratorEmail, string? ibs, string? siretNumber, string? signatoryName, string? bankName, string? bankCode, string? branchCode, string? accountNumber, string? checkDigits) ExtractEmailData(Collection collection)
+        {
+            return (
+                collection!.Company?.Signatory?.Email,
+                collection!.Company!.ErpId,
+                collection!.Company!.SiretNumber,
+                $"{collection!.Company?.Signatory?.LastName} {collection!.Company?.Signatory?.FirstName}",
+                collection!.Bban!.Bank!.Name,
+                collection!.Bban!.BankCode,
+                collection!.Bban!.BranchCode,
+                collection!.Bban!.AccountNumber,
+                collection!.Bban!.CheckDigits);
+        }
+
+        private static string GenerateEmailListContent(string? collaboratorEmail, string? ibs, string? siretNumber, string? signatoryName, string? bankName, string? bankCode, string? branchCode, string? accountNumber, string? checkDigits)
+        {
+            return $@"
+            <ul>
+                <li>Collaborateur: {collaboratorEmail}</li>
+                <li>Raison sociale du client: {ibs}</li>
+                <li>Siret : {siretNumber}</li>
+                <li>RIB:
+                  <ul>
+                    <li>Titulaire: {signatoryName}</li>
+                    <li>Libellé: {bankName}</li>
+                    <li>Code établissement: {bankCode}</li>
+                    <li>Guichet: {branchCode}</li>
+                    <li>Numéro de compte: {accountNumber}</li>
+                    <li>Clé: {checkDigits}</li>
+                  </ul>
+                </li>
+            </ul>";
+        }
+
+        private static EmailCommand GenerateEmailCommand(string? ibs, string? branchCode, string? accountNumber, string? checkDigits, string? emailBody, string? subjectPrefix, MandateEmailOptions options, List<AttachmentFileCommand> attachments)
+        {
             return new EmailCommand(
-                subject: "Mandat Signé Téléchargé",
-                templateName: "Generique-Mypulsev2",
-                from: "contact@kpmg.fr",
-                to: "",
-                cc: new List<string>
-                {
-                    "smedini+mandat@kpmg.onmicrosoft.com",
-                    "clementprati+mandat@kpmg.onmicrosoft.com",
-                    "fmanadi+mandat@kpmg.onmicrosoft.com",
-                    "katiasana+mandat@kpmg.onmicrosoft.com",
-                },
-                attachements: null!,
-                variables: new Dictionary<string, string>
-                {
-                    { "title", $"Mandat Signé pour la Collection {collectionId}" },
-                    { "body", emailBody },
-                });
+                subject: subjectPrefix + $"{ibs} - {branchCode} {accountNumber} {checkDigits}",
+                templateName: attachments == null ? options.MandateCancellationTemplateName : options.MandateUploadedTemplateName,
+                from: attachments == null ? options.MandateCancellationFromEmail : options.MandateUploadedFromEmail,
+                to: attachments == null ? options.MandateCancellationToEmail : options.MandateUploadedToEmail,
+                cc: attachments == null ? options.MandateCancellationCcEmails : options.MandateUploadedCcEmails,
+                attachements: attachments!,
+                variables: new Dictionary<string, string> { { "body", emailBody } }
+            );
         }
     }
 }

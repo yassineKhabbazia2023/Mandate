@@ -13,7 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public async Task SendEmailAsync_ShouldCallProviderWithCorrectEmailRequest()
         {
             // Arrange
-            var mockNotificationProvider = new Mock<INotificationProvider>();
+            var mockNotificationProvider = new Mock<INotificationsProvider>();
             var adapter = new NotificationsAdapter(mockNotificationProvider.Object);
 
             var emailCommand = new EmailCommand(

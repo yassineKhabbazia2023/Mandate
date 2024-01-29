@@ -8,9 +8,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
     public class NotificationsAdapter : INotificationsService
     {
-        private readonly INotificationProvider notificationsProvider;
+        private readonly INotificationsProvider notificationsProvider;
 
-        public NotificationsAdapter(INotificationProvider notificationsProvider)
+        public NotificationsAdapter(INotificationsProvider notificationsProvider)
         {
             this.notificationsProvider = notificationsProvider;
         }

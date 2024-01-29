@@ -11,6 +11,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Services.Notifications\Mandate.Notifications.csproj" />
+		<ProjectReference Include="..\..\src\Services.Portal\Mandate.Portal.csproj" />
 	</ItemGroup>
 
 </Project>

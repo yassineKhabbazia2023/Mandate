@@ -60,7 +60,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var sp = sc.BuildServiceProvider();
 
             // Make sure we don't forget services ; exclude services from Microsoft (IOption, ...)
-            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(15);
+            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(14);
 
             // Test all services ; number of tests below should match the number of services above
             sp.GetService<IDatabaseService>().Should().NotBeNull();
@@ -76,8 +76,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             sp.GetService<IFormioClient>().Should().NotBeNull();
             sp.GetService<IFormioService>().Should().NotBeNull();
             sp.GetService<INotificationsService>().Should().NotBeNull();
-            sp.GetService<INotificationProvider>().Should().NotBeNull();
-            sp.GetService<Notifications.IAuthenticationContext>().Should().NotBeNull();
+            sp.GetService<INotificationsProvider>().Should().NotBeNull();
         }
     }
 }

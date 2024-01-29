@@ -1,19 +1,20 @@
-﻿// <copyright file="NotificationProviderTest.cs" company="KPMG">
+﻿// <copyright file="NotificationsProviderTest.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications.Tests
 {
     using Kpmg.Constellation.Notifications.V2.Client;
+    using KPMG.Pulse.Back.Accounting.Mandate.Portal;
 
-    public class NotificationProviderTest
+    public class NotificationsProviderTest
     {
         private readonly Mock<INotificationsClientFactory> mockFactory;
         private readonly Mock<IAuthenticationContext> mockAuthContext;
         private readonly Mock<INotificationsClient> mockClient;
-        private readonly NotificationProvider provider;
+        private readonly NotificationsProvider provider;
 
-        public NotificationProviderTest()
+        public NotificationsProviderTest()
         {
             this.mockFactory = new Mock<INotificationsClientFactory>();
             this.mockAuthContext = new Mock<IAuthenticationContext>();
@@ -23,7 +24,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications.Tests
             this.mockFactory.Setup(f => f.Create(It.IsAny<string>())).Returns(this.mockClient.Object);
 
             // Initialize the provider with the mocked dependencies
-            this.provider = new NotificationProvider(this.mockFactory.Object, this.mockAuthContext.Object);
+            this.provider = new NotificationsProvider(this.mockFactory.Object, this.mockAuthContext.Object);
         }
 
         [Fact]

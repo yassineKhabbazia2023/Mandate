@@ -1,17 +1,18 @@
-﻿// <copyright file="NotificationProvider.cs" company="KPMG">
+﻿// <copyright file="NotificationsProvider.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications
 {
     using Kpmg.Constellation.Notifications.V2.Client;
+    using KPMG.Pulse.Back.Accounting.Mandate.Portal;
 
-    public class NotificationProvider : INotificationProvider
+    public class NotificationsProvider : INotificationsProvider
     {
         private readonly INotificationsClientFactory factory;
         private readonly IAuthenticationContext authenticationContext;
 
-        public NotificationProvider(INotificationsClientFactory factory, IAuthenticationContext authenticationContext)
+        public NotificationsProvider(INotificationsClientFactory factory, IAuthenticationContext authenticationContext)
         {
             this.factory = factory;
             this.authenticationContext = authenticationContext;

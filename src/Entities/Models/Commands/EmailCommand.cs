@@ -17,18 +17,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
             this.Variables = variables;
         }
 
-        public string Subject { get; set; }
+        public string Subject { get; }
 
-        public string TemplateName { get; set; }
+        public string TemplateName { get; }
 
-        public string From { get; set; }
+        public string From { get; }
 
-        public string To { get; set; }
+        public string To { get; }
 
-        public List<string> Cc { get; set; }
+        public List<string> Cc { get; }
 
-        public List<AttachmentFileCommand> Attachements { get; set; }
+        public List<AttachmentFileCommand> Attachements { get; }
 
-        public Dictionary<string, string> Variables { get; set; }
+        public Dictionary<string, string> Variables { get; }
     }
 }

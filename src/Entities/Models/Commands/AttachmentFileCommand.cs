@@ -12,8 +12,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
             this.Content = content;
         }
 
-        public string FileName { get; set; }
+        public string FileName { get; }
 
-        public string Content { get; set; }
+        public string Content { get; }
     }
 }

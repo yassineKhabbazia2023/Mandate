@@ -22,7 +22,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 Ce message est envoyé automatiquement, merci de ne pas répondre.
                ";
 
-            return GenerateEmailCommand(ibs, branchCode, accountNumber, checkDigits, emailBody, options.MandateCancellationSubject, options, new List<AttachmentFileCommand>());
+            return GenerateEmailCommand(ibs, branchCode, accountNumber, checkDigits, emailBody, options.MandateCancellationSubject, options, null!, EmailType.MandateCancellation);
         }
 
         public static EmailCommand CreateSignedMandateUploadedEmail(Collection collection, MandateEmailOptions options, string fileContent, string fileName)
@@ -45,21 +45,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 new AttachmentFileCommand(fileName: fileName, content: fileContent),
             };
 
-            return GenerateEmailCommand(ibs, branchCode, accountNumber, checkDigits, emailBody, options.MandateUploadedSubject, options, attachments);
+            return GenerateEmailCommand(ibs, branchCode, accountNumber, checkDigits, emailBody, options.MandateUploadedSubject, options, attachments, EmailType.MandateUploaded);
         }
 
         private static (string? collaboratorEmail, string? ibs, string? siretNumber, string? signatoryName, string? bankName, string? bankCode, string? branchCode, string? accountNumber, string? checkDigits) ExtractEmailData(Collection collection)
         {
             return (
                 collection!.Company?.Signatory?.Email,
-                collection!.Company!.ErpId,
-                collection!.Company!.SiretNumber,
+                collection!.Company?.ErpId,
+                collection!.Company?.SiretNumber,
                 $"{collection!.Company?.Signatory?.LastName} {collection!.Company?.Signatory?.FirstName}",
-                collection!.Bban!.Bank!.Name,
-                collection!.Bban!.BankCode,
-                collection!.Bban!.BranchCode,
-                collection!.Bban!.AccountNumber,
-                collection!.Bban!.CheckDigits);
+                collection!.Bban?.Bank!.Name,
+                collection!.Bban?.BankCode,
+                collection!.Bban?.BranchCode,
+                collection!.Bban?.AccountNumber,
+                collection!.Bban?.CheckDigits);
         }
 
         private static string GenerateEmailListContent(string? collaboratorEmail, string? ibs, string? siretNumber, string? signatoryName, string? bankName, string? bankCode, string? branchCode, string? accountNumber, string? checkDigits)
@@ -82,17 +82,39 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             </ul>";
         }
 
-        private static EmailCommand GenerateEmailCommand(string? ibs, string? branchCode, string? accountNumber, string? checkDigits, string? emailBody, string? subjectPrefix, MandateEmailOptions options, List<AttachmentFileCommand> attachments)
+        private static EmailCommand GenerateEmailCommand(
+            string? ibs,
+            string? branchCode,
+            string? accountNumber,
+            string? checkDigits,
+            string? emailBody,
+            string? subjectPrefix,
+            MandateEmailOptions options,
+            List<AttachmentFileCommand> attachments,
+            EmailType emailType)
         {
+            var (templateName, from, to, cc) = GetEmailProperties(options, emailType);
+
             return new EmailCommand(
                 subject: subjectPrefix + $"{ibs} - {branchCode} {accountNumber} {checkDigits}",
-                templateName: attachments == null ? options.MandateCancellationTemplateName : options.MandateUploadedTemplateName,
-                from: attachments == null ? options.MandateCancellationFromEmail : options.MandateUploadedFromEmail,
-                to: attachments == null ? options.MandateCancellationToEmail : options.MandateUploadedToEmail,
-                cc: attachments == null ? options.MandateCancellationCcEmails : options.MandateUploadedCcEmails,
-                attachements: attachments!,
+                templateName: templateName,
+                from: from,
+                to: to,
+                cc: cc,
+                attachements: attachments ?? new List<AttachmentFileCommand>(),
                 variables: new Dictionary<string, string> { { "body", emailBody } }
             );
+        }
+
+        private static (string templateName, string from, string to, List<string> cc) GetEmailProperties(MandateEmailOptions options, EmailType emailType)
+        {
+            return emailType switch
+            {
+                EmailType.MandateCancellation =>
+                    (options.MandateCancellationTemplateName, options.MandateCancellationFromEmail, options.MandateCancellationToEmail, options.MandateCancellationCcEmails),
+                EmailType.MandateUploaded =>
+                    (options.MandateUploadedTemplateName, options.MandateUploadedFromEmail, options.MandateUploadedToEmail, options.MandateUploadedCcEmails),
+            };
         }
     }
 }

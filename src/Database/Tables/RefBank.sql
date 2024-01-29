@@ -1,10 +1,10 @@
 ﻿CREATE TABLE [Mandate].[RefBank]
 (
 	[BankCode] CHAR(5) NOT NULL,
-	[BankName] NVARCHAR(50) NULL,
-	[BankCommercialName] NVARCHAR(50) NULL,
-	[BankCategory] NVARCHAR(50) NULL,
-	[BankGroup] NVARCHAR(50) NULL,
+	[BankName] NVARCHAR(250) NULL,
+	[BankCommercialName] NVARCHAR(250) NULL,
+	[BankCategory] NVARCHAR(250) NULL,
+	[BankGroup] NVARCHAR(250) NULL,
 	[IsJdcScrapable] BIT NOT NULL DEFAULT 0,
 	[IsJdcPartner] BIT NOT NULL DEFAULT 0,
 	[HasReleveAgreement] BIT NULL,

@@ -120,10 +120,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
             modelBuilder.Entity<RefBankDb>().HasKey(b => b.BankCode);
             modelBuilder.Entity<RefBankDb>().Property(s => s.BankCode).IsFixedLength(true).HasMaxLength(5).IsRequired(true);
-            modelBuilder.Entity<RefBankDb>().Property(s => s.BankName).HasMaxLength(50).IsUnicode(true).IsRequired(false);
-            modelBuilder.Entity<RefBankDb>().Property(s => s.BankCommercialName).HasMaxLength(50).IsUnicode(true).IsRequired(false);
-            modelBuilder.Entity<RefBankDb>().Property(s => s.BankCategory).HasMaxLength(50).IsUnicode(true).IsRequired(false);
-            modelBuilder.Entity<RefBankDb>().Property(s => s.BankGroup).HasMaxLength(50).IsUnicode(true).IsRequired(false);
+            modelBuilder.Entity<RefBankDb>().Property(s => s.BankName).HasMaxLength(250).IsUnicode(true).IsRequired(false);
+            modelBuilder.Entity<RefBankDb>().Property(s => s.BankCommercialName).HasMaxLength(250).IsUnicode(true).IsRequired(false);
+            modelBuilder.Entity<RefBankDb>().Property(s => s.BankCategory).HasMaxLength(250).IsUnicode(true).IsRequired(false);
+            modelBuilder.Entity<RefBankDb>().Property(s => s.BankGroup).HasMaxLength(250).IsUnicode(true).IsRequired(false);
             modelBuilder.Entity<RefBankDb>().Property(s => s.IsJdcScrapable).IsRequired(true).HasDefaultValue(false);
             modelBuilder.Entity<RefBankDb>().Property(s => s.IsJdcPartner).IsRequired(true).HasDefaultValue(false);
             modelBuilder.Entity<RefBankDb>().Property(s => s.HasReleveAgreement).IsRequired(false);

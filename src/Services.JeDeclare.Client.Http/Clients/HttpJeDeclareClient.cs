@@ -111,9 +111,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             {
                 byte[] pdfBytes = Convert.FromBase64String(responseBody);
 
-                using var stream = new MemoryStream(pdfBytes);
-                var mandatBytes = this.DeleteFirstPageMandatPdf(stream);
-                return mandatBytes;
+                return pdfBytes;
             }
 
             var exception = new JeDeclareApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
@@ -398,12 +396,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             var updated = await this.UpdateCollecteConfigurationAsync(jdcFolderId, releve).ConfigureAwait(false);
 
             return updated;
-        }
-
-        private byte[] DeleteFirstPageMandatPdf(MemoryStream mandat)
-        {
-            // TODO Aspose
-            return mandat.ToArray();
         }
     }
 }

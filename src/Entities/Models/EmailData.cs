@@ -6,26 +6,24 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public class EmailData
     {
-        public EmailData(string? collaboratorEmail, string? ibs, string? siretNumber, string? signatoryName, string? bankName, string? bankCode, string? branchCode, string? accountNumber, string? checkDigits)
+        public EmailData(SignatoryDetails signatoryDetails, BankDetails bankDetails, string? ibs)
         {
-            this.CollaboratorEmail = collaboratorEmail;
+            this.CollaboratorEmail = signatoryDetails.CollaboratorEmail;
+            this.SignatoryName = signatoryDetails.SignatoryName;
+            this.SiretNumber = signatoryDetails.SiretNumber;
+            this.BankName = bankDetails.BankName;
+            this.BankCode = bankDetails.BankCode;
+            this.BranchCode = bankDetails.BranchCode;
+            this.AccountNumber = bankDetails.AccountNumber;
+            this.CheckDigits = bankDetails.CheckDigits;
             this.Ibs = ibs;
-            this.SiretNumber = siretNumber;
-            this.SignatoryName = signatoryName;
-            this.BankName = bankName;
-            this.BankCode = bankCode;
-            this.BranchCode = branchCode;
-            this.AccountNumber = accountNumber;
-            this.CheckDigits = checkDigits;
         }
 
         public string? CollaboratorEmail { get; }
 
-        public string? Ibs { get; }
+        public string? SignatoryName { get; }
 
         public string? SiretNumber { get; }
-
-        public string? SignatoryName { get; }
 
         public string? BankName { get; }
 
@@ -36,5 +34,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         public string? AccountNumber { get; }
 
         public string? CheckDigits { get; }
+
+        public string? Ibs { get; }
     }
 }

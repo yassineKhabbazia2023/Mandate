@@ -8,14 +8,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
     {
         public EmailData(SignatoryDetails signatoryDetails, BankDetails bankDetails, string? ibs)
         {
-            this.CollaboratorEmail = signatoryDetails.CollaboratorEmail;
-            this.SignatoryName = signatoryDetails.SignatoryName;
-            this.SiretNumber = signatoryDetails.SiretNumber;
-            this.BankName = bankDetails.BankName;
-            this.BankCode = bankDetails.BankCode;
-            this.BranchCode = bankDetails.BranchCode;
-            this.AccountNumber = bankDetails.AccountNumber;
-            this.CheckDigits = bankDetails.CheckDigits;
+            this.CollaboratorEmail = signatoryDetails?.CollaboratorEmail;
+            this.SignatoryName = signatoryDetails?.SignatoryName;
+            this.SiretNumber = signatoryDetails?.SiretNumber;
+            this.BankName = bankDetails?.BankName;
+            this.BankCode = bankDetails?.BankCode;
+            this.BranchCode = bankDetails?.BranchCode;
+            this.AccountNumber = bankDetails?.AccountNumber;
+            this.CheckDigits = bankDetails?.CheckDigits;
             this.Ibs = ibs;
         }
 

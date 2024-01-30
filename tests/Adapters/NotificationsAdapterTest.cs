@@ -38,8 +38,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                                req.To == emailCommand.To &&
                                req.Cc.Count == emailCommand.Cc.Count && !req.Cc.Except(emailCommand.Cc).Any() &&
                                req.Variables["key"] == "value")),
-                Times.Once
-            );
+                Times.Once);
         }
     }
 }

@@ -5,6 +5,7 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
     using System.Text;
+    using Aspose.Pdf.Facades;
     using Aspose.Pdf.Text;
     using Microsoft.Extensions.Logging;
 
@@ -76,10 +77,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             return msOut.ToArray();
         }
 
-        public async Task<byte[]> DeleteFirstPageFromPdf(byte[] sourcePdf)
+        public byte[] DeleteFirstPageFromPdf(MemoryStream sourcePdf)
         {
-            await Task.CompletedTask;
-            throw new NotImplementedException();
+            const string origin = $"{nameof(AsposeHelper)}::{nameof(this.DeleteFirstPageFromPdf)}";
+
+            this.logger.LogInformation($"{origin} - Instanciating a new PdfFileEditor to remove the first page for the PDF mandat provided by JeDeclare...");
+
+            var pdfEditor = new PdfFileEditor();
+
+            using var streamOut = new MemoryStream();
+            int[] pagesToDelete = new int[] { 1 };
+
+            // Delete pages
+            pdfEditor.Delete(sourcePdf, pagesToDelete, streamOut);
+
+            return streamOut.ToArray();
         }
 
         private void ReplaceInDocument(Aspose.Pdf.Document pdfDocument, string oldValue, string newValue)

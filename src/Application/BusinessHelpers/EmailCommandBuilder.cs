@@ -50,18 +50,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
         private static EmailData ExtractEmailData(Collection collection)
         {
-            return new EmailData
-            {
-                CollaboratorEmail = collection.GetSignatoryEmail(),
-                Ibs = collection.GetErpId(),
-                SiretNumber = collection.GetSiretNumber(),
-                SignatoryName = collection.GetSignatoryFullName(),
-                BankName = collection.GetBankName(),
-                BankCode = collection.GetBankCode(),
-                BranchCode = collection.GetBranchCode(),
-                AccountNumber = collection.GetAccountNumber(),
-                CheckDigits = collection.GetCheckDigits(),
-            };
+            return new EmailData(
+                collaboratorEmail: collection.GetSignatoryEmail(),
+                ibs: collection.GetErpId(),
+                siretNumber: collection.GetSiretNumber(),
+                signatoryName: collection.GetSignatoryFullName(),
+                bankName: collection.GetBankName(),
+                bankCode: collection.GetBankCode(),
+                branchCode: collection.GetBranchCode(),
+                accountNumber: collection.GetAccountNumber(),
+                checkDigits: collection.GetCheckDigits());
         }
 
         private static string GenerateEmailListContent(EmailData data)

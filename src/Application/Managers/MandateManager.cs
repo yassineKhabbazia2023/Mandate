@@ -2,6 +2,10 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("KPMG.Pulse.Back.Accounting.Mandate.Application.Tests")]
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Models.Enums;
@@ -171,6 +175,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             }
         }
 
+        internal async Task<byte[]> DownloadPdfForJdcPartner(Collection collection)
+        {
+            var folderId = collection?.Company?.BankServicesProviderId;
+            var ribId = collection?.Bban?.BbanServicesProviderId;
+            this.ValidatePartnerCollection(collection!);
+            var pdfBytes = await this.jeDeclareService.GetMandatPdfAsync(folderId!, ribId!);
+
+            using var stream = new MemoryStream(pdfBytes);
+            return this.asposeHelper.DeleteFirstPageFromPdf(stream);
+        }
+
         private bool IsJdcPartner(Collection collection)
         {
             return collection.Bban?.Bank?.JdcAgreement.JdcPartnership == JdcPartnership.Partner;
@@ -190,14 +205,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             {
                 throw new RibIdEmptyOrNullException();
             }
-        }
-
-        private async Task<byte[]> DownloadPdfForJdcPartner(Collection collection)
-        {
-            var folderId = collection?.Company?.BankServicesProviderId;
-            var ribId = collection?.Bban?.BbanServicesProviderId;
-            this.ValidatePartnerCollection(collection!);
-            return await this.jeDeclareService.GetMandatPdfAsync(folderId!, ribId!);
         }
 
         private async Task<byte[]> GeneratePdfForNonPartner(Collection collection)

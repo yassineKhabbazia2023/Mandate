@@ -22,7 +22,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions
         }
 
         [FunctionName("PreloadFunction")]
-        public async Task PreloadFunctionAsync([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
+        public async Task PreloadFunctionAsync([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, ILogger log)
         {
             try
             {

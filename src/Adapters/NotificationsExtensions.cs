@@ -12,13 +12,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             return new EmailRequest
             {
-                Subject = emailCommand.Subject,
-                TemplateName = emailCommand.TemplateName,
-                From = emailCommand.From,
-                To = emailCommand.To,
-                Cc = emailCommand.Cc,
-                Attachements = emailCommand.Attachements.Select(a => a.ToAttachmentFile()).ToList(),
-                Variables = emailCommand.Variables,
+                Subject = emailCommand!.Subject,
+                TemplateName = emailCommand!.TemplateName,
+                From = emailCommand!.From,
+                To = emailCommand!.To,
+                Cc = emailCommand!.Cc,
+                Attachements = emailCommand!.Attachements.Select(a => a.ToAttachmentFile()).ToList(),
+                Variables = emailCommand!.Variables,
             };
         }
 
@@ -26,8 +26,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             return new AttachmentFile
             {
-                FileName = attachmentFileCommand.FileName,
-                Content = attachmentFileCommand.Content,
+                FileName = attachmentFileCommand!.FileName,
+                Content = attachmentFileCommand!.Content,
             };
         }
     }

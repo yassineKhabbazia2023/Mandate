@@ -31,5 +31,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         public DateTime ModificationDate { get; }
 
         public Status Status { get; }
+
+        public string GetSignatoryEmail() => this.Company?.Signatory?.Email ?? string.Empty;
+
+        public string GetErpId() => this.Company?.ErpId ?? string.Empty;
+
+        public string GetSiretNumber() => this.Company?.SiretNumber ?? string.Empty;
+
+        public string GetSignatoryFullName() => $"{this.Company?.Signatory?.LastName ?? string.Empty} {this.Company?.Signatory?.FirstName ?? string.Empty}";
+
+        public string GetBankName() => this.Bban?.Bank?.Name ?? string.Empty;
+
+        public string GetBankCode() => this.Bban?.BankCode ?? string.Empty;
+
+        public string GetBranchCode() => this.Bban?.BranchCode ?? string.Empty;
+
+        public string GetAccountNumber() => this.Bban?.AccountNumber ?? string.Empty;
+
+        public string GetCheckDigits() => this.Bban?.CheckDigits ?? string.Empty;
     }
 }

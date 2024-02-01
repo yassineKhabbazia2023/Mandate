@@ -5,6 +5,7 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Clients;
+    using KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Options;
     using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>

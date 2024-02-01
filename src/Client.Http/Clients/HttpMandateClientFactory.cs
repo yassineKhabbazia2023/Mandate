@@ -5,9 +5,10 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Clients
 {
     using Kpmg.Constellation.Net.Http;
+    using KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Options;
     using Microsoft.Extensions.Options;
 
-    internal class HttpMandateClientFactory : IMandateClientFactory
+    public class HttpMandateClientFactory : IMandateClientFactory
     {
         private readonly IOptions<MandateClientOptions> options;
         private readonly IHttpClientFactory factory;

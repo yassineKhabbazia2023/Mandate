@@ -55,16 +55,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 signatoryName: collection.GetSignatoryFullName(),
                 siretNumber: collection.GetSiretNumber());
 
-            BankDetails bankDetails = new BankDetails(
-                 bankName: collection.GetBankName(),
+            Bban bban = new Bban(
                  bankCode: collection.GetBankCode(),
                  branchCode: collection.GetBranchCode(),
                  accountNumber: collection.GetAccountNumber(),
-                 checkDigits: collection.GetCheckDigits());
+                 checkDigits: collection.GetCheckDigits(),
+                 bbanServicesProviderId: null!,
+                 bank: new Bank(
+                     null!,
+                     name: collection.GetBankName(),
+                     group: null!,
+                     ebicsCardId: null!,
+                     null!));
 
             return new EmailData(
                 signatoryDetails: signatoryDetails,
-                bankDetails: bankDetails,
+                bban: bban,
                 ibs: collection.GetErpId());
         }
 

@@ -2,20 +2,20 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate
+namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
     public class EmailData
     {
-        public EmailData(SignatoryDetails signatoryDetails, BankDetails bankDetails, string? ibs)
+        public EmailData(SignatoryDetails signatoryDetails, Bban bban, string? ibs)
         {
             this.CollaboratorEmail = signatoryDetails?.CollaboratorEmail;
             this.SignatoryName = signatoryDetails?.SignatoryName;
             this.SiretNumber = signatoryDetails?.SiretNumber;
-            this.BankName = bankDetails?.BankName;
-            this.BankCode = bankDetails?.BankCode;
-            this.BranchCode = bankDetails?.BranchCode;
-            this.AccountNumber = bankDetails?.AccountNumber;
-            this.CheckDigits = bankDetails?.CheckDigits;
+            this.BankName = bban?.Bank?.Name;
+            this.BankCode = bban?.BankCode;
+            this.BranchCode = bban?.BranchCode;
+            this.AccountNumber = bban?.AccountNumber;
+            this.CheckDigits = bban?.CheckDigits;
             this.Ibs = ibs;
         }
 

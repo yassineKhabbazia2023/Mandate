@@ -20,7 +20,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         private readonly Mock<ICompanyManager> mockCompanyManager;
         private readonly Mock<IJeDeclareService> mockJeDeclareService;
         private readonly Mock<IAsposeHelper> mockAsposeHelper;
+        private readonly Mock<INotificationsService> mockNotificationsService;
         private readonly IOptions<SqlMandateRepositoryOptions> options;
+        private readonly IOptions<MandateEmailOptions> emailOptions;
 
         public MandateManagerTest()
         {
@@ -28,9 +30,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             this.mockCompanyManager = new Mock<ICompanyManager>(MockBehavior.Strict);
             this.mockJeDeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
             this.mockAsposeHelper = new Mock<IAsposeHelper>(MockBehavior.Strict);
+            this.mockNotificationsService = new Mock<INotificationsService>(MockBehavior.Strict);
             this.options = Options.Create(new SqlMandateRepositoryOptions()
             {
                 ConnectionString = Sql.Implementation.Tests.SqlServerFixture.ConnectionString,
+            });
+            this.emailOptions = Options.Create(new MandateEmailOptions
+            {
+                MandateCancellationSubject = "Your Cancellation Subject",
+                MandateCancellationTemplateName = "CancellationTemplate",
+                MandateCancellationFromEmail = "cancel_from@example.com",
+                MandateCancellationToEmail = "cancel_to@example.com",
+                MandateCancellationCcEmails = new List<string> { "cancel_cc1@example.com", "cancel_cc2@example.com" },
+                MandateUploadedSubject = "Your Uploaded Mandate Subject",
+                MandateUploadedTemplateName = "UploadedTemplate",
+                MandateUploadedFromEmail = "upload_from@example.com",
+                MandateUploadedToEmail = "upload_to@example.com",
+                MandateUploadedCcEmails = new List<string> { "upload_cc1@example.com", "upload_cc2@example.com" },
             });
         }
 
@@ -66,7 +82,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Setup(m => m.DeleteFirstPageFromPdf(It.IsAny<MemoryStream>()))
                 .Returns(expectedBytes);
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions);
 
             // Act
             var result = await mandateManager.DownloadUnsignedAsync(id);
@@ -100,7 +116,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Setup(m => m.GetCollectionById(id))
                 .ReturnsAsync(collection);
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions);
 
             // Act & Assert
             Func<Task> act = async () => await mandateManager.DownloadUnsignedAsync(id);
@@ -133,7 +149,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Setup(m => m.GetMandatPdfAsync(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(expectedBytes);
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions);
 
             // Act & Assert
             Func<Task> act = async () => await mandateManager.DownloadUnsignedAsync(id);
@@ -166,7 +182,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Setup(m => m.GeneratePdfFromTemplateAsync(It.IsAny<Collection>()))
                 .ReturnsAsync(expectedBytes);
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions);
 
             // Act
             var result = await mandateManager.DownloadUnsignedAsync(id);
@@ -208,13 +224,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(pagedMandate)
                 .Verifiable();
 
-            MandateManager manager = new MandateManager(
-                databaseService.Object,
-                new Mock<ICompanyManager>(MockBehavior.Strict).Object,
-                new Mock<IJeDeclareService>(MockBehavior.Strict).Object,
-                null!);
-
-            var mandateManager = new MandateManager(databaseService.Object, new Mock<ICompanyManager>(MockBehavior.Strict).Object, new Mock<IJeDeclareService>(MockBehavior.Strict).Object, null!);
+            var mandateManager = new MandateManager(databaseService.Object, new Mock<ICompanyManager>(MockBehavior.Strict).Object, new Mock<IJeDeclareService>(MockBehavior.Strict).Object, null!, null!, this.emailOptions);
 
             var result = await mandateManager.GetAllCollectionsAsync(query);
             result.Should().BeEquivalentTo(pagedMandate);
@@ -247,7 +257,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 databaseService.Object,
                 new Mock<ICompanyManager>(MockBehavior.Strict).Object,
                 new Mock<IJeDeclareService>(MockBehavior.Strict).Object,
-                null!);
+                null!,
+                null!,
+                this.emailOptions);
 
             Func<Task> action = async () => await mandateManager.GetAllCollectionsAsync(query);
             await action.Should().ThrowAsync<Exception>().WithMessage("message");
@@ -280,7 +292,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             databaseService.Setup(x => x.GetAllCollectionsAsync(query, new Guid("00000001-0000-0000-0000-000000000000")))
                    .ThrowsAsync(new Exception("message"));
 
-            var mandateManager = new MandateManager(databaseService.Object, new Mock<ICompanyManager>(MockBehavior.Strict).Object, new Mock<IJeDeclareService>(MockBehavior.Strict).Object, null!);
+            var mandateManager = new MandateManager(databaseService.Object, new Mock<ICompanyManager>(MockBehavior.Strict).Object, new Mock<IJeDeclareService>(MockBehavior.Strict).Object, null!, null!, this.emailOptions);
 
             Func<Task> action = async () => await mandateManager.GetAllCollectionsAsync(query);
             await action.Should().ThrowAsync<Exception>().WithMessage("message");
@@ -318,7 +330,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Setup(m => m.UploadSignedMandate(It.IsAny<Collection>(), It.IsAny<byte[]>()))
                 .ReturnsAsync("signedMandateId");
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions);
 
             // Act
             var result = await mandateManager.UploadSignedMandateAsync(collectionId, fileStream);
@@ -360,7 +372,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Setup(m => m.UploadSignedMandate(It.IsAny<Collection>(), It.IsAny<byte[]>()))
                 .ReturnsAsync("signedMandateId");
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+            this.mockNotificationsService
+                .Setup(m => m.SendEmailAsync(It.IsAny<EmailCommand>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, this.mockNotificationsService.Object, this.emailOptions);
 
             // Act
             var result = await mandateManager.UploadSignedMandateAsync(collectionId, fileStream);
@@ -369,6 +386,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             result.Should().BeNull("signedMandateId");
             this.mockDatabaseService.Verify(m => m.GetCollectionById(collectionId), Times.Once);
             this.mockJeDeclareService.Verify(m => m.UploadSignedMandate(It.IsAny<Collection>(), It.IsAny<byte[]>()), Times.Never);
+            this.mockNotificationsService.Verify(m => m.SendEmailAsync(It.IsAny<EmailCommand>()), Times.Once);
         }
 
         [Fact]
@@ -442,7 +460,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                .ReturnsAsync("releveId")
                .Verifiable();
 
-            var mandateManager = new MandateManager(adapter, companyManager, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+            var mandateManager = new MandateManager(adapter, companyManager, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions);
 
             Guid collectionId = await mandateManager.CreateMandate(command);
 
@@ -548,7 +566,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(dossierClient)
                 .Verifiable();
 
-            var mandateManager = new MandateManager(adapter, companyManager, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+            var mandateManager = new MandateManager(adapter, companyManager, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions);
 
             Func<Task> acttion = () => mandateManager.CreateMandate(command);
 
@@ -614,7 +632,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(dossierClient)
                 .Verifiable();
 
-            var mandateManager = new MandateManager(adapter, companyManager, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+            var mandateManager = new MandateManager(adapter, companyManager, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions);
 
             Func<Task> acttion = () => mandateManager.CreateMandate(command);
 
@@ -656,7 +674,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Setup(m => m.GetSignedMandatPdfAsync(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(expectedBytes);
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions);
 
             // Act
             var result = await mandateManager.DownloadSignedAsync(id);
@@ -690,7 +708,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Setup(m => m.GetCollectionById(id))
                 .ReturnsAsync(collection);
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions);
 
             // Act & Assert
             Func<Task> act = async () => await mandateManager.DownloadSignedAsync(id);
@@ -718,7 +736,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Setup(m => m.GetCollectionById(id))
                 .ReturnsAsync(collection);
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions);
 
             // Act & Assert
             Func<Task> act = async () => await mandateManager.DownloadSignedAsync(id);
@@ -751,7 +769,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Setup(m => m.GetSignedMandatPdfAsync(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(expectedBytes);
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions);
 
             // Act & Assert
             Func<Task> act = async () => await mandateManager.DownloadSignedAsync(id);
@@ -783,14 +801,59 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Setup(m => m.GetSignedMandatPdfAsync(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(expectedBytes);
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions);
 
             Func<Task> act = async () => await mandateManager.DownloadSignedAsync(id);
             await act.Should().ThrowAsync<RibIdEmptyOrNullException>("because the service should throw an exception in this scenario");
         }
 
         [Fact]
-        public async Task DeactivateCollectionAsync_Ok()
+        public async Task DeactivateCollectionAsync_CaseOkAndIsPartner()
+        {
+            // Arrange
+            var collectionId = new PredictableGuid().NewGuid();
+            var companyId = new PredictableGuid().NewGuid();
+
+            var mandateId = new PredictableGuid().NewGuid();
+            var company = TestHelper.GetCompany(companyId, "bankServicesProviderId");
+            Bban bban = TestHelper.GetBban("ebicsCardId", true);
+            Status status = TestHelper.GetStatus();
+            var collection = new Collection(
+                collectionId,
+                "yourServiceProviderId",
+                company,
+                bban,
+                DateTime.Now,
+                DateTime.Now,
+                status);
+
+            this.mockDatabaseService
+                .Setup(m => m.GetCollectionById(mandateId))
+                .ReturnsAsync(collection);
+
+            this.mockJeDeclareService
+                .Setup(m => m.DeactivateCollection(collection))
+                .ReturnsAsync(true);
+
+            this.mockNotificationsService
+                .Setup(m => m.SendEmailAsync(It.IsAny<EmailCommand>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, null!, this.mockJeDeclareService.Object, null!, this.mockNotificationsService.Object, this.emailOptions);
+
+            // Act
+            var result = await mandateManager.DeactivateCollectionAsync(mandateId);
+
+            // Assert
+            result.Should().BeTrue();
+            this.mockDatabaseService.Verify(m => m.GetCollectionById(It.IsAny<Guid>()), Times.Once);
+            this.mockJeDeclareService.Verify(m => m.DeactivateCollection(It.IsAny<Collection>()), Times.Once);
+            this.mockNotificationsService.Verify(m => m.SendEmailAsync(It.IsAny<EmailCommand>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task DeactivateCollectionAsync_CaseOkAndNotPartner()
         {
             // Arrange
             var mandateId = new PredictableGuid().NewGuid();
@@ -804,15 +867,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Setup(m => m.DeactivateCollection(collection))
                 .ReturnsAsync(true);
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, null!, this.mockJeDeclareService.Object, null!);
+            this.mockNotificationsService
+                .Setup(m => m.SendEmailAsync(It.IsAny<EmailCommand>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, null!, this.mockJeDeclareService.Object, null!, this.mockNotificationsService.Object, this.emailOptions);
 
             // Act
             var result = await mandateManager.DeactivateCollectionAsync(mandateId);
 
             // Assert
             result.Should().BeTrue();
-            this.mockDatabaseService.VerifyAll();
-            this.mockJeDeclareService.VerifyAll();
+            this.mockDatabaseService.Verify(m => m.GetCollectionById(It.IsAny<Guid>()), Times.Once);
+            this.mockJeDeclareService.Verify(m => m.DeactivateCollection(It.IsAny<Collection>()), Times.Never);
+            this.mockNotificationsService.Verify(m => m.SendEmailAsync(It.IsAny<EmailCommand>()), Times.Once);
         }
 
         [Fact]
@@ -844,7 +913,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(company)
                 .Verifiable();
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions);
 
             // Act
             await mandateManager.InsertFormIOCollectionAsync(collection);
@@ -878,7 +947,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(company)
                 .Verifiable();
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions);
 
             // Act
             Func<Task> act = async () => await mandateManager.InsertFormIOCollectionAsync(collection);
@@ -919,7 +988,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
              .Setup(m => m.DeleteFirstPageFromPdf(It.IsAny<MemoryStream>()))
              .Returns(pdfTemplate1page);
 
-            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object);
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions);
 
             var resultBytes = await mandateManager.DownloadPdfForJdcPartner(collection);
             using var expectedResultMemoryStream = new MemoryStream(resultBytes);

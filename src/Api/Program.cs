@@ -13,6 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
+    using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
     using KPMG.Pulse.Back.Accounting.Mandate.Portal;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
     using Microsoft.AspNetCore.Authorization;
@@ -73,7 +74,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                         });
                 });
             }
-            
+
             // Add services to the container.
             builder.Services
                 .AddControllers()
@@ -131,9 +132,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 opt.FormioApiKey = builder.Configuration["MandateFormioApiKey"]!;
             });
 
-            builder.Services.AddMandateApplication();
+            builder.Services.AddMandateApplication(opt =>
+            {
+                opt.MandateCancellationSubject = builder.Configuration["MandateCancellationSubject"] !;
+                opt.MandateCancellationTemplateName = builder.Configuration["MandateCancellationTemplateName"] !;
+                opt.MandateCancellationFromEmail = builder.Configuration["MandateCancellationFromEmail"] !;
+                opt.MandateCancellationToEmail = builder.Configuration["MandateCancellationToEmail"] !;
+                opt.MandateCancellationCcEmails = builder.Configuration.GetSection("MandateCancellationCcEmails").Get<List<string>>();
+                opt.MandateUploadedSubject = builder.Configuration["MandateUploadedSubject"] !;
+                opt.MandateUploadedTemplateName = builder.Configuration["MandateUploadedTemplateName"] !;
+                opt.MandateUploadedFromEmail = builder.Configuration["MandateUploadedFromEmail"] !;
+                opt.MandateUploadedToEmail = builder.Configuration["MandateUploadedToEmail"] !;
+                opt.MandateUploadedCcEmails = builder.Configuration.GetSection("MandateUploadedCcEmails").Get<List<string>>();
+            });
             builder.Services.AddMandateAdapters();
             builder.Services.AddPortailApi(builder.Configuration);
+            builder.Services.AddNotificationsApi(builder.Configuration);
 
             var app = builder.Build();
 

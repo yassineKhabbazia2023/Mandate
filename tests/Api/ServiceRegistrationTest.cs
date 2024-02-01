@@ -11,6 +11,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
+    using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
     using KPMG.Pulse.Back.Accounting.Mandate.Portal;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
@@ -29,6 +30,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 new KeyValuePair<string, string?>("ConstellationSecret", "ConstellationSecret"),
                 new KeyValuePair<string, string?>("ConstellationAudience", "ConstellationAudience"),
                 new KeyValuePair<string, string?>("ConstellationTenant", "ConstellationTenant"),
+                new KeyValuePair<string, string?>("MANDATE_NOTIFICATION_V2_API_URL", "https://notifications"),
             };
 
             var configuration = new ConfigurationManager()
@@ -36,7 +38,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 .Build();
 
             var sc = new ServiceCollection();
-            sc.AddMandateApplication();
+            sc.AddMandateApplication(opt =>
+            {
+                opt.MandateCancellationSubject = "MandateCancellationSubject";
+                opt.MandateCancellationTemplateName = "MandateCancellationTemplateName";
+                opt.MandateCancellationFromEmail = "MandateCancellationFromEmail";
+                opt.MandateCancellationToEmail = "MandateCancellationToEmail";
+                opt.MandateCancellationCcEmails = new List<string>();
+                opt.MandateUploadedSubject = "MandateUploadedSubject";
+                opt.MandateUploadedTemplateName = "MandateUploadedTemplateName";
+                opt.MandateUploadedFromEmail = "MandateUploadedFromEmail";
+                opt.MandateUploadedToEmail = "MandateUploadedToEmail";
+                opt.MandateUploadedCcEmails = new List<string>();
+            });
             sc.AddMandateAdapters();
             sc.AddMandateSql(opt => opt.ConnectionString = "a");
             sc.AddMandateJeDeclare(opt =>
@@ -56,11 +70,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             sc.AddHttpContextAccessor();
             sc.AddSingleton<IConfiguration>(configuration);
             sc.AddPortailApi((ConfigurationManager)configuration);
+            sc.AddNotificationsApi((ConfigurationManager)configuration);
 
             var sp = sc.BuildServiceProvider();
 
             // Make sure we don't forget services ; exclude services from Microsoft (IOption, ...)
-            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(21);
+            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(23);
 
             // Test all services ; number of tests below should match the number of services above
             sp.GetService<IBankManager>().Should().NotBeNull();
@@ -82,8 +97,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             sp.GetService<IFormioClient>().Should().NotBeNull();
             sp.GetService<IFormioManager>().Should().NotBeNull();
             sp.GetService<IPortalClientFactory>().Should().NotBeNull();
-            sp.GetService<IAuthenticationContext>().Should().NotBeNull();
+            sp.GetService<Portal.IAuthenticationContext>().Should().NotBeNull();
             sp.GetService<IPortalProvider>().Should().NotBeNull();
+            sp.GetService<INotificationsService>().Should().NotBeNull();
+            sp.GetService<INotificationsProvider>().Should().NotBeNull();
         }
     }
 }

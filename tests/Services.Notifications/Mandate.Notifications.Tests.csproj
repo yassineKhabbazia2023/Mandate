@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+		<AssemblyName>KPMG.Pulse.Back.Accounting.Mandate.Notifications.Tests</AssemblyName>
+		<RootNamespace>KPMG.Pulse.Back.Accounting.Mandate.Notifications.Tests</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Services.Notifications\Mandate.Notifications.csproj" />
+		<ProjectReference Include="..\..\src\Services.Portal\Mandate.Portal.csproj" />
+	</ItemGroup>
+
+</Project>

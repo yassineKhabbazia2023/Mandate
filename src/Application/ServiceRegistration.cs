@@ -8,12 +8,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
     public static class ServiceRegistration
     {
-        public static IServiceCollection AddMandateApplication(this IServiceCollection services)
+        public static IServiceCollection AddMandateApplication(this IServiceCollection services, Action<MandateEmailOptions> options)
         {
             if (services == null)
             {
                 throw new ArgumentNullException(nameof(services));
             }
+
+            services.AddOptions().Configure(options);
 
             services.AddScoped<IBankManager, BankManager>();
             services.AddScoped<IBbanManager, BbanManager>();

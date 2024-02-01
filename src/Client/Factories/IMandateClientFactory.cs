@@ -6,6 +6,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
 {
     public interface IMandateClientFactory
     {
+        IMandateClient Create();
+
         IMandateClient Create(string userToken);
     }
 }

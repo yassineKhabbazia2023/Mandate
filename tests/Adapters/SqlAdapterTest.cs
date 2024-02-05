@@ -399,7 +399,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 .Verifiable();
             var adapter = new SqlAdapter(repository.Object);
 
-            await adapter.InsertFormIOCollectionAsync(collection.ToModel(), collection.Company.ToModel());
+            await adapter.InsertFormIOCollectionAsync(collection.ToModel(), companyId);
 
             repository.VerifyAll();
         }

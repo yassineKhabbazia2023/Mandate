@@ -575,7 +575,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             };
 
             // Act
-            var result = collection.ToCollectionDB(company);
+            var result = collection.ToCollectionDB(new Guid("00000000-0000-0000-0000-000000000001"));
 
             // Assert
             result.Id.Should().Be(collection.Id);
@@ -583,7 +583,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             result.BranchCode.Should().Be(expected.BranchCode);
             result.CheckDigits.Should().Be(expected.CheckDigits);
             result.BankCode.Should().Be(expected.BankCode);
-            result.CompanyId.Should().Be(expected.CompanyId);
+            result.CompanyId.Should().Be(new Guid("00000000-0000-0000-0000-000000000001"));
             result.RejectReason.Should().Be(expected.RejectReason);
         }
     }

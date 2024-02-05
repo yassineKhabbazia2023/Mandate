@@ -46,6 +46,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task DeleteFakeDataAsync();
 
-        Task InsertFormIOCollectionAsync(Collection collection, Company company);
+        Task InsertFormIOCollectionAsync(Collection collection, Guid companyId);
     }
 }

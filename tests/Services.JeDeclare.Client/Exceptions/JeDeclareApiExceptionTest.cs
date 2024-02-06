@@ -55,11 +55,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Tests
             var exception = new JeDeclareApiException(customMessage, innerException);
 
             string jsonString;
-            JeDeclareApiException deserializedException;
+            JeDeclareApiException? deserializedException;
 
             // Act
             jsonString = JsonConvert.SerializeObject(exception);
-            deserializedException = JsonConvert.DeserializeObject<JeDeclareApiException>(jsonString!);
+            deserializedException = JsonConvert.DeserializeObject<JeDeclareApiException>(jsonString);
 
             // Assert
             deserializedException?.Message.Should().Be(customMessage);

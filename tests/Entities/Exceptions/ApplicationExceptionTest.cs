@@ -55,15 +55,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
             var exception = new ApplicationException(customMessage, innerException);
 
             string jsonString;
-            ApplicationException deserializedException;
+            ApplicationException? deserializedException;
 
             // Act
             jsonString = JsonConvert.SerializeObject(exception);
-            deserializedException = JsonConvert.DeserializeObject<ApplicationException>(jsonString!);
+            deserializedException = JsonConvert.DeserializeObject<ApplicationException>(jsonString);
 
             // Assert
-            deserializedException?.Message.Should().Be(customMessage);
-            deserializedException?.InnerException?.Message.Should().Be(innerException.Message);
+            deserializedException.Should().NotBeNull();
+            deserializedException!.Message.Should().Be(customMessage);
+            deserializedException!.InnerException?.Message.Should().Be(innerException.Message);
         }
     }
 }

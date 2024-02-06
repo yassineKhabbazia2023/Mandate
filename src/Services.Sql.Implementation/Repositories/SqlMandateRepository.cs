@@ -1601,9 +1601,6 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
         public async Task InsertFormIOCollectionAsync(CollectionDb collection)
         {
             using var context = new MandateContext(this.options);
-            collection.JeDeclareCollection!.Id = Guid.NewGuid();
-            collection.Personal!.Id = Guid.NewGuid();
-            collection.Company!.JeDeclareFolder!.Id = Guid.NewGuid();
             await context.AddAsync(collection);
             await context.SaveChangesAsync();
         }

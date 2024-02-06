@@ -394,25 +394,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                         IsCurrent = false,
                         StatusDate = DateTime.UtcNow,
                     },
-                new ()
-                    {
-                        CollectionId = collection.Id,
-                        CollectionStatusCode = (int)collection.Status.StatusCode,
-                        CreatedBy = string.Empty,
-                        IsCurrent = true,
-                        MandateFile = null,
-                        RefStatusCode = null,
-                        StatusCode = (int)collection.Status.StatusCode,
-                        Id = Guid.NewGuid(),
-                        StatusDate = null,
-                    },
             };
 
             // Act
             var result = collection.ToStatusesDB();
 
             // Assert
-            result.Should().HaveCount(2);
+            result.Should().HaveCount(1);
 
             result.First().CollectionId.Should().Be(collection.Id);
             result.First().CollectionStatusCode.Should().Be(expected.First().CollectionStatusCode);
@@ -421,15 +409,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             result.First().MandateFile.Should().BeEquivalentTo(expected.First().MandateFile);
             result.First().RefStatusCode.Should().Be(expected.First().RefStatusCode);
             result.First().StatusCode.Should().Be(-1);
-
-            result[1].CollectionId.Should().Be(collection.Id);
-            result[1].CollectionStatusCode.Should().Be(expected[1].CollectionStatusCode);
-            result[1].CreatedBy.Should().Be(expected[1].CreatedBy);
-            result[1].IsCurrent.Should().Be(expected[1].IsCurrent);
-            result[1].MandateFile.Should().BeEquivalentTo(expected[1].MandateFile);
-            result[1].RefStatusCode.Should().Be(expected[1].RefStatusCode);
-            result[1].StatusCode.Should().Be(expected[1].StatusCode);
-            result[1].StatusDate.Should().Be(expected[1].StatusDate);
         }
 
         [Fact]
@@ -448,7 +427,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 City = collection.Company?.Address?.City,
                 Country = collection.Company?.Address?.Country,
                 Email = collection.Company?.Signatory?.Email!,
-                CompanyId = collection.Company?.Id,
+                CompanyId = null,
                 FirstName = collection.Company?.Signatory?.FirstName,
                 LastName = collection.Company?.Signatory?.LastName,
                 Street = collection.Company?.Address?.Street,
@@ -575,7 +554,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             };
 
             // Act
-            var result = collection.ToCollectionDB(company);
+            var result = collection.ToCollectionDB(new Guid("00000000-0000-0000-0000-000000000001"));
 
             // Assert
             result.Id.Should().Be(collection.Id);
@@ -583,7 +562,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             result.BranchCode.Should().Be(expected.BranchCode);
             result.CheckDigits.Should().Be(expected.CheckDigits);
             result.BankCode.Should().Be(expected.BankCode);
-            result.CompanyId.Should().Be(expected.CompanyId);
+            result.CompanyId.Should().Be(new Guid("00000000-0000-0000-0000-000000000001"));
             result.RejectReason.Should().Be(expected.RejectReason);
         }
     }

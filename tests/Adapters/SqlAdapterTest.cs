@@ -397,9 +397,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             repository.Setup(r => r.InsertFormIOCollectionAsync(It.IsAny<CollectionDb>()))
                 .Returns(Task.CompletedTask)
                 .Verifiable();
+            repository.Setup(r => r.CreateOrUpdateFolderAsync(It.IsAny<string>(), Guid.Parse("b1111111-1111-1111-1111-111111111111")))
+               .Returns(Task.CompletedTask)
+               .Verifiable();
             var adapter = new SqlAdapter(repository.Object);
 
-            await adapter.InsertFormIOCollectionAsync(collection.ToModel(), collection.Company.ToModel());
+            await adapter.InsertFormIOCollectionAsync(collection.ToModel(), companyId);
 
             repository.VerifyAll();
         }

@@ -902,7 +902,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 status);
 
             this.mockDatabaseService
-               .Setup(m => m.InsertFormIOCollectionAsync(collection, company))
+               .Setup(m => m.InsertFormIOCollectionAsync(collection, new Guid("00000000-0000-0000-0000-000000000001")))
                .Returns(Task.CompletedTask);
 
             this.mockDatabaseService.Setup(r => r.CheckCollecteConfigExistAsync(bban))

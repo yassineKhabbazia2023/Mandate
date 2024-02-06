@@ -187,7 +187,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 City = company.Address?.City,
                 Country = company.Address?.Country,
                 Email = company.Signatory?.Email!,
-                CompanyId = company.Id,
+                CompanyId = company.Id != Guid.Empty ? company.Id : null,
                 FirstName = company.Signatory?.FirstName,
                 LastName = company.Signatory?.LastName,
                 Street = company.Address?.Street,
@@ -202,29 +202,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return new List<Sql.StatusDb>()
             {
                 new ()
-                    {
-                        Id = Guid.NewGuid(),
-                        CollectionId = collection.Id,
-                        StatusCode = -1,
-                        IsCurrent = false,
-                        StatusDate = DateTime.UtcNow,
-                    },
-                new ()
-                    {
-                        CollectionId = collection.Id,
-                        CollectionStatusCode = (int)collection.Status.StatusCode,
-                        CreatedBy = string.Empty,
-                        IsCurrent = true,
-                        MandateFile = null,
-                        RefStatusCode = null,
-                        StatusCode = (int)collection.Status.StatusCode,
-                        Id = Guid.NewGuid(),
-                        StatusDate = null,
-                    },
+                {
+                    Id = Guid.NewGuid(),
+                    CollectionId = collection.Id,
+                    StatusCode = -1,
+                    IsCurrent = false,
+                    StatusDate = DateTime.UtcNow,
+                },
             };
         }
 
-        public static Sql.CollectionDb ToCollectionDB(this Collection collection, Company company)
+        public static Sql.CollectionDb ToCollectionDB(this Collection collection, Guid companyId)
         {
             return new Sql.CollectionDb()
             {
@@ -234,8 +222,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 CheckDigits = collection.Bban!.CheckDigits,
                 BankCode = collection.Bban!.BankCode,
                 JeDeclareCollection = collection.ToDeclareCollectionDb(),
-                Personal = company!.ToPersonalDb(),
-                CompanyId = company!.Id,
+                Personal = collection.Company!.ToPersonalDb(),
+                CompanyId = companyId,
                 Statuses = collection.ToStatusesDB(),
             };
         }

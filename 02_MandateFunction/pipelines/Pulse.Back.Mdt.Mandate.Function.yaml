@@ -30,6 +30,5 @@ extends:
       id: '02'
       name: 'mdtFunction2'
       path: 02_MandateFunction\src\Mandate.AzureFunctions\KPMG.Pulse.Back.Accounting.Mandate.Function.csproj
-      tests: 02_MandateFunction\tests\**\*.csproj
       type: 'functionApp' 
     dotnetcore: 6.x

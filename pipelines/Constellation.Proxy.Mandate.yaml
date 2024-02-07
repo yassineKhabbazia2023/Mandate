@@ -3,7 +3,7 @@ name: Constellation.Proxy.Mandate
 trigger:
   branches:
     include:
-      - master
+      - main
       - develop
       - release/*
 

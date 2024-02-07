@@ -206,7 +206,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                     Id = Guid.NewGuid(),
                     CollectionId = collection.Id,
                     StatusCode = -1,
-                    IsCurrent = false,
+                    IsCurrent = true,
                     StatusDate = DateTime.UtcNow,
                 },
             };

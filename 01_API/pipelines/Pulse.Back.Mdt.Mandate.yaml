@@ -29,6 +29,7 @@ extends:
     resource:
       id: '01'
       name: 'mandate2'
-      path: src\Api\Mandate.AspNetCore.csproj
+      path: 01_API\src\Api\Mandate.AspNetCore.csproj
+      tests: 01_API\tests\**\*.csproj
       type: 'webApp' 
     dotnetcore: 6.x

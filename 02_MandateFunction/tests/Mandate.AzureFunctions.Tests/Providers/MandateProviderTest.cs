@@ -66,5 +66,45 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
             factory.Verify();
             mandateClient.Verify();
         }
+
+        [Fact]
+        public async Task GetCollectionsAsync()
+        {
+            BankDetails bank = new BankDetails("bcode", "bname", "accountNumber", "cle");
+            List<TechnicalCollectionSummary> technicalCollections = new List<TechnicalCollectionSummary>()
+            {
+                new TechnicalCollectionSummary(
+                    new Guid("00000001-0000-0000-0000-000000000000"),
+                    "folderId1",
+                    "ribId1",
+                    bank,
+                    10),
+            };
+
+            PagedTechnicalMandate page = new PagedTechnicalMandate(technicalCollections);
+            var mandateClient = new Mock<IMandateClient>(MockBehavior.Strict);
+            mandateClient.Setup(item => item.GetTechnicalCollectionSummaryAsync(0, 100, new List<int> { 10 }))
+                .ReturnsAsync(page)
+                .Verifiable();
+
+            var factory = new Mock<IMandateClientFactory>(MockBehavior.Strict);
+            factory.Setup(f => f.Create("token3"))
+                .Returns(mandateClient.Object)
+                .Verifiable();
+
+            var authenticationContext = new Mock<ISystemAccountAuthenticationProvider>(MockBehavior.Strict);
+            authenticationContext.Setup(a => a.GetTokenAsync())
+                    .Returns(Task.FromResult("token3"))
+                    .Verifiable();
+
+            var provider = new MandateProvider(factory.Object, authenticationContext.Object);
+            var res = await provider.GetCollectionsAsync(0,100, new List<int> { 10 });
+
+            res.Should().BeEquivalentTo(page);
+
+            authenticationContext.VerifyAll();
+            factory.VerifyAll();
+            mandateClient.VerifyAll();
+        }
     }
 }

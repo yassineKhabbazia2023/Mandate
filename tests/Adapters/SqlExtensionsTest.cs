@@ -391,7 +391,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                         Id = Guid.NewGuid(),
                         CollectionId = collection.Id,
                         StatusCode = -1,
-                        IsCurrent = false,
+                        IsCurrent = true,
                         StatusDate = DateTime.UtcNow,
                     },
             };
@@ -405,7 +405,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             result.First().CollectionId.Should().Be(collection.Id);
             result.First().CollectionStatusCode.Should().Be(expected.First().CollectionStatusCode);
             result.First().CreatedBy.Should().Be(expected.First().CreatedBy);
-            result.First().IsCurrent.Should().Be(false);
+            result.First().IsCurrent.Should().BeTrue();
             result.First().MandateFile.Should().BeEquivalentTo(expected.First().MandateFile);
             result.First().RefStatusCode.Should().Be(expected.First().RefStatusCode);
             result.First().StatusCode.Should().Be(-1);

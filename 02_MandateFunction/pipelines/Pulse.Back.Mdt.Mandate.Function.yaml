@@ -28,7 +28,7 @@ extends:
     domain: mdt
     resource:
       id: '02'
-      name: 'mdtFunction'
+      name: 'mdtFunction2'
       path: src\Mandate.AzureFunctions\Mandate.AzureFunctions.csproj
       type: 'functionApp' 
     dotnetcore: 6.x

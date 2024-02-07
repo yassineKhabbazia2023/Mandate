@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+		<AssemblyName>KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests</AssemblyName>
+		<RootNamespace>KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\src\Mandate.AzureFunctions\KPMG.Pulse.Back.Accounting.Mandate.Function.csproj" />
+	</ItemGroup>
+</Project>

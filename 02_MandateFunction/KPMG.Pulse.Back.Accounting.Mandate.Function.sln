@@ -3,7 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KPMG.Pulse.Back.Accounting.Mandate.Function", "KPMG.Pulse.Back.Accounting.Mandate.Function\KPMG.Pulse.Back.Accounting.Mandate.Function.csproj", "{0810E0AA-35ED-4A2C-B82E-943B50AD920F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KPMG.Pulse.Back.Accounting.Mandate.Function", "src\Mandate.AzureFunctions\KPMG.Pulse.Back.Accounting.Mandate.Function.csproj", "{1A584AA4-EE52-48D3-9163-02272642F1BC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.AzureFunctions.Tests", "tests\Mandate.AzureFunctions.Tests\Mandate.AzureFunctions.Tests.csproj", "{84680BFA-6F91-449C-9F79-5C17CB4618D8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 - Solution Items", "0 - Solution Items", "{D4125C35-76A4-4FE0-9639-134F52A8CDBC}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		NuGet.config = NuGet.config
+		README.md = README.md
+		stylecop.json = stylecop.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{4474F02E-F97A-4AED-A29E-EFCBECEFADD5}"
+	ProjectSection(SolutionItems) = preProject
+		tests\Directory.Build.props = tests\Directory.Build.props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,13 +29,20 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0810E0AA-35ED-4A2C-B82E-943B50AD920F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0810E0AA-35ED-4A2C-B82E-943B50AD920F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0810E0AA-35ED-4A2C-B82E-943B50AD920F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0810E0AA-35ED-4A2C-B82E-943B50AD920F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A584AA4-EE52-48D3-9163-02272642F1BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A584AA4-EE52-48D3-9163-02272642F1BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A584AA4-EE52-48D3-9163-02272642F1BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A584AA4-EE52-48D3-9163-02272642F1BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84680BFA-6F91-449C-9F79-5C17CB4618D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84680BFA-6F91-449C-9F79-5C17CB4618D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84680BFA-6F91-449C-9F79-5C17CB4618D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84680BFA-6F91-449C-9F79-5C17CB4618D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4474F02E-F97A-4AED-A29E-EFCBECEFADD5} = {D4125C35-76A4-4FE0-9639-134F52A8CDBC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {58EB6B39-90E9-4B5C-9B83-A2F83B9546A2}

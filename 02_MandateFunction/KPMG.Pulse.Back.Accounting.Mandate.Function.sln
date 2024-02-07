@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34511.84
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KPMG.Pulse.Back.Accounting.Mandate.Function", "KPMG.Pulse.Back.Accounting.Mandate.Function\KPMG.Pulse.Back.Accounting.Mandate.Function.csproj", "{0810E0AA-35ED-4A2C-B82E-943B50AD920F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0810E0AA-35ED-4A2C-B82E-943B50AD920F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0810E0AA-35ED-4A2C-B82E-943B50AD920F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0810E0AA-35ED-4A2C-B82E-943B50AD920F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0810E0AA-35ED-4A2C-B82E-943B50AD920F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {58EB6B39-90E9-4B5C-9B83-A2F83B9546A2}
+	EndGlobalSection
+EndGlobal

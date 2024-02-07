@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "KPMG.Pulse.Back.Accounting.Mandate.Function": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7061",
+      "launchBrowser": false
+    }
+  }
+}

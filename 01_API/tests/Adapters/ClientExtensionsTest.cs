@@ -125,6 +125,47 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         }
 
         [Fact]
+        public void ToModel_WhenNoSortOrder_ShouldThrowException()
+        {
+            var entity = new Client.CollectionQuery(
+                "search",
+                new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                new List<int>() { -1, 3 },
+                10,
+                0,
+                string.Empty,
+                "AccountNumber",
+                "collab@email.com");
+
+            Action act = () => entity.ToModel();
+            act.Should().Throw<InvalidCastException>().WithMessage("Invalid SortOrder. Allowed values are [ Ascending, Descending]");
+        }
+
+
+        [Fact]
+        public void ToModel_WhenNoSortCreteria_ShouldThrowException()
+        {
+            var entity = new Client.CollectionQuery(
+                "search",
+                new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                new List<int>() { -1, 3 },
+                10,
+                0,
+                "Ascending",
+                string.Empty,
+                "collab@email.com");
+
+            Action act = () => entity.ToModel();
+            act.Should().Throw<InvalidCastException>().WithMessage("Invalid SortCriteria. Allowed values are [ ErpId, Name, AccountNumber, BankName, CreationDate, ModificationDate, Status]");
+        }
+
+        [Fact]
         public void ToCountersDetail()
         {
             Counters counters = new Counters(10, 2, 3, 1, 2, 2);

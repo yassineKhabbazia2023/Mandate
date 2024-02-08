@@ -61,5 +61,53 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             result.Should().NotBeNull();
             result.Should().BeEquivalentTo(expectedCompany);
         }
+
+        [Fact]
+        public void ToModel_NoSignatoryFound_ThrowException()
+        {
+            var responseJson = new AccountsWithoutCacheResponseJson
+            {
+                Id = Guid.NewGuid(),
+                AccountName = "Test Company",
+                AccountRegisterIdentification1 = "12345",
+                IBSCode = "67890",
+                Adresse = "123 Main St",
+                AccountDeliveryAddress2 = "Apt 101",
+                ZipCode = "12345",
+                State = "CA",
+                Country = "USA",
+                Roles = new List<RoleResponseJson>(),
+                AccountDeliveryEmail = "test@example.com",
+            };
+
+            Action task = () => responseJson.ToModel();
+            task.Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public void ToModel_MoreThenOneSignatoryFound_ThrowException()
+        {
+            var responseJson = new AccountsWithoutCacheResponseJson
+            {
+                Id = Guid.NewGuid(),
+                AccountName = "Test Company",
+                AccountRegisterIdentification1 = "12345",
+                IBSCode = "67890",
+                Adresse = "123 Main St",
+                AccountDeliveryAddress2 = "Apt 101",
+                ZipCode = "12345",
+                State = "CA",
+                Country = "USA",
+                Roles = new List<RoleResponseJson>()
+                {
+                    new RoleResponseJson { Contact = new ContactResponseJson { LoginName = "test@example.com" } },
+                    new RoleResponseJson { Contact = new ContactResponseJson { LoginName = "test@example.com" } },
+                },
+                AccountDeliveryEmail = "test@example.com",
+            };
+
+            Action task = () => responseJson.ToModel();
+            task.Should().Throw<InvalidOperationException>();
+        }
     }
 }

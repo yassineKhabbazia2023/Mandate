@@ -174,5 +174,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 
             act.Should().Throw<ArgumentNullException>();
         }
+
+        [Fact]
+        public void AddPortailApi_NullService_ThrowsArgumentNullException()
+        {
+            IServiceCollection services = null;
+            ConfigurationManager configuration = new ConfigurationManager();
+            Action act = () => services.AddPortailApi(configuration);
+            act.Should().Throw<ArgumentNullException>();
+        }
     }
 }

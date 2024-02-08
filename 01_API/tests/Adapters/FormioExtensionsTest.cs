@@ -115,5 +115,31 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             collection.Should().BeEquivalentTo(expectedCollection);
         }
+
+        [Fact]
+        public void ToCollection_WhenHeadOfficeIsNull_ReturnsCollectionWithNullAddress()
+        {
+            // Arrange
+            var submission = new FormioSubmissionCollection
+            {
+                Submissions = new List<FormioSubmission>
+                {
+                    new FormioSubmission
+                    {
+                        // Provide data where headOffice is null
+                        Data = null!,
+                    },
+                },
+            };
+
+            var result = submission.ToCollection();
+            result.Bban.Should().BeEquivalentTo(DefaultEntityFactory.Bban);
+            result.Company.Should().BeEquivalentTo(DefaultEntityFactory.Company);
+            result.CreationDate.Should().Be(DateTime.MinValue);
+            result.ModificationDate.Should().Be(DateTime.MinValue);
+            result.Id.Should().Be(Guid.Empty);
+            result.CollectionServicesProviderId.Should().BeNull();
+            result.Status.Should().NotBeNull();
+        }
     }
 }

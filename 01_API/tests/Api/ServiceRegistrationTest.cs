@@ -102,5 +102,77 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             sp.GetService<INotificationsService>().Should().NotBeNull();
             sp.GetService<INotificationsProvider>().Should().NotBeNull();
         }
+
+        [Fact]
+        public void AddNotificationsApi_NullService_ThrowsArgumentNullException()
+        {
+            IServiceCollection services = null;
+            ConfigurationManager configuration = new ConfigurationManager();
+            Action act = () => services.AddNotificationsApi(configuration);
+            act.Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void AddMandateJeDeclare_NullService_ThrowsArgumentNullException()
+        {
+            IServiceCollection services = null;
+            ConfigurationManager configuration = new ConfigurationManager();
+            Action act = () => services.AddMandateJeDeclare(opt =>
+            {
+                opt.BaseUri = new Uri("https://recette.jedeclare.com/webservice/gestion/");
+                opt.Login = "loginT";
+                opt.Password = "passwordT";
+                opt.JdcCompteId = "jdcCompteIdT";
+                opt.HistoryDateEnabledBanks = "HistoryDateEnabledBanks";
+            });
+
+            act.Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void AddMandateFormio_NullService_ThrowsArgumentNullException()
+        {
+            IServiceCollection services = null;
+            ConfigurationManager configuration = new ConfigurationManager();
+            Action act = () => services.AddMandateFormio(opt =>
+            {
+                opt.BaseUri = new Uri("https://toto.com");
+                opt.FormioApiKey = "test";
+            });
+
+            act.Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void AddMandateAdapters_NullService_ThrowsArgumentNullException()
+        {
+            IServiceCollection services = null;
+            ConfigurationManager configuration = new ConfigurationManager();
+            Action act = () => services.AddMandateAdapters();
+
+            act.Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void AddMandateApplication_NullService_ThrowsArgumentNullException()
+        {
+            IServiceCollection services = null;
+            ConfigurationManager configuration = new ConfigurationManager();
+            Action act = () => services.AddMandateApplication(opt =>
+            {
+                opt.MandateCancellationSubject = "MandateCancellationSubject";
+                opt.MandateCancellationTemplateName = "MandateCancellationTemplateName";
+                opt.MandateCancellationFromEmail = "MandateCancellationFromEmail";
+                opt.MandateCancellationToEmail = "MandateCancellationToEmail";
+                opt.MandateCancellationCcEmails = new List<string>();
+                opt.MandateUploadedSubject = "MandateUploadedSubject";
+                opt.MandateUploadedTemplateName = "MandateUploadedTemplateName";
+                opt.MandateUploadedFromEmail = "MandateUploadedFromEmail";
+                opt.MandateUploadedToEmail = "MandateUploadedToEmail";
+                opt.MandateUploadedCcEmails = new List<string>();
+            });
+
+            act.Should().Throw<ArgumentNullException>();
+        }
     }
 }

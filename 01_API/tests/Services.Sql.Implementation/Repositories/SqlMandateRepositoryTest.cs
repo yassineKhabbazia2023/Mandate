@@ -1007,6 +1007,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         }
 
         [Fact]
+        public async Task GetCollectionById_WhenCollectionNotFound_ShouldThrowException()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            // GetCollectionById
+            var collectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111");
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            Func<Task> act = async () => await sqlMandateRepository.GetCollectionById(collectionId);
+            await act.Should().ThrowExactlyAsync<CollectionNotFoundException>()
+                .WithMessage("La collecton avec l'id 'a1111111-1111-1111-1111-111111111111' n'a pas été trouvée");
+        }
+
+        [Fact]
         public async Task SaveSignatoryAsync_CaseNewEntity()
         {
             await using var database = SqlServerFixture.CreateDatabase();
@@ -1440,6 +1455,71 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             // Assert
             await act.Should().ThrowAsync<CompanyNotFoundException>();
+        }
+
+        [Fact]
+        public async Task GetPdfTemplateByCodeAsync()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            var bank = EntityDbFactory.RefBankDb;
+            await context.RefBank.AddAsync(bank);
+            await context.SaveChangesAsync();
+
+            var template = EntityDbFactory.RefPdfTemplateDb;
+            await context.RefPdfTemplate.AddAsync(template);
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            var res = await sqlMandateRepository.GetPdfTemplateByCodeAsync("12345");
+            res.Should().BeEquivalentTo(Convert.FromBase64String("dGVzdA=="));
+        }
+
+        [Fact]
+        public async Task GetPdfTemplateByCodeAsync_WhenBankNotFound_ShouldThrowException()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            var bank = EntityDbFactory.RefBankDb;
+            await context.RefBank.AddAsync(bank);
+            await context.SaveChangesAsync();
+
+            var template = EntityDbFactory.RefPdfTemplateDb;
+            await context.RefPdfTemplate.AddAsync(template);
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            Func<Task> act = async () => await sqlMandateRepository.GetPdfTemplateByCodeAsync("67890");
+            await act.Should().ThrowExactlyAsync<BankCodeNotFoundException>()
+                .WithMessage("La banque avec le code '67890' n'a pas été trouvée dans le référentiel");
+        }
+
+        [Fact]
+        public async Task UpdateCurrentStatusAsync_WhenStatusNotFound_ShouldThrowException()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            Func<Task> act = async () => await sqlMandateRepository.UpdateCurrentStatusAsync(Guid.Parse("a1111111-1111-1111-1111-111111111111"));
+            await act.Should().ThrowExactlyAsync<StatusNotFoundException>()
+                .WithMessage("La collection avec l\'id 'a1111111-1111-1111-1111-111111111111' n'a pas de status en cours");
+        }
+
+        [Fact]
+        public async Task GetRefBankByCodeAsync_WhenBankNotFound_ShouldThrowException()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            Func<Task> act = async () => await sqlMandateRepository.GetRefBankByCodeAsync("11111");
+            await act.Should().ThrowExactlyAsync<BankCodeNotFoundException>()
+                .WithMessage("La banque avec le code '11111' n'a pas été trouvée dans le référentiel");
         }
     }
 }

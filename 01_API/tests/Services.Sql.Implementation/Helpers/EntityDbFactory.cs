@@ -123,6 +123,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             },
         };
 
+        public static RefPdfTemplateDb RefPdfTemplateDb => new ()
+        {
+            BankCode = "12345",
+            PdfFile = Convert.FromBase64String("dGVzdA=="),
+        };
+
         public static T? FromRow<T>(DataRow source)
             where T : class
         {

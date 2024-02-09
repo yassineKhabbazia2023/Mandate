@@ -4,7 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Kpmg.Constellation.IdentityService.Client;
@@ -38,18 +37,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions
             return await client.GetRecoveryAsync(rib);
         }
 
+        /// <inheritdoc/>
         public async Task RefreshCollectionsStatuses(List<TechnicalCollectionSummary> payload)
         {
-            try
-            {
-                string token = await this.systemAccountAuthenticationProvider.GetTokenAsync();
-                var client = this.factory.Create(token);
-                await client.RefreshMandatsStatusesAsync(payload);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            string token = await this.systemAccountAuthenticationProvider.GetTokenAsync();
+            var client = this.factory.Create(token);
+            await client.RefreshMandatsStatusesAsync(payload);
         }
     }
 }

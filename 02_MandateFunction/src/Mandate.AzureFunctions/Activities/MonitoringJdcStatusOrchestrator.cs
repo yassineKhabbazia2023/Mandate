@@ -4,16 +4,16 @@
 
 namespace Mandate.AzureFunctions.Activities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using Mandate.AzureFunctions.Interfaces;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Extensions.DurableTask;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// class impléménts the orchastrator and activities of the fonction.

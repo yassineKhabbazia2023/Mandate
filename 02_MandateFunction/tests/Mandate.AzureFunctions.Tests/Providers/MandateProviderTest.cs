@@ -98,7 +98,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
                     .Verifiable();
 
             var provider = new MandateProvider(factory.Object, authenticationContext.Object);
-            var res = await provider.GetCollectionsAsync(0,100, new List<int> { 10 });
+            var res = await provider.GetCollectionsAsync(0, 100, new List<int> { 10 });
 
             res.Should().BeEquivalentTo(page);
 

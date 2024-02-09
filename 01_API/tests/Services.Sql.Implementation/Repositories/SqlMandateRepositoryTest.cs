@@ -1116,9 +1116,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             using var context = new MandateContext(this.options);
             context.RefPdfTemplate.Count().Should().Be(1);
-            //context.RefBank.Count().Should().Be(10 + 194);
-            //context.RefBank.Count(b => b.JdcPartnership == JdcPartnership.NonPartner).Should().Be(1 + 4);
-            //context.RefBank.Count(b => b.JdcPartnership == JdcPartnership.Scrappable).Should().Be(1 + 70);
+            context.RefBank.Count().Should().Be(10 + 194);
+            context.RefBank.Count(b => b.JdcPartnership == JdcPartnership.NonPartner).Should().Be(1 + 4);
+            context.RefBank.Count(b => b.JdcPartnership == JdcPartnership.Scrappable).Should().Be(1 + 70);
             context.RefStatusCode.Count().Should().Be(19);
             context.Collaborator.Count().Should().Be(9);
             context.CompanyCollaborator.Count().Should().Be(9);
@@ -1150,7 +1150,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             await sqlMandateRepository.DeleteFakeRefAsync();
             context.RefPdfTemplate.Count().Should().Be(0);
-            context.RefBank.Count().Should().Be(120);
+            context.RefBank.Count().Should().Be(194);
             context.RefStatusCode.Count().Should().Be(0);
         }
 

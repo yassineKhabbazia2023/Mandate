@@ -55,12 +55,12 @@ jobs:
     displayName: "Restore NuGet packages"
     inputs:
       command: 'restore'
-      restoreSolution: 'Mandate.CleanArchi.sln'
+      restoreSolution: '01_API/Mandate.CleanArchi.sln'
       feedsToUse: 'config'
       nugetConfigPath: 'NuGet.config'
 
   - task: VSBuild@1
-    displayName: "Build the .NET Standard Portal Client NuGet packages"
+    displayName: "Build the .NET Standard Mandate Client NuGet packages"
     inputs:
       solution: '01_API/src/Client.Http/Mandate.Client.Http.csproj'
       msbuildArgs: '

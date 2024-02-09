@@ -28,7 +28,7 @@ extends:
     domain: mdt
     resource:
       id: '01'
-      name: 'mandate2'
+      name: 'mandate'
       path: 01_API\src\Api\Mandate.AspNetCore.csproj
       tests: 01_API\tests\**\*.csproj
       type: 'webApp' 

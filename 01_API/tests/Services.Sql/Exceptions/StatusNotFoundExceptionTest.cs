@@ -83,13 +83,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests.Exceptions
         public void FromId_WithString_ShouldCreateExceptionWithCorrectMessage()
         {
             // Arrange
-            var id = "testId";
+            var id = "5";
 
             // Act
             var exception = StatusNotFoundException.FromId(id);
 
             // Assert
-            exception.Message.Should().Be($"La collection avec l\'id '{id}' n'a pas de status en cours");
+            exception.Message.Should().Be($"Le status code jdc '5' n'a pas été trouvé dans la collection");
         }
     }
 }

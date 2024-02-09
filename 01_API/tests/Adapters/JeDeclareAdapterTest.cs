@@ -347,6 +347,146 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         }
 
         [Fact]
+        public async Task GetAllConfigurationFromFolderAsync_ReturnTechnicalCollections_WhenSuccessful()
+        {
+            // Arrange
+            var destinataire = new Destinataire()
+            {
+                Id = "destinataireIdT",
+            };
+
+            var rib = new Rib()
+            {
+                Id = "1234",
+                Libelle = "libelleM",
+                CiviliteTitulaire = "Mme",
+                NomTitulaire = "nomTitulaireT",
+                PrenomTitulaire = "prenomTitulaireM",
+                Etablissement = "30003",
+                Guichet = "03558",
+                NumCompte = "00020006536",
+                Cle = "41",
+            };
+
+            var card = new Carte()
+            {
+                Id = "carteIdT",
+                Statut = "statutT",
+                CodeBanque = "codeBanqueT",
+                NomConfig = "nomConfigT",
+                UserId = "userIdT",
+                PartnerId = "partnerIdT",
+                EmailResponsable = "emailResponsableT",
+                FileFormat = "formatT",
+                CarteEBICs = "carteEbicsT",
+            };
+
+            var periodicite = new Periodicite()
+            {
+                Id = "periodiciteIdT",
+            };
+
+            var releve = new Releve()
+            {
+                Id = "idT",
+                Etat = "etatT",
+                TypeLiaison = "typeLiaisonT",
+                CauseRejet = "causeRejetT",
+                Destinataire = destinataire,
+                Rib = rib,
+                Card = card,
+                Periodicite = periodicite,
+                DateReprise = "dateT",
+            };
+
+            var listeReleves = new ListeReleves()
+            {
+                Releve = new Releve[] { releve },
+            };
+
+            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            jedeclareClient.Setup(client => client.GetAllConfigurationFromFolderAsync(It.IsAny<string>()))
+                .ReturnsAsync(listeReleves)
+                .Verifiable();
+
+            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+
+            var expectedTechnicalCollection = new List<TechnicalCollection>()
+            {
+                new TechnicalCollection(
+                    Guid.Empty,
+                    "idT",
+                    "1234",
+                    new BankDetails(
+                        "30003",
+                        "03558",
+                        "00020006536",
+                        "41"),
+                    "etatT"),
+            };
+
+            // Act
+            var result = await adapter.GetAllConfigurationFromFolderAsync("jdcFolderId");
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedTechnicalCollection);
+        }
+
+        [Fact]
+        public async Task GetAllConfigurationFromFolderAsync_ReturnNull_WhenNoReleve()
+        {
+            // Arrange
+            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            jedeclareClient.Setup(client => client.GetAllConfigurationFromFolderAsync(It.IsAny<string>()))
+                .ThrowsAsync(new JeDeclareApiException("Error message"))
+                .Verifiable();
+
+            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+
+            // Act
+            var result = await adapter.GetAllConfigurationFromFolderAsync("jdcFolderId");
+
+            // Assert
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task CheckSignedMandatExists_ReturnTrue_WhenSignedMandateExists()
+        {
+            // Arrange
+            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            jedeclareClient.Setup(client => client.CheckSignedMandatExists(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(true)
+                .Verifiable();
+
+            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+
+            // Act
+            var result = await adapter.CheckSignedMandatExists("jdcFolderId", "jdcRibId");
+
+            // Assert
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public async Task CheckSignedMandatExists_ReturnFalse_WhenThereIsAJeDeclareApiException()
+        {
+            // Arrange
+            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            jedeclareClient.Setup(client => client.CheckSignedMandatExists(It.IsAny<string>(), It.IsAny<string>()))
+                .ThrowsAsync(new JeDeclareApiException())
+                .Verifiable();
+
+            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+
+            // Act
+            var result = await adapter.CheckSignedMandatExists("jdcFolderId", "jdcRibId");
+
+            // Assert
+            result.Should().Be(false);
+        }
+
+        [Fact]
         public async Task DeactivateCollection_Ok()
         {
             var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);

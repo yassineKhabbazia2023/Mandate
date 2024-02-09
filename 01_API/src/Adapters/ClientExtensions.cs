@@ -2,14 +2,16 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using KPMG.Pulse.Back.Accounting.Mandate.Client;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
     public static class ClientExtensions
     {
         public static Client.BankDetail ToBankDetail(this Bank source)
         {
-            var bankJdcDetail = new Client.BankJdcDetail(source.JdcAgreement.JdcPartnership.ToString("G"));
-            return new Client.BankDetail(source.Code, source.Name, bankJdcDetail);
+            var bankJdcDetail = new Client.BankJdcDetail(source.JdcAgreement.JdcPartnership.ToString("G") !);
+            return new Client.BankDetail(source.Code!, source.Name, bankJdcDetail!);
         }
 
         public static Client.CollectionSummary ToCollectionSummary(this Collection source)
@@ -25,9 +27,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                     statusCode: (int)source.Status.StatusCode!);
         }
 
+        public static Client.TechnicalCollectionSummary ToTechnicalCollectionSummary(this Collection source)
+        {
+            return new Client.TechnicalCollectionSummary(
+                    id: source.Id,
+                    folderId: source.Company!.BankServicesProviderId!,
+                    ribId: source.Bban?.BbanServicesProviderId!,
+                    bankDetails: new Client.BankDetails(source.Bban?.BankCode!, source.Bban?.BranchCode!, source.Bban?.AccountNumber!, source.Bban?.CheckDigits!),
+                    statusCode: (int)source.Status.StatusCode!);
+        }
+
         public static Client.Counters ToCountersDetail(this Counters source)
         {
-            return new Client.Counters(source.All, source.Status10, source.Status20, source.Status30, source.Status40, source.Status50);
+            return new Client.Counters(source.All!, source.Status10!, source.Status20!, source.Status30!, source.Status40!, source.Status50!);
         }
 
         public static Client.PagedMandate ToPageMandateDetails(this PagedMandate source)
@@ -35,6 +47,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return new Client.PagedMandate(
                 source.Counters.ToCountersDetail(),
                 source.Data.Select(r => r.ToCollectionSummary()).ToList());
+        }
+
+        public static Client.PagedTechnicalMandate ToPageTechnicalMandateDetails(this PagedTechnicalMandate source)
+        {
+            return new Client.PagedTechnicalMandate(
+                source!.Data.Select(r => r.ToTechnicalCollectionSummary()).ToList());
+        }
+
+        public static TechnicalCollection ToModel(this Client.TechnicalCollectionSummary source)
+        {
+            return new TechnicalCollection(source!.Id, source!.FolderId, source!.RibId, new BankDetails(source!.BankDetails!.BankCode, source!.BankDetails!.BranchCode, source!.BankDetails!.AccountNumber, source!.BankDetails!.CheckDigits), source!.StatusCode.ToString());
         }
 
         public static Address ToModel(this Client.Address source)

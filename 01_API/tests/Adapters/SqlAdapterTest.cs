@@ -45,6 +45,39 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         }
 
         [Fact]
+        public async Task GetAllTechnicalCollectionsAsync()
+        {
+            var status = EntityDbFactory.StatusDb;
+            status.RefStatusCode = EntityDbFactory.RefStatusCodeDb;
+            var coll = EntityDbFactory.CollectionDb;
+            coll.Company = EntityDbFactory.CompanyDb;
+            coll.Bank = EntityDbFactory.RefBankDb;
+            coll.Statuses = new List<StatusDb>() { status };
+            (List<CollectionDb>, int) tuple = (new List<CollectionDb>() { coll }, 1);
+
+            var mandateRepository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            mandateRepository.Setup(r => r.SearchCollectionsAsync(It.IsAny<Sql.CollectionQuery>()))
+                .ReturnsAsync(tuple)
+                .Verifiable();
+
+            SqlAdapter adapter = new SqlAdapter(mandateRepository.Object);
+
+            var res = await adapter.GetAllTechnicalCollectionsAsync(
+                new CollectionQueryDto(null, null, null, null, null, null, null, null, Mandate.SortOrder.Ascending, Mandate.CollectionSortCriteria.Name, "collab@email.com"));
+
+            Counters expectedCounters = new Counters(1, 0, 0, 0, 0, 0);
+            List<Collection> expectedCollections = new List<Collection>()
+            {
+                coll.ToModel(),
+            };
+
+            res.Should().NotBeNull();
+            res.Should().BeEquivalentTo(new PagedTechnicalMandate(expectedCounters, expectedCollections));
+
+            mandateRepository.VerifyAll();
+        }
+
+        [Fact]
         public async Task GetCollectionById()
         {
             var collectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111");

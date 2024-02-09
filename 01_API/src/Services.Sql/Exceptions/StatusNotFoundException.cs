@@ -32,5 +32,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         {
             return new StatusNotFoundException($"La collection avec l\'id '{collectionId}' n'a pas de status en cours");
         }
+
+        public static StatusNotFoundException FromId(string jdcStatusCode)
+        {
+            return new StatusNotFoundException($"Le status code jdc '{jdcStatusCode}' n'a pas été trouvé dans la collection");
+        }
     }
 }

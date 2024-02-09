@@ -1,10 +1,10 @@
-﻿// <copyright file="PagedMandateTest.cs" company="KPMG">
+﻿// <copyright file="PagedTechnicalMandateTest.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
 {
-    public class PagedMandateTest
+    public class PagedTechnicalMandateTest
     {
         [Fact]
         public void Constructor()
@@ -34,7 +34,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
                     new Status(CollectionStatus.InProgress, "En cours"));
 
             var counters = new Counters(1, 1, 0, 0, 0, 0);
-            var entity = new PagedMandate(counters, new List<Collection> { collection });
+            var entity = new PagedTechnicalMandate(counters, new List<Collection> { collection });
 
             entity.GetType().GetProperties().Length.Should().Be(2);
 

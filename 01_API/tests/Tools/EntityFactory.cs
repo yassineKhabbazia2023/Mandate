@@ -26,6 +26,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         public static PagedMandate PagedMandate(List<Collection> collections) => new (Counters, collections);
 
+        public static PagedTechnicalMandate PagedTechnicalMandate(List<Collection> collections) => new(Counters, collections);
+
         public static Status Status(CollectionStatus collectionStatus = CollectionStatus.ToDo, string? statusName = null)
         {
             return new Status(collectionStatus, string.IsNullOrEmpty(statusName) ? "En Cours" : statusName);

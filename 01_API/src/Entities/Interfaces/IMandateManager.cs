@@ -8,6 +8,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
     {
         Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query);
 
+        Task<PagedTechnicalMandate> GetAllTechnicalCollectionsAsync(CollectionQueryDto query);
+
         Task<Guid> CreateMandate(CollectionCreationCommand mandateCreation);
 
         Task<byte[]> DownloadUnsignedAsync(Guid id);
@@ -15,6 +17,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         Task<string?> UploadSignedMandateAsync(Guid collectionId, Stream mandateFileStream);
 
         Task<byte[]> DownloadSignedAsync(Guid id);
+
+        Task RefreshMandatsStatusesAsync(List<TechnicalCollection> mandats);
 
         Task<bool> DeactivateCollectionAsync(Guid collectionId);
 

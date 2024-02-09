@@ -28,6 +28,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         Task<RefBankDb> GetRefBankByCodeAsync(string bankCode);
 
         /// <summary>
+        /// Finds a pulse status in the reference table.
+        /// </summary>
+        /// <param name="jdcStatusCode">The jdc status code to retrieve pulse status code.</param>
+        /// <returns>A pulse status code</returns>
+        Task<StatusDb> GetRefStatusCodeByJdcCodeAsync(string jdcStatusCode);
+
+        /// <summary>
         /// Finds a pdf template in the reference table.
         /// </summary>
         /// <param name="bankCode">The bank code to retrieve (first paramater of the French BBAN).</param>

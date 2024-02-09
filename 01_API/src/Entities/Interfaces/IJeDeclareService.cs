@@ -19,5 +19,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         Task<bool> DeactivateCollection(Collection collection);
 
         Task<byte[]> GetSignedMandatPdfAsync(string jdcFolderId, string jdcRibId);
+
+        Task<List<TechnicalCollection>?> GetAllConfigurationFromFolderAsync(string jdcFolderId);
+
+        Task<bool> CheckSignedMandatExists(string jdcFolderId, string jdcRibId);
     }
 }

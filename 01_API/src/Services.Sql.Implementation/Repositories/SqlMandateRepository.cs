@@ -41,11 +41,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             using var context = new MandateContext(this.options);
             var mandates = context.Collection
                 .Include(c => c.Bank)
-                .Include(item => item.Company)
+                .Include(c => c.JeDeclareCollection)
+                .Include(item => item.Company).ThenInclude(c => c!.JeDeclareFolder)
                 .Include(item => item.Statuses).ThenInclude(item => item.RefStatusCode)
                 .AsQueryable();
 
-            mandates = ApplayCollaboratorFilter(mandates, query.CollaboratorId, context);
+            if (query?.CollaboratorId != Guid.Empty)
+            {
+                mandates = ApplayCollaboratorFilter(mandates, query!.CollaboratorId, context);
+            }
+
             mandates = ApplySearchTermFilter(mandates, query);
             mandates = ApplyStatusCodesFilter(mandates, query);
             mandates = ApplyCreationDateFilter(mandates, query);
@@ -83,6 +88,26 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             else
             {
                 return await banks.SingleAsync().ConfigureAwait(false);
+            }
+        }
+
+        public async Task<StatusDb> GetRefStatusCodeByJdcCodeAsync(string jdcStatusCode)
+        {
+            int statusCode = ValidateAndParseStatusCode(jdcStatusCode);
+
+            using var context = new MandateContext(this.options);
+            var status = context.Status
+                .Include(item => item.RefStatusCode)
+                .Where(item => item.StatusCode == statusCode);
+            if (!await status.AnyAsync().ConfigureAwait(false))
+            {
+                throw StatusNotFoundException.FromId(jdcStatusCode);
+            }
+            else
+            {
+                return await status
+                    .SingleAsync()
+                    .ConfigureAwait(false);
             }
         }
 
@@ -1817,6 +1842,16 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                 .Skip(query.Skip.HasValue ? query.Skip.Value : 0)
                 .Take(query.Limit.HasValue ? query.Limit.Value : mandates.Count())
                 .ToListAsync();
+        }
+
+        private static int ValidateAndParseStatusCode(string jdcStatusCode)
+        {
+            if (!int.TryParse(jdcStatusCode, out var statusCode))
+            {
+                throw new ArgumentException($"Invalid JDC status code: {jdcStatusCode}");
+            }
+
+            return statusCode;
         }
     }
 }

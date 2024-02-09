@@ -65,5 +65,31 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests.Exceptions
             deserializedException?.Message.Should().Be(customMessage);
             deserializedException?.InnerException?.Message.Should().Be(innerException.Message);
         }
+
+        [Fact]
+        public void FromId_WithGuid_ShouldCreateExceptionWithCorrectMessage()
+        {
+            // Arrange
+            var guid = Guid.NewGuid();
+
+            // Act
+            var exception = StatusNotFoundException.FromId(guid);
+
+            // Assert
+            exception.Message.Should().Be($"La collection avec l\'id '{guid}' n'a pas de status en cours");
+        }
+
+        [Fact]
+        public void FromId_WithString_ShouldCreateExceptionWithCorrectMessage()
+        {
+            // Arrange
+            var id = "testId";
+
+            // Act
+            var exception = StatusNotFoundException.FromId(id);
+
+            // Assert
+            exception.Message.Should().Be($"La collection avec l\'id '{id}' n'a pas de status en cours");
+        }
     }
 }

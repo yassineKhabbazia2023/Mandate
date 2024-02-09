@@ -2,7 +2,7 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate.Tests.Models
+namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
 {
     public class CountersTest
     {

@@ -19,16 +19,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             var companyDb = await this.mandateRepository.GetCompanyBySiretAsync(siret).ConfigureAwait(false);
 
-            var address = new Address(companyDb.Personal?.Street, companyDb.Personal?.Complements, companyDb.Personal?.ZipCode, companyDb.Personal?.City, companyDb.Personal?.Country);
-            var signatory = new Signatory(companyDb.Personal?.Title, companyDb.Personal?.FirstName, companyDb.Personal?.LastName, companyDb.Personal?.Email);
-            var company = new Company(companyDb.Id, companyDb.Name, companyDb.SiretNumber, companyDb.ErpId, companyDb.JeDeclareFolder?.JdcDossierId, signatory, address);
-            return company;
+            var address = CreateAddressFromDb(companyDb!.Personal);
+            var signatory = CreateSignatoryFromDb(companyDb!.Personal);
+
+            return new Company(companyDb.Id, companyDb.Name, companyDb.SiretNumber, companyDb.ErpId, companyDb.JeDeclareFolder?.JdcDossierId, signatory, address);
         }
 
         public async Task<Bank> GetBankByCodeAsync(string bankCode)
         {
             var refBankDb = await this.mandateRepository.GetRefBankByCodeAsync(bankCode).ConfigureAwait(false);
             return refBankDb.ToModel();
+        }
+
+        public async Task<Status> GetRefStatusCodeByJdcCodeAsync(string jdcStatusCode)
+        {
+            var statusDb = await this.mandateRepository.GetRefStatusCodeByJdcCodeAsync(jdcStatusCode).ConfigureAwait(false);
+            return statusDb.ToModel();
         }
 
         public async Task<byte[]> GetPdfTemplateByBankCodeAsync(string bankCode)
@@ -41,6 +47,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             (List<Sql.CollectionDb>, int) tuple = await this.mandateRepository.SearchCollectionsAsync(query.ToSql(collaboratorId));
 
             return new PagedMandate(
+                new Counters(tuple.Item2, 0, 0, 0, 0, 0),
+                tuple.Item1.Select(i => i.ToModel()).ToList());
+        }
+
+        public async Task<PagedTechnicalMandate> GetAllTechnicalCollectionsAsync(CollectionQueryDto query)
+        {
+            (List<Sql.CollectionDb>, int) tuple = await this.mandateRepository.SearchCollectionsAsync(query.ToSql(Guid.Empty));
+
+            return new PagedTechnicalMandate(
                 new Counters(tuple.Item2, 0, 0, 0, 0, 0),
                 tuple.Item1.Select(i => i.ToModel()).ToList());
         }
@@ -83,7 +98,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public async Task<bool> CheckCollecteConfigExistAsync(Bban bban)
         {
-            return await this.mandateRepository.CheckCollecteConfigExistAsync(bban.BankCode, bban.BranchCode, bban.AccountNumber);
+            return await this.mandateRepository.CheckCollecteConfigExistAsync(bban!.BankCode, bban!.BranchCode, bban!.AccountNumber);
         }
 
         public async Task<Guid> CreateCollectionAsync(Bban bban, Guid companyId)
@@ -117,15 +132,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             {
                 CompanyId = companyId,
                 CollectionId = collectionId,
-                City = address.City,
-                Country = address.Country,
-                Street = address.Street,
-                ZipCode = address.ZipCode,
-                Complements = address.Complements,
-                FirstName = signatory.FirstName,
-                LastName = signatory.LastName,
-                Email = signatory.Email,
-                Title = signatory.Title,
+                City = address!.City,
+                Country = address!.Country,
+                Street = address!.Street,
+                ZipCode = address!.ZipCode,
+                Complements = address!.Complements,
+                FirstName = signatory!.FirstName,
+                LastName = signatory!.LastName,
+                Email = signatory!.Email,
+                Title = signatory!.Title,
             };
 
             await this.mandateRepository.SaveSignatoryAsync(newPersonalDb);
@@ -166,6 +181,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             var collectionDb = collection.ToCollectionDB(companyId);
             await this.mandateRepository.CreateOrUpdateFolderAsync(collection?.Company?.BankServicesProviderId!, companyId);
             await this.mandateRepository.InsertFormIOCollectionAsync(collectionDb);
+        }
+
+        private static Address CreateAddressFromDb(PersonalDb? personal)
+        {
+            return new Address(personal?.Street, personal?.Complements, personal?.ZipCode, personal?.City, personal?.Country);
+        }
+
+        private static Signatory CreateSignatoryFromDb(PersonalDb? personal)
+        {
+            return new Signatory(personal?.Title, personal?.FirstName, personal?.LastName, personal?.Email);
         }
     }
 }

@@ -9,8 +9,8 @@ trigger:
 
   paths:
     include:
-      - src/Client/*
-      - src/Client.Http/*
+      - 01_API/src/Client/*
+      - 01_API/src/Client.Http/*
 
 pool:
   vmImage: 'windows-latest'
@@ -62,7 +62,7 @@ jobs:
   - task: VSBuild@1
     displayName: "Build the .NET Standard Portal Client NuGet packages"
     inputs:
-      solution: 'src/Client.Http/Mandate.Client.Http.csproj'
+      solution: '01_API/src/Client.Http/Mandate.Client.Http.csproj'
       msbuildArgs: '
       /p:AssemblyVersion=$(Version)
       /p:AssemblyInformationalVersion=$(InformationalVersion)

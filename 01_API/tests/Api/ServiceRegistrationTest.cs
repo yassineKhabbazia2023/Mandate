@@ -106,7 +106,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         [Fact]
         public void AddNotificationsApi_NullService_ThrowsArgumentNullException()
         {
-            IServiceCollection services = null;
+            IServiceCollection services = null!;
             ConfigurationManager configuration = new ConfigurationManager();
             Action act = () => services.AddNotificationsApi(configuration);
             act.Should().Throw<ArgumentNullException>();
@@ -115,7 +115,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         [Fact]
         public void AddMandateJeDeclare_NullService_ThrowsArgumentNullException()
         {
-            IServiceCollection services = null;
+            IServiceCollection services = null!;
             ConfigurationManager configuration = new ConfigurationManager();
             Action act = () => services.AddMandateJeDeclare(opt =>
             {
@@ -132,7 +132,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         [Fact]
         public void AddMandateFormio_NullService_ThrowsArgumentNullException()
         {
-            IServiceCollection services = null;
+            IServiceCollection services = null!;
             ConfigurationManager configuration = new ConfigurationManager();
             Action act = () => services.AddMandateFormio(opt =>
             {
@@ -146,7 +146,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         [Fact]
         public void AddMandateAdapters_NullService_ThrowsArgumentNullException()
         {
-            IServiceCollection services = null;
+            IServiceCollection services = null!;
             ConfigurationManager configuration = new ConfigurationManager();
             Action act = () => services.AddMandateAdapters();
 
@@ -156,7 +156,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         [Fact]
         public void AddMandateApplication_NullService_ThrowsArgumentNullException()
         {
-            IServiceCollection services = null;
+            IServiceCollection services = null!;
             ConfigurationManager configuration = new ConfigurationManager();
             Action act = () => services.AddMandateApplication(opt =>
             {
@@ -178,7 +178,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         [Fact]
         public void AddPortailApi_NullService_ThrowsArgumentNullException()
         {
-            IServiceCollection services = null;
+            IServiceCollection services = null!;
             ConfigurationManager configuration = new ConfigurationManager();
             Action act = () => services.AddPortailApi(configuration);
             act.Should().Throw<ArgumentNullException>();

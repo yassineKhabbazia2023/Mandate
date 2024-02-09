@@ -16,7 +16,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
                 .Verifiable();
             var bankManager = new BankManager(databaseService.Object);
 
-            var result = await bankManager.GetByCodeAsync("a").ConfigureAwait(false);
+            var result = await bankManager.GetByCodeAsync("a");
 
             result.Should().Be(bank);
             databaseService.VerifyAll();

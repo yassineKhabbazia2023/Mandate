@@ -21,8 +21,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 "ERP001",
                 "JDF123",
                 signatory,
-                address
-            );
+                address);
 
             var databaseServiceMock = new Mock<IDatabaseService>();
             databaseServiceMock.Setup(service => service.GetCompanyByErpIdAsync(erpId))

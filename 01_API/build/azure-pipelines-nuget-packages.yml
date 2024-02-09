@@ -18,7 +18,7 @@ jobs:
   - task: PowerShell@2
     displayName: "Update assembly version"
     inputs:
-      filePath: 'build\Update-AssemblyVersion.ps1'
+      filePath: '01_API\build\Update-AssemblyVersion.ps1'
       arguments: '
       -Version $(Version)
       -Revision $(Revision)

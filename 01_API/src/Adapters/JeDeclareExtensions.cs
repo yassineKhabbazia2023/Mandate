@@ -24,38 +24,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public static DossierClient ToDossierClient(this Company company)
         {
-            Client client = new Client()
+            Client client = new Client
             {
                 Id = company.BankServicesProviderId!,
                 RaisonSociale = company.Name!,
-                Siret = new Siret()
-                {
-                    Siren = company.SiretNumber.Extract(0, 9),
-                    Nic = company.SiretNumber.Extract(9, 5),
-                },
-                Responsable = new Responsable()
-                {
-                    Adresse = new Adresse()
-                    {
-                        CodePostal = company.Address?.ZipCode!,
-                        CplRue = company.Address?.Complements!,
-                        Pays = company.Address?.Country!,
-                        Rue = company.Address?.Street!,
-                        Ville = company.Address?.City!,
-                    },
-                    Mail = !string.IsNullOrEmpty(company.Signatory?.Email!) ? company.Signatory?.Email! : null,
-                    Name = $"{company.Signatory?.Title!} {company.Signatory?.FirstName!} {company.Signatory?.LastName!.ToUpper()}",
-                },
+                Siret = CreateSiretFromCompany(company),
+                Responsable = CreateResponsableFromCompany(company),
             };
 
-            DossierClient dossier = new DossierClient() { Client = client };
-
-            return dossier;
+            return new DossierClient { Client = client };
         }
 
         public static Company ToCompany(this DossierClient dossierClient)
         {
-            var decomposedName = dossierClient.Client.Responsable.Name.ExtractPersonInfo();
+            var decomposedName = dossierClient!.Client.Responsable.Name.ExtractPersonInfo();
 
             var signatory = new Signatory(
                 title: decomposedName.sexe,
@@ -115,7 +97,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             Collection collection = new Collection(
                 collectionId,
-                source.Id,
+                source!.Id,
                 company,
                 rib,
                 DateTime.UtcNow,
@@ -123,6 +105,61 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 initStatus);
 
             return collection;
+        }
+
+        public static TechnicalCollection ToModel(this Releve source)
+        {
+            var rib = new Bban(source.Rib?.Etablissement!, source.Rib?.Guichet!, source.Rib?.NumCompte!, source.Rib?.Cle!, source.Rib?.Id, null);
+            TechnicalCollection collection = new TechnicalCollection(
+                Guid.Empty,
+            source?.Id!,
+                source?.Rib?.Id!,
+                new BankDetails(
+                    rib.BankCode,
+                    rib.BranchCode,
+                    rib.AccountNumber,
+                    rib.CheckDigits),
+                source?.Etat!);
+
+            return collection;
+        }
+
+        private static Siret CreateSiretFromCompany(Company company)
+        {
+            return new Siret
+            {
+                Siren = company.SiretNumber.Extract(0, 9),
+                Nic = company.SiretNumber.Extract(9, 5),
+            };
+        }
+
+        private static Responsable CreateResponsableFromCompany(Company company)
+        {
+            return new Responsable
+            {
+                Adresse = new Adresse
+                {
+                    CodePostal = company.Address?.ZipCode!,
+                    CplRue = company.Address?.Complements!,
+                    Pays = company.Address?.Country!,
+                    Rue = company.Address?.Street!,
+                    Ville = company.Address?.City!,
+                },
+                Mail = company.Signatory?.Email,
+                Name = FormatSignatoryName(company.Signatory!),
+            };
+        }
+
+        private static string FormatSignatoryName(Signatory signatory)
+        {
+            // Use null-conditional operators to handle potential nulls gracefully
+            var titles = signatory?.Title ?? string.Empty;
+            var firstName = signatory?.FirstName ?? string.Empty;
+            var lastName = signatory?.LastName?.ToUpper() ?? string.Empty;
+
+            // Build the name with spaces only if parts are present to avoid leading/trailing spaces
+            var fullName = $"{titles} {firstName} {lastName}".Trim();
+            return fullName;
         }
     }
 }

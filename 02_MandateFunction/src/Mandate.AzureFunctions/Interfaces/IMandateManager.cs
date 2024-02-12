@@ -4,9 +4,9 @@
 
 namespace Mandate.AzureFunctions.Interfaces
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using KPMG.Pulse.Back.Accounting.Mandate.Client;
 
     /// <summary>
     /// A service to get list of collection.
@@ -16,8 +16,8 @@ namespace Mandate.AzureFunctions.Interfaces
         /// <summary>
         /// Get List of collections.
         /// </summary>
-        /// <param name="limit">the limit of the list.</param>
         /// <param name="skip">for skipping elements.</param>
+        /// <param name="limit">the limit of the list.</param>
         /// <param name="statusCodes">the status codes to fitler with.</param>
         /// <returns>returns List of collections.</returns>
         Task<PagedTechnicalMandate> GetCollectionsAsync(int skip, int limit, List<int> statusCodes);

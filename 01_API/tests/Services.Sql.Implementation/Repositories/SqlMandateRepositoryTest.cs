@@ -620,6 +620,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var response49 = await sqlMandateRepository.SearchCollectionsAsync(query49);
             response49.Item2.Should().Be(0);
             response49.Item1.Count.Should().Be(0);
+
+            // Without collaborator id
+            var query50 = new CollectionQuery()
+            {
+                SortCriteria = CollectionSortCriteria.AccountNumber,
+                SortOrder = SortOrder.Ascending,
+                CollaboratorId = Guid.Empty,
+            };
+            var response50 = await sqlMandateRepository.SearchCollectionsAsync(query11);
+            response50.Item2.Should().Be(5);
+            response50.Item1.Count.Should().Be(5);
+            response50.Item1[0].AccountNumber.Should().Be("12345678901");
+            response50.Item1[1].AccountNumber.Should().Be("12345678902");
+            response50.Item1[2].AccountNumber.Should().Be("12345678903");
+            response50.Item1[3].AccountNumber.Should().Be("12345678904");
+            response50.Item1[4].AccountNumber.Should().Be("12345678905");
         }
 
         [Fact]
@@ -1520,6 +1536,73 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             Func<Task> act = async () => await sqlMandateRepository.GetRefBankByCodeAsync("11111");
             await act.Should().ThrowExactlyAsync<BankCodeNotFoundException>()
                 .WithMessage("La banque avec le code '11111' n'a pas été trouvée dans le référentiel");
+        }
+
+        [Fact]
+        public async Task GetRefStatusCodeByJdcCodeAsync_CaseOk()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            var refStatusCode = EntityDbFactory.RefStatusCodeDb;
+            await context.RefStatusCode.AddAsync(refStatusCode);
+            await context.SaveChangesAsync();
+
+            var refBank = EntityDbFactory.RefBankDb;
+            await context.RefBank.AddAsync(refBank);
+            await context.SaveChangesAsync();
+
+            var company = EntityDbFactory.CompanyDb;
+            await context.Company.AddAsync(company);
+            await context.SaveChangesAsync();
+
+            var collection = EntityDbFactory.CollectionDb;
+            await context.Collection.AddAsync(collection);
+            await context.SaveChangesAsync();
+
+            var status = EntityDbFactory.StatusDb;
+            await context.Status.AddAsync(status);
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            var statusResult = await sqlMandateRepository.GetRefStatusCodeByJdcCodeAsync("-1");
+
+            statusResult.StatusCode.Should().Be(-1);
+            statusResult.RefStatusCode!.PulseCode.Should().Be(100);
+        }
+
+        [Fact]
+        public async Task GetRefStatusCodeByJdcCodeAsync_ThrowStatusNotFound_CaseStatusCodeNotFound()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            var refStatusCode = EntityDbFactory.RefStatusCodeDb;
+            await context.RefStatusCode.AddAsync(refStatusCode);
+            await context.SaveChangesAsync();
+
+            var refBank = EntityDbFactory.RefBankDb;
+            await context.RefBank.AddAsync(refBank);
+            await context.SaveChangesAsync();
+
+            var company = EntityDbFactory.CompanyDb;
+            await context.Company.AddAsync(company);
+            await context.SaveChangesAsync();
+
+            var collection = EntityDbFactory.CollectionDb;
+            await context.Collection.AddAsync(collection);
+            await context.SaveChangesAsync();
+
+            var status = EntityDbFactory.StatusDb;
+            await context.Status.AddAsync(status);
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            Func<Task> act = async () => await sqlMandateRepository.GetRefStatusCodeByJdcCodeAsync("-11");
+
+            await act.Should().ThrowAsync<StatusNotFoundException>();
         }
     }
 }

@@ -100,5 +100,38 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 throw new ServicesProviderException(ex.Message, ex);
             }
         }
+
+        public async Task<List<TechnicalCollection>?> GetAllConfigurationFromFolderAsync(string jdcFolderId)
+        {
+            try
+            {
+                var releves = await this.jedeclareClient.GetAllConfigurationFromFolderAsync(jdcFolderId);
+                return releves.Releve?.Select(r => r.ToModel()).ToList();
+            }
+            catch (JeDeclareApiException)
+            {
+                // Optionally log the exception or take other actions
+                // Ignoring the exception
+            }
+
+            // You might want to return a default value or null if the exception is caught
+            return null;
+        }
+
+        public async Task<bool> CheckSignedMandatExists(string jdcFolderId, string jdcRibId)
+        {
+            try
+            {
+                return await this.jedeclareClient.CheckSignedMandatExists(jdcFolderId, jdcRibId);
+            }
+            catch (JeDeclareApiException)
+            {
+                // Optionally log the exception or take other actions
+                // Ignoring the exception
+            }
+
+            // You might want to return a default value or null if the exception is caught
+            return false;
+        }
     }
 }

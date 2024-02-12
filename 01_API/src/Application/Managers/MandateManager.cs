@@ -8,7 +8,10 @@ using System.Runtime.CompilerServices;
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using KPMG.Pulse.Back.Accounting.Mandate.Models.Enums;
+    using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
 
     public class MandateManager : IMandateManager
@@ -19,16 +22,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         private readonly IAsposeHelper asposeHelper;
         private readonly INotificationsService notificationsService;
         private readonly IOptions<MandateEmailOptions> options;
+        private readonly ILogger<MandateManager> logger;
 
-        public MandateManager(IDatabaseService databaseService, ICompanyManager companyManager, IJeDeclareService jeDeclareService, IAsposeHelper asposeHelper, INotificationsService notificationsService, IOptions<MandateEmailOptions> options)
+        public MandateManager(IDatabaseService databaseService, ICompanyManager companyManager, IJeDeclareService jeDeclareService, IAsposeHelper asposeHelper, INotificationsService notificationsService, IOptions<MandateEmailOptions> options, ILogger<MandateManager> logger)
         {
             this.databaseService = databaseService;
             this.companyManager = companyManager;
             this.jeDeclareService = jeDeclareService;
             this.asposeHelper = asposeHelper;
             this.notificationsService = notificationsService;
-
             this.options = options ?? throw new ArgumentNullException(nameof(options));
+            this.logger = logger;
         }
 
         public async Task<Guid> CreateMandate(CollectionCreationCommand mandateCreation)
@@ -91,18 +95,47 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
         public async Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query)
         {
-            Collaborator collaborator = await this.databaseService.GetCollaboratorByEmail(query.CollaboratorEmail);
+            Collaborator collaborator = await this.databaseService.GetCollaboratorByEmail(query!.CollaboratorEmail);
             return await this.databaseService.GetAllCollectionsAsync(query, collaborator.Id).ConfigureAwait(false);
+        }
+
+        public async Task<PagedTechnicalMandate> GetAllTechnicalCollectionsAsync(CollectionQueryDto query)
+        {
+            return await this.databaseService.GetAllTechnicalCollectionsAsync(query).ConfigureAwait(false);
+        }
+
+        public async Task RefreshMandatsStatusesAsync(List<TechnicalCollection> mandats)
+        {
+            foreach (var mandat in mandats!)
+            {
+                var jdcCollections = await this.jeDeclareService.GetAllConfigurationFromFolderAsync(mandat.FolderId);
+
+                var jdcCollection = jdcCollections?.SingleOrDefault(c => MatchesMandat(c, mandat));
+
+                if (jdcCollection == null)
+                {
+                    this.logger.LogError("The collection with Id={CollectionId} is not found in jedeclare", mandat.Id);
+                    continue;
+                }
+
+                var status = await this.databaseService.GetRefStatusCodeByJdcCodeAsync(jdcCollection.StatusCode);
+                var collection = await this.databaseService.GetCollectionById(mandat.Id);
+
+                if (status.StatusCode != collection.Status.StatusCode)
+                {
+                    await this.databaseService.CreateStatus(collection.Id, (int)status.StatusCode);
+                }
+            }
         }
 
         public async Task<string?> UploadSignedMandateAsync(Guid collectionId, Stream mandateFileStream)
         {
             using var memoryStream = new MemoryStream();
             await mandateFileStream.CopyToAsync(memoryStream);
-            byte[] fileBytes = memoryStream.ToArray()!;
+            byte[] fileBytes = memoryStream.ToArray() !;
 
             var collection = await this.databaseService.GetCollectionById(collectionId);
-            var isJdcPartner = this.IsJdcPartner(collection);
+            var isJdcPartner = IsJdcPartner(collection);
 
             if (isJdcPartner)
             {
@@ -121,7 +154,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         public async Task<byte[]> DownloadUnsignedAsync(Guid id)
         {
             var collection = await this.databaseService.GetCollectionById(id);
-            var isJdcPartner = this.IsJdcPartner(collection);
+            var isJdcPartner = IsJdcPartner(collection);
 
             if (isJdcPartner)
             {
@@ -139,7 +172,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
             var folderId = collection!.Company?.BankServicesProviderId;
             var ribId = collection!.Bban?.BbanServicesProviderId;
-            this.ValidatePartnerCollection(collection!);
+            ValidatePartnerCollection(collection!);
 
             return await this.jeDeclareService.GetSignedMandatPdfAsync(folderId!, ribId!);
         }
@@ -147,7 +180,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         public async Task<bool> DeactivateCollectionAsync(Guid collectionId)
         {
             var collection = await this.databaseService.GetCollectionById(collectionId);
-            var isJdcPartner = this.IsJdcPartner(collection);
+            var isJdcPartner = IsJdcPartner(collection);
 
             if (isJdcPartner)
             {
@@ -179,19 +212,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         {
             var folderId = collection?.Company?.BankServicesProviderId;
             var ribId = collection?.Bban?.BbanServicesProviderId;
-            this.ValidatePartnerCollection(collection!);
+            ValidatePartnerCollection(collection!);
             var pdfBytes = await this.jeDeclareService.GetMandatPdfAsync(folderId!, ribId!);
 
             using var stream = new MemoryStream(pdfBytes);
             return this.asposeHelper.DeleteFirstPageFromPdf(stream);
         }
 
-        private bool IsJdcPartner(Collection collection)
+        private static bool IsJdcPartner(Collection collection)
         {
             return collection.Bban?.Bank?.JdcAgreement.JdcPartnership == JdcPartnership.Partner;
         }
 
-        private void ValidatePartnerCollection(Collection collection)
+        private static void ValidatePartnerCollection(Collection collection)
         {
             var folderId = collection.Company?.BankServicesProviderId;
             var ribId = collection.Bban?.BbanServicesProviderId;
@@ -207,9 +240,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             }
         }
 
+        private static bool MatchesMandat(TechnicalCollection jdcCollection, TechnicalCollection mandat)
+        {
+            bool ribIdMatches = jdcCollection.RibId == mandat.RibId;
+            bool bankAndBranchMatches = jdcCollection.BankDetails.BankCode == mandat.BankDetails.BankCode && jdcCollection.BankDetails.BranchCode == mandat.BankDetails.BranchCode;
+            bool accountDetailsMatches = jdcCollection.BankDetails.AccountNumber == mandat.BankDetails.AccountNumber && jdcCollection.BankDetails.CheckDigits == mandat.BankDetails.CheckDigits;
+
+            return ribIdMatches && bankAndBranchMatches && accountDetailsMatches;
+        }
+
         private async Task<byte[]> GeneratePdfForNonPartner(Collection collection)
         {
             return await this.asposeHelper.GeneratePdfFromTemplateAsync(collection);
         }
+
     }
 }

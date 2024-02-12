@@ -111,5 +111,121 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Tests
 
             result.Should().BeEquivalentTo(collectionSummary);
         }
+        [Fact]
+        public async Task GetTechnicalCollectionSummaryAsync()
+        {
+            var authentication = new BearerHttpClientAuthentication("tTest");
+
+            var technicalCollectionSummary = new TechnicalCollectionSummary(
+                Guid.Empty,
+                "12345",
+                "12347",
+                new BankDetails(
+                    "99999",
+                    "00000",
+                    "77340082511",
+                    "99"),
+                20);
+
+            PagedTechnicalMandate paged = new PagedTechnicalMandate(
+                new List<TechnicalCollectionSummary>() { technicalCollectionSummary });
+
+            var serializedPageSummary = JsonNode.Parse(JsonConvert.SerializeObject(paged))!.ToJsonString();
+            var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(serializedPageSummary, Encoding.UTF8, "application/json"),
+            };
+            var client = new Mock<IHttpClient>(MockBehavior.Strict);
+            client.Setup(c => c.SendAsync(It.IsAny<HttpRequestMessage>()))
+                .Callback<HttpRequestMessage>(message =>
+                {
+                    message.Method.Should().Be(HttpMethod.Get);
+                    message.RequestUri!.ToString().Should().StartWith("mandate/technical");
+                })
+                .ReturnsAsync(httpResponse)
+                .Verifiable();
+            client.Setup(c => c.Dispose())
+                .Verifiable();
+
+            var httpFactory = new Mock<Kpmg.Constellation.Net.Http.IHttpClientFactory>(MockBehavior.Strict);
+            httpFactory.Setup(h => h.Create(It.IsAny<Uri>(), It.IsAny<Kpmg.Constellation.Net.Http.HttpClientAuthentication>()))
+                .Callback<Uri, HttpClientAuthentication>((uri, auth) =>
+                {
+                    uri.Should().BeEquivalentTo(new Uri("http://test.test"));
+                    auth.Should().BeEquivalentTo(authentication);
+                })
+                .Returns(client.Object)
+                .Verifiable();
+
+            var httpMandateClient = new HttpMandateClient(
+                baseUri: new Uri("http://test.test"),
+                authentication: authentication,
+                clientFactory: httpFactory.Object);
+
+            var rib = new Bban(
+                bankCode: "bankCodeT",
+                branchCode: "branchCodeT",
+                accountNumber: "accountNumberT",
+                checkDigits: "checkDigitsT");
+
+            var result = await httpMandateClient.GetTechnicalCollectionSummaryAsync(0, 100, new List<int> { 1, 3 });
+
+            result.Data[0].Should().BeEquivalentTo(technicalCollectionSummary);
+        }
+
+        [Fact]
+        public async Task RefreshMandatsStatusesAsync()
+        {
+            var authentication = new BearerHttpClientAuthentication("tTest");
+
+            var technicalCollectionSummary = new TechnicalCollectionSummary(
+                Guid.Empty,
+                "12345",
+                "12347",
+                new BankDetails(
+                    "99999",
+                    "00000",
+                    "77340082511",
+                    "99"),
+                20);
+
+            var technicalCollectionSummaryList = new List<TechnicalCollectionSummary>() { technicalCollectionSummary };
+
+            var serialized = JsonNode.Parse(JsonConvert.SerializeObject(true))!.ToJsonString();
+            var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(serialized, Encoding.UTF8, "application/json"),
+            };
+            var client = new Mock<IHttpClient>(MockBehavior.Strict);
+            client.Setup(c => c.SendAsync(It.IsAny<HttpRequestMessage>()))
+                .Callback<HttpRequestMessage>(message =>
+                {
+                    message.Method.Should().Be(HttpMethod.Post);
+                    message.RequestUri!.ToString().Should().StartWith("mandate/refresh-mandates-statuses");
+                })
+                .ReturnsAsync(httpResponse)
+                .Verifiable();
+            client.Setup(c => c.Dispose())
+                .Verifiable();
+
+            var httpFactory = new Mock<Kpmg.Constellation.Net.Http.IHttpClientFactory>(MockBehavior.Strict);
+            httpFactory.Setup(h => h.Create(It.IsAny<Uri>(), It.IsAny<Kpmg.Constellation.Net.Http.HttpClientAuthentication>()))
+                .Callback<Uri, HttpClientAuthentication>((uri, auth) =>
+                {
+                    uri.Should().BeEquivalentTo(new Uri("http://test.test"));
+                    auth.Should().BeEquivalentTo(authentication);
+                })
+                .Returns(client.Object)
+                .Verifiable();
+
+            var httpMandateClient = new HttpMandateClient(
+                baseUri: new Uri("http://test.test"),
+                authentication: authentication,
+                clientFactory: httpFactory.Object);
+
+            var result = await httpMandateClient.RefreshMandatsStatusesAsync(technicalCollectionSummaryList);
+
+            result.Should().Be(true);
+        }
     }
 }

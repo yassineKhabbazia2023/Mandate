@@ -91,12 +91,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 throw new InvalidOperationException($"Database connection string is not definied (Missing setting: MandateDbConnectionString)");
             }
 
+            if (string.IsNullOrWhiteSpace(builder.Configuration["MANDATE_IDENTITYSERVICE_API_URL"]))
+            {
+                throw new InvalidOperationException($"identity services url is not definied (Missing setting: MANDATE_IDENTITYSERVICE_API_URL)");
+            }
+
             builder.Services
                 .AddAuthentication()
                 .AddConstellationIdentityService(
                 new ConstellationIdentityServiceAuthenticationOptions
                 {
-                    ServerAddress = new Uri(builder.Configuration["MANDATE_IDENTITYSERVICE_API_URL"]),
+                    ServerAddress = new Uri(builder.Configuration["MANDATE_IDENTITYSERVICE_API_URL"]!),
                     AzureActiveDirectoryClientCredentials =
                     {
                         ClientId = builder.Configuration["ConstellationClientId"],
@@ -115,6 +120,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 });
 
             builder.Services.AddConstellationHttpClient();
+            builder.Services.AddSingleton<MandateAuthorizationFilterAttribute>();
 
             builder.Services.AddMandateSql(opt => opt.ConnectionString = builder.Configuration["MandateDbConnectionString"]);
             builder.Services.AddMandateJeDeclare(opt =>
@@ -196,7 +202,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                         throw new InvalidOperationException($"No client secret has been specified to access to the Azure Vault (Missing setting: MANDATE_KEYVAULT_CLIENT_SECRET)");
                     }
 
-                    InitializeAzureKeyVaultProvider(config["MANDATE_KEYVAULT_CLIENT_ID"], config["MANDATE_KEYVAULT_CLIENT_SECRET"]);
+                    InitializeAzureKeyVaultProvider(config["MANDATE_KEYVAULT_CLIENT_ID"] !, config["MANDATE_KEYVAULT_CLIENT_SECRET"] !);
                 });
 
                 if (builder.Environment.IsDevelopment() || builder.Environment.IsStaging())

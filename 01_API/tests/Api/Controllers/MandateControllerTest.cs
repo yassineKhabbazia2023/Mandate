@@ -172,6 +172,260 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         }
 
         [Fact]
+        public async void GetTechnicalCollectionsAsync_CaseOK()
+        {
+            var query = new CollectionQueryDto(
+                string.Empty,
+                null,
+                null,
+                null,
+                null,
+                null,
+                10,
+                0,
+                SortOrder.Ascending,
+                CollectionSortCriteria.Name,
+                "collab@email.com");
+
+            var company = new Company(
+                new Guid("00000001-0000-0000-0000-000000000000"),
+                "cn",
+                "12345678910",
+                "123456789",
+                "12345",
+                null,
+                null);
+
+            Bank bank = new Bank("12345", "bn", "bg", string.Empty, new BankAgreement(JdcPartnership.NonPartner));
+
+            Bban bban = new Bban("12345", "54321", "12345678901", "55", "12347", bank);
+
+            Collection collection = new Collection(
+                    new Guid("00000002-0000-0000-0000-000000000000"),
+                    string.Empty,
+                    company,
+                    bban,
+                    new DateTime(2022, 1, 1),
+                    new DateTime(2022, 1, 1),
+                    new Status(CollectionStatus.InProgress, "En cours"));
+
+            List<Collection> collections = new List<Collection>()
+            {
+                collection,
+            };
+
+            var pm = new PagedTechnicalMandate(
+                new Counters(1, 1, 0, 0, 0, 0),
+                new List<Collection>()
+                {
+                    collection,
+                });
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Loose);
+            var manager = new Mock<IMandateManager>(MockBehavior.Strict);
+            manager.Setup(item =>
+                item.GetAllTechnicalCollectionsAsync(
+                    It.Is<CollectionQueryDto>(item => item.SortCriteria == query.SortCriteria && item.SortOrder == query.SortOrder)))
+                .ReturnsAsync(pm)
+                .Verifiable();
+
+            var guidGenerator = new Mock<IGuidGenerator>();
+
+            var controller = new MandateController(logger.Object, manager.Object, null!, guidGenerator.Object, null!);
+
+            var result = await controller.GetTechnicalCollectionsAsync(
+                string.Empty,
+                null,
+                null,
+                null,
+                null,
+                null,
+                10,
+                0,
+                "Ascending",
+                "Name");
+
+            var expectedCounters = new Client.Counters(1, 1, 0, 0, 0, 0);
+
+            var expectedCollection = new Client.TechnicalCollectionSummary(
+                id: new Guid("00000002-0000-0000-0000-000000000000"),
+                folderId: "12345",
+                ribId: "12347",
+                bankDetails: new Client.BankDetails(
+                    bankCode: "12345",
+                    branchCode: "54321",
+                    accountNumber: "12345678901",
+                    checkDigits: "55"),
+                statusCode: 30);
+
+            var expectedCollections = new List<Client.TechnicalCollectionSummary>()
+            {
+               expectedCollection,
+            };
+
+            result.As<OkObjectResult>().StatusCode.Should().Be(200);
+            result.As<OkObjectResult>().Value.Should().BeEquivalentTo(new Client.PagedTechnicalMandate(expectedCollections));
+
+            logger.VerifyAll();
+            manager.VerifyAll();
+        }
+
+        [Fact]
+        public async void GetTechnicalCollectionsAsync_CaseThrowException()
+        {
+            var query = new CollectionQueryDto(
+                string.Empty,
+                null,
+                null,
+                null,
+                null,
+                null,
+                10,
+                0,
+                SortOrder.Ascending,
+                CollectionSortCriteria.Name,
+                "collab@email.com");
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Loose);
+            var manager = new Mock<IMandateManager>(MockBehavior.Strict);
+            manager.Setup(item =>
+                item.GetAllTechnicalCollectionsAsync(
+                    It.Is<CollectionQueryDto>(item => item.SortCriteria == query.SortCriteria && item.SortOrder == query.SortOrder)))
+                .ThrowsAsync(new Exception("message"))
+                .Verifiable();
+
+            var guidGenerator = new Mock<IGuidGenerator>();
+
+            var controller = new MandateController(logger.Object, manager.Object, null!, guidGenerator.Object, null!);
+
+            var result = await controller.GetTechnicalCollectionsAsync(
+                string.Empty,
+                null,
+                null,
+                null,
+                null,
+                null,
+                10,
+                0,
+                "Ascending",
+                "Name") as ObjectResult;
+
+            result!.StatusCode.Should().Be((int)StatusCodes.Status500InternalServerError);
+
+            var errorType = result!.Value as Client.Error;
+            errorType.Should().NotBeNull();
+            errorType!.ErrorType.Should().Be("TechnicalError");
+            errorType!.Message.Should().Be("message");
+
+            logger.VerifyAll();
+            manager.VerifyAll();
+        }
+
+        [Fact]
+        public async Task RefreshMandatsStatusesAsync_ShouldReturnOk_WhenSuccessful()
+        {
+            // Arrange
+            var technicalCollectionSummaries = new List<Client.TechnicalCollectionSummary>
+            {
+                new Client.TechnicalCollectionSummary(
+                    Guid.NewGuid(),
+                    "folderId1",
+                    "ribId1",
+                    new Client.BankDetails(
+                        "bankCode1",
+                        "branchCode1",
+                        "accountNumber1",
+                        "checkDigits1"),
+                    30),
+                new Client.TechnicalCollectionSummary(
+                    Guid.NewGuid(),
+                    "folderId2",
+                    "ribId2",
+                    new Client.BankDetails(
+                        "bankCode2",
+                        "branchCode2",
+                        "accountNumber2",
+                        "checkDigits2"),
+                    20),
+            };
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Loose);
+            var manager = new Mock<IMandateManager>(MockBehavior.Strict);
+            var guidGenerator = new Mock<IGuidGenerator>();
+
+            manager.Setup(m => m.RefreshMandatsStatusesAsync(It.IsAny<List<TechnicalCollection>>()))
+                               .Returns(Task.CompletedTask)
+                               .Verifiable();
+
+            var controller = new MandateController(logger.Object, manager.Object, null!, guidGenerator.Object, null!);
+
+            // Act
+            var result = await controller.RefreshMandatsStatusesAsync(technicalCollectionSummaries);
+
+            // Assert
+            result.Should().BeOfType<OkResult>();
+            manager.VerifyAll();
+            logger.VerifyAll();
+            guidGenerator.VerifyAll();
+        }
+
+        [Fact]
+        public async Task RefreshMandatsStatusesAsync_ShouldReturnInternalServerError_WhenExceptionIsThrown()
+        {
+            // Arrange
+            var technicalCollectionSummaries = new List<Client.TechnicalCollectionSummary>
+            {
+                new Client.TechnicalCollectionSummary(
+                    Guid.NewGuid(),
+                    "folderId1",
+                    "ribId1",
+                    new Client.BankDetails(
+                        "bankCode1",
+                        "branchCode1",
+                        "accountNumber1",
+                        "checkDigits1"),
+                    30),
+                new Client.TechnicalCollectionSummary(
+                    Guid.NewGuid(),
+                    "folderId2",
+                    "ribId2",
+                    new Client.BankDetails(
+                        "bankCode2",
+                        "branchCode2",
+                        "accountNumber2",
+                        "checkDigits2"),
+                    20),
+            };
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Loose);
+            var manager = new Mock<IMandateManager>(MockBehavior.Strict);
+            var guidGenerator = new Mock<IGuidGenerator>();
+
+            manager.Setup(m => m.RefreshMandatsStatusesAsync(It.IsAny<List<TechnicalCollection>>()))
+                               .ThrowsAsync(new Exception())
+                               .Verifiable();
+
+            var controller = new MandateController(logger.Object, manager.Object, null!, guidGenerator.Object, null!);
+
+            // Act
+            var result = await controller.RefreshMandatsStatusesAsync(technicalCollectionSummaries) as ObjectResult;
+
+            // Assert
+            result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
+
+            var errorType = result!.Value as Client.Error;
+            errorType.Should().NotBeNull();
+            errorType!.ErrorType.Should()
+                               .Be("TechnicalError");
+
+            manager.VerifyAll();
+            logger.VerifyAll();
+            guidGenerator.VerifyAll();
+        }
+
+        [Fact]
         public async Task DownloadUnsignedAsync_CaseOK()
         {
             var guidGenerator = new Mock<IGuidGenerator>();

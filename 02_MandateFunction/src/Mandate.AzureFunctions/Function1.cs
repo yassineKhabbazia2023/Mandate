@@ -1,15 +1,18 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+// <copyright file="Function1.cs" company="KPMG">
+// Copyright (c) KPMG. All rights reserved.
+// </copyright>
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Function
 {
+    using System.IO;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Azure.WebJobs;
+    using Microsoft.Azure.WebJobs.Extensions.Http;
+    using Microsoft.Extensions.Logging;
+    using Newtonsoft.Json;
+
     public static class Function1
     {
         [FunctionName("Function1")]
@@ -19,7 +22,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            string name = req.Query["name"];
+            string name = req!.Query["name"];
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);

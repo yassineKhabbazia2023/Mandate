@@ -93,6 +93,104 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         }
 
         [Fact]
+        public void ToTechnicalCollectionSummary()
+        {
+            Guid id = Guid.NewGuid();
+            Company company = new Company(Guid.NewGuid(), "mega", "45207964300014", "1999156874", "12345", null, null);
+            Bank? bank = new Bank("12345", "biap", "biap group", string.Empty, null!);
+            Bban bban = new Bban("12345", "56789", "12345678901", "88", "6789", bank);
+            Status status = new Status(CollectionStatus.ToDo, "todo");
+
+            Collection collection = new Collection(
+                id,
+                "12346",
+                company,
+                bban,
+                new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                status);
+
+            var model = collection.ToTechnicalCollectionSummary();
+
+            var expected = new Client.TechnicalCollectionSummary(
+                id,
+                "12345",
+                "6789",
+                new Client.BankDetails(
+                    "12345",
+                    "56789",
+                    "12345678901",
+                    "88"),
+                (int)CollectionStatus.ToDo);
+
+            model.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void ToTechnicalCollectionSummary_WithNullAttributes()
+        {
+            Guid id = Guid.NewGuid();
+            Company company = new Company(Guid.NewGuid(), "mega", "45207964300014", "1999156874", "12345", null, null);
+            Bank? bank = new Bank("12345", "biap", "biap group", string.Empty, null!);
+            Status status = new Status(CollectionStatus.ToDo, "todo");
+
+            Collection collection = new Collection(
+                id,
+                "12346",
+                company,
+                null,
+                new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                status);
+
+            var model = collection.ToTechnicalCollectionSummary();
+
+            var expected = new Client.TechnicalCollectionSummary(
+                id,
+                "12345",
+                null!,
+                new Client.BankDetails(
+                    null!,
+                    null!,
+                    null!,
+                    null!),
+                (int)CollectionStatus.ToDo);
+
+            model.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void ToModelTechnicalCollection()
+        {
+            Guid id = Guid.NewGuid();
+            var technicalCollectionSummary = new Client.TechnicalCollectionSummary(
+                id,
+                "12345",
+                "6789",
+                new Client.BankDetails(
+                    "12345",
+                    "56789",
+                    "12345678901",
+                    "88"),
+                (int)CollectionStatus.ToDo);
+
+            var model = technicalCollectionSummary.ToModel();
+
+            var expected = new TechnicalCollection(
+                id,
+                "12345",
+                "6789",
+                new BankDetails(
+                    "12345",
+                    "56789",
+                    "12345678901",
+                    "88"),
+                "20");
+
+            model.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
         public void ToModel()
         {
             var entity = new Client.CollectionQuery(
@@ -214,6 +312,47 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             };
 
             model.Should().BeEquivalentTo(new Client.PagedMandate(expectedCounters, expectedCollections));
+        }
+
+        [Fact]
+        public void ToPageTechnicalMandateDetails()
+        {
+            Counters counters = new Counters(1, 1, 0, 0, 0, 0);
+            Company company = new Company(
+                new Guid("00000001-0000-0000-0000-000000000000"),
+                "cn",
+                "12345678910",
+                "123456789",
+                string.Empty,
+                null,
+                null);
+
+            Bban bban = new Bban("12345", "54321", "12345678901", "55", string.Empty, null);
+
+            Collection collection = new Collection(
+                    new Guid("00000002-0000-0000-0000-000000000000"),
+                    string.Empty,
+                    company,
+                    bban,
+                    new DateTime(2022, 1, 1),
+                    new DateTime(2022, 1, 1),
+                    new Status(default, string.Empty));
+
+            List<Collection> collections = new List<Collection>()
+            {
+                collection,
+            };
+
+            PagedTechnicalMandate page1 = new PagedTechnicalMandate(counters, collections);
+
+            var model = page1.ToPageTechnicalMandateDetails();
+            var expectedCounters = new Client.Counters(1, 1, 0, 0, 0, 0);
+            var expectedCollections = new List<Client.TechnicalCollectionSummary>()
+            {
+               collection.ToTechnicalCollectionSummary(),
+            };
+
+            model.Should().BeEquivalentTo(new Client.PagedTechnicalMandate(expectedCollections));
         }
     }
 }

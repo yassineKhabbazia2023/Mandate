@@ -9,10 +9,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Newtonsoft.Json;
 
     [ApiController]
     [Route("api/mandate")]
     [Authorize]
+    [ServiceFilter(typeof(MandateAuthorizationFilterAttribute))]
     public class MandateController : ControllerBase
     {
         private readonly ILogger<MandateController> logger;
@@ -46,7 +48,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 sortCriteria ??= "Name";
 
                 var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria, email);
-                this.logger.LogInformation($"{collectionQuery}");
+                this.logger.LogInformation("{collectionQuery}",JsonConvert.SerializeObject(collectionQuery));
                 var result = await this.mandateManager.GetAllCollectionsAsync(collectionQuery.ToModel());
                 return this.Ok(result.ToPageMandateDetails());
             }
@@ -71,6 +73,51 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             {
                 // TODO
                 this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.PostCollectionAsync));
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
+            }
+        }
+
+        [HttpGet("technical")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetTechnicalCollectionsAsync([FromQuery] string? searchTerm, [FromQuery] DateTime? creationDateStart, [FromQuery] DateTime? creationDateEnd, [FromQuery] DateTime? modificationDateStart, [FromQuery] DateTime? modificationDateEnd, [FromQuery] List<int>? statusCodes, [FromQuery] int? limit, [FromQuery] int? skip, [FromQuery] string? sortOrder, [FromQuery] string? sortCriteria)
+        {
+            string correlationId = Guid.NewGuid().ToString();
+
+            try
+            {
+                sortOrder ??= "Ascending";
+                sortCriteria ??= "Name";
+
+                var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria, null!);
+                this.logger.LogInformation("Processing collection query: {collectionQuery}", collectionQuery);
+                var result = await this.mandateManager.GetAllTechnicalCollectionsAsync(collectionQuery.ToModel());
+                return this.Ok(result.ToPageTechnicalMandateDetails());
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.GetCollectionsAsync));
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
+            }
+        }
+
+        [HttpPost("refresh-mandates-statuses")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> RefreshMandatsStatusesAsync([FromBody] List<TechnicalCollectionSummary> mandates)
+        {
+            string correlationId = Guid.NewGuid().ToString();
+
+            try
+            {
+                await this.mandateManager.RefreshMandatsStatusesAsync(mandates.Select(m => m.ToModel()).ToList());
+                return this.Ok();
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.GetCollectionsAsync));
                 return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
             }
         }

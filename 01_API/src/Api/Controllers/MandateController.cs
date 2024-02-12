@@ -9,6 +9,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Newtonsoft.Json;
 
     [ApiController]
     [Route("api/mandate")]
@@ -47,7 +48,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 sortCriteria ??= "Name";
 
                 var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria, email);
-                this.logger.LogInformation($"{collectionQuery}");
+                this.logger.LogInformation("{collectionQuery}",JsonConvert.SerializeObject(collectionQuery));
                 var result = await this.mandateManager.GetAllCollectionsAsync(collectionQuery.ToModel());
                 return this.Ok(result.ToPageMandateDetails());
             }

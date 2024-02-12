@@ -81,7 +81,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         {
             const string origin = $"{nameof(AsposeHelper)}::{nameof(this.DeleteFirstPageFromPdf)}";
 
-            this.logger.LogInformation($"{origin} - Instanciating a new PdfFileEditor to remove the first page for the PDF mandat provided by JeDeclare...");
+            this.logger.LogInformation("{origin} - Instanciating a new PdfFileEditor to remove the first page for the PDF mandat provided by JeDeclare...", origin);
 
             var pdfEditor = new PdfFileEditor();
 

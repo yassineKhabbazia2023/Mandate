@@ -219,20 +219,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             return this.asposeHelper.DeleteFirstPageFromPdf(stream);
         }
 
-        private async Task<byte[]> GeneratePdfForNonPartner(Collection collection)
-        {
-            return await this.asposeHelper.GeneratePdfFromTemplateAsync(collection);
-        }
-
-        private static bool MatchesMandat(TechnicalCollection jdcCollection, TechnicalCollection mandat)
-        {
-            bool ribIdMatches = jdcCollection.RibId == mandat.RibId;
-            bool bankAndBranchMatches = jdcCollection.BankDetails.BankCode == mandat.BankDetails.BankCode && jdcCollection.BankDetails.BranchCode == mandat.BankDetails.BranchCode;
-            bool accountDetailsMatches = jdcCollection.BankDetails.AccountNumber == mandat.BankDetails.AccountNumber && jdcCollection.BankDetails.CheckDigits == mandat.BankDetails.CheckDigits;
-
-            return ribIdMatches && bankAndBranchMatches && accountDetailsMatches;
-        }
-
         private static bool IsJdcPartner(Collection collection)
         {
             return collection.Bban?.Bank?.JdcAgreement.JdcPartnership == JdcPartnership.Partner;
@@ -253,5 +239,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 throw new RibIdEmptyOrNullException();
             }
         }
+
+        private static bool MatchesMandat(TechnicalCollection jdcCollection, TechnicalCollection mandat)
+        {
+            bool ribIdMatches = jdcCollection.RibId == mandat.RibId;
+            bool bankAndBranchMatches = jdcCollection.BankDetails.BankCode == mandat.BankDetails.BankCode && jdcCollection.BankDetails.BranchCode == mandat.BankDetails.BranchCode;
+            bool accountDetailsMatches = jdcCollection.BankDetails.AccountNumber == mandat.BankDetails.AccountNumber && jdcCollection.BankDetails.CheckDigits == mandat.BankDetails.CheckDigits;
+
+            return ribIdMatches && bankAndBranchMatches && accountDetailsMatches;
+        }
+
+        private async Task<byte[]> GeneratePdfForNonPartner(Collection collection)
+        {
+            return await this.asposeHelper.GeneratePdfFromTemplateAsync(collection);
+        }
+
     }
 }

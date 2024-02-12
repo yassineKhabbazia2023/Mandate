@@ -34,7 +34,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             try
             {
-                this.logger.LogInformation($"Get company by erpId : {erpId}");
+                this.logger.LogInformation("Get company by erpId : {erpId}", erpId);
                 var company = await this.companyManager.GetCompanyByErpIdAsync(erpId);
                 return this.Ok(company);
             }

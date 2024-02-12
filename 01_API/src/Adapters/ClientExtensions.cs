@@ -2,8 +2,6 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-using KPMG.Pulse.Back.Accounting.Mandate.Client;
-
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
     public static class ClientExtensions

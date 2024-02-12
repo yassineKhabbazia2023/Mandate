@@ -23,7 +23,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         private readonly INotificationsService notificationsService;
         private readonly IOptions<MandateEmailOptions> options;
         private readonly ILogger<MandateManager> logger;
-        
+
         public MandateManager(IDatabaseService databaseService, ICompanyManager companyManager, IJeDeclareService jeDeclareService, IAsposeHelper asposeHelper, INotificationsService notificationsService, IOptions<MandateEmailOptions> options, ILogger<MandateManager> logger)
         {
             this.databaseService = databaseService;

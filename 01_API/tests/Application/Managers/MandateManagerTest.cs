@@ -72,7 +72,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 DateTime.Now,
                 DateTime.Now,
                 status);
-            var expectedBytes = new byte[] { /* byte array */ };
+
+            var expectedBytes = Array.Empty<byte>();
 
             this.mockDatabaseService
                 .Setup(m => m.GetCollectionById(id))
@@ -114,7 +115,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 DateTime.Now,
                 DateTime.Now,
                 status);
-            var expectedBytes = new byte[] { /* byte array */ };
+
+            var expectedBytes = Array.Empty<byte>();
 
             this.mockDatabaseService
                 .Setup(m => m.GetCollectionById(id))
@@ -143,7 +145,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 DateTime.Now,
                 DateTime.Now,
                 status);
-            var expectedBytes = new byte[] { /* byte array */ };
+
+            var expectedBytes = Array.Empty<byte>();
 
             this.mockDatabaseService
                 .Setup(m => m.GetCollectionById(id))
@@ -176,7 +179,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 DateTime.Now,
                 DateTime.Now,
                 status);
-            var expectedBytes = new byte[] { /* byte array */ };
+                
+            var expectedBytes = Array.Empty<byte>();
 
             this.mockDatabaseService
                 .Setup(m => m.GetCollectionById(id))

@@ -140,16 +140,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             builder.Services.AddMandateApplication(opt =>
             {
-                opt.MandateCancellationSubject = builder.Configuration["MandateCancellationSubject"]!;
-                opt.MandateCancellationTemplateName = builder.Configuration["MandateCancellationTemplateName"]!;
-                opt.MandateCancellationFromEmail = builder.Configuration["MandateCancellationFromEmail"]!;
-                opt.MandateCancellationToEmail = builder.Configuration["MandateCancellationToEmail"]!;
-                opt.MandateCancellationCcEmails = new List<string>(builder.Configuration["MandateCancellationCcEmails"]!.Split(";"));
-                opt.MandateUploadedSubject = builder.Configuration["MandateUploadedSubject"]!;
-                opt.MandateUploadedTemplateName = builder.Configuration["MandateUploadedTemplateName"]!;
-                opt.MandateUploadedFromEmail = builder.Configuration["MandateUploadedFromEmail"]!;
-                opt.MandateUploadedToEmail = builder.Configuration["MandateUploadedToEmail"]!;
-                opt.MandateUploadedCcEmails = new List<string>(builder.Configuration["MandateUploadedCcEmails"]!.Split(";"));
+                opt.MandateCancellationSubject = builder.Configuration["MandateCancellationSubject"] !;
+                opt.MandateCancellationTemplateName = builder.Configuration["MandateCancellationTemplateName"] !;
+                opt.MandateCancellationFromEmail = builder.Configuration["MandateCancellationFromEmail"] !;
+                opt.MandateCancellationToEmail = builder.Configuration["MandateCancellationToEmail"] !;
+                opt.MandateCancellationCcEmails = new List<string>(builder.Configuration["MandateCancellationCcEmails"] !.Split(";"));
+                opt.MandateUploadedSubject = builder.Configuration["MandateUploadedSubject"] !;
+                opt.MandateUploadedTemplateName = builder.Configuration["MandateUploadedTemplateName"] !;
+                opt.MandateUploadedFromEmail = builder.Configuration["MandateUploadedFromEmail"] !;
+                opt.MandateUploadedToEmail = builder.Configuration["MandateUploadedToEmail"] !;
+                opt.MandateUploadedCcEmails = new List<string>(builder.Configuration["MandateUploadedCcEmails"] !.Split(";"));
             });
             builder.Services.AddMandateAdapters();
             builder.Services.AddPortailApi(builder.Configuration);

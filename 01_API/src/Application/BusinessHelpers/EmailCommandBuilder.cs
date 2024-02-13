@@ -71,7 +71,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             return new EmailData(
                 signatoryDetails: signatoryDetails,
                 bban: bban,
-                ibs: collection.GetErpId());
+                ibs: collection.GetErpId(),
+                companyName: collection.GetCompanyName());
         }
 
         private static string GenerateEmailListContent(EmailData data)
@@ -79,7 +80,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             return $@"
             <ul>
                 <li>Collaborateur: {data.CollaboratorEmail}</li>
-                <li>Raison sociale du client: {data.Ibs}</li>
+                <li>Raison sociale du client: {data.CompanyName}</li>
                 <li>Siret : {data.SiretNumber}</li>
                 <li>RIB:
                   <ul>

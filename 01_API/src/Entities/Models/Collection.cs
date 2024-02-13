@@ -36,6 +36,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         public string GetErpId() => this.Company?.ErpId ?? string.Empty;
 
+        public string GetCompanyName() => this.Company?.Name ?? string.Empty;
+
         public string GetSiretNumber() => this.Company?.SiretNumber ?? string.Empty;
 
         public string GetSignatoryFullName() => $"{this.Company?.Signatory?.LastName ?? string.Empty} {this.Company?.Signatory?.FirstName ?? string.Empty}";

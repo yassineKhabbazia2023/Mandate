@@ -117,7 +117,6 @@ namespace Mandate.AzureFunctions.Activities
             catch (Exception ex)
             {
                 this.logger.LogError(ex, "MandateFunction - {functionName} : {message}", nameof(this.RefreshCollectionsStatuses), ex.Message);
-                throw;
             }
         }
 

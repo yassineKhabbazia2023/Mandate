@@ -26,7 +26,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions
             get
             {
                 return string.Compare(
-                    Environment.GetEnvironmentVariable("IsDeveloppement"),
+                    Environment.GetEnvironmentVariable("IsDevelopement"),
                     "true",
                     StringComparison.InvariantCultureIgnoreCase) == 0;
             }

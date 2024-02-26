@@ -38,30 +38,30 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions
             builder!.Services.AddConstellationHttpClient();
             builder.Services.AddSystemAccountAuthenticationProvider<IConfiguration>((settings, configuration) =>
             {
-                if (string.IsNullOrWhiteSpace(configuration["ConstellationClientId"]))
+                if (string.IsNullOrWhiteSpace(configuration["AuthClientId"]))
                 {
                     throw new InvalidOperationException($"Client Id for Identity Service is not definied (Missing setting: ConstellationClientId)");
                 }
 
-                if (string.IsNullOrWhiteSpace(configuration["ConstellationSecret"]))
+                if (string.IsNullOrWhiteSpace(configuration["AuthClientSecret"]))
                 {
                     throw new InvalidOperationException($"Client Secret for Identity Service is not definied (Missing setting: ConstellationSecret)");
                 }
 
-                if (string.IsNullOrWhiteSpace(configuration["ConstellationAudience"]))
+                if (string.IsNullOrWhiteSpace(configuration["AuthAudience"]))
                 {
                     throw new InvalidOperationException($"Scope for Identity Service is not definied (Missing setting: ConstellationAudience)");
                 }
 
-                if (string.IsNullOrWhiteSpace(configuration["ConstellationTenant"]))
+                if (string.IsNullOrWhiteSpace(configuration["AuthTenant"]))
                 {
                     throw new InvalidOperationException($"Tenant for Identity Service is not definied (Missing setting: ConstellationTenant)");
                 }
 
-                settings.Audience = configuration["ConstellationAudience"];
-                settings.ClientId = configuration["ConstellationClientId"];
-                settings.ClientSecret = configuration["ConstellationSecret"];
-                settings.Tenant = configuration["ConstellationTenant"];
+                settings.Audience = configuration["AuthAudience"];
+                settings.ClientId = configuration["AuthClientId"];
+                settings.ClientSecret = configuration["AuthClientSecret"];
+                settings.Tenant = configuration["AuthTenant"];
             });
 
             builder.Services.AddApplicationInsightsTelemetry();
@@ -74,30 +74,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions
             {
                 options.BaseUri = new Uri(config["MANDATE_API_URL"]);
             });
-        }
-
-        public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
-        {
-            var builtConfig = builder!.ConfigurationBuilder.Build();
-
-            if (IsDevelopment)
-            {
-                var secretClient = new SecretClient(
-                    new Uri($"https://{builtConfig["MANDATE_VAULT_NAME"]}.vault.azure.net/"),
-                    new ClientSecretCredential(builtConfig["MANDATE_IDENTITYSERVICE_AAD_TENANT"], builtConfig["MANDATE_KEYVAULT_CLIENT_ID"], builtConfig["MANDATE_KEYVAULT_CLIENT_SECRET"]));
-
-                builder.ConfigurationBuilder
-                   .AddAzureKeyVault(secretClient, new KeyVaultSecretManager())
-                   .AddEnvironmentVariables()
-                   .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-                   .Build();
-            }
-            else
-            {
-                builder.ConfigurationBuilder.AddAzureKeyVault(
-                   new Uri($"https://{builtConfig["MANDATE_VAULT_NAME"]}.vault.azure.net/"),
-                   new DefaultAzureCredential());
-            }
         }
     }
 }

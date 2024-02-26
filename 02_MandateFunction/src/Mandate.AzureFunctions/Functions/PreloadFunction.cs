@@ -5,11 +5,14 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions
 {
     using System;
+    using System.IO;
     using System.Threading.Tasks;
+    using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Extensions.Http;
     using Microsoft.Extensions.Logging;
+    using Newtonsoft.Json;
 
     public class PreloadFunction
     {
@@ -22,18 +25,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions
         }
 
         [FunctionName("PreloadFunction")]
-        public async Task PreloadFunctionAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest myTimer, ILogger log)
+        public async Task PreloadFunctionAsync(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req,
+            ILogger log)
         {
             try
             {
                 log.LogInformation($"Start execution of the PreloadFunction function at: {DateTime.UtcNow}");
-
-                var rib = new Client.Bban(
-                    bankCode: "bankCodeM",
-                    branchCode: "branchCodeM",
-                    accountNumber: "accountNumberM",
-                    checkDigits: "checkDigitsM");
-
+                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                Bban rib = JsonConvert.DeserializeObject<Bban>(requestBody);
                 await this.preloadManager.GetRecoveryAsync(rib);
             }
             catch (Exception ex)

@@ -5,8 +5,11 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Extensions.Logging;
+    using Newtonsoft.Json;
 
     public class PreloadFunctionTest
     {
@@ -23,6 +26,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
         [Fact]
         public async Task PreloadFunctionAsync()
         {
+            var rib = new Client.Bban("bankCodeM", "branchCodeM", "accountNumberM", "checkDigitsM");
+
+            var request = CreateHttpRequest(rib);
+
             var collectionSummary = new CollectionSummary(
                Guid.Empty,
                "1234567890",
@@ -55,7 +62,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
 
             var preloadFunction = new PreloadFunction(manager.Object);
 
-            await preloadFunction.PreloadFunctionAsync(myTimer: null!, logger.Object);
+            await preloadFunction.PreloadFunctionAsync(req: request, logger.Object);
 
             manager.VerifyAll();
             logger.VerifyAll();
@@ -64,6 +71,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
         [Fact]
         public void PreloadFunctionAsync_CaseThrowExecption()
         {
+            var rib = new { jsonobject = string.Empty };
+
+            var request = CreateHttpRequest(rib);
+
             var manager = new Mock<IPreloadManager>(MockBehavior.Strict);
             manager.Setup(m => m.GetRecoveryAsync(It.IsAny<Bban>()))
                 .Callback<Bban>(b =>
@@ -86,11 +97,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
 
             var preloadFunction = new PreloadFunction(manager.Object);
 
-            Func<Task> action = async () => await preloadFunction.PreloadFunctionAsync(myTimer: null!, logger.Object);
+            Func<Task> action = async () => await preloadFunction.PreloadFunctionAsync(req: request, logger.Object);
 
             action.Should().ThrowAsync<Exception>();
             manager.VerifyAll();
             logger.VerifyAll();
+        }
+
+        private static HttpRequest CreateHttpRequest(object body)
+        {
+            var context = new DefaultHttpContext();
+            var request = context.Request;
+            request.Body = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(body)));
+            return request;
         }
     }
 }

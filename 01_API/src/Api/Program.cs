@@ -32,48 +32,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            ConfigureKeyVault(builder);
 
             builder.Services.AddApplicationInsightsTelemetry(options =>
             {
-                if (!string.IsNullOrWhiteSpace(builder.Configuration["ApplicationInsightsKey"]))
+                if (!string.IsNullOrWhiteSpace(builder.Configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]))
                 {
-                    options.InstrumentationKey = builder.Configuration["ApplicationInsightsKey"];
+                    options.ConnectionString = builder.Configuration["APPINSIGHTS_INSTRUMENTATIONKEY"];
                 }
             })
             .AddLogging(logging =>
             {
                 logging.AddApplicationInsights();
-                if (Enum.TryParse<Microsoft.Extensions.Logging.LogLevel>(builder.Configuration["MANDATE_LOG_LEVEL"], out var logLevel))
+                if (Enum.TryParse<Microsoft.Extensions.Logging.LogLevel>(builder.Configuration["LogLevel"], out var logLevel))
                 {
                     logging.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>(string.Empty, logLevel);
                     logging.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>("Microsoft.AspNetCore", Microsoft.Extensions.Logging.LogLevel.Warning);
                 }
             });
-
-            if (string.IsNullOrWhiteSpace(builder.Configuration["MANDATE_FRONTENDS_URL"]))
-            {
-                throw new InvalidOperationException($"Allowed origins list is not definied (Missing setting: MANDATE_FRONTENDS_URL)");
-            }
-
-            var frontEndsUri = builder.Configuration["MANDATE_FRONTENDS_URL"]?.Split(';', StringSplitOptions.RemoveEmptyEntries);
-
-            if (frontEndsUri != null && frontEndsUri.Length > 0)
-            {
-                builder.Services.AddCors(options =>
-                {
-                    options.AddPolicy(
-                        "CorsPolicy",
-                        builder =>
-                        {
-                            builder
-                                .WithOrigins(frontEndsUri)
-                                .AllowAnyHeader()
-                                .AllowAnyMethod()
-                                .AllowCredentials();
-                        });
-                });
-            }
 
             // Add services to the container.
             builder.Services
@@ -86,28 +61,24 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             builder.Services.AddEndpointsApiExplorer();
 
             // Options
-            if (string.IsNullOrWhiteSpace(builder.Configuration["MandateDbConnectionString"]))
+            if (string.IsNullOrWhiteSpace(builder.Configuration["DbConnectionString"]))
             {
-                throw new InvalidOperationException($"Database connection string is not definied (Missing setting: MandateDbConnectionString)");
+                throw new InvalidOperationException($"Database connection string is not definied (Missing setting: DbConnectionString)");
             }
 
-            if (string.IsNullOrWhiteSpace(builder.Configuration["MANDATE_IDENTITYSERVICE_API_URL"]))
-            {
-                throw new InvalidOperationException($"identity services url is not definied (Missing setting: MANDATE_IDENTITYSERVICE_API_URL)");
-            }
 
             builder.Services
                 .AddAuthentication()
                 .AddConstellationIdentityService(
                 new ConstellationIdentityServiceAuthenticationOptions
                 {
-                    ServerAddress = new Uri(builder.Configuration["MANDATE_IDENTITYSERVICE_API_URL"]!),
+                    ServerAddress = new Uri(builder.Configuration["identityserviceApiUrl"] !),
                     AzureActiveDirectoryClientCredentials =
                     {
-                        ClientId = builder.Configuration["ConstellationClientId"],
-                        ClientSecret = builder.Configuration["ConstellationSecret"],
-                        Scope = builder.Configuration["ConstellationAudience"],
-                        Tenant = builder.Configuration["ConstellationTenant"],
+                        ClientId = builder.Configuration["AuthClientId"],
+                        ClientSecret = builder.Configuration["AuthClientSecret"],
+                        Scope = builder.Configuration["AuthAudience"],
+                        Tenant = builder.Configuration["AuthTenant"],
                     },
                 }, out string[] schemeNames);
             builder.Services
@@ -122,20 +93,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             builder.Services.AddConstellationHttpClient();
             builder.Services.AddSingleton<MandateAuthorizationFilterAttribute>();
 
-            builder.Services.AddMandateSql(opt => opt.ConnectionString = builder.Configuration["MandateDbConnectionString"]);
+            builder.Services.AddMandateSql(opt => opt.ConnectionString = builder.Configuration["DbConnectionString"]);
             builder.Services.AddMandateJeDeclare(opt =>
             {
-                opt.BaseUri = new Uri(builder.Configuration["MandateJeDeclareBaseUri"]!);
-                opt.Login = builder.Configuration["MandateJeDeclareLogin"]!;
-                opt.Password = builder.Configuration["MandateJeDeclarePassword"]!;
-                opt.JdcCompteId = builder.Configuration["MandateJeDeclareCompteId"]!;
-                opt.HistoryDateEnabledBanks = builder.Configuration["MandateJeDeclareHistoryDateEnabledBanks"]!;
+                opt.BaseUri = new Uri(builder.Configuration["JeDeclareBaseUri"] !);
+                opt.Login = builder.Configuration["JeDeclareLogin"] !;
+                opt.Password = builder.Configuration["JeDeclarePassword"] !;
+                opt.JdcCompteId = builder.Configuration["JeDeclareCompteId"] !;
+                opt.HistoryDateEnabledBanks = builder.Configuration["JeDeclareHistoryDateEnabledBanks"] !;
             });
 
             builder.Services.AddMandateFormio(opt =>
             {
-                opt.BaseUri = new Uri(builder.Configuration["MandateFormioBaseUri"]!);
-                opt.FormioApiKey = builder.Configuration["MandateFormioApiKey"]!;
+                opt.BaseUri = new Uri(builder.Configuration["FormioBaseUri"] !);
+                opt.FormioApiKey = builder.Configuration["FormioApiKey"] !;
             });
 
             builder.Services.AddMandateApplication(opt =>
@@ -182,46 +153,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             });
 
             app.Run();
-        }
-
-        private static void ConfigureKeyVault(WebApplicationBuilder builder)
-        {
-            if (!builder.Environment.IsEnvironment("Local"))
-            {
-                builder.WebHost
-                .ConfigureAppConfiguration((ctx, confbuilder) =>
-                {
-                    var config = confbuilder.Build();
-                    if (string.IsNullOrWhiteSpace(config["MANDATE_KEYVAULT_CLIENT_ID"]))
-                    {
-                        throw new InvalidOperationException($"No client id has been specified to access to the Azure Vault (Missing setting: MANDATE_KEYVAULT_CLIENT_ID)");
-                    }
-
-                    if (string.IsNullOrWhiteSpace(config["MANDATE_KEYVAULT_CLIENT_SECRET"]))
-                    {
-                        throw new InvalidOperationException($"No client secret has been specified to access to the Azure Vault (Missing setting: MANDATE_KEYVAULT_CLIENT_SECRET)");
-                    }
-
-                    InitializeAzureKeyVaultProvider(config["MANDATE_KEYVAULT_CLIENT_ID"] !, config["MANDATE_KEYVAULT_CLIENT_SECRET"] !);
-                });
-
-                if (builder.Environment.IsDevelopment() || builder.Environment.IsStaging())
-                {
-                    var secretClient = new SecretClient(
-                                    new Uri($"https://{builder.Configuration["MANDATE_VAULT_NAME"]}.vault.azure.net/"),
-                                    new ClientSecretCredential(
-                                        builder.Configuration["MANDATE_IDENTITYSERVICE_AAD_TENANT"],
-                                        builder.Configuration["MANDATE_KEYVAULT_CLIENT_ID"],
-                                        builder.Configuration["MANDATE_KEYVAULT_CLIENT_SECRET"]));
-                    builder.Configuration.AddAzureKeyVault(secretClient, new KeyVaultSecretManager());
-                }
-                else
-                {
-                    builder.Configuration.AddAzureKeyVault(
-                        new Uri($"https://{builder.Configuration["MANDATE_VAULT_NAME"]}.vault.azure.net/"),
-                        new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = builder.Configuration["AZURE_CLIENT_ID"] }));
-                }
-            }
         }
 
         private static void InitializeAzureKeyVaultProvider(string applicationId, string clientKey)

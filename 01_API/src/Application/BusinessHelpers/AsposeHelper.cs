@@ -101,6 +101,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             var tfc = tfa.TextFragments;
             foreach (TextFragment tf in tfc)
             {
+                tf.TextState.Font = FontRepository.FindFont("Arial");
                 tf.Text = tf.Text.Replace(oldValue, newValue);
             }
         }

@@ -11,6 +11,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
     using Kpmg.Constellation.Net.Http;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
+    using Newtonsoft.Json;
 
     public class HttpJeDeclareClientTest
     {
@@ -1526,6 +1527,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             result.Should().BeTrue();
 
             client.VerifyAll();
+            client.Verify(c => c.PutAsync(It.IsAny<string>(), It.Is<HttpContent>(content => CheckCardIsNull(content))), Times.Once());
             factory.VerifyAll();
         }
 
@@ -1584,6 +1586,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             client.VerifyAll();
             factory.VerifyAll();
+        }
+
+        private static T DeserializeXml<T>(string xml)
+        {
+            using (var stringReader = new StringReader(xml))
+            {
+                var serializer = new XmlSerializer(typeof(T));
+                return (T)serializer.Deserialize(stringReader) !;
+            }
+        }
+
+        private static bool CheckCardIsNull(HttpContent content)
+        {
+            var contentString = content.ReadAsStringAsync().Result;
+            var releve = DeserializeXml<Releve>(contentString);
+            return releve.Card == null;
         }
     }
 }

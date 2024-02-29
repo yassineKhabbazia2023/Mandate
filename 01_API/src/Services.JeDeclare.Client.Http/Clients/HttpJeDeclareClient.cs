@@ -393,6 +393,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             var releves = await this.GetAllConfigurationFromFolderAsync(jdcFolderId).ConfigureAwait(false);
             var releve = releves.Releve?.Single(r => r.Id == jdcReleveId) ?? throw new JeDeclareApiException($"Releve with id '{jdcFolderId}/{jdcReleveId}' not found in JeDeclare");
             releve.Etat = "3";
+            releve.Card = null;
             var updated = await this.UpdateCollecteConfigurationAsync(jdcFolderId, releve).ConfigureAwait(false);
 
             return updated;

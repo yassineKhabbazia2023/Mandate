@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+		<AssemblyName>KPMG.Pulse.Back.Accounting.Mandate.Application</AssemblyName>
+		<RootNamespace>KPMG.Pulse.Back.Accounting.Mandate.Application</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Aspose.Total.lic">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Aspose.PDF" Version="23.9.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Entities\Mandate.csproj" />
+	</ItemGroup>
+
+</Project>

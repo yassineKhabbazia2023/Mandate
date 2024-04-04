@@ -96,9 +96,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
         private static void ReplaceInDocument(Aspose.Pdf.Document pdfDocument, string oldValue, string newValue)
         {
+            FontRepository.Sources.Add(new FolderFontSource(AppDomain.CurrentDomain.BaseDirectory));
             var tfa = new TextFragmentAbsorber(oldValue);
             pdfDocument.Pages.Accept(tfa);
             var tfc = tfa.TextFragments;
+
             foreach (TextFragment tf in tfc)
             {
                 tf.TextState.Font = FontRepository.FindFont("Arial");

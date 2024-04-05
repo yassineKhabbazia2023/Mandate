@@ -31,10 +31,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             });
         }
 
-        [Fact]
-        public void ToDossierClient()
+        [Theory]
+        [InlineData("Maroo", "Elleuch")]
+        [InlineData("MAROO", "ELLEUCH")]
+        public void ToDossierClient(string firstName, string lastName)
         {
-            Signatory signatory = new Signatory("M", "Maroo", "Elleuch", "email@email.com");
+            Signatory signatory = new Signatory("M", firstName, lastName, "email@email.com");
             Address? address = new Address("street", "cmp", "zipcode", "city", "country");
             var entity = new Company(
                 new Guid("00000001-0000-0000-0000-000000000000"),

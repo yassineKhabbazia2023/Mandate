@@ -154,7 +154,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             // Use null-conditional operators to handle potential nulls gracefully
             var titles = signatory?.Title ?? string.Empty;
-            var firstName = FormatSignatoryFirstName(signatory?.FirstName!);
+            var firstName = FormatSignatoryFirstName(signatory?.FirstName ?? string.Empty);
             var lastName = signatory?.LastName?.ToUpper() ?? string.Empty;
 
             // Build the name with spaces only if parts are present to avoid leading/trailing spaces
@@ -171,10 +171,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
             if (signatoryFirstName.Split(' ').Length > 1)
             {
-                return string.Join(" ", signatoryFirstName.Split(' ').Select(i => i.ToLowerFirstName()));
+                return string.Join(" ", signatoryFirstName.Split(' ').Select(i => i.CapitalizeOnlyFirstLetter()));
             }
 
-            return signatoryFirstName.ToLowerFirstName();
+            return signatoryFirstName.CapitalizeOnlyFirstLetter();
         }
     }
 }

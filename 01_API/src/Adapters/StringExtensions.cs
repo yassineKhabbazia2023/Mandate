@@ -97,7 +97,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             }
 
             // Critère 3: Au moins un mot en majuscules et un mot en minuscules
-            if (!mots.Any(m => m.Any(char.IsUpper)) || !mots.Any(m => m.Any(char.IsLower)))
+            if (!mots.Any(mot => string.Equals(mot, mot.ToUpper(), StringComparison.Ordinal)))
             {
                 return false;
             }

@@ -2,11 +2,12 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate.Models.Enums
+namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public enum JdcCollectionStatus
     {
+        Activation_Requested_Signed_Mandate_Uploaded = -2,
         InitialCreate = -1,
-        Activation_Requested_Coollection_Pending = 10,
+        Activation_Requested_Collection_Pending = 10,
     }
 }

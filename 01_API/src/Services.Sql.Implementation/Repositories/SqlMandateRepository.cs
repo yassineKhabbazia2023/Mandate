@@ -401,8 +401,8 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             await context.RefBank.AddRangeAsync(bankList.ToArray());
             await context.SaveChangesAsync();
 
-            int[] pulseCodes = new int[] { 10, 30, 30, 40, 30, 50, 20, 20, 10, 20, 10, 20, 40, 50, 50, 40, 10, 20, 10 };
-            int jdcStatusCode = -1;
+            int[] pulseCodes = new int[] { 30, 10, 30, 30, 40, 30, 50, 20, 20, 10, 20, 10, 20, 40, 50, 50, 40, 10, 20, 10 };
+            int jdcStatusCode = -2;
             foreach (var pulseCode in pulseCodes)
             {
                 if (!context.RefStatusCode.Any(t => t.StatusCode == jdcStatusCode))

@@ -179,7 +179,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 DateTime.Now,
                 DateTime.Now,
                 status);
-                
+
             var expectedBytes = Array.Empty<byte>();
 
             this.mockDatabaseService
@@ -478,8 +478,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             jedeclareService.Verify(jd => jd.GetAllConfigurationFromFolderAsync(It.IsAny<string>()), Times.Once);
         }
 
-        [Fact]
-        public async Task UploadSignedMandateAsync_ValidJdcPartner_ReturnsSignedMandateId()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task UploadSignedMandateAsync_ValidJdcPartner_ReturnsSignedMandateId(bool isUploaded)
         {
             // Arrange
             var collectionId = new PredictableGuid().NewGuid();
@@ -508,6 +510,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Setup(m => m.UploadSignedMandate(It.IsAny<Collection>(), It.IsAny<byte[]>()))
                 .ReturnsAsync("signedMandateId");
 
+            this.mockJeDeclareService
+                .Setup(m => m.CheckSignedMandatExists(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(isUploaded);
+
+            this.mockDatabaseService
+                .Setup(m => m.CreateStatus(collectionId, It.Is<int>(sc => sc == (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded)))
+                .ReturnsAsync(new Status(CollectionStatus.InProgress, "InProgress"));
+
             var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions, this.mockLogger.Object);
 
             // Act
@@ -518,6 +528,63 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             result.Should().NotBeNull("because the method should return a non-null PDF data");
             this.mockDatabaseService.Verify(m => m.GetCollectionById(collectionId), Times.Once);
             this.mockJeDeclareService.Verify(m => m.UploadSignedMandate(It.IsAny<Collection>(), It.IsAny<byte[]>()), Times.Once);
+        }
+
+        [Theory]
+        [InlineData("", true)]
+        [InlineData(null, true)]
+        [InlineData("test", false)]
+        public async Task UploadSignedMandateAsync_CreationStatus_shouldNotWhenNoUpload(string mandate, bool isUploaded)
+        {
+            // Arrange
+            var collectionId = new PredictableGuid().NewGuid();
+            var companyId = new PredictableGuid().NewGuid();
+
+            var company = TestHelper.GetCompany(companyId, "bankServicesProviderId");
+            Bban bban = TestHelper.GetBban("ebicsCardId", true);
+            Status status = TestHelper.GetStatus();
+            var collection = new Collection(
+                collectionId,
+                "yourServiceProviderId",
+                company,
+                bban,
+                DateTime.Now,
+                DateTime.Now,
+                status);
+
+            var fileContent = Encoding.UTF8.GetBytes("This is a test file content");
+            var fileStream = new MemoryStream(fileContent);
+
+            this.mockDatabaseService
+                .Setup(m => m.GetCollectionById(collectionId))
+                .ReturnsAsync(collection);
+
+            this.mockJeDeclareService
+                .Setup(m => m.UploadSignedMandate(It.IsAny<Collection>(), It.IsAny<byte[]>()))
+                .ReturnsAsync(mandate);
+
+            this.mockJeDeclareService
+                .Setup(m => m.CheckSignedMandatExists(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(isUploaded);
+
+            this.mockLogger.Setup(l =>
+                l.Log(
+                    LogLevel.Error,
+                    (EventId)0,
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<Exception>(),
+                    It.Is<Func<It.IsAnyType,
+                    Exception?, string>>((v, t) => true)))
+                .Verifiable();
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions, this.mockLogger.Object);
+
+            var result = await mandateManager.UploadSignedMandateAsync(collectionId, fileStream);
+
+            result.Should().Be(mandate);
+            this.mockDatabaseService.Verify(m => m.GetCollectionById(collectionId), Times.Once);
+            this.mockJeDeclareService.Verify(m => m.UploadSignedMandate(It.IsAny<Collection>(), It.IsAny<byte[]>()), Times.Once);
+            this.mockDatabaseService.Verify(m => m.CreateStatus(It.IsAny<Guid>(), It.IsAny<int>()), Times.Never);
         }
 
         [Fact]

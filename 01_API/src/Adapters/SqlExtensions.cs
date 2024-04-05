@@ -4,8 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.Models.Enums;
-
     public static class SqlExtensions
     {
         public static Signatory ToSignatory(this Sql.PersonalDb source)

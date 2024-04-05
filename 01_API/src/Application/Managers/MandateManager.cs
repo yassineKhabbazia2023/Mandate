@@ -10,7 +10,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
     using System.Collections.Generic;
     using System.Linq;
-    using KPMG.Pulse.Back.Accounting.Mandate.Models.Enums;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
 
@@ -88,7 +87,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             await this.databaseService.InsertServicesProviderIds(collectionId, createdReleveId, rib?.BbanServicesProviderId!);
 
             // Creation mandate Status 10
-            await this.databaseService.CreateStatus(collectionId, (int)JdcCollectionStatus.Activation_Requested_Coollection_Pending);
+            await this.databaseService.CreateStatus(collectionId, (int)JdcCollectionStatus.Activation_Requested_Collection_Pending);
 
             return collectionId;
         }
@@ -139,7 +138,28 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
             if (isJdcPartner)
             {
-                return await this.jeDeclareService.UploadSignedMandate(collection, fileBytes);
+                var signedMandateContent = await this.jeDeclareService.UploadSignedMandate(collection, fileBytes);
+                var folderId = collection!.Company?.BankServicesProviderId;
+                var ribId = collection!.Bban?.BbanServicesProviderId;
+                var isUploaded = await this.jeDeclareService.CheckSignedMandatExists(folderId!, ribId!);
+
+                if (!string.IsNullOrEmpty(signedMandateContent) && isUploaded)
+                {
+                    await this.databaseService.CreateStatus(collection.Id, (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded);
+                }
+                else
+                {
+                    this.logger.LogError(
+                        "{methodName}, the upload of the signed mandate = {collectionId} / folderId = {folderId} and ribId = {ribId} failed / isUploaded = {isUploaded}, signedMandateContent = {signedMandateContent}",
+                        nameof(this.UploadSignedMandateAsync),
+                        collection.Id,
+                        folderId,
+                        ribId,
+                        isUploaded,
+                        string.IsNullOrEmpty(signedMandateContent));
+                }
+
+                return signedMandateContent;
             }
             else
             {
@@ -253,6 +273,5 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         {
             return await this.asposeHelper.GeneratePdfFromTemplateAsync(collection);
         }
-
     }
 }

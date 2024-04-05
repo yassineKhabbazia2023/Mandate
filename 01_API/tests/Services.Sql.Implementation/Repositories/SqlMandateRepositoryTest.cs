@@ -1135,7 +1135,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             context.RefBank.Count().Should().Be(10 + 194);
             context.RefBank.Count(b => b.JdcPartnership == JdcPartnership.NonPartner).Should().Be(1 + 4);
             context.RefBank.Count(b => b.JdcPartnership == JdcPartnership.Scrappable).Should().Be(1 + 70);
-            context.RefStatusCode.Count().Should().Be(19);
+            context.RefStatusCode.Count().Should().Be(20);
             context.Collaborator.Count().Should().Be(9);
             context.CompanyCollaborator.Count().Should().Be(9);
             context.Company.Count().Should().Be(1);

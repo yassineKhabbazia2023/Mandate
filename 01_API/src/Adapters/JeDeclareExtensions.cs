@@ -112,14 +112,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             var rib = new Bban(source.Rib?.Etablissement!, source.Rib?.Guichet!, source.Rib?.NumCompte!, source.Rib?.Cle!, source.Rib?.Id, null);
             TechnicalCollection collection = new TechnicalCollection(
                 Guid.Empty,
-            source?.Id!,
-                source?.Rib?.Id!,
+                source.Id!,
+                source.Rib?.Id!,
                 new BankDetails(
                     rib.BankCode,
                     rib.BranchCode,
                     rib.AccountNumber,
                     rib.CheckDigits),
-                source?.Etat!);
+                source.Etat!);
 
             return collection;
         }
@@ -154,12 +154,27 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             // Use null-conditional operators to handle potential nulls gracefully
             var titles = signatory?.Title ?? string.Empty;
-            var firstName = signatory?.FirstName.ToLowerFirstName() ?? string.Empty;
+            var firstName = FormatSignatoryFirstName(signatory?.FirstName!);
             var lastName = signatory?.LastName?.ToUpper() ?? string.Empty;
 
             // Build the name with spaces only if parts are present to avoid leading/trailing spaces
             var fullName = $"{titles} {firstName} {lastName}".Trim();
             return fullName;
+        }
+
+        private static string FormatSignatoryFirstName(string signatoryFirstName)
+        {
+            if (string.IsNullOrEmpty(signatoryFirstName))
+            {
+                return string.Empty;
+            }
+
+            if (signatoryFirstName.Split(' ').Length > 1)
+            {
+                return string.Join(" ", signatoryFirstName.Split(' ').Select(i => i.ToLowerFirstName()));
+            }
+
+            return signatoryFirstName.ToLowerFirstName();
         }
     }
 }

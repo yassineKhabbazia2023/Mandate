@@ -51,6 +51,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         [Theory]
         [InlineData("invalid input")]
         [InlineData("m John")]
+        [InlineData("A John DAVID")]
+        [InlineData("m john david")]
         public void ExtractPersonInfo_ShouldThrow_WhenInvalid(string input)
         {
             Action act = () => StringExtensions.ExtractPersonInfo(input);

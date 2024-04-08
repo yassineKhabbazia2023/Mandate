@@ -154,7 +154,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             // Use null-conditional operators to handle potential nulls gracefully
             var titles = signatory?.Title ?? string.Empty;
-            var firstName = FormatSignatoryFirstName(signatory?.FirstName ?? string.Empty);
+            var firstName = FormatSignatoryFirstName(signatory?.FirstName!);
             var lastName = signatory?.LastName?.ToUpper() ?? string.Empty;
 
             // Build the name with spaces only if parts are present to avoid leading/trailing spaces

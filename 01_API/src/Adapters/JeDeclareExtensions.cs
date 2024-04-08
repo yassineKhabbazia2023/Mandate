@@ -146,9 +146,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                     Ville = company.Address?.City?.Sanitize() !,
                 },
                 Mail = company.Signatory?.Email,
-                Name = $"{company.Signatory?.Title ?? string.Empty}" +
-                $" {company.Signatory?.FirstName?.Sanitize() ?? string.Empty} " +
-                $"{company.Signatory?.LastName?.Sanitize() ?? string.Empty}",
+                Name = $"{company.Signatory?.Title ?? string.Empty} {company.Signatory?.FirstName?.Sanitize() ?? string.Empty} {company.Signatory?.LastName?.Sanitize() ?? string.Empty}",
             };
         }
     }

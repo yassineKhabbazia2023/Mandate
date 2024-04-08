@@ -16,19 +16,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return input.Substring(index, len);
         }
 
-        public static string CapitalizeOnlyFirstLetter(this string input)
-        {
-            if (string.IsNullOrEmpty(input))
-            {
-                return string.Empty;
-            }
-
-            string firstCharUpper = input.Substring(0, 1).ToUpper();
-            string restLower = input.Substring(1).ToLower();
-
-            return firstCharUpper + restLower;
-        }
-
         public static bool AllCharactersUpperCase(string chaine)
         {
             if (string.IsNullOrEmpty(chaine))

@@ -27,7 +27,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             Client client = new Client
             {
                 Id = company.BankServicesProviderId!,
-                RaisonSociale = company.Name!,
+                RaisonSociale = company.Name!.Sanitize(),
                 Siret = CreateSiretFromCompany(company),
                 Responsable = CreateResponsableFromCompany(company),
             };
@@ -140,41 +140,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 Adresse = new Adresse
                 {
                     CodePostal = company.Address?.ZipCode!,
-                    CplRue = company.Address?.Complements!,
-                    Pays = company.Address?.Country!,
-                    Rue = company.Address?.Street!,
-                    Ville = company.Address?.City!,
+                    CplRue = company.Address?.Complements!.Sanitize() !,
+                    Pays = company.Address?.Country?.Sanitize() !,
+                    Rue = company.Address?.Street?.Sanitize() !,
+                    Ville = company.Address?.City?.Sanitize() !,
                 },
                 Mail = company.Signatory?.Email,
-                Name = FormatSignatoryName(company.Signatory!),
+                Name = $"{company.Signatory?.Title ?? string.Empty}" +
+                $" {company.Signatory?.FirstName?.Sanitize() ?? string.Empty} " +
+                $"{company.Signatory?.LastName?.Sanitize() ?? string.Empty}",
             };
-        }
-
-        private static string FormatSignatoryName(Signatory signatory)
-        {
-            // Use null-conditional operators to handle potential nulls gracefully
-            var titles = signatory?.Title ?? string.Empty;
-            var firstName = FormatSignatoryFirstName(signatory?.FirstName!);
-            var lastName = signatory?.LastName?.ToUpper() ?? string.Empty;
-
-            // Build the name with spaces only if parts are present to avoid leading/trailing spaces
-            var fullName = $"{titles} {firstName} {lastName}".Trim();
-            return fullName;
-        }
-
-        private static string FormatSignatoryFirstName(string signatoryFirstName)
-        {
-            if (string.IsNullOrEmpty(signatoryFirstName))
-            {
-                return string.Empty;
-            }
-
-            if (signatoryFirstName.Split(' ').Length > 1)
-            {
-                return string.Join(" ", signatoryFirstName.Split(' ').Select(i => i.CapitalizeOnlyFirstLetter()));
-            }
-
-            return signatoryFirstName.CapitalizeOnlyFirstLetter();
         }
     }
 }

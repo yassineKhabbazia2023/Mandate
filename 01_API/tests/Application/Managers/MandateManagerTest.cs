@@ -179,7 +179,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 DateTime.Now,
                 DateTime.Now,
                 status);
-                
+
             var expectedBytes = Array.Empty<byte>();
 
             this.mockDatabaseService
@@ -616,7 +616,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             var adapter = new SqlAdapter(sqlRepo);
             var companyManager = new CompanyManager(adapter);
 
-            var dossierClient = new Company(companyDb.Id, "cn1", "12345678901234", "1234567890", "folderId", EntityFactory.Signatory, EntityFactory.Address);
+            var dossierClient = new Company(companyDb.Id, "cn1", "12345678901234", "1234567890", "folderId", signature, adresse);
 
             this.mockJeDeclareService.Setup(item => item.CreateFolderAsync(
                 It.Is<Company>(c =>
@@ -634,7 +634,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(rib)
                 .Verifiable();
 
-            this.mockJeDeclareService.Setup(item => item.CreateCollecteConfigurationAsync(dossierClient, rib))
+            this.mockJeDeclareService.Setup(item => item.CreateCollecteConfigurationAsync(It.Is<Company>(item => CompareCompany(item, dossierClient)), rib, "folderId"))
                .ReturnsAsync("releveId")
                .Verifiable();
 
@@ -1190,6 +1190,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 signatory1.LastName == signatory2.LastName &&
                 signatory1.Email == signatory2.Email &&
                 signatory1.Title == signatory2.Title;
+        }
+
+        private static bool CompareCompany(Company company, Company dossierClient)
+        {
+            return
+                company.Id == dossierClient.Id &&
+                company.Name == dossierClient.Name &&
+                company.SiretNumber == dossierClient.SiretNumber &&
+                company.ErpId == dossierClient.ErpId &&
+                company.BankServicesProviderId == null! &&
+                CompareSignatory(company.Signatory!, dossierClient.Signatory!) &&
+                CompareAddress(company.Address!, dossierClient.Address!);
+        }
+
+        private static bool CompareAddress(Address address1, Address address2)
+        {
+            return address1.Country == address2.Country;
         }
     }
 }

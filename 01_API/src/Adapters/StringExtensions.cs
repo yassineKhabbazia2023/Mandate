@@ -49,11 +49,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public static (string sexe, string nom, string prenom) ExtractPersonInfo(this string chaine)
         {
-            if (!IsValid(chaine))
-            {
-                throw new InvalidOperationException($"{nameof(StringExtensions)} - {chaine} n'est pas valide");
-            }
-
             string[] mots = chaine.Split(' ');
 
             // Le premier mot est le sexe
@@ -81,28 +76,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return (sexe, nom, prenom);
         }
 
-        private static bool IsValid(string chaine)
+        public static string Sanitize(this string str)
         {
-            // Critère 1: Au moins 3 mots séparés par des espaces
-            string[] mots = chaine.Split(' ');
-            if (mots.Length < 3)
-            {
-                return false;
-            }
-
-            // Critère 2: Le premier mot doit avoir "m" ou "mme" comme valeurs
-            if (!(mots[0].Equals("m", StringComparison.OrdinalIgnoreCase) || mots[0].Equals("mme", StringComparison.OrdinalIgnoreCase)))
-            {
-                return false;
-            }
-
-            // Critère 3: Au moins un mot en majuscules et un mot en minuscules
-            if (!mots.Any(mot => string.Equals(mot, mot.ToUpper(), StringComparison.Ordinal)))
-            {
-                return false;
-            }
-
-            return true;
+            return str.Replace("'", " ");
         }
     }
 }

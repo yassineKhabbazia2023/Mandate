@@ -32,9 +32,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         }
 
         [Theory]
-        [InlineData("m", null!, "Doe", "m  DOE")]
-        [InlineData("m", "Jhon"!, null, "m Jhon")]
-        [InlineData(null, "Jhon"!, "Doe", "Jhon DOE")]
+        [InlineData("m", null!, "Doe", "m  Doe")]
+        [InlineData("m", "Jhon"!, null, "m Jhon ")]
+        [InlineData(null, "Jhon"!, "Doe", " Jhon Doe")]
+        [InlineData("M", "J'hon"!, "Doe's", "M J hon Doe s")]
         public void ToDossierClient_(string title, string firstName, string lastName, string fullName)
         {
             Signatory signatory = new Signatory(title, firstName, lastName, "email@email.com");
@@ -78,11 +79,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         }
 
         [Theory]
-        [InlineData("Maroo", "Elleuch")]
-        [InlineData("MAROO", "ELLEUCH")]
-        public void ToDossierClient(string firstName, string lastName)
+        [InlineData("m", "Maroo", "Elleuch")]
+        [InlineData("MME", "MAROO", "ELLEUCH")]
+        public void ToDossierClient(string title, string firstName, string lastName)
         {
-            Signatory signatory = new Signatory("M", firstName, lastName, "email@email.com");
+            Signatory signatory = new Signatory(title, firstName, lastName, "email@email.com");
             Address? address = new Address("street", "cmp", "zipcode", "city", "country");
             var entity = new Company(
                 new Guid("00000001-0000-0000-0000-000000000000"),
@@ -109,7 +110,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                     },
                     Responsable = new Responsable()
                     {
-                        Name = $"M Maroo ELLEUCH",
+                        Name = $"{title} {firstName} {lastName}",
                         Mail = "email@email.com",
                         Adresse = new Adresse()
                         {

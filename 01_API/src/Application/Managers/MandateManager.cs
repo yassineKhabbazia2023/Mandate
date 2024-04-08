@@ -78,8 +78,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
             // création de la collecte coté jeDeclare
             string createdReleveId = await this.jeDeclareService.CreateCollecteConfigurationAsync(
-                dossierClient,
-                rib);
+                toAdd,
+                rib,
+                dossierClient.BankServicesProviderId!);
 
             // save Signatory
             await this.databaseService.SaveSignatoryAsync(null, collectionId, mandateCreation.Signatory, mandateCreation.Address);
@@ -253,6 +254,5 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         {
             return await this.asposeHelper.GeneratePdfFromTemplateAsync(collection);
         }
-
     }
 }

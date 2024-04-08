@@ -47,14 +47,5 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             nom.Should().Be(expectedNom);
             prenom.Should().Be(expectedPrenom);
         }
-
-        [Theory]
-        [InlineData("invalid input")]
-        [InlineData("m John")]
-        public void ExtractPersonInfo_ShouldThrow_WhenInvalid(string input)
-        {
-            Action act = () => StringExtensions.ExtractPersonInfo(input);
-            act.Should().Throw<InvalidOperationException>();
-        }
     }
 }

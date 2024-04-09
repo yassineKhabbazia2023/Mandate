@@ -439,5 +439,161 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             repository.VerifyAll();
         }
+
+        [Fact]
+        public async Task CreateStatus_WhenNotIsCurrentJdcSignedMandateUploadedAndNewJdcPending_ReturnNewStatus()
+        {
+            // Arrange
+            var refStatusCode = new RefStatusCodeDb()
+            {
+                StatusCode = -1,
+                PulseCode = 30,
+                StatusNameFr = "En cours",
+                StatusNameEn = "In progress",
+            };
+            var statusdb = new StatusDb()
+            {
+                Id = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
+                CollectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
+                StatusCode = -1,
+                IsCurrent = true,
+                StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
+                MandateFile = null,
+                CreatedBy = "created1",
+                RefStatusCode = refStatusCode,
+            };
+
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.GetCurrentJdcStatusCodeAsync(It.IsAny<Guid>()))
+               .ReturnsAsync(statusdb)
+               .Verifiable();
+
+            repository.Setup(r => r.UpdateCurrentStatusAsync(It.IsAny<Guid>()))
+               .Returns(Task.CompletedTask)
+               .Verifiable();
+
+            var newRefStatusCode = new RefStatusCodeDb()
+            {
+                StatusCode = 10,
+                PulseCode = 20,
+                StatusNameFr = "à deposer",
+                StatusNameEn = "To Do",
+            };
+            var newStatusdb = new StatusDb()
+            {
+                Id = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
+                CollectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
+                StatusCode = 10,
+                IsCurrent = true,
+                StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
+                MandateFile = null,
+                CreatedBy = "created1",
+                RefStatusCode = newRefStatusCode,
+            };
+
+            repository.Setup(r => r.CreateStatusAsync(It.IsAny<Guid>(), It.IsAny<StatusDb>()))
+               .ReturnsAsync(newStatusdb)
+               .Verifiable();
+
+            var adapter = new SqlAdapter(repository.Object);
+
+            // Act
+            var result = await adapter.CreateStatusAsync(Guid.Parse("a1111111-1111-1111-1111-111111111111"), newStatusdb.StatusCode);
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(CollectionStatus.ToDo);
+            result.StatusName.Should().Be("à deposer");
+            repository.Verify(r => r.GetCurrentJdcStatusCodeAsync(It.IsAny<Guid>()), Times.Once);
+            repository.Verify(r => r.UpdateCurrentStatusAsync(It.IsAny<Guid>()), Times.Once);
+            repository.Verify(r => r.CreateStatusAsync(It.IsAny<Guid>(), It.IsAny<StatusDb>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateStatus_WhenIsCurrentJdcSignedMandateUploadedAndNewJdcPending_ReturnNull()
+        {
+            // Arrange
+            var refStatusCode = new RefStatusCodeDb()
+            {
+                StatusCode = -2,
+                PulseCode = 30,
+                StatusNameFr = "En cours",
+                StatusNameEn = "In progress",
+            };
+            var statusdb = new StatusDb()
+            {
+                Id = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
+                CollectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
+                StatusCode = -2,
+                IsCurrent = true,
+                StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
+                MandateFile = null,
+                CreatedBy = "created1",
+                RefStatusCode = refStatusCode,
+            };
+
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.GetCurrentJdcStatusCodeAsync(It.IsAny<Guid>()))
+               .ReturnsAsync(statusdb)
+               .Verifiable();
+
+            repository.Setup(r => r.UpdateCurrentStatusAsync(It.IsAny<Guid>()))
+               .Returns(Task.CompletedTask)
+               .Verifiable();
+
+            var newRefStatusCode = new RefStatusCodeDb()
+            {
+                StatusCode = 10,
+                PulseCode = 20,
+                StatusNameFr = "à deposer",
+                StatusNameEn = "To Do",
+            };
+            var newStatusdb = new StatusDb()
+            {
+                Id = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
+                CollectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
+                StatusCode = 10,
+                IsCurrent = true,
+                StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
+                MandateFile = null,
+                CreatedBy = "created1",
+                RefStatusCode = newRefStatusCode,
+            };
+
+            repository.Setup(r => r.CreateStatusAsync(It.IsAny<Guid>(), It.IsAny<StatusDb>()))
+               .ReturnsAsync(newStatusdb)
+               .Verifiable();
+
+            var adapter = new SqlAdapter(repository.Object);
+
+            // Act
+            var result = await adapter.CreateStatusAsync(Guid.Parse("a1111111-1111-1111-1111-111111111111"), newStatusdb.StatusCode);
+
+            // Assert
+            result.Should().BeNull();
+            repository.Verify(r => r.GetCurrentJdcStatusCodeAsync(It.IsAny<Guid>()), Times.Once);
+            repository.Verify(r => r.UpdateCurrentStatusAsync(It.IsAny<Guid>()), Times.Never);
+            repository.Verify(r => r.CreateStatusAsync(It.IsAny<Guid>(), It.IsAny<StatusDb>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task CheckJdcStatusCodeIsPending_WhenOK()
+        {
+            // Arrange
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+
+            repository.Setup(r => r.CheckJdcStatusCodeIsPendingAsync(It.IsAny<Guid>()))
+               .ReturnsAsync(true)
+               .Verifiable();
+
+            var adapter = new SqlAdapter(repository.Object);
+
+            // Act
+            var result = await adapter.CheckJdcStatusCodeIsPendingAsync(Guid.Parse("a1111111-1111-1111-1111-111111111111"));
+
+            // Assert
+            result.Should().Be(true);
+            repository.Verify(r => r.CheckJdcStatusCodeIsPendingAsync(It.IsAny<Guid>()), Times.Once);
+        }
     }
 }

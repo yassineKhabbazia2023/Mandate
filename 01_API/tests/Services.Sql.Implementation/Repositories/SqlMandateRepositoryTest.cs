@@ -1568,7 +1568,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             var statusResult = await sqlMandateRepository.GetRefStatusCodeByJdcCodeAsync("-1");
 
-            statusResult.StatusCode.Should().Be(-1);
+            statusResult.RefStatusCode!.StatusCode.Should().Be(-1);
             statusResult.RefStatusCode!.PulseCode.Should().Be(100);
         }
 

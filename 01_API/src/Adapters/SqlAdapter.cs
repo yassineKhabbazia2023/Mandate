@@ -71,8 +71,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             await this.mandateRepository.CreateOrUpdateFolderAsync(bankServicesProviderId, companyId);
         }
 
-        public async Task<Status> CreateStatus(Guid collectionId, int statusCode)
+        public async Task<Status?> CreateStatusAsync(Guid collectionId, int statusCode)
         {
+            var currentJdcStatusCode = await this.mandateRepository.GetCurrentJdcStatusCodeAsync(collectionId);
+
+            if (IsCurrentJdcSignedMandateUploadedAndNewJdcPending(currentJdcStatusCode!.StatusCode, statusCode))
+            {
+                return null;
+            }
+
             // update current Status to false
             await this.mandateRepository.UpdateCurrentStatusAsync(collectionId);
 
@@ -88,6 +95,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
             // Création d'un status relié a une collecte
             return (await this.mandateRepository.CreateStatusAsync(collectionId, statusDb)).ToModel();
+        }
+
+        public async Task<bool> CheckJdcStatusCodeIsPendingAsync(Guid collectionId)
+        {
+            return await this.mandateRepository.CheckJdcStatusCodeIsPendingAsync(collectionId);
         }
 
         public async Task InsertServicesProviderIds(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId)
@@ -191,6 +203,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         private static Signatory CreateSignatoryFromDb(PersonalDb? personal)
         {
             return new Signatory(personal?.Title, personal?.FirstName, personal?.LastName, personal?.Email);
+        }
+
+        private static bool IsCurrentJdcSignedMandateUploadedAndNewJdcPending(int currentJdcStatusCode, int? newJdcStatusCode)
+        {
+            return newJdcStatusCode == (int)JdcCollectionStatus.Activation_Requested_Collection_Pending
+                    && currentJdcStatusCode == (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded;
         }
     }
 }

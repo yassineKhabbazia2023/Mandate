@@ -96,19 +96,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             int statusCode = ValidateAndParseStatusCode(jdcStatusCode);
 
             using var context = new MandateContext(this.options);
-            var status = context.Status
-                .Include(item => item.RefStatusCode)
+            var query = context.RefStatusCode
                 .Where(item => item.StatusCode == statusCode);
-            if (!await status.AnyAsync().ConfigureAwait(false))
+            var status = await query.FirstOrDefaultAsync().ConfigureAwait(false);
+
+            if (status == null)
             {
+                // No matching entity was found
                 throw StatusNotFoundException.FromId(jdcStatusCode);
             }
-            else
+
+            // At this point, status is guaranteed to be not null and is the matched entity
+            return new StatusDb()
             {
-                return await status
-                    .SingleAsync()
-                    .ConfigureAwait(false);
-            }
+                StatusCode = statusCode,
+                RefStatusCode = status!,
+            };
         }
 
         public async Task<byte[]> GetPdfTemplateByCodeAsync(string bankCode)
@@ -399,8 +402,7 @@ new RefBankDb() { BankCode = "16798", BankName = "Treezor - Qonto - Shine - Anyt
 new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = string.Empty, BankCategory = string.Empty, BankGroup = string.Empty, IsJdcScrapable = true, IsJdcPartner = false, HasReleveAgreement = false, HasLiasseAgreement = false, AllowsDemat = false, JdcPartnership = JdcPartnership.Scrappable, EbicsCardId = string.Empty },
             };
             await context.RefBank.AddRangeAsync(bankList.ToArray());
-            await context.SaveChangesAsync();
-
+            await context.SaveChangesAsync(); 
             int[] pulseCodes = new int[] { 30, 10, 30, 30, 40, 30, 50, 20, 20, 10, 20, 10, 20, 40, 50, 50, 40, 10, 20, 10 };
             int jdcStatusCode = -2;
             foreach (var pulseCode in pulseCodes)
@@ -1628,6 +1630,21 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             using var context = new MandateContext(this.options);
             await context.AddAsync(collection);
             await context.SaveChangesAsync();
+        }
+
+        public async Task<StatusDb> GetCurrentJdcStatusCodeAsync(Guid collectionId)
+        {
+            using var context = new MandateContext(this.options);
+            return await context.Status
+                .Include(item => item.RefStatusCode)
+                .Where(s => s.CollectionId == collectionId && s.IsCurrent)
+                .SingleAsync();
+        }
+
+        public async Task<bool> CheckJdcStatusCodeIsPendingAsync(Guid collectionId)
+        {
+            var currentJdcStatusCode = await this.GetCurrentJdcStatusCodeAsync(collectionId);
+            return currentJdcStatusCode.StatusCode == (int)JdcCollectionStatus.Activation_Requested_Collection_Pending;
         }
 
         private static CollectionDb GenerateFakeCollection(Guid collectionId, Guid companyId)

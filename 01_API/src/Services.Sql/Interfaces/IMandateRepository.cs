@@ -110,6 +110,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 
         Task<StatusDb> CreateStatusAsync(Guid collectionId, StatusDb statusDb);
 
+        Task<StatusDb> GetCurrentJdcStatusCodeAsync(Guid collectionId);
+
+        Task<bool> CheckJdcStatusCodeIsPendingAsync(Guid collectionId);
+
         Task UpdateCurrentStatusAsync(Guid collectionId);
 
         Task InsertFormIOCollectionAsync(CollectionDb collection);

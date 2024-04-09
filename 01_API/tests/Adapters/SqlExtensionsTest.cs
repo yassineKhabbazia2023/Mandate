@@ -186,7 +186,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         }
 
         [Fact]
-        public void Status_ToMoel()
+        public void Status_ToModel()
         {
             var entity = new Sql.StatusDb()
             {

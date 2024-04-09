@@ -88,7 +88,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             await this.databaseService.InsertServicesProviderIds(collectionId, createdReleveId, rib?.BbanServicesProviderId!);
 
             // Creation mandate Status 10
-            await this.databaseService.CreateStatus(collectionId, (int)JdcCollectionStatus.Activation_Requested_Collection_Pending);
+            await this.databaseService.CreateStatusAsync(collectionId, (int)JdcCollectionStatus.Activation_Requested_Collection_Pending);
 
             return collectionId;
         }
@@ -108,23 +108,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         {
             foreach (var mandat in mandats!)
             {
-                var jdcCollections = await this.jeDeclareService.GetAllConfigurationFromFolderAsync(mandat.FolderId);
-
-                var jdcCollection = jdcCollections?.SingleOrDefault(c => MatchesMandat(c, mandat));
-
+                var jdcCollection = await this.GetJdcCollectionAsync(mandat);
                 if (jdcCollection == null)
                 {
-                    this.logger.LogError("The collection with Id={CollectionId} is not found in jedeclare", mandat.Id);
                     continue;
                 }
 
                 var status = await this.databaseService.GetRefStatusCodeByJdcCodeAsync(jdcCollection.StatusCode);
                 var collection = await this.databaseService.GetCollectionById(mandat.Id);
 
-                if (status.StatusCode != collection.Status.StatusCode)
+                if (!HasStatusChanged((int)status.StatusCode, (int)collection.Status.StatusCode))
                 {
-                    await this.databaseService.CreateStatus(collection.Id, (int)status.StatusCode);
+                    continue;
                 }
+
+                await this.UpdateCollectionStatusAsync(collection, jdcCollection.StatusCode);
             }
         }
 
@@ -146,7 +144,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
                 if (!string.IsNullOrEmpty(signedMandateContent) && isUploaded)
                 {
-                    await this.databaseService.CreateStatus(collection.Id, (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded);
+                    await this.databaseService.CreateStatusAsync(collection.Id, (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded);
                 }
                 else
                 {
@@ -268,6 +266,64 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             bool accountDetailsMatches = jdcCollection.BankDetails.AccountNumber == mandat.BankDetails.AccountNumber && jdcCollection.BankDetails.CheckDigits == mandat.BankDetails.CheckDigits;
 
             return ribIdMatches && bankAndBranchMatches && accountDetailsMatches;
+        }
+
+        private static bool HasStatusChanged(int currentStatusCode, int previousStatusCode)
+        {
+            return currentStatusCode != previousStatusCode;
+        }
+
+        private async Task<TechnicalCollection?> GetJdcCollectionAsync(TechnicalCollection mandat)
+        {
+            var jdcCollections = await this.jeDeclareService.GetAllConfigurationFromFolderAsync(mandat.FolderId);
+            var jdcCollection = jdcCollections?.SingleOrDefault(c => MatchesMandat(c, mandat));
+
+            if (jdcCollection == null)
+            {
+                this.logger.LogError("The collection with Id={CollectionId} is not found in jedeclare", mandat.Id);
+            }
+
+            return jdcCollection;
+        }
+
+        private async Task UpdateCollectionStatusAsync(Collection collection, string jdcStatusCodeStr)
+        {
+            if (!int.TryParse(jdcStatusCodeStr, out int jdcStatusCode))
+            {
+                // Handle the parse failure. For example, log an error and return from the method.
+                this.logger.LogError("Failed to parse JDC status code '{JdcStatusCodeStr}' for collection ID {CollectionId}.", jdcStatusCodeStr, collection.Id);
+                return;
+            }
+
+            var newStatus = await this.databaseService.CreateStatusAsync(collection.Id, statusCode: jdcStatusCode!);
+            var jdcStatusCodePending = await this.databaseService.CheckJdcStatusCodeIsPendingAsync(collection.Id);
+
+            if (newStatus != null && jdcStatusCodePending)
+            {
+                await this.UpdateStatusOnSignedMandateUploadAsync(collection);
+            }
+        }
+
+        private async Task UpdateStatusOnSignedMandateUploadAsync(Collection collection)
+        {
+            var folderId = collection.Company?.BankServicesProviderId;
+            var ribId = collection.Bban?.BbanServicesProviderId;
+            var isUploaded = await this.jeDeclareService.CheckSignedMandatExists(folderId!, ribId!);
+
+            if (isUploaded)
+            {
+                await this.databaseService.CreateStatusAsync(collection.Id, (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded);
+            }
+            else
+            {
+                this.logger.LogInformation(
+                    "{methodName}, the upload of the signed mandate = {collectionId} / folderId = {folderId} and ribId = {ribId} failed / isUploaded = {isUploaded}",
+                    nameof(this.UpdateStatusOnSignedMandateUploadAsync),
+                    collection.Id,
+                    folderId,
+                    ribId,
+                    isUploaded);
+            }
         }
 
         private async Task<byte[]> GeneratePdfForNonPartner(Collection collection)

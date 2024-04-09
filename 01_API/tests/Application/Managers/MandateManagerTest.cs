@@ -375,8 +375,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             databaseService.VerifyAll();
         }
 
-        [Fact]
-        public async Task RefreshMandatsStatusesAsync_CaseOk()
+        [Theory]
+        [InlineData(9, true, CollectionStatus.Incident, CollectionStatus.ToDo, true)]
+        [InlineData(9, true, CollectionStatus.Incident, CollectionStatus.ToDo, false)]
+        [InlineData(10, true, CollectionStatus.ToDo, CollectionStatus.ToDo, false)]
+        [InlineData(10, false, CollectionStatus.ToDo, CollectionStatus.InProgress, false)]
+        public async Task RefreshMandatsStatusesAsync_CaseOk(int newJdcStatusCode, bool oldJdcStatusCodePending, CollectionStatus newStatus, CollectionStatus oldStatus, bool isSignedMandatUploaded)
         {
             // Arrange
             var technicalCollections = new List<TechnicalCollection>()
@@ -390,7 +394,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                         "03558",
                         "00020006536",
                         "41"),
-                    "etatT"),
+                    newJdcStatusCode.ToString()),
             };
             var collection = new Collection(
                 new PredictableGuid().NewGuid(),
@@ -399,22 +403,32 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 EntityFactory.Bban,
                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                EntityFactory.Status());
+                EntityFactory.Status(collectionStatus: oldStatus));
 
             var jedeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
             jedeclareService.Setup(service => service.GetAllConfigurationFromFolderAsync(It.IsAny<string>()))
                 .ReturnsAsync(technicalCollections)
                 .Verifiable();
 
+            jedeclareService.Setup(service => service.CheckSignedMandatExists(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(isSignedMandatUploaded)
+                .Verifiable();
+
             var databaseService = new Mock<IDatabaseService>();
 
             databaseService.Setup(x => x.GetRefStatusCodeByJdcCodeAsync(It.IsAny<string>()))
-                   .ReturnsAsync(EntityFactory.Status(CollectionStatus.Incident))
+                   .ReturnsAsync(EntityFactory.Status(newStatus))
                    .Verifiable();
 
             databaseService.Setup(x => x.GetCollectionById(It.IsAny<Guid>()))
                    .ReturnsAsync(collection)
                    .Verifiable();
+
+            databaseService.Setup(x => x.CreateStatusAsync(It.IsAny<Guid>(), It.IsAny<int>()))
+                   .ReturnsAsync(EntityFactory.Status());
+
+            databaseService.Setup(x => x.CheckJdcStatusCodeIsPendingAsync(It.IsAny<Guid>()))
+                   .ReturnsAsync(oldJdcStatusCodePending);
 
             var mandateManager = new MandateManager(databaseService.Object, new Mock<ICompanyManager>(MockBehavior.Strict).Object, jedeclareService.Object, null!, null!, this.emailOptions, this.mockLogger.Object);
 
@@ -422,7 +436,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             await mandateManager.RefreshMandatsStatusesAsync(technicalCollections!);
 
             // Assert
-            databaseService.VerifyAll();
+            databaseService.Verify();
         }
 
         [Fact]
@@ -515,7 +529,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(isUploaded);
 
             this.mockDatabaseService
-                .Setup(m => m.CreateStatus(collectionId, It.Is<int>(sc => sc == (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded)))
+                .Setup(m => m.CreateStatusAsync(collectionId, It.Is<int>(sc => sc == (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded)))
                 .ReturnsAsync(new Status(CollectionStatus.InProgress, "InProgress"));
 
             var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions, this.mockLogger.Object);
@@ -584,7 +598,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             result.Should().Be(mandate);
             this.mockDatabaseService.Verify(m => m.GetCollectionById(collectionId), Times.Once);
             this.mockJeDeclareService.Verify(m => m.UploadSignedMandate(It.IsAny<Collection>(), It.IsAny<byte[]>()), Times.Once);
-            this.mockDatabaseService.Verify(m => m.CreateStatus(It.IsAny<Guid>(), It.IsAny<int>()), Times.Never);
+            this.mockDatabaseService.Verify(m => m.CreateStatusAsync(It.IsAny<Guid>(), It.IsAny<int>()), Times.Never);
         }
 
         [Fact]

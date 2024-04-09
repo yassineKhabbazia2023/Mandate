@@ -32,6 +32,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         }
 
         [Theory]
+        [InlineData("m", "", "Doe", "m  Doe")]
         [InlineData("m", null, "Doe", "m  Doe")]
         [InlineData("m", "Jhon", null, "m Jhon ")]
         [InlineData(null, "Jhon", "Doe", " Jhon Doe")]

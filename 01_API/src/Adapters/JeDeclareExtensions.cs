@@ -27,7 +27,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             Client client = new Client
             {
                 Id = company.BankServicesProviderId!,
-                RaisonSociale = company.Name!.Sanitize(),
+                RaisonSociale = company.Name!.Sanitize() !,
                 Siret = CreateSiretFromCompany(company),
                 Responsable = CreateResponsableFromCompany(company),
             };

@@ -47,5 +47,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             nom.Should().Be(expectedNom);
             prenom.Should().Be(expectedPrenom);
         }
+
+        [Theory]
+        [InlineData("", "")]
+        [InlineData(null, null)]
+        [InlineData("l'eco", "l eco")]
+        public void Sanitize(string input, string result)
+        {
+            input.Sanitize().Should().Be(result);
+        }
     }
 }

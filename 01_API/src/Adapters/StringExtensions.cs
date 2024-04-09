@@ -63,14 +63,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return (sexe, nom, prenom);
         }
 
-        public static string Sanitize(this string str)
+        public static string? Sanitize(this string? str)
         {
-            if (!string.IsNullOrEmpty(str))
-            {
-                return string.Empty;
-            }
-
-            return str.Replace("'", " ");
+            return str?.Replace("'", " ") ?? null;
         }
     }
 }

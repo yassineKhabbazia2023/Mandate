@@ -65,6 +65,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public static string Sanitize(this string str)
         {
+            if (!string.IsNullOrEmpty(str))
+            {
+                return string.Empty;
+            }
+
             return str.Replace("'", " ");
         }
     }

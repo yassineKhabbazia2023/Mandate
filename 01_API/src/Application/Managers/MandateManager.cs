@@ -201,16 +201,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             var collection = await this.databaseService.GetCollectionById(collectionId);
             var isJdcPartner = IsJdcPartner(collection);
 
-            if (isJdcPartner)
-            {
-                return await this.jeDeclareService.DeactivateCollection(collection);
-            }
-            else
+            if (!isJdcPartner)
             {
                 var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collection, this.options.Value);
                 await this.notificationsService.SendEmailAsync(emailCommand);
-                return true;
             }
+
+            return await this.jeDeclareService.DeactivateCollection(collection);
         }
 
         public async Task InsertFormIOCollectionAsync(Collection collection)

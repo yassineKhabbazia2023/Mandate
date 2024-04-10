@@ -1139,7 +1139,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             // Assert
             result.Should().BeTrue();
             this.mockDatabaseService.Verify(m => m.GetCollectionById(It.IsAny<Guid>()), Times.Once);
-            this.mockJeDeclareService.Verify(m => m.DeactivateCollection(It.IsAny<Collection>()), Times.Never);
+            this.mockJeDeclareService.Verify(m => m.DeactivateCollection(It.IsAny<Collection>()), Times.Once);
             this.mockNotificationsService.Verify(m => m.SendEmailAsync(It.IsAny<EmailCommand>()), Times.Once);
         }
 

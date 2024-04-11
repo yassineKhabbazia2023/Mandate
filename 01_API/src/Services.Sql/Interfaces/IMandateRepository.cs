@@ -100,7 +100,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         /// <param name="bankServicesProviderId">JeDeclare Folder identifier.</param>
         /// <param name="companyId">the Ccompany identifier.</param>
         /// <returns>A task result.</returns>
-        Task CreateOrUpdateFolderAsync(string bankServicesProviderId, Guid companyId);
+        Task CreateOrUpdateFolderAsync(string bankServicesProviderId, int companyId);
 
         Task<CollectionDb> CreateCollectionAsync(CollectionDb collection);
 

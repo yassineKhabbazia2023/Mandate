@@ -34,7 +34,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var signatory = new Signatory(title, firstName, lastName, "john.doe@example.com");
             var address = new Address("123 Main St", "Apt 4B", "12345", "New York", "USA");
 
-            var company = new Company(Guid.NewGuid(), "Example Company", "12345678901234", "testErpId", "BSP1234", signatory, address);
+            var company = new Company(101, "Example Company", "12345678901234", "testErpId", "BSP1234", signatory, address);
 
             var dossierClient = new DossierClient()
             {
@@ -100,7 +100,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 country: "country");
 
             var expectedCompany = new Company(
-                id: Guid.Empty,
+                id: default,
                 name: "companyName",
                 siretNumber: "79887416000046",
                 erpId: null,
@@ -159,7 +159,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 .ReturnsAsync(releve)
                 .Verifiable();
 
-            Company company = new Company(Guid.NewGuid(), "mega", "45207964300014", "1999156874", bankServicesProviderId, signatory, null);
+            Company company = new Company(101, "mega", "45207964300014", "1999156874", bankServicesProviderId, signatory, null);
             Bank? bank = new Bank("12345", "biap", "biap group", "ebicsCardIdT", new BankAgreement(JdcPartnership.NonPartner));
             Bban bban = new Bban("12345", "56789", "12345678901", "88", "6789", bank);
 
@@ -494,7 +494,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 .ReturnsAsync(true);
 
             var adapter = new JeDeclareAdapter(jedeclareClient.Object);
-            var result = await adapter.DeactivateCollection(new Collection(Guid.Empty, "r", new Company(Guid.Empty, null!, null!, null!, "f", null!, null!), null!, DateTime.MinValue, DateTime.MinValue, null!));
+            var result = await adapter.DeactivateCollection(new Collection(Guid.Empty, "r", new Company(default, null!, null!, null!, "f", null!, null!), null!, DateTime.MinValue, DateTime.MinValue, null!));
 
             result.Should().BeTrue();
             jedeclareClient.VerifyAll();
@@ -508,7 +508,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 .ThrowsAsync(new JeDeclareApiException("Error message"));
 
             var adapter = new JeDeclareAdapter(jedeclareClient.Object);
-            Func<Task> action = async () => await adapter.DeactivateCollection(new Collection(Guid.Empty, "r", new Company(Guid.Empty, null!, null!, null!, "f", null!, null!), null!, DateTime.MinValue, DateTime.MinValue, null!));
+            Func<Task> action = async () => await adapter.DeactivateCollection(new Collection(Guid.Empty, "r", new Company(default, null!, null!, null!, "f", null!, null!), null!, DateTime.MinValue, DateTime.MinValue, null!));
             await action.Should().ThrowAsync<ServicesProviderException>();
         }
 

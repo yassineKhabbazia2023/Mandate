@@ -17,9 +17,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             entity.GetType().GetProperties().Length.Should().Be(4);
 
             // Test all properties ; number of tests below should match the number of propeties above
-            entity.CompanyId.Should().Be(Guid.Empty);
+            entity.CompanyId.Should().Be(default);
             entity.Company.Should().Be(null);
-            entity.CollaboratorId.Should().Be(Guid.Empty);
+            entity.CollaboratorId.Should().Be(default);
             entity.Collaborator.Should().Be(null);
         }
 
@@ -27,9 +27,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
         public void Values()
         {
             // Arrange & Act
-            PredictableGuid generator = new PredictableGuid();
-            Guid comapanyId = generator.NewGuid();
-            Guid collaboratorId = generator.NewGuid();
+            int comapanyId = 1;
+            int collaboratorId = 1;
             var entity = new CompanyCollaboratorDb()
             {
                 CompanyId = comapanyId,
@@ -51,11 +50,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             };
 
             // Assert
-            entity.CompanyId.Should().Be(Guid.Parse("00000001-0000-0000-0000-000000000000"));
+            entity.CompanyId.Should().Be(1);
             entity.Company.Name.Should().Be("JEAN LÉVAGE");
             entity.Company.SiretNumber.Should().Be("40902900600031");
             entity.Company.ErpId.Should().Be("1000265308");
-            entity.CollaboratorId.Should().Be(Guid.Parse("00000002-0000-0000-0000-000000000000"));
+            entity.CollaboratorId.Should().Be(1);
             entity.Collaborator.FirstName.Should().Be("John");
             entity.Collaborator.LastName.Should().Be("Doe");
             entity.Collaborator.Email.Should().Be("john.doe@example.com");

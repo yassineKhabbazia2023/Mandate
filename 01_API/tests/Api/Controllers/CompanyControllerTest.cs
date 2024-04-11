@@ -32,7 +32,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var address = new Address("123 Main St", "Apt 4B", "12345", "New York", "USA");
 
             // Create Company object
-            var expectedCompany = new Company(Guid.NewGuid(), "Example Company", "12345678901234", testErpId, "BSP1234", signatory, address);
+            var expectedCompany = new Company(1, "Example Company", "12345678901234", testErpId, "BSP1234", signatory, address);
 
             this.mockCompanyManager.Setup(m => m.GetCompanyByErpIdAsync(testErpId))
                                .ReturnsAsync(expectedCompany);

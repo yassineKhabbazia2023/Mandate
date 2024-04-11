@@ -14,7 +14,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         public static Bban Bban => new ("12345", "54321", "12345678901", "01", "6789", Bank);
 
-        public static Company Company => new (new PredictableGuid().NewGuid(), "Raison Sociale", "siret", "ibsAccountNumber", "jdcDossierId", Signatory, Address);
+        public static Company Company => new (0, "Raison Sociale", "siret", "ibsAccountNumber", "jdcDossierId", Signatory, Address);
 
         public static Signatory Signatory => new ("Mme", "First", "Last", "first.last@outlook.com");
 
@@ -22,7 +22,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         public static Counters Counters => new (1, 1, 0, 0, 0, 0);
 
-        public static Collaborator Collaborator => new (new PredictableGuid().NewGuid(), "collab@email.com", "fname", "lname");
+        public static Collaborator Collaborator => new (0, "collab@email.com", "fname", "lname");
 
         public static PagedMandate PagedMandate(List<Collection> collections) => new (Counters, collections);
 

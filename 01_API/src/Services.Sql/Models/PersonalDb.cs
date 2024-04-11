@@ -8,7 +8,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
     {
         public Guid Id { get; set; }
 
-        public Guid? CompanyId { get; set; }
+        public int? CompanyId { get; set; } = null;
 
         public CompanyDb? Company { get; set; } = null!;
 

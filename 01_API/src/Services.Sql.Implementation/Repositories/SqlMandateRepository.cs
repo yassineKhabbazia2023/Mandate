@@ -46,12 +46,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 .Include(item => item.Statuses).ThenInclude(item => item.RefStatusCode)
                 .AsQueryable();
 
-            if (query?.CollaboratorId != Guid.Empty)
+            if (query?.CollaboratorId != 0)
             {
                 mandates = ApplayCollaboratorFilter(mandates, query!.CollaboratorId, context);
             }
 
-            mandates = ApplySearchTermFilter(mandates, query);
+            mandates = ApplySearchTermFilter(mandates, query!);
             mandates = ApplyStatusCodesFilter(mandates, query);
             mandates = ApplyCreationDateFilter(mandates, query);
             mandates = ApplyModificationDateFilter(mandates, query);
@@ -402,7 +402,7 @@ new RefBankDb() { BankCode = "16798", BankName = "Treezor - Qonto - Shine - Anyt
 new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = string.Empty, BankCategory = string.Empty, BankGroup = string.Empty, IsJdcScrapable = true, IsJdcPartner = false, HasReleveAgreement = false, HasLiasseAgreement = false, AllowsDemat = false, JdcPartnership = JdcPartnership.Scrappable, EbicsCardId = string.Empty },
             };
             await context.RefBank.AddRangeAsync(bankList.ToArray());
-            await context.SaveChangesAsync(); 
+            await context.SaveChangesAsync();
             int[] pulseCodes = new int[] { 30, 10, 30, 30, 40, 30, 50, 20, 20, 10, 20, 10, 20, 40, 50, 50, 40, 10, 20, 10 };
             int jdcStatusCode = -2;
             foreach (var pulseCode in pulseCodes)
@@ -434,6 +434,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
 
         public async Task CreateFakeAuthAsync()
         {
+            var rand = new Random();
             using var context = new MandateContext(this.options);
             string[] collabs = new string[] { "ccouchut", "cdewet", "melleuch", "mharchaoui", "fmanadi", "cmarwa", "smedini", "gnguepi", "clementprati" };
             foreach (var collab in collabs)
@@ -442,7 +443,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                 {
                     await context.Collaborator.AddAsync(new CollaboratorDb()
                     {
-                        Id = Guid.NewGuid(),
+                        Id = rand.Next(),
                         Email = collab + "@kpmg.fr",
                         FirstName = "FAKE",
                         LastName = collab,
@@ -1441,7 +1442,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             var accountNumber = (2000000000L + rand.Next(1000, 9999)).ToString();
             if (!context.Company.Any(t => t.ErpId == accountNumber))
             {
-                var companyId = Guid.NewGuid();
+                var companyId = rand.Next();
                 await context.Company.AddAsync(new CompanyDb()
                 {
                     Id = companyId,
@@ -1516,7 +1517,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             return await collab.SingleAsync();
         }
 
-        public async Task CreateOrUpdateFolderAsync(string bankServicesProviderId, Guid companyId)
+        public async Task CreateOrUpdateFolderAsync(string bankServicesProviderId, int companyId)
         {
             using var context = new MandateContext(this.options);
 
@@ -1647,7 +1648,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             return currentJdcStatusCode.StatusCode == (int)JdcCollectionStatus.Activation_Requested_Collection_Pending;
         }
 
-        private static CollectionDb GenerateFakeCollection(Guid collectionId, Guid companyId)
+        private static CollectionDb GenerateFakeCollection(Guid collectionId, int companyId)
         {
             var rand = new Random();
 
@@ -1757,7 +1758,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             return mandates;
         }
 
-        private static IQueryable<CollectionDb> ApplayCollaboratorFilter(IQueryable<CollectionDb> mandates, Guid collaboratorId, MandateContext context)
+        private static IQueryable<CollectionDb> ApplayCollaboratorFilter(IQueryable<CollectionDb> mandates, int collaboratorId, MandateContext context)
         {
             mandates = mandates
                 .Where(item => context.CompanyCollaborator

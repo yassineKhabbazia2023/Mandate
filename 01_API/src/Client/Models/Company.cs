@@ -9,7 +9,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
     public class Company
     {
         [JsonConstructor]
-        public Company(Guid id, string? name, string siretNumber, string? erpId, Signatory? signatory, Address? address)
+        public Company(int id, string? name, string siretNumber, string? erpId, Signatory? signatory, Address? address)
         {
             this.Id = id;
             this.Name = name;
@@ -19,7 +19,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             this.Address = address;
         }
 
-        public Guid Id { get; }
+        public int Id { get; }
 
         public string? Name { get; }
 

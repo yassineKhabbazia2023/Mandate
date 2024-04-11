@@ -36,7 +36,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         public static Collection ToModel(this Sql.CollectionDb source)
         {
             Company company = new Company(
-                source.Company != null ? source.Company.Id : Guid.Empty,
+                source.Company != null ? source.Company.Id : default,
                 source.Company?.Name!,
                 source.Company?.SiretNumber!,
                 source.Company?.ErpId,
@@ -89,7 +89,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 source?.RefStatusCode?.StatusNameFr!);
         }
 
-        public static Sql.CollectionQuery ToSql(this CollectionQueryDto source, Guid collaboratorId)
+        public static Sql.CollectionQuery ToSql(this CollectionQueryDto source, int collaboratorId)
         {
             return new Sql.CollectionQuery
             {
@@ -107,7 +107,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
         }
 
-        public static Sql.CollectionDb ToSql(this Bban source, Guid companyId)
+        public static Sql.CollectionDb ToSql(this Bban source, int companyId)
         {
             return new Sql.CollectionDb()
             {
@@ -185,7 +185,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 City = company.Address?.City,
                 Country = company.Address?.Country,
                 Email = company.Signatory?.Email!,
-                CompanyId = company.Id != Guid.Empty ? company.Id : null,
+                CompanyId = company.Id!,
                 FirstName = company.Signatory?.FirstName,
                 LastName = company.Signatory?.LastName,
                 Street = company.Address?.Street,
@@ -210,7 +210,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
         }
 
-        public static Sql.CollectionDb ToCollectionDB(this Collection collection, Guid companyId)
+        public static Sql.CollectionDb ToCollectionDB(this Collection collection, int companyId)
         {
             return new Sql.CollectionDb()
             {

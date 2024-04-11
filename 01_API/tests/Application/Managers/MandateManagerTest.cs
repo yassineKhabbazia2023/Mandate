@@ -59,7 +59,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         {
             // Arrange
             var id = new PredictableGuid().NewGuid();
-            var companyId = new PredictableGuid().NewGuid();
+            var companyId = 1;
 
             var company = TestHelper.GetCompany(companyId, "bankServicesProviderId");
             Bban bban = TestHelper.GetBban("ebicsCardId", true);
@@ -104,7 +104,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         {
             // Arrange
             var id = Guid.NewGuid();
-            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), string.Empty);
+            var company = TestHelper.GetCompany(1, string.Empty);
             Bban bban = TestHelper.GetBban("ebicsCardId", true);
             Status status = TestHelper.GetStatus();
             var collection = new Collection(
@@ -115,8 +115,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 DateTime.Now,
                 DateTime.Now,
                 status);
-
-            var expectedBytes = Array.Empty<byte>();
 
             this.mockDatabaseService
                 .Setup(m => m.GetCollectionById(id))
@@ -134,7 +132,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         {
             // Arrange
             var id = Guid.NewGuid();
-            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "bankServicesProviderId");
+            var company = TestHelper.GetCompany(1, "bankServicesProviderId");
             Bban bban = TestHelper.GetBban(string.Empty, true);
             Status status = TestHelper.GetStatus();
             var collection = new Collection(
@@ -168,7 +166,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         {
             // Arrange
             var id = Guid.NewGuid();
-            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "bankServicesProviderId");
+            var company = TestHelper.GetCompany(1, "bankServicesProviderId");
             Bban bban = TestHelper.GetBban("bbanServicesProviderId", false);
             Status status = TestHelper.GetStatus();
             var collection = new Collection(
@@ -225,10 +223,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(collaborator)
                 .Verifiable();
 
-            Bank bank = new Bank("12345", "bn", "bg", string.Empty, new BankAgreement(Mandate.JdcPartnership.NonPartner));
-
             PagedMandate pagedMandate = EntityFactory.PagedMandate(new List<Collection> { EntityFactory.Collection });
-            databaseService.Setup(r => r.GetAllCollectionsAsync(query, new Guid("00000001-0000-0000-0000-000000000000")))
+            databaseService.Setup(r => r.GetAllCollectionsAsync(query, 0))
                 .ReturnsAsync(pagedMandate)
                 .Verifiable();
 
@@ -292,13 +288,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                  Mandate.CollectionSortCriteria.AccountNumber,
                  "collab@email.com");
 
-            Collaborator collaborator = new Collaborator(new Guid("00000001-0000-0000-0000-000000000000"), "collab@email.com", "fname", "lname");
+            Collaborator collaborator = new Collaborator(1, "collab@email.com", "fname", "lname");
 
             var databaseService = new Mock<IDatabaseService>();
             databaseService.Setup(x => x.GetCollaboratorByEmail("collab@email.com"))
                                .ReturnsAsync(collaborator);
 
-            databaseService.Setup(x => x.GetAllCollectionsAsync(query, new Guid("00000001-0000-0000-0000-000000000000")))
+            databaseService.Setup(x => x.GetAllCollectionsAsync(query, 1))
                    .ThrowsAsync(new Exception("message"));
 
             var mandateManager = new MandateManager(databaseService.Object, new Mock<ICompanyManager>(MockBehavior.Strict).Object, new Mock<IJeDeclareService>(MockBehavior.Strict).Object, null!, null!, this.emailOptions, this.mockLogger.Object);
@@ -325,11 +321,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                  Mandate.CollectionSortCriteria.AccountNumber,
                  "collab@email.com");
 
-            Collaborator collaborator = EntityFactory.Collaborator;
-
             var databaseService = new Mock<IDatabaseService>(MockBehavior.Strict);
-
-            Bank bank = new Bank("12345", "bn", "bg", string.Empty, new BankAgreement(Mandate.JdcPartnership.NonPartner));
 
             PagedTechnicalMandate pagedTechnicalMandate = EntityFactory.PagedTechnicalMandate(new List<Collection> { EntityFactory.Collection });
             databaseService.Setup(r => r.GetAllTechnicalCollectionsAsync(query))
@@ -359,8 +351,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                  Mandate.SortOrder.Ascending,
                  Mandate.CollectionSortCriteria.AccountNumber,
                  "collab@email.com");
-
-            Collaborator collaborator = new Collaborator(new Guid("00000001-0000-0000-0000-000000000000"), "collab@email.com", "fname", "lname");
 
             var databaseService = new Mock<IDatabaseService>();
 
@@ -469,14 +459,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                         "41"),
                     "etatT"),
             };
-            var collection = new Collection(
-                new PredictableGuid().NewGuid(),
-                "1234",
-                EntityFactory.Company,
-                EntityFactory.Bban,
-                new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
-                new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                EntityFactory.Status());
 
             var jedeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
             jedeclareService.Setup(service => service.GetAllConfigurationFromFolderAsync(It.IsAny<string>()))
@@ -499,7 +481,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         {
             // Arrange
             var collectionId = new PredictableGuid().NewGuid();
-            var companyId = new PredictableGuid().NewGuid();
+            var companyId = 1;
 
             var company = TestHelper.GetCompany(companyId, "bankServicesProviderId");
             Bban bban = TestHelper.GetBban("ebicsCardId", true);
@@ -552,7 +534,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         {
             // Arrange
             var collectionId = new PredictableGuid().NewGuid();
-            var companyId = new PredictableGuid().NewGuid();
+            var companyId = 1;
 
             var company = TestHelper.GetCompany(companyId, "bankServicesProviderId");
             Bban bban = TestHelper.GetBban("ebicsCardId", true);
@@ -606,7 +588,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         {
             // Arrange
             var collectionId = new PredictableGuid().NewGuid();
-            var companyId = new PredictableGuid().NewGuid();
+            var companyId = 1;
 
             var company = TestHelper.GetCompany(companyId, "bankServicesProviderId");
             Bban bban = TestHelper.GetBban("ebicsCardId", false);
@@ -765,12 +747,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             collection.Statuses.Count(s => s.IsCurrent).Should().Be(1);
             collection.Statuses.Count(s => !s.IsCurrent).Should().Be(1);
 
-            var creationStatus = collection.Statuses.Where(item => !item.IsCurrent).FirstOrDefault();
+            var creationStatus = collection.Statuses.Find(item => !item.IsCurrent);
             creationStatus.Should().NotBeNull();
             creationStatus!.StatusCode.Should().Be(-1);
             creationStatus!.CollectionId.Should().Be(collectionId);
 
-            var currentStatus = collection.Statuses.Where(item => item.IsCurrent).FirstOrDefault();
+            var currentStatus = collection.Statuses.Find(item => item.IsCurrent);
             currentStatus.Should().NotBeNull();
             currentStatus!.StatusCode.Should().Be(10);
             currentStatus!.CollectionId.Should().Be(collectionId);
@@ -910,7 +892,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         {
             // Arrange
             var id = new PredictableGuid().NewGuid();
-            var companyId = new PredictableGuid().NewGuid();
+            var companyId = 1;
 
             var company = TestHelper.GetCompany(companyId, "bankServicesProviderId");
             Bban bban = TestHelper.GetBban("ebicsCardId", true);
@@ -950,7 +932,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         {
             // Arrange
             var id = Guid.NewGuid();
-            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), string.Empty);
+            var company = TestHelper.GetCompany(1, string.Empty);
             Bban bban = TestHelper.GetBban("ebicsCardId", true);
             Status status = TestHelper.GetStatus();
             var collection = new Collection(
@@ -961,7 +943,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 DateTime.Now,
                 DateTime.Now,
                 status);
-            var expectedBytes = Array.Empty<byte>();
 
             this.mockDatabaseService
                 .Setup(m => m.GetCollectionById(id))
@@ -989,7 +970,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 DateTime.Now,
                 DateTime.Now,
                 status);
-            var expectedBytes = Array.Empty<byte>();
 
             this.mockDatabaseService
                 .Setup(m => m.GetCollectionById(id))
@@ -1007,7 +987,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         {
             // Arrange
             var id = Guid.NewGuid();
-            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "bankServicesProviderId");
+            var company = TestHelper.GetCompany(1, "bankServicesProviderId");
             Bban bban = TestHelper.GetBban(string.Empty, true);
             Status status = TestHelper.GetStatus();
             var collection = new Collection(
@@ -1040,7 +1020,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         {
             // Arrange
             var id = Guid.NewGuid();
-            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "bankServicesProviderId");
+            var company = TestHelper.GetCompany(1, "bankServicesProviderId");
             Status status = TestHelper.GetStatus();
             var collection = new Collection(
                 Guid.NewGuid(),
@@ -1071,7 +1051,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         {
             // Arrange
             var collectionId = new PredictableGuid().NewGuid();
-            var companyId = new PredictableGuid().NewGuid();
+            var companyId = 1;
 
             var mandateId = new PredictableGuid().NewGuid();
             var company = TestHelper.GetCompany(companyId, "bankServicesProviderId");
@@ -1148,7 +1128,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         {
             // Arrange
             var id = Guid.NewGuid();
-            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "bankServicesProviderId");
+            var company = TestHelper.GetCompany(1, "bankServicesProviderId");
             Bban bban = TestHelper.GetBban(string.Empty, true);
             Status status = TestHelper.GetStatus();
             var collection = new Collection(
@@ -1161,7 +1141,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 status);
 
             this.mockDatabaseService
-               .Setup(m => m.InsertFormIOCollectionAsync(collection, new Guid("00000000-0000-0000-0000-000000000001")))
+               .Setup(m => m.InsertFormIOCollectionAsync(collection, 1))
                .Returns(Task.CompletedTask);
 
             this.mockDatabaseService.Setup(r => r.CheckCollecteConfigExistAsync(bban))
@@ -1185,8 +1165,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         public async Task InsertFormIOCollectionAsync_Throw_Exception_When_Collect_Exists()
         {
             // Arrange
-            var id = Guid.NewGuid();
-            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "bankServicesProviderId");
+            var company = TestHelper.GetCompany(1, "bankServicesProviderId");
             Bban bban = TestHelper.GetBban(string.Empty, true);
             Status status = TestHelper.GetStatus();
             var collection = new Collection(
@@ -1225,7 +1204,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             var pdfTemplate1page = Convert.FromBase64String(template1page);
 
             var id = Guid.NewGuid();
-            var company = TestHelper.GetCompany(new Guid("00000000-0000-0000-0000-000000000001"), "bankServicesProviderId");
+            var company = TestHelper.GetCompany(1, "bankServicesProviderId");
             Bban bban = TestHelper.GetBban("12345", true);
             Status status = TestHelper.GetStatus();
             var collection = new Collection(
@@ -1236,8 +1215,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 DateTime.Now,
                 DateTime.Now,
                 status);
-
-            var ms = new MemoryStream(pdfTemplate);
 
             this.mockJeDeclareService
               .Setup(m => m.GetMandatPdfAsync(collection.Company!.BankServicesProviderId!, collection.Bban!.BbanServicesProviderId!))

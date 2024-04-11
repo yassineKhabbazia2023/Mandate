@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [Mandate].[Company]
 (
-	[Id] UNIQUEIDENTIFIER NOT NULL,
+	[Id] INT NOT NULL,
 	[Name] NVARCHAR(100) NULL, 
 	[SiretNumber] CHAR(14) NOT NULL, 
 	[ErpId] VARCHAR(50) NULL, 

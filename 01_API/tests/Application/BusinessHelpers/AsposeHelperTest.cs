@@ -49,7 +49,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
                 Guid.Empty,
                 null,
                 new Company(
-                    Guid.Empty,
+                    1,
                     "Société test",
                     "12345678901234",
                     null,

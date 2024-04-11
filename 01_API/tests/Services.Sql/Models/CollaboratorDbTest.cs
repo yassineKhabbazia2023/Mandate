@@ -12,7 +12,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             // Arrange & Act
             var entity = new CollaboratorDb()
             {
-                Id = Guid.Empty,
+                Id = 1,
                 Email = "smedini@kpmg.fr",
                 FirstName = null,
                 LastName = null,
@@ -23,7 +23,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             entity.GetType().GetProperties().Length.Should().Be(5);
 
             // Test all properties ; number of tests below should match the number of propeties above
-            entity.Id.Should().Be(Guid.Empty);
+            entity.Id.Should().Be(1);
             entity.Email.Should().NotBeNull();
             entity.FirstName.Should().Be(null);
             entity.LastName.Should().Be(null);
@@ -36,7 +36,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             // Arrange & Act
             var entity = new CollaboratorDb()
             {
-                Id = new PredictableGuid().NewGuid(),
+                Id = 1,
                 Email = "smedini@kpmg.fr",
                 FirstName = "Seif Allah",
                 LastName = "MEDINI",
@@ -44,20 +44,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
                 {
                     new CompanyCollaboratorDb
                     {
-                        CompanyId = Guid.NewGuid(),
+                        CompanyId = 1,
                         Company = new CompanyDb(),
-                        CollaboratorId = Guid.NewGuid(),
+                        CollaboratorId = 1,
                         Collaborator = new CollaboratorDb(),
                     },
                 },
             };
 
             // Assert
-            entity.Id.Should().Be(Guid.Parse("00000001-0000-0000-0000-000000000000"));
+            entity.Id.Should().Be(1);
             entity.Email.Should().Be("smedini@kpmg.fr");
             entity.FirstName.Should().Be("Seif Allah");
             entity.LastName.Should().Be("MEDINI");
-            entity.CompanyCollaborators.Count().Should().Be(1);
+            entity.CompanyCollaborators.Count.Should().Be(1);
         }
     }
 }

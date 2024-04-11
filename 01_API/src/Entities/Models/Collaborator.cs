@@ -6,7 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public class Collaborator
     {
-        public Collaborator(Guid id, string email, string? firstName, string? lastName)
+        public Collaborator(int id, string email, string? firstName, string? lastName)
         {
             this.Id = id;
             this.Email = email;
@@ -14,7 +14,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
             this.LastName = lastName;
         }
 
-        public Guid Id { get; }
+        public int Id { get; }
 
         public string Email { get; }
 

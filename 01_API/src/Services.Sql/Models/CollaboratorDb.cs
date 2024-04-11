@@ -6,7 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 {
     public class CollaboratorDb
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         public string Email { get; set; } = null!;
 

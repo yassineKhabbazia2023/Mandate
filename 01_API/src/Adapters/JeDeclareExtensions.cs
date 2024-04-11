@@ -53,7 +53,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 country: dossierClient.Client.Responsable.Adresse.Pays);
 
             return new Company(
-                id: Guid.Empty,
+                id: default,
                 name: dossierClient.Client.RaisonSociale,
                 siretNumber: dossierClient.Client.Siret.Siren + dossierClient.Client.Siret.Nic,
                 erpId: null,

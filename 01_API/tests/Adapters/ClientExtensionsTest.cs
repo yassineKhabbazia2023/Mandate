@@ -63,7 +63,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public void ToCollectionSummary()
         {
             Guid id = Guid.NewGuid();
-            Company company = new Company(Guid.NewGuid(), "mega", "45207964300014", "1999156874", string.Empty, null, null);
+            Company company = new Company(101, "mega", "45207964300014", "1999156874", string.Empty, null, null);
             Bank? bank = new Bank("12345", "biap", "biap group", string.Empty, null!);
             Bban bban = new Bban("12345", "56789", "12345678901", "88", "6789", bank);
             Status status = new Status(CollectionStatus.ToDo, "todo");
@@ -96,7 +96,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public void ToTechnicalCollectionSummary()
         {
             Guid id = Guid.NewGuid();
-            Company company = new Company(Guid.NewGuid(), "mega", "45207964300014", "1999156874", "12345", null, null);
+            Company company = new Company(101, "mega", "45207964300014", "1999156874", "12345", null, null);
             Bank? bank = new Bank("12345", "biap", "biap group", string.Empty, null!);
             Bban bban = new Bban("12345", "56789", "12345678901", "88", "6789", bank);
             Status status = new Status(CollectionStatus.ToDo, "todo");
@@ -130,7 +130,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public void ToTechnicalCollectionSummary_WithNullAttributes()
         {
             Guid id = Guid.NewGuid();
-            Company company = new Company(Guid.NewGuid(), "mega", "45207964300014", "1999156874", "12345", null, null);
+            Company company = new Company(101, "mega", "45207964300014", "1999156874", "12345", null, null);
             Bank? bank = new Bank("12345", "biap", "biap group", string.Empty, null!);
             Status status = new Status(CollectionStatus.ToDo, "todo");
 
@@ -278,7 +278,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         {
             Counters counters = new Counters(1, 1, 0, 0, 0, 0);
             Company company = new Company(
-                new Guid("00000001-0000-0000-0000-000000000000"),
+                101,
                 "cn",
                 "12345678910",
                 "123456789",
@@ -319,7 +319,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         {
             Counters counters = new Counters(1, 1, 0, 0, 0, 0);
             Company company = new Company(
-                new Guid("00000001-0000-0000-0000-000000000000"),
+                101,
                 "cn",
                 "12345678910",
                 "123456789",

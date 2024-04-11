@@ -90,7 +90,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             var company1 = EntityDbFactory.CompanyDb;
             var company2 = EntityDbFactory.CompanyDb;
-            company2.Id = new PredictableGuid(202).NewGuid();
+            company2.Id = 202;
             company2.Name = "cn2";
             company2.ErpId = "9876543210";
             await context.Company.AddAsync(company1);
@@ -102,19 +102,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var collection22 = EntityDbFactory.CollectionDb;
             var collection23 = EntityDbFactory.CollectionDb;
             collection12.Id = new PredictableGuid(111).NewGuid();
-            collection12.CompanyId = new PredictableGuid(102).NewGuid();
+            collection12.CompanyId = 102;
             collection12.BankCode = "12346";
             collection12.AccountNumber = "12345678902";
             collection21.Id = new PredictableGuid(201).NewGuid();
-            collection21.CompanyId = new PredictableGuid(202).NewGuid();
+            collection21.CompanyId = 202;
             collection21.BankCode = "12347";
             collection21.AccountNumber = "12345678903";
             collection22.Id = new PredictableGuid(211).NewGuid();
-            collection22.CompanyId = new PredictableGuid(202).NewGuid();
+            collection22.CompanyId = 202;
             collection22.BankCode = "12346";
             collection22.AccountNumber = "12345678904";
             collection23.Id = new PredictableGuid(221).NewGuid();
-            collection23.CompanyId = new PredictableGuid(202).NewGuid();
+            collection23.CompanyId = 202;
             collection23.BankCode = "12346";
             collection23.AccountNumber = "12345678905";
             await context.Collection.AddAsync(collection11);
@@ -165,7 +165,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             var companyCollaborator111 = EntityDbFactory.CompanyCollaboratorDb;
             var companyCollaborator112 = EntityDbFactory.CompanyCollaboratorDb;
-            companyCollaborator112.CompanyId = new PredictableGuid(202).NewGuid();
+            companyCollaborator112.CompanyId = 202;
             await context.CompanyCollaborator.AddAsync(companyCollaborator111);
             await context.CompanyCollaborator.AddAsync(companyCollaborator112);
 
@@ -180,7 +180,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response11 = await sqlMandateRepository.SearchCollectionsAsync(query11);
             response11.Item2.Should().Be(5);
@@ -196,7 +196,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Descending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response12 = await sqlMandateRepository.SearchCollectionsAsync(query12);
             response12.Item2.Should().Be(5);
@@ -212,7 +212,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.BankName,
                 SortOrder = SortOrder.Descending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response21 = await sqlMandateRepository.SearchCollectionsAsync(query21);
             response21.Item2.Should().Be(5);
@@ -228,7 +228,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.CreationDate,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response22 = await sqlMandateRepository.SearchCollectionsAsync(query22);
             response22.Item2.Should().Be(5);
@@ -249,7 +249,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.CreationDate,
                 SortOrder = SortOrder.Descending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response29 = await sqlMandateRepository.SearchCollectionsAsync(query29);
             response29.Item2.Should().Be(5);
@@ -270,7 +270,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.ModificationDate,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response23 = await sqlMandateRepository.SearchCollectionsAsync(query23);
             response23.Item2.Should().Be(5);
@@ -286,7 +286,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.ModificationDate,
                 SortOrder = SortOrder.Descending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response28 = await sqlMandateRepository.SearchCollectionsAsync(query28);
             response28.Item2.Should().Be(5);
@@ -302,7 +302,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.Name,
                 SortOrder = SortOrder.Descending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response24 = await sqlMandateRepository.SearchCollectionsAsync(query24);
             response24.Item2.Should().Be(5);
@@ -318,7 +318,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.Name,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var responsec9 = await sqlMandateRepository.SearchCollectionsAsync(queryc9);
             responsec9.Item2.Should().Be(5);
@@ -334,7 +334,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.ErpId,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response25 = await sqlMandateRepository.SearchCollectionsAsync(query25);
             response25.Item2.Should().Be(5);
@@ -350,7 +350,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.ErpId,
                 SortOrder = SortOrder.Descending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var responseErp = await sqlMandateRepository.SearchCollectionsAsync(queryErp);
             responseErp.Item2.Should().Be(5);
@@ -366,7 +366,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.Status,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response26 = await sqlMandateRepository.SearchCollectionsAsync(query26);
             response26.Item2.Should().Be(5);
@@ -382,7 +382,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.Status,
                 SortOrder = SortOrder.Descending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var responseSt = await sqlMandateRepository.SearchCollectionsAsync(querySt);
             responseSt.Item2.Should().Be(5);
@@ -398,7 +398,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
                 Skip = 0,
                 Limit = 2,
             };
@@ -413,7 +413,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId =104,
                 Skip = 2,
                 Limit = 2,
             };
@@ -428,7 +428,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
                 Skip = 3,
                 Limit = 100,
             };
@@ -443,7 +443,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
                 Skip = 100,
                 Limit = 100,
             };
@@ -457,7 +457,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SearchTerm = "bn2",
                 SortCriteria = CollectionSortCriteria.BankName,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
                 Skip = 0,
                 Limit = 2,
             };
@@ -469,7 +469,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var query41 = new CollectionQuery()
             {
                 SearchTerm = "boom",
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response41 = await sqlMandateRepository.SearchCollectionsAsync(query41);
             response41.Item2.Should().Be(0);
@@ -481,7 +481,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SearchTerm = "12345678901",
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response56 = await sqlMandateRepository.SearchCollectionsAsync(query56);
             response56.Item2.Should().Be(1);
@@ -494,7 +494,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SearchTerm = "cn2",
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response58 = await sqlMandateRepository.SearchCollectionsAsync(query58);
             response58.Item2.Should().Be(3);
@@ -509,7 +509,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SearchTerm = "bn2",
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response45 = await sqlMandateRepository.SearchCollectionsAsync(query45);
             response45.Item2.Should().Be(3);
@@ -524,7 +524,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SearchTerm = "1234567890",
                 SortCriteria = CollectionSortCriteria.ErpId,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response59 = await sqlMandateRepository.SearchCollectionsAsync(query59);
             response59.Item2.Should().Be(5);
@@ -542,7 +542,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 CreationDateEnd = new DateTime(2023, 9, 24, 9, 0, 0, DateTimeKind.Utc),
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response42 = await sqlMandateRepository.SearchCollectionsAsync(query42);
             response42.Item2.Should().Be(3);
@@ -558,7 +558,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 ModificationDateEnd = new DateTime(2023, 9, 29, 15, 0, 0, DateTimeKind.Utc),
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response43 = await sqlMandateRepository.SearchCollectionsAsync(query43);
             response43.Item2.Should().Be(4);
@@ -574,7 +574,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 StatusCodes = new List<int> { 30, 40 },
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response46 = await sqlMandateRepository.SearchCollectionsAsync(query46);
             response46.Item2.Should().Be(2);
@@ -588,7 +588,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 StatusCodes = new List<int> { 100 },
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response47 = await sqlMandateRepository.SearchCollectionsAsync(query47);
             response47.Item2.Should().Be(3);
@@ -603,7 +603,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 StatusCodes = new List<int> { 30, 40, 100 },
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response48 = await sqlMandateRepository.SearchCollectionsAsync(query48);
             response48.Item2.Should().Be(5);
@@ -615,19 +615,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 StatusCodes = new List<int> { 3 },
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response49 = await sqlMandateRepository.SearchCollectionsAsync(query49);
             response49.Item2.Should().Be(0);
             response49.Item1.Count.Should().Be(0);
 
-            // Without collaborator id
-            var query50 = new CollectionQuery()
-            {
-                SortCriteria = CollectionSortCriteria.AccountNumber,
-                SortOrder = SortOrder.Ascending,
-                CollaboratorId = Guid.Empty,
-            };
             var response50 = await sqlMandateRepository.SearchCollectionsAsync(query11);
             response50.Item2.Should().Be(5);
             response50.Item1.Count.Should().Be(5);
@@ -647,9 +640,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var sqlMandateRepository = new SqlMandateRepository(this.options);
 
             PredictableGuid generator = new PredictableGuid();
-            Guid comapnyId1 = generator.NewGuid();
-            Guid comapnyId2 = generator.NewGuid();
-            Guid collaboratorId = generator.NewGuid();
+            int comapnyId1 = 1;
+            int comapnyId2 = 2;
+            int collaboratorId = 1;
 
             var collectionId1 = generator.NewGuid();
             var collectionId2 = generator.NewGuid();
@@ -807,10 +800,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var company1 = EntityDbFactory.CompanyDb;
             var company2 = EntityDbFactory.CompanyDb;
             var company3 = EntityDbFactory.CompanyDb;
-            company2.Id = new PredictableGuid(202).NewGuid();
+            company2.Id = 202;
             company2.Name = "cn2";
             company2.ErpId = "9876543210";
-            company3.Id = new PredictableGuid(212).NewGuid();
+            company3.Id = 212;
             company3.Name = "cn3";
             company3.ErpId = "9876543211";
             await context.Company.AddAsync(company1);
@@ -819,7 +812,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             var collaborator11 = EntityDbFactory.CollaboratorDb;
             var collaborator12 = EntityDbFactory.CollaboratorDb;
-            collaborator12.Id = new PredictableGuid(204).NewGuid();
+            collaborator12.Id = 204;
             collaborator12.Email = "collab2@email.com";
             collaborator12.FirstName = "fname2";
             collaborator12.LastName = "lname2";
@@ -829,9 +822,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var companyCollaborator111 = EntityDbFactory.CompanyCollaboratorDb;
             var companyCollaborator112 = EntityDbFactory.CompanyCollaboratorDb;
             var companyCollaborator321 = EntityDbFactory.CompanyCollaboratorDb;
-            companyCollaborator112.CompanyId = new PredictableGuid(202).NewGuid();
-            companyCollaborator321.CompanyId = new PredictableGuid(212).NewGuid();
-            companyCollaborator321.CollaboratorId = new PredictableGuid(204).NewGuid();
+            companyCollaborator112.CompanyId = 202;
+            companyCollaborator321.CompanyId = 212;
+            companyCollaborator321.CollaboratorId = 204;
             await context.CompanyCollaborator.AddAsync(companyCollaborator111);
             await context.CompanyCollaborator.AddAsync(companyCollaborator112);
             await context.CompanyCollaborator.AddAsync(companyCollaborator321);
@@ -841,10 +834,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var collection13 = EntityDbFactory.CollectionDb;
             var collection112 = EntityDbFactory.CollectionDb;
             collection12.Id = new PredictableGuid(111).NewGuid();
-            collection12.CompanyId = new PredictableGuid(202).NewGuid();
+            collection12.CompanyId = 202;
             collection12.AccountNumber = "12345678902";
             collection13.Id = new PredictableGuid(121).NewGuid();
-            collection13.CompanyId = new PredictableGuid(212).NewGuid();
+            collection13.CompanyId = 212;
             collection13.AccountNumber = "12345678903";
             collection112.Id = new PredictableGuid(131).NewGuid();
             collection112.AccountNumber = "12345678904";
@@ -912,7 +905,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(104).NewGuid(),
+                CollaboratorId = 104,
             };
             var response1 = await sqlMandateRepository.SearchCollectionsAsync(query1);
             response1.Item2.Should().Be(3);
@@ -925,7 +918,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId = new PredictableGuid(204).NewGuid(),
+                CollaboratorId = 204,
             };
             var response2 = await sqlMandateRepository.SearchCollectionsAsync(query2);
             response2.Item2.Should().Be(1);
@@ -941,13 +934,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             // GetCollectionById
             var collectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111");
-            var companyId = Guid.Parse("b1111111-1111-1111-1111-111111111111");
-            var companyId2 = Guid.Parse("c1111111-1111-1111-1111-111111111111");
+            var companyId = 101;
+            var companyId2 = 102;
 
             var collection = new CollectionDb()
             {
                 Id = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
-                CompanyId = Guid.Parse("b1111111-1111-1111-1111-111111111111"),
+                CompanyId = 101,
                 BankCode = "12345",
                 BranchCode = "23456",
                 AccountNumber = "12345678901",
@@ -959,7 +952,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var collection2 = new CollectionDb()
             {
                 Id = Guid.Parse("d1111111-1111-1111-1111-111111111111"),
-                CompanyId = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
+                CompanyId = 101,
                 BankCode = "12345",
                 BranchCode = "23456",
                 AccountNumber = "12345678901",
@@ -1043,7 +1036,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await using var database = SqlServerFixture.CreateDatabase();
             using var context = new MandateContext(this.options);
 
-            var companyId = Guid.Parse("a1111111-1111-1111-1111-111111111111");
+            var companyId = 1;
             var collectionId = Guid.Parse("b1111111-1111-1111-1111-111111111111");
 
             var refBankDb = new RefBankDb()
@@ -1178,7 +1171,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             using var context = new MandateContext(this.options);
 
             PredictableGuid generator = new PredictableGuid();
-            Guid companyId = generator.NewGuid();  // Ensure this is the same ID used for the foreign key in CollectionDb
+
+            // Ensure this is the same ID used for the foreign key in CollectionDb
+            int companyId = 101;  
             var erpId = "validErpId";
 
             var refBankDb = new RefBankDb()
@@ -1262,7 +1257,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             var collab = EntityDbFactory.CollaboratorDb;
             var collab2 = EntityDbFactory.CollaboratorDb;
-            collab2.Id = new PredictableGuid(105).NewGuid();
+            collab2.Id = 105;
             collab2.Email = "collab2@email.com";
             await context.Collaborator.AddAsync(collab);
             await context.Collaborator.AddAsync(collab2);
@@ -1271,7 +1266,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var sqlMandateRepository = new SqlMandateRepository(this.options);
             var res = await sqlMandateRepository.GetCollaboratorByEmailAsync("collab@email.com");
 
-            res.Id.Should().Be(new PredictableGuid(104).NewGuid());
+            res.Id.Should().Be(104);
             res.Email.Should().Be("collab@email.com");
             res.FirstName.Should().Be("fname");
             res.LastName.Should().Be("lname");
@@ -1310,14 +1305,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             var sqlMandateRepository = new SqlMandateRepository(this.options);
 
-            await sqlMandateRepository.CreateOrUpdateFolderAsync("folderId2", new PredictableGuid(102).NewGuid());
+            await sqlMandateRepository.CreateOrUpdateFolderAsync("folderId2", 102);
 
             var companyFolder = await context.JeDeclareFolder
-                .Where(item => item.CompanyId == new PredictableGuid(102).NewGuid())
+                .Where(item => item.CompanyId == 102)
                 .ToListAsync();
 
             companyFolder.Count.Should().Be(1);
-            companyFolder.Single().CompanyId.Should().Be(new PredictableGuid(102).NewGuid());
+            companyFolder.Single().CompanyId.Should().Be(102);
             companyFolder.Single().JdcDossierId.Should().Be("folderId2");
         }
 
@@ -1337,14 +1332,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             var sqlMandateRepository = new SqlMandateRepository(this.options);
 
-            await sqlMandateRepository.CreateOrUpdateFolderAsync("folderId", new PredictableGuid(102).NewGuid());
+            await sqlMandateRepository.CreateOrUpdateFolderAsync("folderId", 102);
             var all = await context.JeDeclareFolder.ToListAsync();
             var companyFolder = await context.JeDeclareFolder
-                .Where(item => item.CompanyId == new PredictableGuid(102).NewGuid())
+                .Where(item => item.CompanyId == 102)
                 .ToListAsync();
 
             companyFolder.Count.Should().Be(1);
-            companyFolder.Single().CompanyId.Should().Be(new PredictableGuid(102).NewGuid());
+            companyFolder.Single().CompanyId.Should().Be(102);
             companyFolder.Single().JdcDossierId.Should().Be("folderId");
         }
 
@@ -1395,7 +1390,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             using var context = new MandateContext(this.options);
 
             PredictableGuid generator = new PredictableGuid();
-            Guid companyId = generator.NewGuid();  // Ensure this is the same ID used for the foreign key in CollectionDb
+            int companyId = 1;  // Ensure this is the same ID used for the foreign key in CollectionDb
             var erpId = "validErpId";
             var siretNumber = "40930900600031";
 

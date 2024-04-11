@@ -18,13 +18,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<PagedTechnicalMandate> GetAllTechnicalCollectionsAsync(CollectionQueryDto query);
 
-        Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query, Guid collaboratorId);
+        Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query, int collaboratorId);
 
         Task<Collection> GetCollectionById(Guid collectionId);
 
-        Task<Guid> CreateCollectionAsync(Bban bban, Guid companyId);
+        Task<Guid> CreateCollectionAsync(Bban bban, int companyId);
 
-        Task CreateOrUpdateFolderAsync(string bankServicesProviderId, Guid companyId);
+        Task CreateOrUpdateFolderAsync(string bankServicesProviderId, int companyId);
 
         Task<Status?> CreateStatusAsync(Guid collectionId, int statusCode);
 
@@ -38,7 +38,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<Collaborator> GetCollaboratorByEmail(string collaboratorEmail);
 
-        Task SaveSignatoryAsync(Guid? companyId, Guid? collectionId, Signatory signatory, Address address);
+        Task SaveSignatoryAsync(int? companyId, Guid? collectionId, Signatory signatory, Address address);
 
         Task CreateFakeRefAsync();
 
@@ -52,6 +52,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task DeleteFakeDataAsync();
 
-        Task InsertFormIOCollectionAsync(Collection collection, Guid companyId);
+        Task InsertFormIOCollectionAsync(Collection collection, int companyId);
     }
 }

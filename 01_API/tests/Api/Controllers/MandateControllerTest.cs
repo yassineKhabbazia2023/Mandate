@@ -13,7 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
     public class MandateControllerTest
     {
         [Fact]
-        public async void GetCollectionsAsync_When_GetCollectionsAsync_OK()
+        public async Task GetCollectionsAsync_When_GetCollectionsAsync_OK()
         {
             var query = new CollectionQueryDto(
                 string.Empty,
@@ -29,7 +29,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 "collab@email.com");
 
             var company = new Company(
-                new Guid("00000001-0000-0000-0000-000000000000"),
+                1,
                 "cn",
                 "12345678910",
                 "123456789",
@@ -46,14 +46,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     string.Empty,
                     company,
                     bban,
-                    new DateTime(2022, 1, 1),
-                    new DateTime(2022, 1, 1),
+                    new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new Status(CollectionStatus.InProgress, "En cours"));
-
-            List<Collection> collections = new List<Collection>()
-            {
-                collection,
-            };
 
             var pm = new PagedMandate(
                 new Counters(1, 1, 0, 0, 0, 0),
@@ -99,8 +94,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 companyName: "cn",
                 bankName: "bn",
                 accountNumber: "12345678901",
-                creationDate: new DateTime(2022, 1, 1),
-                modificationDate: new DateTime(2022, 1, 1),
+                creationDate: new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                modificationDate: new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                 statusCode: 30);
 
             var expectedCollections = new List<Client.CollectionSummary>()
@@ -116,7 +111,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         }
 
         [Fact]
-        public async void GetCollectionsAsync_When_GetCollectionsAsync_Throw_Exception()
+        public async Task GetCollectionsAsync_When_GetCollectionsAsync_Throw_Exception()
         {
             var query = new CollectionQueryDto(
                 string.Empty,
@@ -160,7 +155,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 "Ascending",
                 "Name") as ObjectResult;
 
-            result!.StatusCode.Should().Be((int)StatusCodes.Status500InternalServerError);
+            result!.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
 
             var errorType = result!.Value as Client.Error;
             errorType.Should().NotBeNull();
@@ -172,7 +167,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         }
 
         [Fact]
-        public async void GetTechnicalCollectionsAsync_CaseOK()
+        public async Task GetTechnicalCollectionsAsync_CaseOK()
         {
             var query = new CollectionQueryDto(
                 string.Empty,
@@ -188,7 +183,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 "collab@email.com");
 
             var company = new Company(
-                new Guid("00000001-0000-0000-0000-000000000000"),
+                1,
                 "cn",
                 "12345678910",
                 "123456789",
@@ -205,14 +200,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     string.Empty,
                     company,
                     bban,
-                    new DateTime(2022, 1, 1),
-                    new DateTime(2022, 1, 1),
+                    new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new Status(CollectionStatus.InProgress, "En cours"));
-
-            List<Collection> collections = new List<Collection>()
-            {
-                collection,
-            };
 
             var pm = new PagedTechnicalMandate(
                 new Counters(1, 1, 0, 0, 0, 0),
@@ -245,8 +235,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 "Ascending",
                 "Name");
 
-            var expectedCounters = new Client.Counters(1, 1, 0, 0, 0, 0);
-
             var expectedCollection = new Client.TechnicalCollectionSummary(
                 id: new Guid("00000002-0000-0000-0000-000000000000"),
                 folderId: "12345",
@@ -271,7 +259,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         }
 
         [Fact]
-        public async void GetTechnicalCollectionsAsync_CaseThrowException()
+        public async Task GetTechnicalCollectionsAsync_CaseThrowException()
         {
             var query = new CollectionQueryDto(
                 string.Empty,
@@ -310,7 +298,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 "Ascending",
                 "Name") as ObjectResult;
 
-            result!.StatusCode.Should().Be((int)StatusCodes.Status500InternalServerError);
+            result!.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
 
             var errorType = result!.Value as Client.Error;
             errorType.Should().NotBeNull();
@@ -450,11 +438,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
             var expectedContentType = "application/pdf";
             var expectedFileName = $"unsigned-mandate-{mandateId}.pdf";
-
-            var expectedResult = new FileContentResult(expectedFileData, expectedContentType)
-            {
-                FileDownloadName = expectedFileName,
-            };
 
             var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
 
@@ -868,11 +851,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var expectedContentType = "application/pdf";
             var expectedFileName = $"signed-mandate-{mandateId}.pdf";
 
-            var expectedResult = new FileContentResult(expectedFileData, expectedContentType)
-            {
-                FileDownloadName = expectedFileName,
-            };
-
             var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, null!);
 
             var result = await controller.DownloadSignedAsync(mandateId);
@@ -1149,7 +1127,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
             var company = new Company(
-                new Guid("00000001-0000-0000-0000-000000000000"),
+                1,
                 "cn",
                 "12345678910",
                 "123456789",
@@ -1166,8 +1144,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     string.Empty,
                     company,
                     bban,
-                    new DateTime(2022, 1, 1),
-                    new DateTime(2022, 1, 1),
+                    new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new Status(CollectionStatus.InProgress, "En cours"));
 
             var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
@@ -1214,19 +1192,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<It.IsValueType>(),
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
-
-            var company = new Company(
-                new Guid("00000001-0000-0000-0000-000000000000"),
-                "cn",
-                "12345678910",
-                "123456789",
-                string.Empty,
-                null,
-                null);
-
-            Bank bank = new Bank("12345", "bn", "bg", string.Empty, new BankAgreement(JdcPartnership.NonPartner));
-
-            Bban bban = new Bban("12345", "54321", "12345678901", "55", string.Empty, bank);
 
             Collection? collection = null;
 
@@ -1276,7 +1241,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
             var company = new Company(
-                new Guid("00000001-0000-0000-0000-000000000000"),
+                1,
                 "cn",
                 "12345678910",
                 "123456789",
@@ -1293,8 +1258,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     string.Empty,
                     company,
                     bban,
-                    new DateTime(2022, 1, 1),
-                    new DateTime(2022, 1, 1),
+                    new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new Status(CollectionStatus.InProgress, "En cours"));
 
             var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);

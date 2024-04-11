@@ -16,10 +16,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
             return new BankAgreement(isJdcPartner ? JdcPartnership.Partner : JdcPartnership.NonPartner);
         }
 
-        public static Company GetCompany(Guid? id = null, string? bankServicesProviderId = null)
+        public static Company GetCompany(int? id = null, string? bankServicesProviderId = null)
         {
             return new Company(
-              id == null ? Guid.NewGuid() : id.Value,
+              id ?? 0,
               "SCI IMMO JACOBINS",
               "83030022400011",
               "1000332927",
@@ -43,15 +43,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
             return new Bban("code", "02408", "00011269900", "58", bbanServicesProviderId, GetBank("ebicsCardId", isJdcPartner));
         }
 
-        public static Collection GetCollection(Guid? companyId = null, string? collectionServicesProviderId = null)
+        public static Collection GetCollection(int? companyId = null, string? collectionServicesProviderId = null)
         {
             return new Collection(
                 Guid.NewGuid(),
                 collectionServicesProviderId,
                 GetCompany(companyId),
                 GetBban(),
-                new DateTime(2023, 10, 18),
-                new DateTime(2023, 10, 18),
+                new DateTime(2023, 10, 18, 0, 0, 0, DateTimeKind.Utc),
+                new DateTime(2023, 10, 18, 0, 0, 0, DateTimeKind.Utc),
                 GetStatus());
         }
 

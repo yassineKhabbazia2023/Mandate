@@ -15,7 +15,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             var address = new Address("123 Main St", "Apt 4B", "12345", "Sample City", "ExampleLand");
 
             var expectedCompany = new Company(
-                Guid.NewGuid(),
+                1,
                 "Example Company",
                 "123456789",
                 "ERP001",

@@ -16,7 +16,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 .Contact;
 
             return new Company(
-                source.Id,
+                default,
                 source.AccountName,
                 source.AccountRegisterIdentification1,
                 source.IBSCode,

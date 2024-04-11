@@ -10,7 +10,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests
         public void Constructor()
         {
             var entity = new Company(
-                new PredictableGuid().NewGuid(),
+                1,
                 "name",
                 "siret",
                 "ibsAccountNumber",
@@ -30,7 +30,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests
             entity.GetType().GetProperties().Length.Should().Be(6);
 
             // Test all properties ; number of tests below should match the number of propeties above
-            entity.Id.Should().Be(Guid.Parse("00000001-0000-0000-0000-000000000000"));
+            entity.Id.Should().Be(1);
             entity.Name.Should().Be("name");
             entity.SiretNumber.Should().Be("siret");
             entity.ErpId.Should().Be("ibsAccountNumber");

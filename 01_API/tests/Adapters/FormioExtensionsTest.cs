@@ -58,7 +58,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             Bban bban1 = new Bban("13507", "00014", "31464482121", "77", "8909441", null);
             var address = new Address("12 RUE DES 2 NATIONS", string.Empty, "59250", "HALLUIN", "France");
             var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "brunelatolivier@gmail.com");
-            var company = new Company(Guid.Empty, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
+            var company = new Company(default, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
             Status status = new Status(CollectionStatus.ToDo, "En cours");
 
             Collection expectedCollection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2023, 10, 10, 8, 50, 3), new DateTime(2023, 12, 10, 8, 50, 3), status);
@@ -108,7 +108,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             Bban bban1 = new Bban("13507", "00014", "31464482121", "77", "8909441", null);
             var address = new Address(null, null, null, null, null);
             var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "brunelatolivier@gmail.com");
-            var company = new Company(Guid.Empty, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
+            var company = new Company(default, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
             Status status = new Status(CollectionStatus.ToDo, "En cours");
 
             Collection expectedCollection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2023, 10, 10, 8, 50, 3), new DateTime(2023, 12, 10, 8, 50, 3), status);

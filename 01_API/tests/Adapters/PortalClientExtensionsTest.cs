@@ -50,7 +50,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             Signatory? signatory = new Signatory("M", "maroo", "elleuch", "maroo@email.com");
             Address? address = new Address("Bâtiment D20 - ZAC", "account delivery", "BP 54", "RAISMES", "France");
             var expectedCompany = new Company(
-                    new Guid("00000001-0000-0000-0000-000000000000"),
+                    default,
                     "name",
                     "12345678901234",
                     "12345678910",

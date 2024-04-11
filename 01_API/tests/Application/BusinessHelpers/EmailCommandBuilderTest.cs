@@ -11,7 +11,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
         {
             // Arrange
             var collectionId = new PredictableGuid().NewGuid();
-            var companyId = new PredictableGuid().NewGuid();
+            var companyId = 1;
 
             var company = TestHelper.GetCompany(companyId, "bankServicesProviderId");
             Bban bban = TestHelper.GetBban("ebicsCardId", false);
@@ -52,7 +52,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
         {
             // Arrange
             var collectionId = new PredictableGuid().NewGuid();
-            var companyId = new PredictableGuid().NewGuid();
+            var companyId = 1;
 
             var company = TestHelper.GetCompany(companyId, "bankServicesProviderId");
             Bban bban = TestHelper.GetBban("ebicsCardId", false);

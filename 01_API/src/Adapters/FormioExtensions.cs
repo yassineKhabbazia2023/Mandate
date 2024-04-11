@@ -32,7 +32,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 headOffice?["signatoryAddressCountry"]?.ToString() !);
 
             Company company = new (
-                Guid.Empty,
+                default,
                 data?["companyName"]?.ToString() !,
                 data?["SIRETNumber"]?.ToString() !,
                 data?["accountNumber"]?.ToString() !,

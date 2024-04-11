@@ -12,7 +12,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         public static CollectionDb CollectionDb => new ()
         {
             Id = new PredictableGuid(101).NewGuid(),
-            CompanyId = new PredictableGuid(102).NewGuid(),
+            CompanyId = 102,
             BankCode = "12345",
             BranchCode = "23456",
             AccountNumber = "12345678901",
@@ -21,9 +21,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             RejectReason = "reason1",
         };
 
-        public static CompanyDb CompanyDb => new ()
+        public static CompanyDb CompanyDb => new()
         {
-            Id = new PredictableGuid(102).NewGuid(),
+            Id = 102,
             Name = "cn1",
             SiretNumber = "12345678901234",
             ErpId = "1234567890",
@@ -68,7 +68,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
         public static CollaboratorDb CollaboratorDb => new ()
         {
-            Id = new PredictableGuid(104).NewGuid(),
+            Id = 104,
             Email = "collab@email.com",
             FirstName = "fname",
             LastName = "lname",
@@ -76,14 +76,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
         public static CompanyCollaboratorDb CompanyCollaboratorDb => new ()
         {
-            CompanyId = new PredictableGuid(102).NewGuid(),
-            CollaboratorId = new PredictableGuid(104).NewGuid(),
+            CompanyId = 102,
+            CollaboratorId = 104,
         };
 
         public static JeDeclareFolderDb JeDeclareFolderDb => new ()
         {
             Id = new PredictableGuid(104).NewGuid(),
-            CompanyId = new PredictableGuid(102).NewGuid(),
+            CompanyId = 102,
             JdcDossierId = "folderId",
         };
 

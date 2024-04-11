@@ -17,7 +17,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             entity.GetType().GetProperties().Length.Should().Be(8);
 
             // Test all properties ; number of tests below should match the number of propeties above
-            entity.Id.Should().Be(Guid.Empty);
+            entity.Id.Should().Be(0);
             entity.Personal.Should().Be(null);
             entity.JeDeclareFolder.Should().Be(null);
             entity.Collections.Should().BeNull();
@@ -31,9 +31,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
         public void Values()
         {
             // Arrange & Act
-            PredictableGuid generator = new PredictableGuid();
-            Guid comapnyId = generator.NewGuid();
-            Guid collaboratorId = generator.NewGuid();
+            int comapnyId = 0;
+            int collaboratorId = 0;
             var entity = new CompanyDb()
             {
                 Id = comapnyId,
@@ -66,8 +65,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             };
 
             // Assert
-            entity.Id.Should().Be(Guid.Parse("00000001-0000-0000-0000-000000000000"));
-            entity.Personal.CompanyId.Should().Be(Guid.Parse("00000001-0000-0000-0000-000000000000"));
+            entity.Id.Should().Be(0);
+            entity.Personal.CompanyId.Should().Be(0);
             entity.Personal.Title.Should().Be("Mr.");
             entity.Personal.FirstName.Should().Be("John");
             entity.Personal.LastName.Should().Be("Doe");
@@ -80,7 +79,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             entity.Name.Should().Be("JEAN LÉVAGE");
             entity.SiretNumber.Should().Be("40902900600031");
             entity.ErpId.Should().Be("1000265308");
-            entity.CompanyCollaborators.Count().Should().Be(1);
+            entity.CompanyCollaborators.Count.Should().Be(1);
         }
     }
 }

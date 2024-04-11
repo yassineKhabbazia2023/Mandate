@@ -10,7 +10,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
     using System.Collections.Generic;
     using System.Linq;
-    using KPMG.Pulse.Back.Accounting.Mandate.Models.Enums;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
 
@@ -78,8 +77,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
             // création de la collecte coté jeDeclare
             string createdReleveId = await this.jeDeclareService.CreateCollecteConfigurationAsync(
-                dossierClient,
-                rib);
+                toAdd,
+                rib,
+                dossierClient.BankServicesProviderId!);
 
             // save Signatory
             await this.databaseService.SaveSignatoryAsync(null, collectionId, mandateCreation.Signatory, mandateCreation.Address);
@@ -88,7 +88,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             await this.databaseService.InsertServicesProviderIds(collectionId, createdReleveId, rib?.BbanServicesProviderId!);
 
             // Creation mandate Status 10
-            await this.databaseService.CreateStatus(collectionId, (int)JdcCollectionStatus.Activation_Requested_Coollection_Pending);
+            await this.databaseService.CreateStatusAsync(collectionId, (int)JdcCollectionStatus.Activation_Requested_Collection_Pending);
 
             return collectionId;
         }
@@ -108,23 +108,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         {
             foreach (var mandat in mandats!)
             {
-                var jdcCollections = await this.jeDeclareService.GetAllConfigurationFromFolderAsync(mandat.FolderId);
-
-                var jdcCollection = jdcCollections?.SingleOrDefault(c => MatchesMandat(c, mandat));
-
+                var jdcCollection = await this.GetJdcCollectionAsync(mandat);
                 if (jdcCollection == null)
                 {
-                    this.logger.LogError("The collection with Id={CollectionId} is not found in jedeclare", mandat.Id);
                     continue;
                 }
 
                 var status = await this.databaseService.GetRefStatusCodeByJdcCodeAsync(jdcCollection.StatusCode);
                 var collection = await this.databaseService.GetCollectionById(mandat.Id);
 
-                if (status.StatusCode != collection.Status.StatusCode)
+                if (!HasStatusChanged((int)status.StatusCode, (int)collection.Status.StatusCode))
                 {
-                    await this.databaseService.CreateStatus(collection.Id, (int)status.StatusCode);
+                    continue;
                 }
+
+                await this.UpdateCollectionStatusAsync(collection, jdcCollection.StatusCode);
             }
         }
 
@@ -139,7 +137,28 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
             if (isJdcPartner)
             {
-                return await this.jeDeclareService.UploadSignedMandate(collection, fileBytes);
+                var signedMandateContent = await this.jeDeclareService.UploadSignedMandate(collection, fileBytes);
+                var folderId = collection!.Company?.BankServicesProviderId;
+                var ribId = collection!.Bban?.BbanServicesProviderId;
+                var isUploaded = await this.jeDeclareService.CheckSignedMandatExists(folderId!, ribId!);
+
+                if (!string.IsNullOrEmpty(signedMandateContent) && isUploaded)
+                {
+                    await this.databaseService.CreateStatusAsync(collection.Id, (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded);
+                }
+                else
+                {
+                    this.logger.LogError(
+                        "{methodName}, the upload of the signed mandate = {collectionId} / folderId = {folderId} and ribId = {ribId} failed / isUploaded = {isUploaded}, signedMandateContent = {signedMandateContent}",
+                        nameof(this.UploadSignedMandateAsync),
+                        collection.Id,
+                        folderId,
+                        ribId,
+                        isUploaded,
+                        string.IsNullOrEmpty(signedMandateContent));
+                }
+
+                return signedMandateContent;
             }
             else
             {
@@ -182,16 +201,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             var collection = await this.databaseService.GetCollectionById(collectionId);
             var isJdcPartner = IsJdcPartner(collection);
 
-            if (isJdcPartner)
-            {
-                return await this.jeDeclareService.DeactivateCollection(collection);
-            }
-            else
+            if (!isJdcPartner)
             {
                 var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collection, this.options.Value);
                 await this.notificationsService.SendEmailAsync(emailCommand);
-                return true;
             }
+
+            return await this.jeDeclareService.DeactivateCollection(collection);
         }
 
         public async Task InsertFormIOCollectionAsync(Collection collection)
@@ -249,10 +265,67 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             return ribIdMatches && bankAndBranchMatches && accountDetailsMatches;
         }
 
+        private static bool HasStatusChanged(int currentStatusCode, int previousStatusCode)
+        {
+            return currentStatusCode != previousStatusCode;
+        }
+
+        private async Task<TechnicalCollection?> GetJdcCollectionAsync(TechnicalCollection mandat)
+        {
+            var jdcCollections = await this.jeDeclareService.GetAllConfigurationFromFolderAsync(mandat.FolderId);
+            var jdcCollection = jdcCollections?.SingleOrDefault(c => MatchesMandat(c, mandat));
+
+            if (jdcCollection == null)
+            {
+                this.logger.LogError("The collection with Id={CollectionId} is not found in jedeclare", mandat.Id);
+            }
+
+            return jdcCollection;
+        }
+
+        private async Task UpdateCollectionStatusAsync(Collection collection, string jdcStatusCodeStr)
+        {
+            if (!int.TryParse(jdcStatusCodeStr, out int jdcStatusCode))
+            {
+                // Handle the parse failure. For example, log an error and return from the method.
+                this.logger.LogError("Failed to parse JDC status code '{JdcStatusCodeStr}' for collection ID {CollectionId}.", jdcStatusCodeStr, collection.Id);
+                return;
+            }
+
+            var newStatus = await this.databaseService.CreateStatusAsync(collection.Id, statusCode: jdcStatusCode!);
+            var jdcStatusCodePending = await this.databaseService.CheckJdcStatusCodeIsPendingAsync(collection.Id);
+
+            if (newStatus != null && jdcStatusCodePending)
+            {
+                await this.UpdateStatusOnSignedMandateUploadAsync(collection);
+            }
+        }
+
+        private async Task UpdateStatusOnSignedMandateUploadAsync(Collection collection)
+        {
+            var folderId = collection.Company?.BankServicesProviderId;
+            var ribId = collection.Bban?.BbanServicesProviderId;
+            var isUploaded = await this.jeDeclareService.CheckSignedMandatExists(folderId!, ribId!);
+
+            if (isUploaded)
+            {
+                await this.databaseService.CreateStatusAsync(collection.Id, (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded);
+            }
+            else
+            {
+                this.logger.LogInformation(
+                    "{methodName}, the upload of the signed mandate = {collectionId} / folderId = {folderId} and ribId = {ribId} failed / isUploaded = {isUploaded}",
+                    nameof(this.UpdateStatusOnSignedMandateUploadAsync),
+                    collection.Id,
+                    folderId,
+                    ribId,
+                    isUploaded);
+            }
+        }
+
         private async Task<byte[]> GeneratePdfForNonPartner(Collection collection)
         {
             return await this.asposeHelper.GeneratePdfFromTemplateAsync(collection);
         }
-
     }
 }

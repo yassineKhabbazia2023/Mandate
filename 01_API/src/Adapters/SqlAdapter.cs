@@ -42,7 +42,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return await this.mandateRepository.GetPdfTemplateByCodeAsync(bankCode).ConfigureAwait(false);
         }
 
-        public async Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query, Guid collaboratorId)
+        public async Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query, int collaboratorId)
         {
             (List<Sql.CollectionDb>, int) tuple = await this.mandateRepository.SearchCollectionsAsync(query.ToSql(collaboratorId));
 
@@ -53,7 +53,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public async Task<PagedTechnicalMandate> GetAllTechnicalCollectionsAsync(CollectionQueryDto query)
         {
-            (List<Sql.CollectionDb>, int) tuple = await this.mandateRepository.SearchCollectionsAsync(query.ToSql(Guid.Empty));
+            (List<Sql.CollectionDb>, int) tuple = await this.mandateRepository.SearchCollectionsAsync(query.ToSql(default));
 
             return new PagedTechnicalMandate(
                 new Counters(tuple.Item2, 0, 0, 0, 0, 0),
@@ -66,13 +66,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return company.ToModel();
         }
 
-        public async Task CreateOrUpdateFolderAsync(string bankServicesProviderId, Guid companyId)
+        public async Task CreateOrUpdateFolderAsync(string bankServicesProviderId, int companyId)
         {
             await this.mandateRepository.CreateOrUpdateFolderAsync(bankServicesProviderId, companyId);
         }
 
-        public async Task<Status> CreateStatus(Guid collectionId, int statusCode)
+        public async Task<Status?> CreateStatusAsync(Guid collectionId, int statusCode)
         {
+            var currentJdcStatusCode = await this.mandateRepository.GetCurrentJdcStatusCodeAsync(collectionId);
+
+            if (IsCurrentJdcSignedMandateUploadedAndNewJdcPending(currentJdcStatusCode!.StatusCode, statusCode))
+            {
+                return null;
+            }
+
             // update current Status to false
             await this.mandateRepository.UpdateCurrentStatusAsync(collectionId);
 
@@ -90,6 +97,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return (await this.mandateRepository.CreateStatusAsync(collectionId, statusDb)).ToModel();
         }
 
+        public async Task<bool> CheckJdcStatusCodeIsPendingAsync(Guid collectionId)
+        {
+            return await this.mandateRepository.CheckJdcStatusCodeIsPendingAsync(collectionId);
+        }
+
         public async Task InsertServicesProviderIds(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId)
         {
             // Création de JeDeclare Collection
@@ -101,7 +113,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return await this.mandateRepository.CheckCollecteConfigExistAsync(bban!.BankCode, bban!.BranchCode, bban!.AccountNumber);
         }
 
-        public async Task<Guid> CreateCollectionAsync(Bban bban, Guid companyId)
+        public async Task<Guid> CreateCollectionAsync(Bban bban, int companyId)
         {
             CollectionDb collection = bban.ToSql(companyId);
             collection.Statuses = new List<StatusDb>() { SqlExtensions.DefaultStatus() };
@@ -126,7 +138,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return collectionDb.ToModel();
         }
 
-        public async Task SaveSignatoryAsync(Guid? companyId, Guid? collectionId, Signatory signatory, Address address)
+        public async Task SaveSignatoryAsync(int? companyId, Guid? collectionId, Signatory signatory, Address address)
         {
             var newPersonalDb = new PersonalDb()
             {
@@ -176,7 +188,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             await this.mandateRepository.DeleteFakeDataAsync().ConfigureAwait(false);
         }
 
-        public async Task InsertFormIOCollectionAsync(Collection collection, Guid companyId)
+        public async Task InsertFormIOCollectionAsync(Collection collection, int companyId)
         {
             var collectionDb = collection.ToCollectionDB(companyId);
             await this.mandateRepository.CreateOrUpdateFolderAsync(collection?.Company?.BankServicesProviderId!, companyId);
@@ -191,6 +203,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         private static Signatory CreateSignatoryFromDb(PersonalDb? personal)
         {
             return new Signatory(personal?.Title, personal?.FirstName, personal?.LastName, personal?.Email);
+        }
+
+        private static bool IsCurrentJdcSignedMandateUploadedAndNewJdcPending(int currentJdcStatusCode, int? newJdcStatusCode)
+        {
+            return newJdcStatusCode == (int)JdcCollectionStatus.Activation_Requested_Collection_Pending
+                    && currentJdcStatusCode == (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded;
         }
     }
 }

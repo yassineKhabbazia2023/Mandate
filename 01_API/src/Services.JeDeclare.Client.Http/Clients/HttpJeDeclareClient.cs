@@ -352,7 +352,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
         public async Task<bool> CheckSignedMandatExists(string jdcFolderId, string jdcRibId)
         {
-            using var client = this.factory.Create();
+            using var client = this.factory.Create(false);
 
             var jdcCompteId = this.options.Value.JdcCompteId;
             var requestUri = $"compte/{jdcCompteId}/dossierClient/{jdcFolderId}/rib/{jdcRibId}/mandatSigne";

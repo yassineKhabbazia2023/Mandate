@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [Mandate].[Collection]
 (
 	[Id] UNIQUEIDENTIFIER NOT NULL,
-	[CompanyId] UNIQUEIDENTIFIER NOT NULL,
+	[CompanyId] INT NOT NULL,
 	[BankCode] CHAR(5) NOT NULL, 
 	[BranchCode] CHAR(5) NOT NULL, 
 	[AccountNumber] CHAR(11) NOT NULL, 

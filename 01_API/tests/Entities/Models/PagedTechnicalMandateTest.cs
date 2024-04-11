@@ -13,7 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
             Address address = new Address("street", "comlements", "zip", "city", "country");
 
             Company company = new Company(
-               new Guid("00000001-0000-0000-0000-000000000000"),
+               1,
                "cn",
                "12345678910",
                "123456789",
@@ -29,8 +29,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
                     "1234",
                     company,
                     bban,
-                    new DateTime(2022, 1, 1),
-                    new DateTime(2022, 1, 1),
+                    new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new Status(CollectionStatus.InProgress, "En cours"));
 
             var counters = new Counters(1, 1, 0, 0, 0, 0);

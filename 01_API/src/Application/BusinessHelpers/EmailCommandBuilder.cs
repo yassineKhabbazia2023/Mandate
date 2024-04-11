@@ -106,7 +106,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             var (templateName, from, to, cc) = GetEmailProperties(options, emailType);
 
             return new EmailCommand(
-                subject: subjectPrefix + $"{emailData.Ibs} - {emailData.BranchCode} {emailData.AccountNumber} {emailData.CheckDigits}",
+                subject: subjectPrefix + $"{emailData.CompanyName} - {emailData.BranchCode} {emailData.AccountNumber} {emailData.CheckDigits}",
                 templateName: templateName,
                 from: from,
                 to: to,

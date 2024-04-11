@@ -6,7 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public class Company
     {
-        public Company(Guid id, string? name, string siretNumber, string? erpId, string? bankServicesProviderId, Signatory? signatory, Address? address)
+        public Company(int id, string? name, string siretNumber, string? erpId, string? bankServicesProviderId, Signatory? signatory, Address? address)
         {
             this.Id = id;
             this.Name = name;
@@ -17,7 +17,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
             this.Address = address;
         }
 
-        public Guid Id { get; }
+        public int Id { get; }
 
         public string? Name { get; }
 

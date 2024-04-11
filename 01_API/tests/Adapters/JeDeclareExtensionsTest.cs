@@ -31,13 +31,63 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             });
         }
 
-        [Fact]
-        public void ToDossierClient()
+        [Theory]
+        [InlineData("m", "", "Doe", "m  Doe")]
+        [InlineData("m", null, "Doe", "m  Doe")]
+        [InlineData("m", "Jhon", null, "m Jhon ")]
+        [InlineData(null, "Jhon", "Doe", " Jhon Doe")]
+        [InlineData("M", "J'hon", "Doe's", "M J hon Doe s")]
+        public void ToDossierClient_(string title, string firstName, string lastName, string fullName)
         {
-            Signatory signatory = new Signatory("M", "Maroo", "Elleuch", "email@email.com");
+            Signatory signatory = new Signatory(title, firstName, lastName, "email@email.com");
             Address? address = new Address("street", "cmp", "zipcode", "city", "country");
             var entity = new Company(
-                new Guid("00000001-0000-0000-0000-000000000000"),
+                101,
+                "companyName",
+                "79887416000046",
+                "1000234",
+                "12345",
+                signatory,
+                address);
+
+            var result = entity.ToDossierClient();
+            result.Should().BeEquivalentTo(new DossierClient
+            {
+                Client = new Client()
+                {
+                    Id = "12345",
+                    RaisonSociale = "companyName",
+                    Siret = new Siret()
+                    {
+                        Siren = "798874160",
+                        Nic = "00046",
+                    },
+                    Responsable = new Responsable()
+                    {
+                        Name = fullName,
+                        Mail = "email@email.com",
+                        Adresse = new Adresse()
+                        {
+                            CodePostal = "zipcode",
+                            Pays = "country",
+                            Ville = "city",
+                            Rue = "street",
+                            CplRue = "cmp",
+                        },
+                    },
+                },
+            });
+        }
+
+        [Theory]
+        [InlineData("m", "Maroo", "Elleuch")]
+        [InlineData("MME", "MAROO", "ELLEUCH")]
+        public void ToDossierClient(string title, string firstName, string lastName)
+        {
+            Signatory signatory = new Signatory(title, firstName, lastName, "email@email.com");
+            Address? address = new Address("street", "cmp", "zipcode", "city", "country");
+            var entity = new Company(
+                101,
                 "companyName",
                 "79887416000046",
                 "1000234",
@@ -61,7 +111,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                     },
                     Responsable = new Responsable()
                     {
-                        Name = $"M Maroo ELLEUCH",
+                        Name = $"{title} {firstName} {lastName}",
                         Mail = "email@email.com",
                         Adresse = new Adresse()
                         {
@@ -117,7 +167,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             Signatory signatory = new Signatory("M", "Maroo", "Elleuch", "email@email.com");
             Address? address = new Address("street", "cmp", "zipcode", "city", "country");
             var company = new Company(
-                new Guid("00000001-0000-0000-0000-000000000000"),
+                101,
                 "companyName",
                 "79887416000046",
                 "1000234",
@@ -127,7 +177,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             Bban bban = new Bban("12345", "54321", "12345678910", "12", null, default);
 
             var expectedCollection = new Collection(
-                company.Id,
+                new Guid("00000001-0000-0000-0000-000000000000"),
                 "999945",
                 company,
                 bban,

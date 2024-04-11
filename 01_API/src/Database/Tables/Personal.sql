@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [Mandate].[Personal]
 (
 	[Id] UNIQUEIDENTIFIER NOT NULL,
-	[CompanyId] UNIQUEIDENTIFIER NULL,
+	[CompanyId] INT NULL,
 	[CollectionId] UNIQUEIDENTIFIER NULL,
 	[Title] NVARCHAR(10) NULL, 
 	[FirstName] NVARCHAR(100) NULL, 

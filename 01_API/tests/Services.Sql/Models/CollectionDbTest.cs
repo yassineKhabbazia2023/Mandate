@@ -19,7 +19,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             // Test all properties ; number of tests below should match the number of propeties above
             entity.Id.Should().Be(Guid.Empty);
             entity.Personal.Should().Be(null);
-            entity.CompanyId.Should().Be(Guid.Empty);
+            entity.CompanyId.Should().Be(default);
             entity.Company.Should().Be(null);
             entity.Personal.Should().BeNull();
             entity.JeDeclareCollection.Should().BeNull();
@@ -38,7 +38,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
         {
             // Arrange & Act
             PredictableGuid generator = new PredictableGuid();
-            var comapnyId1 = generator.NewGuid();
+            var comapnyId1 = 0;
             var collectionId1 = generator.NewGuid();
 
             var personal = new PersonalDb

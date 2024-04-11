@@ -30,7 +30,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var res = await adapter.GetAllCollectionsAsync(
                 new CollectionQueryDto(null, null, null, null, null, null, null, null, Mandate.SortOrder.Ascending, Mandate.CollectionSortCriteria.Name, "collab@email.com"),
-                new PredictableGuid(101).NewGuid());
+                101);
 
             Counters expectedCounters = new Counters(1, 0, 0, 0, 0, 0);
             List<Collection> expectedCollections = new List<Collection>()
@@ -81,12 +81,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public async Task GetCollectionById()
         {
             var collectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111");
-            var companyId = Guid.Parse("b1111111-1111-1111-1111-111111111111");
+            var companyId = 101;
 
             var collection = new CollectionDb()
             {
                 Id = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
-                CompanyId = Guid.Parse("b1111111-1111-1111-1111-111111111111"),
+                CompanyId = companyId,
                 BankCode = "12345",
                 BranchCode = "23456",
                 AccountNumber = "12345678901",
@@ -158,7 +158,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         [Fact]
         public async Task SaveSignatoryAsync()
         {
-            var companyId = Guid.Parse("a1111111-1111-1111-1111-111111111111");
+            var companyId = 101;
             var collectionId = Guid.Parse("b1111111-1111-1111-1111-111111111111");
             var adress = new Address("1 Rue du Capitaine Floch", "appt 45", "72000", "Le Mans", "FRANCE");
             var signatory = new Signatory("M", "Ludovic", "TYREL DE POIX", "lu.de.poix@mvo-h.fr");
@@ -191,7 +191,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         [Fact]
         public async Task GetCompanyBySiretAsync()
         {
-            var companyId = Guid.Parse("a1111111-1111-1111-1111-111111111111");
+            var companyId = 101;
             var collectionId = Guid.Parse("b1111111-1111-1111-1111-111111111111");
             var siret = "siretM";
 
@@ -296,7 +296,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public async Task GetCompanyByErpIdAsync()
         {
             // Arrange
-            var companyId = Guid.Parse("a1111111-1111-1111-1111-111111111111");
+            var companyId = 101;
             var collectionId = Guid.Parse("b1111111-1111-1111-1111-111111111111");
             var erpId = "erpId";
 
@@ -357,7 +357,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var result = await adapter.GetCollaboratorByEmail("collab@email.com");
 
-            result.Should().BeEquivalentTo(new Collaborator(new PredictableGuid(104).NewGuid(), "collab@email.com", "fname", "lname"));
+            result.Should().BeEquivalentTo(new Collaborator(104, "collab@email.com", "fname", "lname"));
 
             repository.VerifyAll();
         }
@@ -383,12 +383,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         {
             // Arrange
             var collectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111");
-            var companyId = Guid.Parse("b1111111-1111-1111-1111-111111111111");
+            var companyId = 101;
 
             var collection = new CollectionDb()
             {
                 Id = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
-                CompanyId = Guid.Parse("b1111111-1111-1111-1111-111111111111"),
+                CompanyId = companyId,
                 BankCode = "12345",
                 BranchCode = "23456",
                 AccountNumber = "12345678901",
@@ -430,7 +430,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             repository.Setup(r => r.InsertFormIOCollectionAsync(It.IsAny<CollectionDb>()))
                 .Returns(Task.CompletedTask)
                 .Verifiable();
-            repository.Setup(r => r.CreateOrUpdateFolderAsync(It.IsAny<string>(), Guid.Parse("b1111111-1111-1111-1111-111111111111")))
+            repository.Setup(r => r.CreateOrUpdateFolderAsync(It.IsAny<string>(), 101))
                .Returns(Task.CompletedTask)
                .Verifiable();
             var adapter = new SqlAdapter(repository.Object);
@@ -438,6 +438,162 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             await adapter.InsertFormIOCollectionAsync(collection.ToModel(), companyId);
 
             repository.VerifyAll();
+        }
+
+        [Fact]
+        public async Task CreateStatus_WhenNotIsCurrentJdcSignedMandateUploadedAndNewJdcPending_ReturnNewStatus()
+        {
+            // Arrange
+            var refStatusCode = new RefStatusCodeDb()
+            {
+                StatusCode = -1,
+                PulseCode = 30,
+                StatusNameFr = "En cours",
+                StatusNameEn = "In progress",
+            };
+            var statusdb = new StatusDb()
+            {
+                Id = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
+                CollectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
+                StatusCode = -1,
+                IsCurrent = true,
+                StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
+                MandateFile = null,
+                CreatedBy = "created1",
+                RefStatusCode = refStatusCode,
+            };
+
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.GetCurrentJdcStatusCodeAsync(It.IsAny<Guid>()))
+               .ReturnsAsync(statusdb)
+               .Verifiable();
+
+            repository.Setup(r => r.UpdateCurrentStatusAsync(It.IsAny<Guid>()))
+               .Returns(Task.CompletedTask)
+               .Verifiable();
+
+            var newRefStatusCode = new RefStatusCodeDb()
+            {
+                StatusCode = 10,
+                PulseCode = 20,
+                StatusNameFr = "à deposer",
+                StatusNameEn = "To Do",
+            };
+            var newStatusdb = new StatusDb()
+            {
+                Id = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
+                CollectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
+                StatusCode = 10,
+                IsCurrent = true,
+                StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
+                MandateFile = null,
+                CreatedBy = "created1",
+                RefStatusCode = newRefStatusCode,
+            };
+
+            repository.Setup(r => r.CreateStatusAsync(It.IsAny<Guid>(), It.IsAny<StatusDb>()))
+               .ReturnsAsync(newStatusdb)
+               .Verifiable();
+
+            var adapter = new SqlAdapter(repository.Object);
+
+            // Act
+            var result = await adapter.CreateStatusAsync(Guid.Parse("a1111111-1111-1111-1111-111111111111"), newStatusdb.StatusCode);
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(CollectionStatus.ToDo);
+            result.StatusName.Should().Be("à deposer");
+            repository.Verify(r => r.GetCurrentJdcStatusCodeAsync(It.IsAny<Guid>()), Times.Once);
+            repository.Verify(r => r.UpdateCurrentStatusAsync(It.IsAny<Guid>()), Times.Once);
+            repository.Verify(r => r.CreateStatusAsync(It.IsAny<Guid>(), It.IsAny<StatusDb>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateStatus_WhenIsCurrentJdcSignedMandateUploadedAndNewJdcPending_ReturnNull()
+        {
+            // Arrange
+            var refStatusCode = new RefStatusCodeDb()
+            {
+                StatusCode = -2,
+                PulseCode = 30,
+                StatusNameFr = "En cours",
+                StatusNameEn = "In progress",
+            };
+            var statusdb = new StatusDb()
+            {
+                Id = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
+                CollectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
+                StatusCode = -2,
+                IsCurrent = true,
+                StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
+                MandateFile = null,
+                CreatedBy = "created1",
+                RefStatusCode = refStatusCode,
+            };
+
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.GetCurrentJdcStatusCodeAsync(It.IsAny<Guid>()))
+               .ReturnsAsync(statusdb)
+               .Verifiable();
+
+            repository.Setup(r => r.UpdateCurrentStatusAsync(It.IsAny<Guid>()))
+               .Returns(Task.CompletedTask)
+               .Verifiable();
+
+            var newRefStatusCode = new RefStatusCodeDb()
+            {
+                StatusCode = 10,
+                PulseCode = 20,
+                StatusNameFr = "à deposer",
+                StatusNameEn = "To Do",
+            };
+            var newStatusdb = new StatusDb()
+            {
+                Id = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
+                CollectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
+                StatusCode = 10,
+                IsCurrent = true,
+                StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
+                MandateFile = null,
+                CreatedBy = "created1",
+                RefStatusCode = newRefStatusCode,
+            };
+
+            repository.Setup(r => r.CreateStatusAsync(It.IsAny<Guid>(), It.IsAny<StatusDb>()))
+               .ReturnsAsync(newStatusdb)
+               .Verifiable();
+
+            var adapter = new SqlAdapter(repository.Object);
+
+            // Act
+            var result = await adapter.CreateStatusAsync(Guid.Parse("a1111111-1111-1111-1111-111111111111"), newStatusdb.StatusCode);
+
+            // Assert
+            result.Should().BeNull();
+            repository.Verify(r => r.GetCurrentJdcStatusCodeAsync(It.IsAny<Guid>()), Times.Once);
+            repository.Verify(r => r.UpdateCurrentStatusAsync(It.IsAny<Guid>()), Times.Never);
+            repository.Verify(r => r.CreateStatusAsync(It.IsAny<Guid>(), It.IsAny<StatusDb>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task CheckJdcStatusCodeIsPending_WhenOK()
+        {
+            // Arrange
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+
+            repository.Setup(r => r.CheckJdcStatusCodeIsPendingAsync(It.IsAny<Guid>()))
+               .ReturnsAsync(true)
+               .Verifiable();
+
+            var adapter = new SqlAdapter(repository.Object);
+
+            // Act
+            var result = await adapter.CheckJdcStatusCodeIsPendingAsync(Guid.Parse("a1111111-1111-1111-1111-111111111111"));
+
+            // Assert
+            result.Should().Be(true);
+            repository.Verify(r => r.CheckJdcStatusCodeIsPendingAsync(It.IsAny<Guid>()), Times.Once);
         }
     }
 }

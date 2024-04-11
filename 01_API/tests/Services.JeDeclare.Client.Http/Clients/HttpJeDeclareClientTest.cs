@@ -1214,7 +1214,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 .Verifiable();
 
             var factory = new Mock<IJeDeclareClientFactory>(MockBehavior.Strict);
-            factory.Setup(f => f.Create(true))
+            factory.Setup(f => f.Create(false))
                 .Returns(client.Object)
                 .Verifiable();
 
@@ -1266,7 +1266,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 .Verifiable();
 
             var factory = new Mock<IJeDeclareClientFactory>(MockBehavior.Strict);
-            factory.Setup(f => f.Create(true))
+            factory.Setup(f => f.Create(false))
                 .Returns(client.Object)
                 .Verifiable();
 

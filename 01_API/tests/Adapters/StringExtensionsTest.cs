@@ -49,12 +49,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         }
 
         [Theory]
-        [InlineData("invalid input")]
-        [InlineData("m John")]
-        public void ExtractPersonInfo_ShouldThrow_WhenInvalid(string input)
+        [InlineData("", "")]
+        [InlineData(null, null)]
+        [InlineData("l'eco", "l eco")]
+        public void Sanitize(string input, string result)
         {
-            Action act = () => StringExtensions.ExtractPersonInfo(input);
-            act.Should().Throw<InvalidOperationException>();
+            input.Sanitize().Should().Be(result);
         }
     }
 }

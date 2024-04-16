@@ -618,6 +618,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Returns(Task.CompletedTask)
                 .Verifiable();
 
+            this.mockDatabaseService
+                .Setup(m => m.CreateStatusAsync(collectionId, It.Is<int>(sc => sc == (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded)))
+                .ReturnsAsync(new Status(CollectionStatus.InProgress, "InProgress"));
+
             var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, this.mockNotificationsService.Object, this.emailOptions, this.mockLogger.Object);
 
             // Act
@@ -628,6 +632,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             this.mockDatabaseService.Verify(m => m.GetCollectionById(collectionId), Times.Once);
             this.mockJeDeclareService.Verify(m => m.UploadSignedMandate(It.IsAny<Collection>(), It.IsAny<byte[]>()), Times.Never);
             this.mockNotificationsService.Verify(m => m.SendEmailAsync(It.IsAny<EmailCommand>()), Times.Once);
+            this.mockDatabaseService.Verify(m => m.CreateStatusAsync(It.IsAny<Guid>(), It.IsAny<int>()), Times.Once);
         }
 
         [Fact]

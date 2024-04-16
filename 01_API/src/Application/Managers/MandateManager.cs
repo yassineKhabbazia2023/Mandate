@@ -166,6 +166,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 string fileContent = Convert.ToBase64String(fileBytes);
                 var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(collection, this.options.Value, fileContent, fileName);
                 await this.notificationsService.SendEmailAsync(emailCommand);
+                await this.databaseService.CreateStatusAsync(collection.Id, (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded);
                 return null;
             }
         }
@@ -201,13 +202,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             var collection = await this.databaseService.GetCollectionById(collectionId);
             var isJdcPartner = IsJdcPartner(collection);
 
-            if (!isJdcPartner)
+            var isDeactivated = await this.jeDeclareService.DeactivateCollection(collection);
+
+            if (!isJdcPartner && isDeactivated)
             {
                 var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collection, this.options.Value);
                 await this.notificationsService.SendEmailAsync(emailCommand);
             }
 
-            return await this.jeDeclareService.DeactivateCollection(collection);
+            return isDeactivated;
         }
 
         public async Task InsertFormIOCollectionAsync(Collection collection)

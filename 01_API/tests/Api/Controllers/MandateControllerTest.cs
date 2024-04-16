@@ -1375,7 +1375,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var controller = new MandateController(logger.Object, mandateManager, null!, guidGenerator.Object, formIoManager.Object);
 
             // Act
-            var result = (ObjectResult)await controller.RecoveryFormIOAsync(0, 1000);
+            var result = (OkResult)await controller.RecoveryFormIOAsync(0, 1000);
 
             // Assert
             var insertedCollections = await context.Collection.ToListAsync();

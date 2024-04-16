@@ -6,6 +6,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public interface IFormioManager
     {
+        Task<List<Collection>> GetAllCollectionAsync(int skip, int limit);
+
         Task<Collection?> GetCollectionByBban(Bban bban);
     }
 }

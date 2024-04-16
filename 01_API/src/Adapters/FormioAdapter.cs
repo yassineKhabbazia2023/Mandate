@@ -4,6 +4,7 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
+    using System.Collections.Generic;
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client;
 
     public class FormioAdapter : IFormioService
@@ -13,6 +14,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         public FormioAdapter(IFormioClient formioClient)
         {
             this.formioClient = formioClient;
+        }
+
+        public async Task<List<Collection>> GetAllCollectionAsync(int skip, int limit)
+        {
+            FormioAuthToken token = new FormioAuthToken()
+            {
+                Type = FormioTokenType.App,
+            };
+
+            FormioSubmissionCollection? submissions = await this.formioClient.GetSubmissionsAsync(skip, limit, token);
+
+            return submissions?
+                .Submissions?
+                .Select(item => item.ToCollection())
+                .ToList() !;
         }
 
         public async Task<Collection?> GetSubmissionMandateAsync(Bban bban)
@@ -29,7 +45,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 bban?.CheckDigits!,
                 token);
 
-            return submission.Submissions.Any() ? submission.ToCollection() : null;
+            return submission.Submissions.Any() ? submission.Submissions.SingleOrDefault() !.ToCollection() : null;
         }
     }
 }

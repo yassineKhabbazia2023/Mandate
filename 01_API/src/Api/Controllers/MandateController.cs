@@ -294,14 +294,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         }
 
         [HttpPost("recovery-form-io")]
-        public async Task<IActionResult> RecoveryFormIO([FromQuery] int skip, [FromQuery] int limit)
+        public async Task<IActionResult> RecoveryFormIOAsync([FromQuery] int skip, [FromQuery] int limit)
         {
             var correlationId = "0";
             try
             {
                 List<Collection> collections = await this.formIoManager.GetAllCollectionAsync(skip, limit);
 
-                await Parallel.ForEachAsync(collections, async (collection, token) =>
+                foreach (var collection in collections)
                 {
                     try
                     {
@@ -309,19 +309,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                     }
                     catch (ApplicationException)
                     {
-                        this.logger.LogInformation("MandateAPI - {correlationId} - {functionName} : mandat trouvé {rib}", correlationId, nameof(this.RecoveryFormIO), collection.Bban?.ToRibString());
+                        this.logger.LogInformation("MandateAPI - {correlationId} - {functionName} : mandat trouvé {rib}", correlationId, nameof(this.RecoveryFormIOAsync), collection.Bban?.ToRibString());
                     }
                     catch (Sql.CompanyNotFoundException ex)
                     {
-                        this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName} : {message}", correlationId, nameof(this.RecoveryFormIO), ex.Message);
+                        this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName} : {message}", correlationId, nameof(this.RecoveryFormIOAsync), ex.Message);
                     }
-                });
+                }
 
-                return this.Ok(collections);
+                return this.Ok();
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.RecoveryFormIO));
+                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.RecoveryFormIOAsync));
                 return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
             }
         }

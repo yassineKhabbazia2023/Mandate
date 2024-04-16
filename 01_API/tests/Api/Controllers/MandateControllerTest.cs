@@ -5,13 +5,50 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 {
     using System.Net;
+    using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
+    using KPMG.Pulse.Back.Accounting.Mandate.Application;
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.Abstractions;
+    using Microsoft.Extensions.Options;
 
+    [Collection("SerialExecutionPublishDb")]
     public class MandateControllerTest
     {
+        private readonly Mock<IJeDeclareService> mockJeDeclareService;
+        private readonly Mock<IAsposeHelper> mockAsposeHelper;
+        private readonly IOptions<MandateEmailOptions> emailOptions;
+        private readonly Mock<ILogger<MandateManager>> mockMandateLogger;
+        private IOptions<SqlMandateRepositoryOptions> options;
+
+        public MandateControllerTest()
+        {
+            this.options = Options.Create(new SqlMandateRepositoryOptions()
+            {
+                ConnectionString = Sql.Implementation.Tests.SqlServerFixture.ConnectionString,
+            });
+            this.mockJeDeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
+            this.mockAsposeHelper = new Mock<IAsposeHelper>(MockBehavior.Strict);
+            this.emailOptions = Options.Create(new MandateEmailOptions
+            {
+                MandateCancellationSubject = "Your Cancellation Subject",
+                MandateCancellationTemplateName = "CancellationTemplate",
+                MandateCancellationFromEmail = "cancel_from@example.com",
+                MandateCancellationToEmail = "cancel_to@example.com",
+                MandateCancellationCcEmails = new List<string> { "cancel_cc1@example.com", "cancel_cc2@example.com" },
+                MandateUploadedSubject = "Your Uploaded Mandate Subject",
+                MandateUploadedTemplateName = "UploadedTemplate",
+                MandateUploadedFromEmail = "upload_from@example.com",
+                MandateUploadedToEmail = "upload_to@example.com",
+                MandateUploadedCcEmails = new List<string> { "upload_cc1@example.com", "upload_cc2@example.com" },
+            });
+            this.mockMandateLogger = new Mock<ILogger<MandateManager>>(MockBehavior.Loose);
+        }
+
         [Fact]
         public async Task GetCollectionsAsync_When_GetCollectionsAsync_OK()
         {
@@ -1289,5 +1326,95 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             Assert.IsType<ObjectResult>(result);
             result!.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
         }
-    }
+
+        [Fact]
+        public async Task RecoveryFormIOAsync_ShouldCallGetAllCollectionAsyncAndInsertFormIOCollectionAsync_AndReturnOkResult()
+        {
+            // Arrange
+            await using var database = SqlServerFixture.CreateDatabase();
+
+            this.options = Options.Create(new SqlMandateRepositoryOptions() { ConnectionString = SqlServerFixture.ConnectionString });
+            using var context = new MandateContext(this.options);
+
+            await context.Company.AddAsync(new Sql.CompanyDb()
+            {
+                Id = 1,
+                Name = "cn",
+                ErpId = "123456789",
+                SiretNumber = "12345678910",
+            });
+
+            await context.SaveChangesAsync();
+            var sqlRepo = new SqlMandateRepository(this.options);
+
+            await sqlRepo.CreateFakeRefAsync();
+            var adapter = new SqlAdapter(sqlRepo);
+            var companyManager = new CompanyManager(adapter);
+
+            var mandateManager = new MandateManager(adapter, companyManager, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions, this.mockMandateLogger.Object);
+
+            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
+            var guidGenerator = new Mock<IGuidGenerator>();
+            guidGenerator.Setup(g => g.NewGuid())
+                .Returns(newGuid);
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception?>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
+
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+            formIoManager.Setup(item =>
+                item.GetAllCollectionAsync(0, 1000))
+               .ReturnsAsync(this.GetTestCollection())
+               .Verifiable();
+
+            var controller = new MandateController(logger.Object, mandateManager, null!, guidGenerator.Object, formIoManager.Object);
+
+            // Act
+            var result = (ObjectResult)await controller.RecoveryFormIOAsync(0, 1000);
+
+            // Assert
+            var insertedCollections = await context.Collection.ToListAsync();
+            insertedCollections.Count.Should().Be(1000);
+
+            result.Should().NotBeNull();
+            Assert.IsType<OkResult>(result);
+
+        }
+
+        private List<Collection> GetTestCollection()
+        {
+            var company = new Company(
+                1,
+                "cn",
+                "12345678910",
+                "123456789",
+                "54321",
+                null,
+                null);
+
+            Bank bank = new Bank("30027", "bn", "bg", string.Empty, new BankAgreement(JdcPartnership.Partner));
+
+            var collections = new List<Collection>();
+            for (int i = 1; i < 1001; i++)
+            {
+                Bban bban = new Bban("30027", i.ToString("0000#"), "12345678901", "55", string.Empty, bank);
+
+                collections.Add(new Collection(
+                    Guid.NewGuid(),
+                    string.Empty,
+                    company,
+                    bban,
+                    new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    new Status(CollectionStatus.InProgress, "En cours")));
+            }
+
+            return collections;
+        }
+}
 }

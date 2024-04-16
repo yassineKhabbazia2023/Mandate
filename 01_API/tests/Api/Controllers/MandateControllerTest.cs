@@ -1375,7 +1375,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var controller = new MandateController(logger.Object, mandateManager, null!, guidGenerator.Object, formIoManager.Object);
 
             // Act
-            var result = (ObjectResult)await controller.RecoveryFormIOAsync(0, 1000);
+            var result = (OkResult)await controller.RecoveryFormIOAsync(0, 1000);
 
             // Assert
             var insertedCollections = await context.Collection.ToListAsync();
@@ -1383,7 +1383,82 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 
             result.Should().NotBeNull();
             Assert.IsType<OkResult>(result);
+        }
 
+        [Fact]
+        public async Task RecoveryFormIOAsync_ShouldThrow_ApplicationException()
+        {
+            // Arrange
+            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
+            var guidGenerator = new Mock<IGuidGenerator>();
+            guidGenerator.Setup(g => g.NewGuid())
+                .Returns(newGuid);
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+               It.IsAny<LogLevel>(),
+               It.IsAny<EventId>(),
+               It.IsAny<It.IsValueType>(),
+               It.IsAny<Exception?>(),
+               (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
+
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+            formIoManager.Setup(item =>
+                item.GetAllCollectionAsync(0, 1000))
+               .ReturnsAsync(this.GetTestCollection())
+               .Verifiable();
+
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(_ => _.InsertFormIOCollectionAsync(It.IsAny<Collection>()))
+                            .Throws<ApplicationException>();
+
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, formIoManager.Object);
+
+            // Act
+            var result = (OkResult)await controller.RecoveryFormIOAsync(0, 1000);
+
+            // Assert
+            result.Should().NotBeNull();
+            Assert.IsType<OkResult>(result);
+            mandateManager.Verify(_ => _.InsertFormIOCollectionAsync(It.IsAny<Collection>()), Times.Exactly(1000));
+        }
+
+        [Fact]
+        public async Task RecoveryFormIOAsync_ShouldThrow_CompanyNotFoundException()
+        {
+            // Arrange
+            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
+            var guidGenerator = new Mock<IGuidGenerator>();
+            guidGenerator.Setup(g => g.NewGuid())
+                .Returns(newGuid);
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+               It.IsAny<LogLevel>(),
+               It.IsAny<EventId>(),
+               It.IsAny<It.IsValueType>(),
+               It.IsAny<Exception?>(),
+               (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
+
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+            formIoManager.Setup(item =>
+                item.GetAllCollectionAsync(0, 1000))
+               .ReturnsAsync(this.GetTestCollection())
+               .Verifiable();
+
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(_ => _.InsertFormIOCollectionAsync(It.IsAny<Collection>()))
+                            .Throws<Sql.CompanyNotFoundException>();
+
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, formIoManager.Object);
+
+            // Act
+            var result = (OkResult)await controller.RecoveryFormIOAsync(0, 1000);
+
+            // Assert
+            result.Should().NotBeNull();
+            Assert.IsType<OkResult>(result);
+            mandateManager.Verify(_ => _.InsertFormIOCollectionAsync(It.IsAny<Collection>()), Times.Exactly(1000));
         }
 
         private List<Collection> GetTestCollection()
@@ -1416,5 +1491,5 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 
             return collections;
         }
-}
+    }
 }

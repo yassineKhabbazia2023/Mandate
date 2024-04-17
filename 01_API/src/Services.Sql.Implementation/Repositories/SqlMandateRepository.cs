@@ -8,7 +8,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
     using System.Linq.Expressions;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
-    using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
     public class SqlMandateRepository : IMandateRepository
     {
@@ -44,7 +43,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 throw new InvalidOperationException($"there is more then one company with siret {siret}");
             }
 
-            return await company.FirstOrDefaultAsync()!;
+            return await company.FirstOrDefaultAsync() !;
         }
 
         public async Task<(List<CollectionDb>, int)> SearchCollectionsAsync(CollectionQuery query)
@@ -109,13 +108,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             using var context = new MandateContext(this.options);
             var query = context.RefStatusCode
                 .Where(item => item.StatusCode == statusCode);
-            var status = await query.FirstOrDefaultAsync().ConfigureAwait(false);
-
-            if (status == null)
-            {
-                // No matching entity was found
-                throw StatusNotFoundException.FromId(jdcStatusCode);
-            }
+            var status = await query.FirstOrDefaultAsync().ConfigureAwait(false) ?? throw StatusNotFoundException.FromId(jdcStatusCode);
 
             // At this point, status is guaranteed to be not null and is the matched entity
             return new StatusDb()

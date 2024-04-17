@@ -1369,7 +1369,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
             formIoManager.Setup(item =>
                 item.GetAllCollectionAsync(0, 1000))
-               .ReturnsAsync(this.GetTestCollection())
+               .ReturnsAsync(GetTestCollection())
                .Verifiable();
 
             var controller = new MandateController(logger.Object, mandateManager, null!, guidGenerator.Object, formIoManager.Object);
@@ -1405,7 +1405,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
             formIoManager.Setup(item =>
                 item.GetAllCollectionAsync(0, 1000))
-               .ReturnsAsync(this.GetTestCollection())
+               .ReturnsAsync(GetTestCollection())
                .Verifiable();
 
             var mandateManager = new Mock<IMandateManager>();
@@ -1443,7 +1443,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
             formIoManager.Setup(item =>
                 item.GetAllCollectionAsync(0, 1000))
-               .ReturnsAsync(this.GetTestCollection())
+               .ReturnsAsync(GetTestCollection())
                .Verifiable();
 
             var mandateManager = new Mock<IMandateManager>();
@@ -1461,7 +1461,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             mandateManager.Verify(_ => _.InsertFormIOCollectionAsync(It.IsAny<Collection>()), Times.Exactly(1000));
         }
 
-        private List<Collection> GetTestCollection()
+        private static List<Collection> GetTestCollection()
         {
             var company = new Company(
                 1,

@@ -39,7 +39,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
         public string DemandeMandateFormId { get; set; } = null!;
 
-
         /// <summary>
         /// Check if the object is filled with valid properties.
         /// </summary>

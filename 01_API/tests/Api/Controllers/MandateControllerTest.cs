@@ -1547,6 +1547,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var result = (OkObjectResult)await controller.RecoveryFormIOAsync(0, 1000);
 
             List<Collection> collectionsResult = (List<Collection>)result.Value!;
+
             // Assert
             result.Should().NotBeNull();
             result.Should().BeOfType<OkObjectResult>();

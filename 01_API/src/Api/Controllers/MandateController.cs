@@ -318,11 +318,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                         this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName} : {message}", correlationId, nameof(this.RecoveryFormIOAsync), ex.Message);
                         failed.Add(collection);
                     }
-                    catch (Exception ex)
-                    {
-                        this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName} : {message}", correlationId, nameof(this.RecoveryFormIOAsync), ex.Message);
-                        failed.Add(collection);
-                    }
                 }
 
                 return this.Ok(failed);

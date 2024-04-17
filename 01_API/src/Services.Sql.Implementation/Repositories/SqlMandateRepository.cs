@@ -43,7 +43,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 throw new InvalidOperationException($"there is more then one company with siret {siret}");
             }
 
-            return await company.FirstOrDefaultAsync() !;
+            return await company.SingleAsync() !;
         }
 
         public async Task<(List<CollectionDb>, int)> SearchCollectionsAsync(CollectionQuery query)

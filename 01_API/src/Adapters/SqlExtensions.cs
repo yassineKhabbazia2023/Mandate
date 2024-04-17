@@ -185,7 +185,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 City = company.Address?.City,
                 Country = company.Address?.Country,
                 Email = company.Signatory?.Email!,
-                CompanyId = company.Id!,
                 FirstName = company.Signatory?.FirstName,
                 LastName = company.Signatory?.LastName,
                 Street = company.Address?.Street,

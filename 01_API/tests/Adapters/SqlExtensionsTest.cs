@@ -427,7 +427,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 City = collection.Company?.Address?.City,
                 Country = collection.Company?.Address?.Country,
                 Email = collection.Company?.Signatory?.Email!,
-                CompanyId = 0,
                 FirstName = collection.Company?.Signatory?.FirstName,
                 LastName = collection.Company?.Signatory?.LastName,
                 Street = collection.Company?.Address?.Street,

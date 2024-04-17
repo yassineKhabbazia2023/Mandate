@@ -299,6 +299,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             var correlationId = "0";
             try
             {
+                List<Collection> failed = new List<Collection>();
                 List<Collection> collections = await this.formIoManager.GetAllCollectionAsync(skip, limit);
 
                 foreach (var collection in collections)
@@ -310,14 +311,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                     catch (ApplicationException)
                     {
                         this.logger.LogInformation("MandateAPI - {correlationId} - {functionName} : mandat trouvé {rib}", correlationId, nameof(this.RecoveryFormIOAsync), collection.Bban?.ToRibString());
+                        failed.Add(collection);
                     }
                     catch (Sql.CompanyNotFoundException ex)
                     {
                         this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName} : {message}", correlationId, nameof(this.RecoveryFormIOAsync), ex.Message);
+                        failed.Add(collection);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName} : {message}", correlationId, nameof(this.RecoveryFormIOAsync), ex.Message);
+                        failed.Add(collection);
                     }
                 }
 
-                return this.Ok();
+                return this.Ok(failed);
             }
             catch (Exception ex)
             {

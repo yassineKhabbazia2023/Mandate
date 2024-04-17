@@ -25,7 +25,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
         {
             this.logger = logger;
             this.factory = factory;
-            this.options = options!.Value;
+            this.options = options?.Value ?? throw new InvalidOperationException($"Instance of {nameof(FormioOptions)} is null.");
         }
 
         public async Task<FormioSubmissionCollection?> GetSubmissionsAsync(string formId, int skip, int? limit, FormioAuthToken authToken)

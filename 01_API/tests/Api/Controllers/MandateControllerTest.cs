@@ -1375,14 +1375,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var controller = new MandateController(logger.Object, mandateManager, null!, guidGenerator.Object, formIoManager.Object);
 
             // Act
-            var result = (OkResult)await controller.RecoveryFormIOAsync(0, 1000);
+            var result = (OkObjectResult)await controller.RecoveryFormIOAsync(0, 1000);
 
             // Assert
             var insertedCollections = await context.Collection.ToListAsync();
-            insertedCollections.Count.Should().Be(1000);
+            insertedCollections.Count.Should().Be(100);
 
             result.Should().NotBeNull();
-            Assert.IsType<OkResult>(result);
+            result.Should().BeOfType<OkObjectResult>();
+            result.Value.Should().BeEquivalentTo(new List<Collection>());
         }
 
         [Fact]
@@ -1415,12 +1416,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, formIoManager.Object);
 
             // Act
-            var result = (OkResult)await controller.RecoveryFormIOAsync(0, 1000);
+            var result = (OkObjectResult)await controller.RecoveryFormIOAsync(0, 1000);
 
             // Assert
             result.Should().NotBeNull();
-            Assert.IsType<OkResult>(result);
-            mandateManager.Verify(_ => _.InsertFormIOCollectionAsync(It.IsAny<Collection>()), Times.Exactly(1000));
+            result.Should().BeOfType<OkObjectResult>();
+            mandateManager.Verify(_ => _.InsertFormIOCollectionAsync(It.IsAny<Collection>()), Times.Exactly(100));
+            ((List<Collection>)result.Value!).Count.Should().Be(100);
         }
 
         [Fact]
@@ -1453,12 +1455,112 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, formIoManager.Object);
 
             // Act
-            var result = (OkResult)await controller.RecoveryFormIOAsync(0, 1000);
+            var result = (OkObjectResult)await controller.RecoveryFormIOAsync(0, 1000);
 
             // Assert
             result.Should().NotBeNull();
-            Assert.IsType<OkResult>(result);
-            mandateManager.Verify(_ => _.InsertFormIOCollectionAsync(It.IsAny<Collection>()), Times.Exactly(1000));
+            result.Should().BeOfType<OkObjectResult>();
+            mandateManager.Verify(_ => _.InsertFormIOCollectionAsync(It.IsAny<Collection>()), Times.Exactly(100));
+            ((List<Collection>)result.Value!).Count.Should().Be(100);
+        }
+
+        [Fact]
+        public async Task RecoveryFormIOAsync_ShouldThrow_CompanyNotFoundException____()
+        {
+            // Arrange
+            Company company = new Company(
+                        1,
+                        "cn",
+                        "12345678910",
+                        "123456789",
+                        "54321",
+                        null,
+                        null);
+
+            Bank bank = new Bank("30027", "bn", "bg", string.Empty, new BankAgreement(JdcPartnership.Partner));
+            Bban bban1 = new Bban("30027", "00001", "12345678901", "55", "789", bank);
+            Bban bban2 = new Bban("30027", "00002", "12345678901", "55", "789", bank);
+            Bban bban3 = new Bban("30027", "00003", "12345678901", "55", "789", bank);
+
+            Status status = new Status(CollectionStatus.InProgress, "InProgress");
+
+            List<Collection> collections = new List<Collection>()
+            {
+                new Collection(
+                    Guid.NewGuid(),
+                    "54320",
+                    company,
+                    bban1,
+                    DateTime.Now,
+                    DateTime.Now,
+                    status),
+
+                new Collection(
+                    Guid.NewGuid(),
+                    "54321",
+                    company,
+                    bban2,
+                    DateTime.Now,
+                    DateTime.Now,
+                    status),
+
+                new Collection(
+                    Guid.NewGuid(),
+                    "54322",
+                    company,
+                    bban3,
+                    DateTime.Now,
+                    DateTime.Now,
+                    status),
+            };
+
+            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
+            var guidGenerator = new Mock<IGuidGenerator>();
+            guidGenerator.Setup(g => g.NewGuid())
+                .Returns(newGuid);
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+               It.IsAny<LogLevel>(),
+               It.IsAny<EventId>(),
+               It.IsAny<It.IsValueType>(),
+               It.IsAny<Exception?>(),
+               (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
+
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+
+            formIoManager.Setup(item =>
+                item.GetAllCollectionAsync(0, 1000))
+               .ReturnsAsync(collections)
+               .Verifiable();
+
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.SetupSequence(ite =>
+                ite.InsertFormIOCollectionAsync(It.IsAny<Collection>()))
+                .Returns(Task.CompletedTask)
+                .ThrowsAsync(new ApplicationException())
+                .ThrowsAsync(new Sql.CompanyNotFoundException());
+
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, formIoManager.Object);
+
+            // Act
+            var result = (OkObjectResult)await controller.RecoveryFormIOAsync(0, 1000);
+
+            List<Collection> collectionsResult = (List<Collection>)result.Value!;
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeOfType<OkObjectResult>();
+            mandateManager.Verify(_ => _.InsertFormIOCollectionAsync(It.IsAny<Collection>()), Times.Exactly(3));
+            collectionsResult.Count.Should().Be(2);
+            collectionsResult[0].CollectionServicesProviderId.Should().Be("54321");
+            collectionsResult[0].Company.Should().BeEquivalentTo(company);
+            collectionsResult[0].Bban.Should().BeEquivalentTo(bban2);
+            collectionsResult[0].Status.Should().BeEquivalentTo(status);
+
+            collectionsResult[1].CollectionServicesProviderId.Should().Be("54322");
+            collectionsResult[1].Company.Should().BeEquivalentTo(company);
+            collectionsResult[1].Bban.Should().BeEquivalentTo(bban3);
+            collectionsResult[1].Status.Should().BeEquivalentTo(status);
         }
 
         private static List<Collection> GetTestCollection()
@@ -1475,7 +1577,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             Bank bank = new Bank("30027", "bn", "bg", string.Empty, new BankAgreement(JdcPartnership.Partner));
 
             var collections = new List<Collection>();
-            for (int i = 1; i < 1001; i++)
+            for (int i = 1; i < 101; i++)
             {
                 Bban bban = new Bban("30027", i.ToString("0000#"), "12345678901", "55", string.Empty, bank);
 

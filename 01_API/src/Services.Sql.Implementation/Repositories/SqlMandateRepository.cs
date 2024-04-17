@@ -29,11 +29,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
         {
             using var context = new MandateContext(this.options);
 
-            return await context.Company
-                .Include(c => c.Personal)
-                .Include(c => c.JeDeclareFolder)
-                .AsNoTracking()
-                .SingleOrDefaultAsync(_ => _.SiretNumber == siret) ?? throw CompanyNotFoundException.FromSiret(siret);
+            var company = context.Company
+                    .Include(c => c.Personal)
+                    .Include(c => c.JeDeclareFolder)
+                    .Where(_ => _.SiretNumber == siret);
+
+            if (!await company.AnyAsync())
+            {
+                throw CompanyNotFoundException.FromSiret(siret);
+            }
+
+            if (await company.CountAsync() > 1)
+            {
+                throw new InvalidOperationException($"there is more then one company with siret {siret}");
+            }
+
+            return await company.FirstOrDefaultAsync()!;
         }
 
         public async Task<(List<CollectionDb>, int)> SearchCollectionsAsync(CollectionQuery query)

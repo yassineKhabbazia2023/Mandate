@@ -13,6 +13,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             this.formIoService = formIoService;
         }
 
+        public async Task<List<Collection>> GetAllCollectionAsync(int skip, int limit)
+        {
+            return await this.formIoService.GetAllCollectionAsync(skip, limit);
+        }
+
         public async Task<Collection?> GetCollectionByBban(Bban bban)
         {
             return await this.formIoService.GetSubmissionMandateAsync(bban);

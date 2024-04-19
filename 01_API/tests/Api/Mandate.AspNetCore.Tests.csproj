@@ -10,6 +10,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Services.Sql.Implementation\Mandate.Sql.Implementation.Tests.csproj" />
 		<ProjectReference Include="..\Tools\Mandate.Tools.Tests.csproj" />
 		<ProjectReference Include="..\..\src\Api\Mandate.AspNetCore.csproj" />
 	</ItemGroup>

@@ -10,6 +10,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client
     {
         Task<FormioSubmissionCollection?> GetSubmissionsAsync(string formId, int skip, int? limit, FormioAuthToken authToken);
 
+        Task<FormioSubmissionCollection?> GetSubmissionsAsync(int skip, int? limit, FormioAuthToken authToken);
+
         Task<JToken?> CheckJdcPartnerBankAsync(string formId, string codeBank);
 
         Task<bool> CheckMadateDematSupportedAsync(string formId, string codeBank);

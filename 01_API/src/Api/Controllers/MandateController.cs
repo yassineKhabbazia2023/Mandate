@@ -4,7 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
-    using Aspose.Pdf.Operators;
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using Microsoft.AspNetCore.Authorization;
@@ -48,7 +47,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 sortCriteria ??= "Name";
 
                 var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria, email);
-                this.logger.LogInformation("{collectionQuery}",JsonConvert.SerializeObject(collectionQuery));
+                this.logger.LogInformation("{collectionQuery}", JsonConvert.SerializeObject(collectionQuery));
                 var result = await this.mandateManager.GetAllCollectionsAsync(collectionQuery.ToModel());
                 return this.Ok(result.ToPageMandateDetails());
             }
@@ -290,6 +289,42 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             catch (Exception ex)
             {
                 this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.Recovery));
+                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
+            }
+        }
+
+        [HttpPost("recovery-form-io")]
+        public async Task<IActionResult> RecoveryFormIOAsync([FromQuery] int skip, [FromQuery] int limit)
+        {
+            var correlationId = "0";
+            try
+            {
+                List<Collection> failed = new List<Collection>();
+                List<Collection> collections = await this.formIoManager.GetAllCollectionAsync(skip, limit);
+
+                foreach (var collection in collections)
+                {
+                    try
+                    {
+                        await this.mandateManager.InsertFormIOCollectionAsync(collection);
+                    }
+                    catch (ApplicationException)
+                    {
+                        this.logger.LogInformation("MandateAPI - {correlationId} - {functionName} : mandat trouvé {rib}", correlationId, nameof(this.RecoveryFormIOAsync), collection.Bban?.ToRibString());
+                        failed.Add(collection);
+                    }
+                    catch (Sql.CompanyNotFoundException ex)
+                    {
+                        this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName} : {message}", correlationId, nameof(this.RecoveryFormIOAsync), ex.Message);
+                        failed.Add(collection);
+                    }
+                }
+
+                return this.Ok(failed);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.RecoveryFormIOAsync));
                 return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
             }
         }

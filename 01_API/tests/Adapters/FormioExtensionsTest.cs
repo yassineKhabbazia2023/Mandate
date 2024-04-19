@@ -11,47 +11,39 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         [Fact]
         public void ToCollection()
         {
-            var entity = new FormioSubmissionCollection()
-            {
-                Limit = 1,
-                Skip = 2,
-                Total = 3,
-                Submissions = new List<FormioSubmission>()
+            var entity =
+                new FormioSubmission
                 {
-                    new FormioSubmission
+                    Id = "id",
+                    Owner = string.Empty,
+                    Created = "2023-10-10T08:50:03.000Z",
+                    Modified = "2023-12-10T08:50:03.000Z",
+                    Data = new
                     {
-                        Id = "id",
-                        Owner = string.Empty,
-                        Created = "2023-10-10T08:50:03.000Z",
-                        Modified = "2023-12-10T08:50:03.000Z",
-                        Data = new
+                        accountNumber = "1000326214",
+                        companyName = "SPORT FIT SAS",
+                        SIRETNumber = "83455379400019",
+                        signatoryTitle = "m",
+                        signatoryLastName = "BRUNELAT",
+                        signatoryFirstName = "OLIVIER",
+                        signatoryEmailAddress = "brunelatolivier@gmail.com",
+                        headOffice = new
                         {
-                            accountNumber= "1000326214",
-                            companyName= "SPORT FIT SAS",
-                            SIRETNumber= "83455379400019",
-                            signatoryTitle= "m",
-                            signatoryLastName= "BRUNELAT",
-                            signatoryFirstName= "OLIVIER",
-                            signatoryEmailAddress= "brunelatolivier@gmail.com",
-                            headOffice= new
-                            {
-                                signatoryStreetAddress= "12 RUE DES 2 NATIONS",
-                                signatoryAddressComplements= string.Empty,
-                                signatoryAddressZipCode= "59250",
-                                signatoryAddressCity= "HALLUIN",
-                                signatoryAddressCountry= "France",
-                            },
-                            bankCode= "13507",
-                            bankSortCode= "00014",
-                            bankAccountNumber= "31464482121",
-                            bankCheckNumber= "77",
-                            jdcDossierId= "19820673",
-                            jdcRibId= "8909441",
-                            jdcReleveId= "8909440",
+                            signatoryStreetAddress = "12 RUE DES 2 NATIONS",
+                            signatoryAddressComplements = string.Empty,
+                            signatoryAddressZipCode = "59250",
+                            signatoryAddressCity = "HALLUIN",
+                            signatoryAddressCountry = "France",
                         },
+                        bankCode = "13507",
+                        bankSortCode = "00014",
+                        bankAccountNumber = "31464482121",
+                        bankCheckNumber = "77",
+                        jdcDossierId = "19820673",
+                        jdcRibId = "8909441",
+                        jdcReleveId = "8909440",
                     },
-                },
-            };
+                };
 
             Collection collection = entity.ToCollection();
 
@@ -69,37 +61,28 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         [Fact]
         public void ToCollection_When_NoHeadOffice()
         {
-            var entity = new FormioSubmissionCollection()
+            var entity = new FormioSubmission
             {
-                Limit = 1,
-                Skip = 2,
-                Total = 3,
-                Submissions = new List<FormioSubmission>()
+                Id = "id",
+                Owner = string.Empty,
+                Created = "2023-10-10T08:50:03.000Z",
+                Modified = "2023-12-10T08:50:03.000Z",
+                Data = new
                 {
-                    new FormioSubmission
-                    {
-                        Id = "id",
-                        Owner = string.Empty,
-                        Created = "2023-10-10T08:50:03.000Z",
-                        Modified = "2023-12-10T08:50:03.000Z",
-                        Data = new
-                        {
-                            accountNumber= "1000326214",
-                            companyName= "SPORT FIT SAS",
-                            SIRETNumber= "83455379400019",
-                            signatoryTitle= "m",
-                            signatoryLastName= "BRUNELAT",
-                            signatoryFirstName= "OLIVIER",
-                            signatoryEmailAddress= "brunelatolivier@gmail.com",
-                            bankCode= "13507",
-                            bankSortCode= "00014",
-                            bankAccountNumber= "31464482121",
-                            bankCheckNumber= "77",
-                            jdcDossierId= "19820673",
-                            jdcRibId= "8909441",
-                            jdcReleveId= "8909440",
-                        },
-                    },
+                    accountNumber = "1000326214",
+                    companyName = "SPORT FIT SAS",
+                    SIRETNumber = "83455379400019",
+                    signatoryTitle = "m",
+                    signatoryLastName = "BRUNELAT",
+                    signatoryFirstName = "OLIVIER",
+                    signatoryEmailAddress = "brunelatolivier@gmail.com",
+                    bankCode = "13507",
+                    bankSortCode = "00014",
+                    bankAccountNumber = "31464482121",
+                    bankCheckNumber = "77",
+                    jdcDossierId = "19820673",
+                    jdcRibId = "8909441",
+                    jdcReleveId = "8909440",
                 },
             };
 
@@ -120,16 +103,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public void ToCollection_WhenHeadOfficeIsNull_ReturnsCollectionWithNullAddress()
         {
             // Arrange
-            var submission = new FormioSubmissionCollection
+            var submission = new FormioSubmission
             {
-                Submissions = new List<FormioSubmission>
-                {
-                    new FormioSubmission
-                    {
-                        // Provide data where headOffice is null
-                        Data = null!,
-                    },
-                },
+                // Provide data where headOffice is null
+                Data = null!,
             };
 
             var result = submission.ToCollection();
@@ -145,21 +122,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         [Fact]
         public void ToCollection_WhenEmptyData_ShouldReturnDefaultObject()
         {
-            var entity = new FormioSubmissionCollection()
+            var entity = new FormioSubmission
             {
-                Limit = 1,
-                Skip = 2,
-                Total = 3,
-                Submissions = new List<FormioSubmission>()
+                Id = "id",
+                Owner = string.Empty,
+                Data = new
                 {
-                    new FormioSubmission
-                    {
-                        Id = "id",
-                        Owner = string.Empty,
-                        Data = new
-                        {
-                        },
-                    },
                 },
             };
 

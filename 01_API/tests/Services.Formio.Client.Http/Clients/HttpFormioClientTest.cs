@@ -8,11 +8,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
     using System.Text.Json.Nodes;
     using Kpmg.Constellation.Net.Http;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
     public class HttpFormioClientTest
     {
+        private readonly IOptions<FormioOptions> options;
+
+        public HttpFormioClientTest()
+        {
+            this.options = Options.Create(new FormioOptions()
+            {
+                DemandeMandateFormId = "formId",
+            });
+        }
+
         [Fact]
         public async Task GetSubmissionsAsync_CaseOK()
         {
@@ -59,7 +70,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object, this.options);
 
             var submissionResult = await jeDeclareClient.GetSubmissionsAsync("demandemandat", 0, 20, auth);
 
@@ -106,7 +117,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object, this.options);
 
             Func<Task> act = async () => await jeDeclareClient.GetSubmissionsAsync("demandemandat", 0, 20, auth);
 
@@ -150,7 +161,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object, this.options);
 
             Func<Task> act = async () => await jeDeclareClient.CheckJdcPartnerBankAsync("demandemandat", "codeBankT");
 
@@ -194,7 +205,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object, this.options);
 
             Func<Task> act = async () => await jeDeclareClient.CheckMadateDematSupportedAsync("demandemandat", "codeBankT");
 
@@ -240,7 +251,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object, this.options);
 
             Func<Task> act = async () => await jeDeclareClient.CheckCollecteConfigExistAsync("demandemandat", "bankCodeT", "bankAccountNumberT", "bankSortT", auth);
 
@@ -286,7 +297,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object, this.options);
 
             Func<Task> act = async () => await jeDeclareClient.GetTemplateShemaAsync("projectIdT", "codeBankT", auth);
 
@@ -332,7 +343,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object, this.options);
 
             Func<Task> act = async () => await jeDeclareClient.GetSubmissionByIdAsync("formIdT", "submissionIdT", auth);
 
@@ -409,7 +420,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object, this.options);
 
             Func<Task> act = async () => await jeDeclareClient.DownloadSubmissionAsPDFWithTemplate(form, data, downloadUrl, fileToken);
 
@@ -481,7 +492,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object, this.options);
 
             var result = await jeDeclareClient.DownloadSubmissionAsPDFWithTemplate(form, data, downloadUrl, fileToken);
 
@@ -528,7 +539,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object, this.options);
 
             Func<Task> act = async () => await jeDeclareClient.GetProjectDefinitionAsync("demandemandat", auth);
 
@@ -600,7 +611,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object);
+            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object, this.options);
 
             var submissionMandate = await jeDeclareClient.GetSubmissionMandateAsync("123", "456", "789", "46", auth);
 

@@ -36,6 +36,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         {
             return descriptor.ControllerName == "Mandate" &&
                      (descriptor.AttributeRouteInfo?.Template == "api/mandate/technical" ||
+                     descriptor.AttributeRouteInfo?.Template == "api/mandate/recovery-form-io" ||
+                     descriptor.AttributeRouteInfo?.Template == "api/mandate/recovery" ||
                      descriptor.AttributeRouteInfo?.Template == "api/mandate/refresh-mandates-statuses");
         }
     }

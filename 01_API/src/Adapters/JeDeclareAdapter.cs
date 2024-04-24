@@ -80,8 +80,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             {
                 var folderId = collection.Company?.BankServicesProviderId ?? throw new ServicesProviderException($"BankServicesProviderId is null for {collection.Id}");
                 var releveId = collection.CollectionServicesProviderId ?? throw new ServicesProviderException($"CollectionServicesProviderId is null for {collection.Id}");
+                var partnership = collection.Bban?.Bank?.JdcAgreement?.JdcPartnership;
 
-                return await this.jedeclareClient.DeactivateCollection(folderId!, releveId!);
+                return await this.jedeclareClient.DeactivateCollection(
+                    folderId!,
+                    releveId!,
+                    partnership.HasValue && partnership.Value != JdcPartnership.NonPartner);
             }
             catch (JeDeclareApiException ex)
             {

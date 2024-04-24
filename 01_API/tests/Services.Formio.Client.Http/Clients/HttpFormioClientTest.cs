@@ -6,6 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 {
     using System.Net;
     using System.Text.Json.Nodes;
+    using FluentAssertions.Json;
     using Kpmg.Constellation.Net.Http;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
@@ -123,6 +124,207 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             await act.Should().ThrowExactlyAsync<FormioApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message returned by formioApi'");
+
+            client.VerifyAll();
+            factory.VerifyAll();
+        }
+
+        [Fact]
+        public async Task GetSubmissionsAsync2_CaseOK()
+        {
+            var formiosubmission = new FormioSubmission()
+            {
+                Id = "idT",
+                Created = "createdT",
+                Modified = "modifiedT",
+                Owner = "ownerT",
+            };
+
+            var formiosubmissionList = new List<FormioSubmission>() { formiosubmission };
+            var serializedFormioSubmissionList = JsonNode.Parse(JsonConvert.SerializeObject(formiosubmissionList)) !.ToJsonString();
+
+            var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(serializedFormioSubmissionList, Encoding.UTF8, "application/json"),
+            };
+
+            var client = new Mock<IHttpClient>(MockBehavior.Strict);
+            client.Setup(c => c.GetAsync(It.IsAny<string>()))
+                .Callback<string>(url =>
+                {
+                    url.Should().Be($"constellation/form/d1c983f2/submission?skip=0&limit=10");
+                })
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
+
+            client.Setup(c => c.Dispose())
+                .Verifiable();
+
+            var auth = new FormioAuthToken()
+            {
+                Type = FormioTokenType.App,
+                Value = "token",
+            };
+
+            var factory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
+            factory.Setup(f => f.Create(auth))
+                .Returns(client.Object)
+                .Verifiable();
+
+            var options = Options.Create(new FormioOptions()
+            {
+                DemandeMandateFormId = "d1c983f2",
+            });
+
+            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+
+            var httpFormioClient = new HttpFormioClient(logger.Object, factory.Object, options);
+            var result = await httpFormioClient.GetSubmissionsAsync(0, 10, auth);
+
+            result!.Submissions.Should().BeEquivalentTo(formiosubmissionList);
+
+            logger.VerifyAll();
+            client.VerifyAll();
+            factory.VerifyAll();
+        }
+
+        [Fact]
+        public async Task GetSubmissionsAsync2_CaseThrowExeption()
+        {
+            var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent("error message returned by formioApi"),
+            };
+
+            var client = new Mock<IHttpClient>(MockBehavior.Strict);
+            client.Setup(c => c.GetAsync(It.IsAny<string>()))
+                .Callback<string>(url =>
+                {
+                    url.Should().Be($"constellation/form/d1c983f2/submission?skip=0&limit=10");
+                })
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
+
+            client.Setup(c => c.Dispose())
+                .Verifiable();
+
+            var auth = new FormioAuthToken()
+            {
+                Type = FormioTokenType.App,
+                Value = "token",
+            };
+
+            var factory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
+            factory.Setup(f => f.Create(auth))
+                .Returns(client.Object)
+                .Verifiable();
+
+            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
+
+            var options = Options.Create(new FormioOptions()
+            {
+                DemandeMandateFormId = "d1c983f2",
+            });
+
+            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object, options);
+
+            Func<Task> act = async () => await jeDeclareClient.GetSubmissionsAsync(0, 10, auth);
+
+            await act.Should().ThrowExactlyAsync<FormioApiException>()
+                .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message returned by formioApi'");
+
+            client.VerifyAll();
+            factory.VerifyAll();
+        }
+
+        [Fact]
+        public async Task CheckJdcPartnerBankAsync_CaseOk()
+        {
+            string data =
+           @"[{
+                  id: ""5d9ef125d5a3477ca6026100"",
+                  data: {
+                    accountNumber: ""1000326214"",
+                    companyName: ""SPORT FIT SAS"",
+                    SIRETNumber: ""83455379400019"",
+                    signatoryTitle: ""m"",
+                    signatoryLastName: ""BRUNELAT"",
+                    signatoryFirstName: ""OLIVIER"",
+                    signatoryEmailAddress: ""toto@gmail.com"",
+                    headOffice: {
+                        signatoryStreetAddress: ""12 RUE DES 2 NATIONS"",
+                        signatoryAddressComplements: """",
+                        signatoryAddressZipCode: ""59250"",
+                        signatoryAddressCity: ""HALLUIN"",
+                        signatoryAddressCountry: ""France""
+                    },
+                    bankCode: ""13507"",
+                    bankSortCode: ""00014"",
+                    bankAccountNumber: ""31464482121"",
+                    bankCheckNumber: ""77"",
+                    companyId: """",
+                    userId: ""0896c1f7-4521-4c57-968f-d74e620b7cbc"",
+                    jdcDossierId: ""19820673"",
+                    jdcRibId: ""8909441"",
+                    jdcReleveId: ""8909440""
+                },
+                created: ""2019-10-10T08:54:03.000Z"",
+                modified: ""2019-10-10T08:54:03.000Z""
+            }]";
+
+            var sub = new FormioSubmissionCollection()
+            {
+                Limit = 1,
+                Skip = 0,
+                Total = 1,
+                Submissions = JsonConvert.DeserializeObject<List<FormioSubmission>>(data) !,
+            };
+
+            var formiosubmissionList = sub.Submissions;
+            var serializedFormioSubmissionList = JsonNode.Parse(JsonConvert.SerializeObject(formiosubmissionList)) !.ToJsonString();
+
+            var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(serializedFormioSubmissionList, Encoding.UTF8, "application/json"),
+            };
+
+            var client = new Mock<IHttpClient>(MockBehavior.Strict);
+            client.Setup(c => c.GetAsync(It.IsAny<string>()))
+                .Callback<string>(url =>
+                {
+                    url.Should().Be($"constellation/demandemandat/submission?data.bankCode=codeBankT");
+                })
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
+
+            client.Setup(c => c.Dispose())
+                .Verifiable();
+
+            var factory = new Mock<IFormioClientFactory>(MockBehavior.Strict);
+            factory.Setup(f => f.Create())
+                .Returns(client.Object)
+                .Verifiable();
+
+            var logger = new Mock<ILogger<HttpFormioClient>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
+
+            var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object, this.options);
+
+            var res = await jeDeclareClient.CheckJdcPartnerBankAsync("demandemandat", "codeBankT") !;
+
+            res.Should().NotBeNull();
+            res.Should().BeOfType<JObject>();
 
             client.VerifyAll();
             factory.VerifyAll();

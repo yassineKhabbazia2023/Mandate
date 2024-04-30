@@ -613,8 +613,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             // Arrange
             var validMandateId = "00000001-0000-0000-0000-000000000000";
 
+            var authenticationContext = new Mock<IAuthenticationServices>(MockBehavior.Strict);
+            authenticationContext.Setup(item => item.Email)
+                .Returns("collab@email.com")
+                .Verifiable();
+
             var mandateManagerMock = new Mock<IMandateManager>();
-            mandateManagerMock.Setup(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()))
+            mandateManagerMock.Setup(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>(), It.IsAny<string>()))
                 .ReturnsAsync("signedMandateId")
                 .Verifiable();
 
@@ -626,7 +631,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManagerMock.Object, null!, null!, null!);
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, authenticationContext.Object, null!, null!);
 
             var fileMock = new Mock<IFormFile>();
             fileMock.Setup(f => f.ContentType).Returns("application/pdf");
@@ -647,7 +652,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             okResult?.Value.Should().Be("signedMandateId");
             okResult.Should().NotBeNull();
             okResult.Should().BeOfType<OkObjectResult>();
-            mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()), Times.Once);
+            mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>(), It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
@@ -690,7 +695,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             badRequestResult?.StatusCode.Should().Be(400);
             badRequestResult.Should().NotBeNull();
             badRequestResult.Should().BeOfType<BadRequestObjectResult>();
-            mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()), Times.Never);
+            mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>(), It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
@@ -723,7 +728,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             badRequestResult?.StatusCode.Should().Be(400);
             badRequestResult.Should().NotBeNull();
             badRequestResult.Should().BeOfType<BadRequestObjectResult>();
-            mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()), Times.Never);
+            mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>(), It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
@@ -765,7 +770,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var badRequestResult = result as BadRequestObjectResult;
             badRequestResult.Should().NotBeNull();
             badRequestResult.Should().BeOfType<BadRequestObjectResult>();
-            mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()), Times.Never);
+            mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>(), It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
@@ -779,8 +784,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 
             var validMandateId = "00000001-0000-0000-0000-000000000000";
 
+            var authenticationContext = new Mock<IAuthenticationServices>(MockBehavior.Strict);
+            authenticationContext.Setup(item => item.Email)
+                .Returns("collab@email.com")
+                .Verifiable();
+
             var mandateManagerMock = new Mock<IMandateManager>();
-            mandateManagerMock.Setup(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()))
+            mandateManagerMock.Setup(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>(), It.IsAny<string>()))
                 .ThrowsAsync(new ServicesProviderException("Test exception"))
                 .Verifiable();
 
@@ -792,7 +802,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManagerMock.Object, null!, guidGenerator.Object, null!);
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, authenticationContext.Object, guidGenerator.Object, null!);
 
             var fileMock = new Mock<IFormFile>();
             fileMock.Setup(f => f.ContentType).Returns("application/pdf");
@@ -812,7 +822,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             internalServerErrorResult?.StatusCode.Should().Be(500);
             internalServerErrorResult.Should().NotBeNull();
             internalServerErrorResult.Should().BeOfType<ObjectResult>();
-            mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()), Times.Once);
+            mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>(), It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
@@ -826,8 +836,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 
             var validMandateId = "00000001-0000-0000-0000-000000000000";
 
+            var authenticationContext = new Mock<IAuthenticationServices>(MockBehavior.Strict);
+            authenticationContext.Setup(item => item.Email)
+                .Returns("collab@email.com")
+                .Verifiable();
+
             var mandateManagerMock = new Mock<IMandateManager>();
-            mandateManagerMock.Setup(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()))
+            mandateManagerMock.Setup(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>(), It.IsAny<string>()))
                 .ThrowsAsync(new Exception("Test exception"))
                 .Verifiable();
 
@@ -839,7 +854,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 It.IsAny<Exception?>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
 
-            var controller = new MandateController(logger.Object, mandateManagerMock.Object, null!, guidGenerator.Object, null!);
+            var controller = new MandateController(logger.Object, mandateManagerMock.Object, authenticationContext.Object, guidGenerator.Object, null!);
 
             var fileMock = new Mock<IFormFile>();
             fileMock.Setup(f => f.ContentType).Returns("application/pdf");
@@ -859,7 +874,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             internalServerErrorResult?.StatusCode.Should().Be(500);
             internalServerErrorResult.Should().NotBeNull();
             internalServerErrorResult.Should().BeOfType<ObjectResult>();
-            mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>()), Times.Once);
+            mandateManagerMock.Verify(m => m.UploadSignedMandateAsync(It.IsAny<Guid>(), It.IsAny<Stream>(), It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
@@ -1102,11 +1117,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         {
             var mandateId = new PredictableGuid().NewGuid();
 
+            var authenticationContext = new Mock<IAuthenticationServices>(MockBehavior.Strict);
+            authenticationContext.Setup(item => item.Email)
+                .Returns("collab@email.com")
+                .Verifiable();
+
             var mandateManager = new Mock<IMandateManager>();
-            mandateManager.Setup(m => m.DeactivateCollectionAsync(mandateId))
+            mandateManager.Setup(m => m.DeactivateCollectionAsync(mandateId, It.IsAny<string>()))
                 .ReturnsAsync(true);
 
-            var controller = new MandateController((new NullLoggerFactory() as ILoggerFactory).CreateLogger<MandateController>(), mandateManager.Object, null!, null!, null!);
+            var controller = new MandateController((new NullLoggerFactory() as ILoggerFactory).CreateLogger<MandateController>(), mandateManager.Object, authenticationContext.Object, null!, null!);
 
             var result = await controller.DeactivateAsync(mandateId.ToString());
 
@@ -1121,11 +1141,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         {
             var mandateId = new PredictableGuid().NewGuid();
 
+            var authenticationContext = new Mock<IAuthenticationServices>(MockBehavior.Strict);
+            authenticationContext.Setup(item => item.Email)
+                .Returns("collab@email.com")
+                .Verifiable();
+
             var mandateManager = new Mock<IMandateManager>();
-            mandateManager.Setup(m => m.DeactivateCollectionAsync(mandateId))
+            mandateManager.Setup(m => m.DeactivateCollectionAsync(mandateId, It.IsAny<string>()))
                 .ReturnsAsync(false);
 
-            var controller = new MandateController((new NullLoggerFactory() as ILoggerFactory).CreateLogger<MandateController>(), mandateManager.Object, null!, null!, null!);
+            var controller = new MandateController((new NullLoggerFactory() as ILoggerFactory).CreateLogger<MandateController>(), mandateManager.Object, authenticationContext.Object, null!, null!);
 
             var result = await controller.DeactivateAsync(mandateId.ToString());
 

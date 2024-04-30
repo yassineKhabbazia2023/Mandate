@@ -232,7 +232,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                     throw new InvalidFileTypeException("The file must be a PDF.");
                 }
 
-                var result = await this.mandateManager.UploadSignedMandateAsync(parsedMandateId, file.OpenReadStream());
+                string email = this.authenticationContext.Email!;
+                var result = await this.mandateManager.UploadSignedMandateAsync(parsedMandateId, file.OpenReadStream(), email);
                 return this.Ok(result);
             }
             catch (InvalidFileTypeException ex)
@@ -261,7 +262,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 return this.BadRequest(new Error("InvalidMandateId", correlationId, "MandateId should be an UUID"));
             }
 
-            if (await this.mandateManager.DeactivateCollectionAsync(parsedMandateId))
+            string email = this.authenticationContext.Email!;
+            if (await this.mandateManager.DeactivateCollectionAsync(parsedMandateId, email))
             {
                 return this.NoContent();
             }

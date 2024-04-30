@@ -126,7 +126,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             }
         }
 
-        public async Task<string?> UploadSignedMandateAsync(Guid collectionId, Stream mandateFileStream)
+        public async Task<string?> UploadSignedMandateAsync(Guid collectionId, Stream mandateFileStream, string userEmail)
         {
             using var memoryStream = new MemoryStream();
             await mandateFileStream.CopyToAsync(memoryStream);
@@ -164,7 +164,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             {
                 string fileName = $@"uploaded-signed-mandate-{collection.Id}.pdf";
                 string fileContent = Convert.ToBase64String(fileBytes);
-                var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(collection, this.options.Value, fileContent, fileName);
+                var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(collection, this.options.Value, fileContent, fileName, userEmail);
                 await this.notificationsService.SendEmailAsync(emailCommand);
                 await this.databaseService.CreateStatusAsync(collection.Id, (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded);
                 return null;
@@ -197,7 +197,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             return await this.jeDeclareService.GetSignedMandatPdfAsync(folderId!, ribId!);
         }
 
-        public async Task<bool> DeactivateCollectionAsync(Guid collectionId)
+        public async Task<bool> DeactivateCollectionAsync(Guid collectionId, string userEmail)
         {
             var collection = await this.databaseService.GetCollectionById(collectionId);
             var isJdcPartner = IsJdcPartner(collection);
@@ -206,7 +206,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
             if (!isJdcPartner && isDeactivated)
             {
-                var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collection, this.options.Value);
+                var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collection, this.options.Value, userEmail);
                 await this.notificationsService.SendEmailAsync(emailCommand);
             }
 

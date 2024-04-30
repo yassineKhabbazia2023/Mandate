@@ -6,9 +6,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
     public static class EmailCommandBuilder
     {
-        public static EmailCommand CreateMandateCancellationEmail(Collection collection, MandateEmailOptions options)
+        public static EmailCommand CreateMandateCancellationEmail(Collection collection, MandateEmailOptions options, string userEmail)
         {
-            var emailData = ExtractEmailData(collection);
+            var emailData = ExtractEmailData(collection, userEmail);
 
             string emailBody = $@"
                 Bonjour,<br><br>
@@ -25,9 +25,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             return GenerateEmailCommand(emailData, emailBody, options.MandateCancellationSubject, options, null!, EmailType.MandateCancellation);
         }
 
-        public static EmailCommand CreateSignedMandateUploadedEmail(Collection collection, MandateEmailOptions options, string fileContent, string fileName)
+        public static EmailCommand CreateSignedMandateUploadedEmail(Collection collection, MandateEmailOptions options, string fileContent, string fileName, string userEmail)
         {
-            var emailData = ExtractEmailData(collection);
+            var emailData = ExtractEmailData(collection, userEmail);
 
             string emailBody = $@"
                 Bonjour,<br><br>
@@ -48,7 +48,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             return GenerateEmailCommand(emailData, emailBody, options!.MandateUploadedSubject, options, attachments, EmailType.MandateUploaded);
         }
 
-        private static EmailData ExtractEmailData(Collection collection)
+        private static EmailData ExtractEmailData(Collection collection, string userEmail)
         {
             SignatoryDetails signatoryDetails = new SignatoryDetails(
                 collaboratorEmail: collection.GetSignatoryEmail(),
@@ -72,14 +72,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 signatoryDetails: signatoryDetails,
                 bban: bban,
                 ibs: collection.GetErpId(),
-                companyName: collection.GetCompanyName());
+                companyName: collection.GetCompanyName(),
+                userEmail: userEmail);
         }
 
         private static string GenerateEmailListContent(EmailData data)
         {
             return $@"
             <ul>
-                <li>Collaborateur: {data.CollaboratorEmail}</li>
+                <li>Collaborateur: {data.UserEmail}</li>
                 <li>Raison sociale du client: {data.CompanyName}</li>
                 <li>Siret : {data.SiretNumber}</li>
                 <li>RIB:

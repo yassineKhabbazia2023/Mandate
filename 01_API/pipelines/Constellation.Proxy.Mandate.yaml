@@ -39,7 +39,7 @@ jobs:
 
   - task: SonarQubePrepare@5
     inputs:
-      SonarQube: 'SonarQube-MyPulseV2'
+      SonarQube: 'SonarQube'
       scannerMode: 'MSBuild'
       projectKey: 'MyPulse_Back_Mandate'
       projectName: 'KPMG.Pulse.Back.Accounting.Mandate'
@@ -57,7 +57,7 @@ jobs:
       command: 'restore'
       restoreSolution: '01_API/Mandate.CleanArchi.sln'
       feedsToUse: 'config'
-      nugetConfigPath: 'NuGet.config'
+      nugetConfigPath: '$(build.sourcesdirectory)\01_API\NuGet.config'
 
   - task: VSBuild@1
     displayName: "Build the .NET Standard Mandate Client NuGet packages"

@@ -1383,7 +1383,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 
             result.Should().NotBeNull();
             result.Should().BeOfType<OkObjectResult>();
-            result.Value.Should().BeEquivalentTo(new List<Collection>());
+            result.Value.Should().BeEquivalentTo(new Client.PagedRecoveryMandate(100,  new List<Client.CollectionSummary>()));
         }
 
         [Fact]
@@ -1422,7 +1422,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             result.Should().NotBeNull();
             result.Should().BeOfType<OkObjectResult>();
             mandateManager.Verify(_ => _.InsertFormIOCollectionAsync(It.IsAny<Collection>()), Times.Exactly(100));
-            ((List<Collection>)result.Value!).Count.Should().Be(100);
+            ((Client.PagedRecoveryMandate)result.Value!).Imported.Should().Be(100);
+            ((Client.PagedRecoveryMandate)result.Value!).Failed.Count.Should().Be(100);
         }
 
         [Fact]
@@ -1461,11 +1462,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             result.Should().NotBeNull();
             result.Should().BeOfType<OkObjectResult>();
             mandateManager.Verify(_ => _.InsertFormIOCollectionAsync(It.IsAny<Collection>()), Times.Exactly(100));
-            ((List<Collection>)result.Value!).Count.Should().Be(100);
+            ((Client.PagedRecoveryMandate)result.Value!).Imported.Should().Be(100);
+            ((Client.PagedRecoveryMandate)result.Value!).Failed.Count.Should().Be(100);
         }
 
         [Fact]
-        public async Task RecoveryFormIOAsync_ShouldThrow_CompanyNotFoundException____()
+        public async Task RecoveryFormIOAsync_ShouldThrow_CompanyNotFoundException_ApplicationException_SetupSequence()
         {
             // Arrange
             Company company = new Company(
@@ -1546,22 +1548,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             // Act
             var result = (OkObjectResult)await controller.RecoveryFormIOAsync(0, 1000);
 
-            List<Collection> collectionsResult = (List<Collection>)result.Value!;
+            Client.PagedRecoveryMandate page = (Client.PagedRecoveryMandate)result.Value!;
+            IReadOnlyList<Client.CollectionSummary> collectionsResult = page.Failed;
 
             // Assert
             result.Should().NotBeNull();
             result.Should().BeOfType<OkObjectResult>();
             mandateManager.Verify(_ => _.InsertFormIOCollectionAsync(It.IsAny<Collection>()), Times.Exactly(3));
             collectionsResult.Count.Should().Be(2);
-            collectionsResult[0].CollectionServicesProviderId.Should().Be("54321");
-            collectionsResult[0].Company.Should().BeEquivalentTo(company);
-            collectionsResult[0].Bban.Should().BeEquivalentTo(bban2);
-            collectionsResult[0].Status.Should().BeEquivalentTo(status);
+            collectionsResult[0].ErpId.Should().Be(company.ErpId);
+            collectionsResult[0].CompanyName.Should().Be(company.Name);
+            collectionsResult[0].AccountNumber.Should().Be(bban2.AccountNumber);
+            collectionsResult[0].BankName.Should().Be(bban2.Bank!.Name);
 
-            collectionsResult[1].CollectionServicesProviderId.Should().Be("54322");
-            collectionsResult[1].Company.Should().BeEquivalentTo(company);
-            collectionsResult[1].Bban.Should().BeEquivalentTo(bban3);
-            collectionsResult[1].Status.Should().BeEquivalentTo(status);
+            collectionsResult[1].ErpId.Should().Be(company.ErpId);
+            collectionsResult[1].CompanyName.Should().Be(company.Name);
+            collectionsResult[1].AccountNumber.Should().Be(bban3.AccountNumber);
+            collectionsResult[1].BankName.Should().Be(bban3.Bank!.Name);
         }
 
         private static List<Collection> GetTestCollection()

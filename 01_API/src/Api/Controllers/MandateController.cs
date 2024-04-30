@@ -320,7 +320,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                     }
                 }
 
-                return this.Ok(failed);
+                return this.Ok(new PagedRecoveryMandate(
+                    collections.Count,
+                    failed.Select(i => i.ToCollectionSummary()).ToList()));
             }
             catch (Exception ex)
             {

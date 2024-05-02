@@ -52,7 +52,7 @@ namespace Mandate.AzureFunctions.Activities
                 string limitConfig = input?.LimitConfig;
                 limit = int.TryParse(limitConfig, out limit) ? limit : 50;
 
-                int skip = input.Skip;
+                int skip = input != null ? input.Skip : 0;
                 int imported = limit;
 
                 while (imported == limit)

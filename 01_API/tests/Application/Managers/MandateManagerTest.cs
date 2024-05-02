@@ -1083,10 +1083,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Setup(m => m.GetCollectionById(mandateId))
                 .ReturnsAsync(collection);
 
-            this.mockJeDeclareService
-                .Setup(m => m.DeactivateCollection(collection))
-                .ReturnsAsync(true);
-
             this.mockNotificationsService
                 .Setup(m => m.SendEmailAsync(It.IsAny<EmailCommand>()))
                 .Returns(Task.CompletedTask)
@@ -1100,8 +1096,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             // Assert
             result.Should().BeTrue();
             this.mockDatabaseService.Verify(m => m.GetCollectionById(It.IsAny<Guid>()), Times.Once);
-            this.mockJeDeclareService.Verify(m => m.DeactivateCollection(It.IsAny<Collection>()), Times.Once);
-            this.mockNotificationsService.Verify(m => m.SendEmailAsync(It.IsAny<EmailCommand>()), Times.Never);
+            this.mockNotificationsService.Verify(m => m.SendEmailAsync(It.IsAny<EmailCommand>()), Times.Once);
         }
 
         [Fact]
@@ -1117,10 +1112,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Setup(m => m.GetCollectionById(mandateId))
                 .ReturnsAsync(collection);
 
-            this.mockJeDeclareService
-                .Setup(m => m.DeactivateCollection(collection))
-                .ReturnsAsync(true);
-
             this.mockNotificationsService
                 .Setup(m => m.SendEmailAsync(It.IsAny<EmailCommand>()))
                 .Returns(Task.CompletedTask)
@@ -1134,7 +1125,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             // Assert
             result.Should().BeTrue();
             this.mockDatabaseService.Verify(m => m.GetCollectionById(It.IsAny<Guid>()), Times.Once);
-            this.mockJeDeclareService.Verify(m => m.DeactivateCollection(It.IsAny<Collection>()), Times.Once);
             this.mockNotificationsService.Verify(m => m.SendEmailAsync(It.IsAny<EmailCommand>()), Times.Once);
         }
 

@@ -200,17 +200,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         public async Task<bool> DeactivateCollectionAsync(Guid collectionId, string userEmail)
         {
             var collection = await this.databaseService.GetCollectionById(collectionId);
-            var isJdcPartner = IsJdcPartner(collection);
 
-            var isDeactivated = await this.jeDeclareService.DeactivateCollection(collection);
+            var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collection, this.options.Value, userEmail);
+            await this.notificationsService.SendEmailAsync(emailCommand);
 
-            if (!isJdcPartner && isDeactivated)
-            {
-                var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collection, this.options.Value, userEmail);
-                await this.notificationsService.SendEmailAsync(emailCommand);
-            }
-
-            return isDeactivated;
+            return collection.Id != Guid.Empty;
         }
 
         public async Task InsertFormIOCollectionAsync(Collection collection)

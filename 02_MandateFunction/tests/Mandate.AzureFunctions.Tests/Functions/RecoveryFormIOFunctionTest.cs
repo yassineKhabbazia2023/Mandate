@@ -43,7 +43,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Functions
 
             var response = await RecoveryFormIOFunction.HttpStart(httpRequestMessage, this.mockStarter.Object, this.mockLog.Object);
 
-            this.mockStarter.Verify(s => s.StartNewAsync("RecoveryFormIo", It.IsAny<object>()), Times.Once);
+            this.mockStarter.Verify(s => s.StartNewAsync("RecoveryFormIoOrchestrator", It.IsAny<object>()), Times.Once);
         }
     }
 }

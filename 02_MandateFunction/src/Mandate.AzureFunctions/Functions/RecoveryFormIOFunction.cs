@@ -24,7 +24,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
             var limitConfig = Environment.GetEnvironmentVariable("LimitRecoveryFormIo");
 
             // Function input comes from the request content.
-            string instanceId = await starter.StartNewAsync("RecoveryFormIo", new OrchestratorInput { LimitConfig = limitConfig, });
+            string instanceId = await starter.StartNewAsync("RecoveryFormIoOrchestrator", new OrchestratorInput { LimitConfig = limitConfig, });
 
             log.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
 

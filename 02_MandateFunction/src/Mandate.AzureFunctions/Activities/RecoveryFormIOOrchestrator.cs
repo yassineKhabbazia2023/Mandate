@@ -34,26 +34,40 @@ namespace Mandate.AzureFunctions.Activities
         /// </summary>
         /// <param name="context">instance of the <see cref="IDurableOrchestrationContext"/> class.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        [FunctionName("RecoveryFormIo")]
+        [FunctionName("RecoveryFormIoOrchestrator")]
         public async Task RunOrchestrator(
             [OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            int limit;
-            var input = context!.GetInput<OrchestratorInput>();
-            string limitConfig = input?.LimitConfig;
-            limit = int.TryParse(limitConfig, out limit) ? limit : 50;
-
-            int skip = 0;
-            int imported = limit;
-
-            while (imported == limit)
+            int failed = 0, success = 0;
+            try
             {
-                var page = await context.CallActivityAsync<PagedRecoveryMandate>(
-                    nameof(this.RecoverPage),
-                    (skip, limit));
+                int limit;
+                var input = context!.GetInput<OrchestratorInput>();
+                string limitConfig = input?.LimitConfig;
+                limit = int.TryParse(limitConfig, out limit) ? limit : 50;
 
-                skip += page.Imported;
-                imported = page.Imported;
+                int skip = 0;
+                int imported = limit;
+
+                while (imported == limit)
+                {
+                    var page = await context.CallActivityAsync<PagedRecoveryMandate>(
+                        nameof(this.RecoverPage),
+                        (skip, limit));
+
+                    skip += page.Imported;
+                    imported = page.Imported;
+                    failed += page.Failed.Count;
+                    success = limit - failed;
+                }
+
+                this.logger.LogInformation("Finish {functionname} with {failed} failed and {success} success.", nameof(this.RunOrchestrator), failed, success);
+            }
+            catch (Exception ex)
+            {
+                string message = !string.IsNullOrEmpty(ex.InnerException?.Message) ? ex.InnerException.Message : ex.Message;
+                this.logger.LogError(ex, "MandateFunction - {functionName} : {message}", nameof(this.RecoverPage), message);
+                throw;
             }
         }
 
@@ -64,7 +78,7 @@ namespace Mandate.AzureFunctions.Activities
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [FunctionName(nameof(RecoverPage))]
         public async Task<PagedRecoveryMandate> RecoverPage(
-            [ActivityTrigger](int, int) tuple)
+            [ActivityTrigger] (int, int) tuple)
         {
             try
             {

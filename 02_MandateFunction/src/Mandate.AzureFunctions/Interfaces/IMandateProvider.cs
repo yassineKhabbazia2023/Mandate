@@ -16,13 +16,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions
         /// <summary>
         /// Get List of collections.
         /// </summary>
-        /// <param name="limit">the limit of the list.</param>
         /// <param name="skip">for skipping elements.</param>
+        /// <param name="limit">the limit of the list.</param>
         /// <param name="statusCodes">the status codes to fitler with.</param>
         /// <returns>returns List of collections.</returns>
         Task<PagedTechnicalMandate> GetCollectionsAsync(int skip, int limit, List<int> statusCodes);
 
         Task<CollectionSummary> GetRecoveryAsync(Bban rib);
+
+        Task<PagedRecoveryMandate> RecoveryAsync(int skip, int limit);
 
         Task RefreshCollectionsStatuses(List<TechnicalCollectionSummary> payload);
     }

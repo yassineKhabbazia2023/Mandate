@@ -48,11 +48,11 @@ namespace Mandate.AzureFunctions.Activities
             try
             {
                 int limit;
-                var input = context!.GetInput<OrchestratorInput>();
+                var input = context!.GetInput<RecoveryOrchestratorInput>();
                 string limitConfig = input?.LimitConfig;
                 limit = int.TryParse(limitConfig, out limit) ? limit : 50;
 
-                int skip = 0;
+                int skip = input.Skip;
                 int imported = limit;
 
                 while (imported == limit)
@@ -68,8 +68,6 @@ namespace Mandate.AzureFunctions.Activities
 
                     failedMandate.AddRange(page.Failed.ToList().Select(item => item.Stringify()).ToList());
                 }
-
-                this.logger.LogInformation("Finish {functionname} with {failed} failed and {success} success.", nameof(this.RunOrchestrator), failed, success);
             }
             catch (Exception ex)
             {
@@ -79,7 +77,8 @@ namespace Mandate.AzureFunctions.Activities
             }
             finally
             {
-                this.logger.LogWarning("Finish {functionname} failted mandate {}", nameof(this.RunOrchestrator), string.Join(',', failedMandate));
+                this.logger.LogInformation("Finish {functionname} with {failed} failed and {success} success.", nameof(this.RunOrchestrator), failed, success);
+                this.logger.LogWarning("Finish {functionname} failted mandate {failedMandate}", nameof(this.RunOrchestrator), string.Join(',', failedMandate));
             }
         }
 

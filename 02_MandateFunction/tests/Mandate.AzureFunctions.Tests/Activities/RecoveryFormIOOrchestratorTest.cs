@@ -28,12 +28,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
         public async Task RunOrchestrator_CallsActivitiesWithCorrectParameters()
         {
             // Arrange
-            var expectedInput = new OrchestratorInput
+            var expectedInput = new RecoveryOrchestratorInput
             {
                 LimitConfig = "100",
             };
 
-            this.mockContext.Setup(ctx => ctx.GetInput<OrchestratorInput>()).Returns(expectedInput);
+            this.mockContext.Setup(ctx => ctx.GetInput<RecoveryOrchestratorInput>()).Returns(expectedInput);
 
             (int, int) tuple = (0, 100);
             this.mockContext.Setup(x => x.CallActivityAsync<PagedRecoveryMandate>(
@@ -84,12 +84,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
         public async Task RunOrchestrator_CallsActivitiesWithDefaultParameters_WhenNoConfig()
         {
             // Arrange
-            var expectedInput = new OrchestratorInput
+            var expectedInput = new RecoveryOrchestratorInput
             {
                 LimitConfig = "???",
             };
 
-            this.mockContext.Setup(ctx => ctx.GetInput<OrchestratorInput>()).Returns(expectedInput);
+            this.mockContext.Setup(ctx => ctx.GetInput<RecoveryOrchestratorInput>()).Returns(expectedInput);
 
             (int, int) tuple = (0, 50);
             this.mockContext.Setup(x => x.CallActivityAsync<PagedRecoveryMandate>(

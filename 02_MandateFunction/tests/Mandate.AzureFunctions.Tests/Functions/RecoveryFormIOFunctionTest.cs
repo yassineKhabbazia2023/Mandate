@@ -9,6 +9,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Functions
     using Microsoft.Azure.WebJobs.Extensions.DurableTask;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
+    using Newtonsoft.Json;
 
     public class RecoveryFormIOFunctionTest
     {
@@ -33,10 +34,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Functions
         [Fact]
         public async Task RecoveryFormIOFunction_HttpStart_ShouldStartOrchestrationAndReturnResponse()
         {
-            var httpRequestMessage = new HttpRequestMessage();
+            var content = new StringContent(JsonConvert.SerializeObject(new RecoveryOrchestratorInput() { Skip = 0 }), Encoding.UTF8, "application/json");
+
+            var httpRequestMessage = new HttpRequestMessage()
+            {
+                Content = content,
+            };
             this.mockStarter.Setup(s => s.StartNewAsync(
                     "RecoveryFormIo",
-                    It.Is<OrchestratorInput>(i => i.LimitConfig == "100")))
+                    It.Is<RecoveryOrchestratorInput>(i => i.LimitConfig == "100")))
                 .ReturnsAsync("instanceId");
 
             this.mockConfiguration.Setup(c => c["LimitHttp"]).Returns("100");

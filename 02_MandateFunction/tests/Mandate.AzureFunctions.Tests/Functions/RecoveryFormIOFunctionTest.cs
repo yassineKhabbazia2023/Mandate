@@ -19,9 +19,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Functions
 
         public RecoveryFormIOFunctionTest()
         {
-            this.mockStarter = new Mock<IDurableOrchestrationClient>();
+            this.mockStarter = new Mock<IDurableOrchestrationClient>(MockBehavior.Strict);
             this.mockLog = new Mock<ILogger>();
-            this.mockConfiguration = new Mock<IConfiguration>();
+            this.mockConfiguration = new Mock<IConfiguration>(MockBehavior.Strict);
         }
 
         [Fact]
@@ -34,18 +34,48 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Functions
         [Fact]
         public async Task RecoveryFormIOFunction_HttpStart_ShouldStartOrchestrationAndReturnResponse()
         {
-            var content = new StringContent(JsonConvert.SerializeObject(new RecoveryOrchestratorInput() { Skip = 0 }), Encoding.UTF8, "application/json");
+            string inst = "instanceId";
+            var content = new StringContent(JsonConvert.SerializeObject(new RecoveryOrchestratorInput() { Skip = 10 }), Encoding.UTF8, "application/json");
+            var httpRequestMessage = new HttpRequestMessage()
+            {
+                Content = content,
+            };
+
+            Environment.SetEnvironmentVariable("LimitRecoveryFormIo", "100");
+
+            this.mockStarter.Setup(s => s.StartNewAsync(
+                    "RecoveryFormIoOrchestrator",
+                    It.Is<RecoveryOrchestratorInput>(i => i.LimitConfig == 100 && i.Skip == 10)))
+                .ReturnsAsync(inst);
+
+            HttpResponseMessage httpResponse = new HttpResponseMessage();
+            this.mockStarter.Setup(s => s.CreateCheckStatusResponse(httpRequestMessage, inst, false))
+                .Returns(httpResponse);
+
+            var response = await RecoveryFormIOFunction.HttpStart(httpRequestMessage, this.mockStarter.Object, this.mockLog.Object);
+
+            this.mockStarter.Verify(s => s.StartNewAsync("RecoveryFormIoOrchestrator", It.IsAny<object>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task RecoveryFormIOFunction_HttpStart_WhenNoConfig_ShouldStartOrchestration()
+        {
+            string inst = "instanceId";
+            var content = new StringContent(JsonConvert.SerializeObject(null), Encoding.UTF8, "application/json");
 
             var httpRequestMessage = new HttpRequestMessage()
             {
                 Content = content,
             };
-            this.mockStarter.Setup(s => s.StartNewAsync(
-                    "RecoveryFormIo",
-                    It.Is<RecoveryOrchestratorInput>(i => i.LimitConfig == 100)))
-                .ReturnsAsync("instanceId");
 
-            this.mockConfiguration.Setup(c => c["LimitHttp"]).Returns("100");
+            this.mockStarter.Setup(s => s.StartNewAsync(
+                    "RecoveryFormIoOrchestrator",
+                    It.Is<RecoveryOrchestratorInput>(i => i.LimitConfig == 50 && i.Skip == 0)))
+                .ReturnsAsync(inst);
+
+            HttpResponseMessage httpResponse = new HttpResponseMessage();
+            this.mockStarter.Setup(s => s.CreateCheckStatusResponse(httpRequestMessage, inst, false))
+                .Returns(httpResponse);
 
             var response = await RecoveryFormIOFunction.HttpStart(httpRequestMessage, this.mockStarter.Object, this.mockLog.Object);
 

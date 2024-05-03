@@ -1163,7 +1163,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(false)
                 .Verifiable();
 
-            this.mockDatabaseService.Setup(r => r.GetCompanyBySiretAsync(company.SiretNumber))
+            this.mockDatabaseService.Setup(r => r.GetCompanyByErpIdAsync(company.ErpId!))
                 .ReturnsAsync(company)
                 .Verifiable();
 
@@ -1196,7 +1196,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(true)
                 .Verifiable();
 
-            this.mockDatabaseService.Setup(r => r.GetCompanyBySiretAsync(company.SiretNumber))
+            this.mockDatabaseService.Setup(r => r.GetCompanyByErpIdAsync(company.ErpId!))
                 .ReturnsAsync(company)
                 .Verifiable();
 

@@ -215,8 +215,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
         public async Task InsertFormIOCollectionAsync(Collection collection)
         {
-            var siret = collection.Company!.SiretNumber;
-            var companyId = (await this.databaseService.GetCompanyBySiretAsync(siret)).Id;
+            var erpId = collection.Company!.ErpId;
+            var companyId = (await this.databaseService.GetCompanyByErpIdAsync(erpId)).Id;
             if (await this.databaseService.CheckCollecteConfigExistAsync(collection.Bban!))
             {
                 throw new ApplicationException($"Il existe une configuration de collecte pour ce RIB {StringExtensions.Concat(collection.Bban!.BankCode, collection.Bban!.BranchCode, collection.Bban!.AccountNumber, collection.Bban!.CheckDigits)}.");

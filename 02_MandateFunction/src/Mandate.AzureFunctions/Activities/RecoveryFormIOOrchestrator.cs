@@ -77,7 +77,7 @@ namespace Mandate.AzureFunctions.Activities
             }
             finally
             {
-                this.logger.LogInformation("Finish {functionname} with {failed} failed and {success} success.", nameof(this.RunOrchestrator), failed, success);
+                this.logger.LogWarning("Finish {functionname} with {failed} failed and {success} success.", nameof(this.RunOrchestrator), failed, success);
                 this.logger.LogWarning("Finish {functionname} failted mandate {failedMandate}", nameof(this.RunOrchestrator), string.Join(',', failedMandate));
             }
         }

@@ -54,5 +54,37 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Functions
 
             mockStarter.Verify(s => s.StartNewAsync("RecoveryFormIoOrchestrator", It.IsAny<object>()), Times.Once);
         }
+
+        [Fact]
+        public async Task RecoveryFormIOFunction_HttpStart_WhenNoConfig_ShouldStartOrchestration()
+        {
+            string inst = "instanceId2";
+            var content = new StringContent(JsonConvert.SerializeObject(null), Encoding.UTF8, "application/json");
+
+            var httpRequestMessage = new HttpRequestMessage()
+            {
+                Content = content,
+            };
+
+            RecoveryOrchestratorInput input = new RecoveryOrchestratorInput()
+            {
+                LimitConfig = 50,
+                Skip = 0,
+            };
+
+            var mockStarter = new Mock<IDurableOrchestrationClient>(MockBehavior.Loose);
+            mockStarter.Setup(s => s.StartNewAsync(
+                    "RecoveryFormIoOrchestrator",
+                    It.Is<RecoveryOrchestratorInput>(i => i.LimitConfig == 50 && i.Skip == 0)))
+                .ReturnsAsync(inst);
+
+            HttpResponseMessage httpResponse = new HttpResponseMessage();
+            mockStarter.Setup(s => s.CreateCheckStatusResponse(httpRequestMessage, inst, false))
+                .Returns(httpResponse);
+
+            var response = await RecoveryFormIOFunction.HttpStart(httpRequestMessage, mockStarter.Object, new Mock<ILogger>().Object);
+
+            mockStarter.Verify(s => s.StartNewAsync("RecoveryFormIoOrchestrator", It.IsAny<object>()), Times.Once);
+        }
     }
 }

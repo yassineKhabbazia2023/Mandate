@@ -44,5 +44,47 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
 
             provider.VerifyAll();
         }
+
+        [Fact]
+        public async Task RecoveryAsync()
+        {
+            var collectionSummary = new CollectionSummary(
+                Guid.Empty,
+                "1234567890",
+                "Weyland Corporation",
+                "Crédit Agricole",
+                "98765432101",
+                new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                10);
+            IReadOnlyList<CollectionSummary> collectionSummaries = new List<CollectionSummary>() { collectionSummary };
+            PagedRecoveryMandate page = new PagedRecoveryMandate(1, collectionSummaries);
+
+            var provider = new Mock<IMandateProvider>(MockBehavior.Strict);
+            provider.Setup(p => p.RecoveryAsync(0, 10))
+                .ReturnsAsync(page)
+                .Verifiable();
+
+            var manager = new PreloadManager(provider.Object);
+            var result = await manager.RecoveryAsync(0, 10);
+
+            result.Should().BeEquivalentTo(page);
+            provider.VerifyAll();
+        }
+
+        [Fact]
+        public async Task RecoveryAsync_When_RecoveryAsync_throwException()
+        {
+            var provider = new Mock<IMandateProvider>(MockBehavior.Strict);
+            provider.Setup(p => p.RecoveryAsync(0, 10))
+                .ThrowsAsync(new Exception("message"))
+                .Verifiable();
+
+            var manager = new PreloadManager(provider.Object);
+            Func<Task> act = async () => await manager.RecoveryAsync(0, 10);
+            await act.Should().ThrowExactlyAsync<Exception>().WithMessage("message");
+
+            provider.VerifyAll();
+        }
     }
 }

@@ -37,6 +37,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
         public string FormioApiKey { get; set; } = null!;
 
+        public string DemandeMandateFormId { get; set; } = null!;
+
         /// <summary>
         /// Check if the object is filled with valid properties.
         /// </summary>

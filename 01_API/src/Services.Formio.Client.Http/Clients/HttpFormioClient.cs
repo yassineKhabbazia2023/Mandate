@@ -10,6 +10,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
     using Kpmg.Constellation.Net.Http;
     using Microsoft.AspNetCore.Http.Extensions;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
@@ -18,11 +19,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
         private const string FormId = "demandemandat";
         private readonly ILogger<HttpFormioClient> logger;
         private readonly IFormioClientFactory factory;
+        private readonly FormioOptions options;
 
-        public HttpFormioClient(ILogger<HttpFormioClient> logger, IFormioClientFactory factory)
+        public HttpFormioClient(ILogger<HttpFormioClient> logger, IFormioClientFactory factory, IOptions<FormioOptions> options)
         {
             this.logger = logger;
             this.factory = factory;
+            this.options = options?.Value ?? throw new InvalidOperationException($"Instance of {nameof(FormioOptions)} is null.");
         }
 
         public async Task<FormioSubmissionCollection?> GetSubmissionsAsync(string formId, int skip, int? limit, FormioAuthToken authToken)
@@ -47,6 +50,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
             subs.Limit = limit == null ? 50 : (int)limit;
 
             return subs;
+        }
+
+        public async Task<FormioSubmissionCollection?> GetSubmissionsAsync(int skip, int? limit, FormioAuthToken authToken)
+        {
+            return await this.GetSubmissionsAsync($"form/{this.options.DemandeMandateFormId}", skip, limit, authToken);
         }
 
         public async Task<JToken?> CheckJdcPartnerBankAsync(string formId, string codeBank)

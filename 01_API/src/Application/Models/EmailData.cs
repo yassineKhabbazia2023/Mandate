@@ -6,7 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
     public class EmailData
     {
-        public EmailData(SignatoryDetails signatoryDetails, Bban bban, string? ibs, string? companyName)
+        public EmailData(SignatoryDetails signatoryDetails, Bban bban, string? ibs, string? companyName, string userEmail)
         {
             this.CollaboratorEmail = signatoryDetails?.CollaboratorEmail;
             this.SignatoryName = signatoryDetails?.SignatoryName;
@@ -18,6 +18,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             this.CheckDigits = bban?.CheckDigits;
             this.Ibs = ibs;
             this.CompanyName = companyName;
+            this.UserEmail = userEmail;
         }
 
         public string? CollaboratorEmail { get; }
@@ -39,5 +40,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         public string? Ibs { get; set; }
 
         public string? CompanyName { get; }
+
+        public string UserEmail { get; set; }
     }
 }

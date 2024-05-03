@@ -354,5 +354,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             model.Should().BeEquivalentTo(new Client.PagedTechnicalMandate(expectedCollections));
         }
+
+        [Fact]
+        public void ToRibString()
+        {
+            Bban bban = new Bban("12345", "54321", "12345678901", "55", string.Empty, null);
+            string res = bban.ToRibString();
+            res.Should().Be("12345-54321-12345678901-55");
+        }
+
+        [Fact]
+        public void ToRibString_When_BbanNull()
+        {
+            Bban bban = null!;
+            string res = bban.ToRibString();
+            res.Should().Be(string.Empty);
+        }
     }
 }

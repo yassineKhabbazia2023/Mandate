@@ -14,13 +14,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<byte[]> DownloadUnsignedAsync(Guid id);
 
-        Task<string?> UploadSignedMandateAsync(Guid collectionId, Stream mandateFileStream);
+        Task<string?> UploadSignedMandateAsync(Guid collectionId, Stream mandateFileStream, string userEmail);
 
         Task<byte[]> DownloadSignedAsync(Guid id);
 
         Task RefreshMandatsStatusesAsync(List<TechnicalCollection> mandats);
 
-        Task<bool> DeactivateCollectionAsync(Guid collectionId);
+        Task<bool> DeactivateCollectionAsync(Guid collectionId, string userEmail);
 
         Task InsertFormIOCollectionAsync(Collection collection);
     }

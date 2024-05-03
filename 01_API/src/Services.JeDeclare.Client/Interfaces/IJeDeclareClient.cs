@@ -24,6 +24,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
 
         Task<bool> CheckSignedMandatExists(string jdcFolderId, string jdcRibId);
 
-        Task<bool> DeactivateCollection(string jdcFolderId, string jdcReleveId);
+        Task<bool> DeactivateCollection(string jdcFolderId, string jdcReleveId, bool partnership);
     }
 }

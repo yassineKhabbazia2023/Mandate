@@ -32,9 +32,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
                 MandateCancellationToEmail = "cancel_to@example.com",
                 MandateCancellationCcEmails = new List<string> { "cancel_cc1@example.com", "cancel_cc2@example.com" },
             };
+            var userEmail = "user@mail.com";
 
             // Act
-            var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collection, options);
+            var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collection, options, userEmail);
 
             // Assert
             emailCommand.Should().NotBeNull();
@@ -75,9 +76,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
             };
             string fileContent = "file content";
             string fileName = "file.pdf";
+            var userEmail = "user@mail.com";
 
             // Act
-            var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(collection, options, fileContent, fileName);
+            var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(collection, options, fileContent, fileName, userEmail);
 
             // Assert
             emailCommand.Should().NotBeNull();

@@ -10,5 +10,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions
     public interface IPreloadManager
     {
         Task GetRecoveryAsync(Bban rib);
+
+        Task<PagedRecoveryMandate> RecoveryAsync(int skip, int limit);
     }
 }

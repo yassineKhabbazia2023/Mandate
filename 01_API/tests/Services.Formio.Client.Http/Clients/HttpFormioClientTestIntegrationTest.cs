@@ -22,6 +22,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             {
                 BaseUri = new Uri("https://cst-d2-formio-api.azurewebsites.net/"),
                 FormioApiKey = "eNnPcMqUZhgY4Pz7bdiewTz8KlGQG4",
+                DemandeMandateFormId = "formId",
             });
 
             var client = new Mock<Kpmg.Constellation.Net.Http.IHttpClient>(MockBehavior.Strict);
@@ -56,7 +57,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object, options);
 
             var result = await formioClient.GetSubmissionsAsync("demandemandat", 0, 20, auth);
 
@@ -70,6 +71,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             var options = Options.Create(new FormioOptions()
             {
                 BaseUri = new Uri("https://cst-d2-formio-api.azurewebsites.net/"),
+                DemandeMandateFormId = "formId",
             });
 
             var client = new Mock<Kpmg.Constellation.Net.Http.IHttpClient>(MockBehavior.Strict);
@@ -99,7 +101,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object, options);
 
             var result = await formioClient.CheckJdcPartnerBankAsync("jdcsupportedbanks", "30004");
 
@@ -116,6 +118,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             {
                 BaseUri = new Uri("https://cst-d2-formio-api.azurewebsites.net/"),
                 FormioApiKey = "eNnPcMqUZhgY4Pz7bdiewTz8KlGQG4",
+                DemandeMandateFormId = "formId",
             });
 
             var client = new Mock<Kpmg.Constellation.Net.Http.IHttpClient>(MockBehavior.Strict);
@@ -145,7 +148,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object, options);
 
             var result = await formioClient.CheckMadateDematSupportedAsync("jdcsupportedbanks", "30004");
 
@@ -159,6 +162,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             {
                 BaseUri = new Uri("https://cst-d2-formio-api.azurewebsites.net/"),
                 FormioApiKey = "eNnPcMqUZhgY4Pz7bdiewTz8KlGQG4",
+                DemandeMandateFormId = "formId",
             });
 
             var client = new Mock<Kpmg.Constellation.Net.Http.IHttpClient>(MockBehavior.Strict);
@@ -194,7 +198,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object, options);
 
             var result = await formioClient.CheckCollecteConfigExistAsync("demandemandat", "30004", "00000000014", "00818", auth);
 
@@ -208,6 +212,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             {
                 BaseUri = new Uri("https://cst-d2-formio-api.azurewebsites.net/"),
                 FormioApiKey = "eNnPcMqUZhgY4Pz7bdiewTz8KlGQG4",
+                DemandeMandateFormId = "formId",
             });
 
             var client = new Mock<Kpmg.Constellation.Net.Http.IHttpClient>(MockBehavior.Strict);
@@ -243,7 +248,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object, options);
 
             var result = await formioClient.GetTemplateShemaAsync("5ce57e521c42f37327ab37ab", "30004", auth);
 
@@ -257,6 +262,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             {
                 BaseUri = new Uri("https://cst-d2-formio-api.azurewebsites.net/"),
                 FormioApiKey = "eNnPcMqUZhgY4Pz7bdiewTz8KlGQG4",
+                DemandeMandateFormId = "formId",
             });
 
             var client = new Mock<Kpmg.Constellation.Net.Http.IHttpClient>(MockBehavior.Strict);
@@ -291,7 +297,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object, options);
 
             var result = await formioClient.GetSubmissionByIdAsync("demandemandat", "5dd29cae73ff997779932250", auth);
 
@@ -306,6 +312,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             {
                 BaseUri = new Uri("https://cst-d2-formio-api.azurewebsites.net/"),
                 FormioApiKey = "eNnPcMqUZhgY4Pz7bdiewTz8KlGQG4",
+                DemandeMandateFormId = "formId",
             });
 
             var client = new Mock<Kpmg.Constellation.Net.Http.IHttpClient>(MockBehavior.Strict);
@@ -340,7 +347,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object, options);
 
             var result = await formioClient.GetProjectDefinitionAsync("5ce57e521c42f37327ab37ab", auth);
 
@@ -356,6 +363,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             var options = Options.Create(new FormioOptions()
             {
                 BaseUri = new Uri("https://cst-d2-formio-api.azurewebsites.net/"),
+                DemandeMandateFormId = "formId",
             });
 
             var pdfServerUrl = "https://cst-d2-formio-pdfserver.azurewebsites.net";
@@ -420,7 +428,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
 
-            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object);
+            var formioClient = new HttpFormioClient(logger.Object, formioFactory.Object, options);
 
             var result = await formioClient.DownloadSubmissionAsPDFWithTemplate(form, data, downloadUrl, fileToken);
 
@@ -480,7 +488,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             var factory = new HttpFormioClientFactory(options, clientFactory.Object);
 
-            var formioClient = new HttpFormioClient((new NullLoggerFactory() as ILoggerFactory).CreateLogger<HttpFormioClient>(), factory);
+            var formioClient = new HttpFormioClient((new NullLoggerFactory() as ILoggerFactory).CreateLogger<HttpFormioClient>(), factory, options);
 
             var result = await formioClient.CheckCollecteConfigExistAsync("demandemandat", "30004", "00000000014", "00818", auth);
 

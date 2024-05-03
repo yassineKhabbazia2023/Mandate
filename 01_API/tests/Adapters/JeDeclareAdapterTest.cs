@@ -490,7 +490,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public async Task DeactivateCollection_Ok()
         {
             var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
-            jedeclareClient.Setup(client => client.DeactivateCollection("f", "r"))
+            jedeclareClient.Setup(client => client.DeactivateCollection("f", "r", It.IsAny<bool>()))
                 .ReturnsAsync(true);
 
             var adapter = new JeDeclareAdapter(jedeclareClient.Object);
@@ -500,11 +500,41 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             jedeclareClient.VerifyAll();
         }
 
+        [Theory]
+        [InlineData(JdcPartnership.Partner, true)]
+        [InlineData(JdcPartnership.Scrappable, true)]
+        [InlineData(JdcPartnership.NonScrappable, true)]
+        [InlineData(JdcPartnership.NonPartner, false)]
+        public async Task DeactivateCollection_DifferentBooleanCase_Ok(JdcPartnership jdcPartnership, bool partnership)
+        {
+            BankAgreement jdcAgreement = new BankAgreement(jdcPartnership);
+            Bank? bank = new Bank("12345", "name", "groupe", "card", jdcAgreement);
+            Bban bban = new Bban("12345", "54321", "12345678910", "12", "3476", bank);
+            var collection = new Collection(
+                Guid.Empty,
+                "r",
+                new Company(default, null!, null!, null!, "f", null!, null!),
+                bban,
+                DateTime.MinValue,
+                DateTime.MinValue,
+                null!);
+
+            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            jedeclareClient.Setup(client => client.DeactivateCollection("f", "r", partnership))
+                .ReturnsAsync(true);
+
+            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            var result = await adapter.DeactivateCollection(collection);
+
+            result.Should().BeTrue();
+            jedeclareClient.VerifyAll();
+        }
+
         [Fact]
         public async Task DeactivateCollection_Throws()
         {
             var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
-            jedeclareClient.Setup(client => client.DeactivateCollection("f", "r"))
+            jedeclareClient.Setup(client => client.DeactivateCollection("f", "r", It.IsAny<bool>()))
                 .ThrowsAsync(new JeDeclareApiException("Error message"));
 
             var adapter = new JeDeclareAdapter(jedeclareClient.Object);

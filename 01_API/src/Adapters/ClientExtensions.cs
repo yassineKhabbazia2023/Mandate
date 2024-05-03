@@ -53,6 +53,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 source!.Data.Select(r => r.ToTechnicalCollectionSummary()).ToList());
         }
 
+        public static string ToRibString(this Bban bban)
+        {
+            if (bban == null)
+            {
+                return string.Empty;
+            }
+
+            return string.Join("-", new List<string> { bban!.BankCode, bban!.BranchCode, bban!.AccountNumber, bban!.CheckDigits });
+        }
+
         public static TechnicalCollection ToModel(this Client.TechnicalCollectionSummary source)
         {
             return new TechnicalCollection(source!.Id, source!.FolderId, source!.RibId, new BankDetails(source!.BankDetails!.BankCode, source!.BankDetails!.BranchCode, source!.BankDetails!.AccountNumber, source!.BankDetails!.CheckDigits), source!.StatusCode.ToString());

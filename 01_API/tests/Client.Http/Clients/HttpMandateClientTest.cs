@@ -227,5 +227,60 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Tests
 
             result.Should().Be(true);
         }
+
+        [Fact]
+        public async Task RecoveryFormIoAsync()
+        {
+            var authentication = new BearerHttpClientAuthentication("tTest");
+
+            var collectionSummary = new CollectionSummary(
+                Guid.Empty,
+                "12345",
+                "Name",
+                "bank",
+                "12345678910",
+                DateTime.UtcNow,
+                DateTime.UtcNow,
+                30);
+
+            PagedRecoveryMandate page = new PagedRecoveryMandate(1, new List<CollectionSummary>() { collectionSummary });
+
+            var serialized = JsonNode.Parse(JsonConvert.SerializeObject(page)) !.ToJsonString();
+            var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(serialized, Encoding.UTF8, "application/json"),
+            };
+            var client = new Mock<IHttpClient>(MockBehavior.Strict);
+            client.Setup(c => c.SendAsync(It.IsAny<HttpRequestMessage>()))
+                .Callback<HttpRequestMessage>(message =>
+                {
+                    message.Method.Should().Be(HttpMethod.Post);
+                    message.RequestUri!.ToString().Should().StartWith("mandate/recovery-form-io");
+                    message.RequestUri!.ToString().Should().Be("mandate/recovery-form-io?skip=0&limit=1");
+                })
+                .ReturnsAsync(httpResponse)
+                .Verifiable();
+            client.Setup(c => c.Dispose())
+                .Verifiable();
+
+            var httpFactory = new Mock<Kpmg.Constellation.Net.Http.IHttpClientFactory>(MockBehavior.Strict);
+            httpFactory.Setup(h => h.Create(It.IsAny<Uri>(), It.IsAny<Kpmg.Constellation.Net.Http.HttpClientAuthentication>()))
+                .Callback<Uri, HttpClientAuthentication>((uri, auth) =>
+                {
+                    uri.Should().BeEquivalentTo(new Uri("http://test.test"));
+                    auth.Should().BeEquivalentTo(authentication);
+                })
+                .Returns(client.Object)
+                .Verifiable();
+
+            var httpMandateClient = new HttpMandateClient(
+                baseUri: new Uri("http://test.test"),
+                authentication: authentication,
+                clientFactory: httpFactory.Object);
+
+            var result = await httpMandateClient.RecoveryFormIoAsync(0, 1);
+
+            result.Should().BeEquivalentTo(page);
+        }
     }
 }

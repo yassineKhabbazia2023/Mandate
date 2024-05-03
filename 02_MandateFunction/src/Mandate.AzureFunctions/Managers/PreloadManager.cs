@@ -20,5 +20,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions
         {
             await this.mandateProvider.GetRecoveryAsync(rib);
         }
+
+        public async Task<PagedRecoveryMandate> RecoveryAsync(int skip, int limit)
+        {
+           return await this.mandateProvider.RecoveryAsync(skip, limit);
+        }
     }
 }

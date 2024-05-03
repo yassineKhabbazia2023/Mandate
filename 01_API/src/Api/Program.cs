@@ -107,6 +107,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             {
                 opt.BaseUri = new Uri(builder.Configuration["FormioBaseUri"] !);
                 opt.FormioApiKey = builder.Configuration["FormioApiKey"] !;
+                opt.DemandeMandateFormId = builder.Configuration["DemandeMandateFormId"] !;
             });
 
             builder.Services.AddMandateApplication(opt =>

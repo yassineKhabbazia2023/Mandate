@@ -42,7 +42,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Functions
             };
             this.mockStarter.Setup(s => s.StartNewAsync(
                     "RecoveryFormIo",
-                    It.Is<RecoveryOrchestratorInput>(i => i.LimitConfig == "100")))
+                    It.Is<RecoveryOrchestratorInput>(i => i.LimitConfig == 100)))
                 .ReturnsAsync("instanceId");
 
             this.mockConfiguration.Setup(c => c["LimitHttp"]).Returns("100");

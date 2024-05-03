@@ -30,7 +30,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
             // Arrange
             var expectedInput = new RecoveryOrchestratorInput
             {
-                LimitConfig = "100",
+                LimitConfig = 100,
             };
 
             this.mockContext.Setup(ctx => ctx.GetInput<RecoveryOrchestratorInput>()).Returns(expectedInput);
@@ -84,9 +84,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
         public async Task RunOrchestrator_CallsActivitiesWithDefaultParameters_WhenNoConfig()
         {
             // Arrange
-            var expectedInput = new RecoveryOrchestratorInput
+            var expectedInput = new RecoveryOrchestratorInput()
             {
-                LimitConfig = "???",
+                LimitConfig = 50,
             };
 
             this.mockContext.Setup(ctx => ctx.GetInput<RecoveryOrchestratorInput>()).Returns(expectedInput);

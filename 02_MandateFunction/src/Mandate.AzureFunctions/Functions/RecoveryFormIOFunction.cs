@@ -21,10 +21,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
             [DurableClient] IDurableOrchestrationClient starter,
             ILogger log)
         {
-            var limitConfig = Environment.GetEnvironmentVariable("LimitRecoveryFormIo");
-
-            var input = await req.Content.ReadAsAsync<RecoveryOrchestratorInput>();
-            input.LimitConfig = limitConfig;
+            var input = await FetchConfiguration(req);
 
             // Function input comes from the request content.
             string instanceId = await starter.StartNewAsync("RecoveryFormIoOrchestrator", input);
@@ -32,6 +29,30 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
             log.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
 
             return starter.CreateCheckStatusResponse(req, instanceId);
+        }
+
+        private static async Task<RecoveryOrchestratorInput> FetchConfiguration(HttpRequestMessage req)
+        {
+            var input = await req.Content.ReadAsAsync<RecoveryOrchestratorInput>();
+            var limitConfig = Environment.GetEnvironmentVariable("LimitRecoveryFormIo");
+
+            int limit;
+            limit = int.TryParse(limitConfig, out limit) ? limit : 50;
+
+            if (input != null)
+            {
+                input.LimitConfig = limit;
+            }
+            else
+            {
+                input = new RecoveryOrchestratorInput()
+                {
+                    LimitConfig = limit,
+                    Skip = 0,
+                };
+            }
+
+            return input;
         }
     }
 }

@@ -13,7 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Models
         {
             // Arrange
             int skip = 10;
-            string limit = "20";
+            int limit = 20;
 
             // Act
             var payload = new RecoveryOrchestratorInput()

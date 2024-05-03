@@ -6,7 +6,7 @@ namespace Mandate.AzureFunctions
 {
     public class RecoveryOrchestratorInput
     {
-        public string LimitConfig { get; set; }
+        public int LimitConfig { get; set; }
 
         public int Skip { get; set; }
     }

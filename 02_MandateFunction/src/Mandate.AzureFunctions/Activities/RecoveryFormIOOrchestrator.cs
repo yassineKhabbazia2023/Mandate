@@ -47,15 +47,13 @@ namespace Mandate.AzureFunctions.Activities
 
             try
             {
-                int limit;
                 var input = context!.GetInput<RecoveryOrchestratorInput>();
-                string limitConfig = input?.LimitConfig;
-                limit = int.TryParse(limitConfig, out limit) ? limit : 50;
+                int limit = input.LimitConfig;
 
-                int skip = input != null ? input.Skip : 0;
+                int skip = input.Skip;
                 int imported = limit;
 
-                while (imported == limit)
+                while (imported == limit && limit > 0)
                 {
                     var page = await context.CallActivityAsync<PagedRecoveryMandate>(
                         nameof(this.RecoverPage),

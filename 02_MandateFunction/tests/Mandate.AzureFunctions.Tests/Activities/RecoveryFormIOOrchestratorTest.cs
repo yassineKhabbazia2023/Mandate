@@ -10,6 +10,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
     using Microsoft.Azure.WebJobs.Extensions.DurableTask;
     using Microsoft.Extensions.Logging;
     using Moq;
+    using System.Collections.Generic;
 
     public class RecoveryFormIOOrchestratorTest
     {
@@ -105,6 +106,65 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
                x => x.CallActivityAsync<PagedRecoveryMandate>(
                nameof(RecoveryFormIOOrchestrator.RecoverPage),
                It.Is<(int, int)>(i => i.Item1 == 0 & i.Item2 == 50)), Times.Once);
+        }
+
+        [Fact]
+        public async Task RunOrchestrator_NoFormatString_WhenNoCollection()
+        {
+            // Arrange
+            var expectedInput = new RecoveryOrchestratorInput
+            {
+                LimitConfig = 10,
+            };
+
+            List<CollectionSummary> summary = new List<CollectionSummary>() { null! };
+            IReadOnlyList<CollectionSummary> collectionSummaries = summary;
+
+            this.mockContext.Setup(ctx => ctx.GetInput<RecoveryOrchestratorInput>()).Returns(expectedInput);
+
+            (int, int) tuple = (0, 10);
+            this.mockContext.Setup(x => x.CallActivityAsync<PagedRecoveryMandate>(
+                "RecoverPage",
+                tuple))
+            .ReturnsAsync(new PagedRecoveryMandate(1, collectionSummaries))
+            .Verifiable();
+
+            RecoveryFormIOOrchestrator orchestrator = new RecoveryFormIOOrchestrator(this.preloadManager.Object, this.mockLogger.Object);
+            await orchestrator.RunOrchestrator(this.mockContext.Object);
+
+            this.mockContext.Verify(
+               x => x.CallActivityAsync<PagedRecoveryMandate>(
+               nameof(RecoveryFormIOOrchestrator.RecoverPage),
+               It.IsAny<(int, int)>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task RunOrchestrator_ShouldThrow_WhenCallActivityThrow()
+        {
+            // Arrange
+            var expectedInput = new RecoveryOrchestratorInput
+            {
+                LimitConfig = 10,
+            };
+
+            this.mockContext.Setup(ctx => ctx.GetInput<RecoveryOrchestratorInput>()).Returns(expectedInput);
+
+            (int, int) tuple = (0, 10);
+            this.mockContext.Setup(x => x.CallActivityAsync<PagedRecoveryMandate>(
+                "RecoverPage",
+                tuple))
+            .ThrowsAsync(new Exception("message"))
+            .Verifiable();
+
+            RecoveryFormIOOrchestrator orchestrator = new RecoveryFormIOOrchestrator(this.preloadManager.Object, this.mockLogger.Object);
+            Func<Task> func = async () => await orchestrator.RunOrchestrator(this.mockContext.Object);
+
+            await func.Should().ThrowExactlyAsync<Exception>().WithMessage("message");
+
+            this.mockContext.Verify(
+               x => x.CallActivityAsync<PagedRecoveryMandate>(
+               nameof(RecoveryFormIOOrchestrator.RecoverPage),
+               It.IsAny<(int, int)>()), Times.Once);
         }
 
         [Fact]

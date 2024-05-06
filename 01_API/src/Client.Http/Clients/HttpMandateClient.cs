@@ -9,6 +9,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
     using System.Threading.Tasks;
     using Kpmg.Constellation.Net.Http;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
 
     public class HttpMandateClient : IMandateClient
     {
@@ -42,7 +43,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
             response.EnsureSuccessStatusCode();
 
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            return JsonConvert.DeserializeObject<CollectionSummary>(responseBody) !;
+            return this.DeserializeCollectionSummary(responseBody) !;
         }
 
         public async Task<PagedTechnicalMandate> GetTechnicalCollectionSummaryAsync()
@@ -84,7 +85,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
             response.EnsureSuccessStatusCode();
 
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            return JsonConvert.DeserializeObject<PagedRecoveryMandate>(responseBody) !;
+
+            return this.DeserializePagedRecoveryMandate(responseBody);
         }
 
         public async Task<bool> RefreshMandatsStatusesAsync(List<TechnicalCollectionSummary> mandates)
@@ -114,6 +116,54 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
             {
                 throw new InvalidOperationException("The API call requires an authentification.");
             }
+        }
+
+        private PagedRecoveryMandate DeserializePagedRecoveryMandate(string json)
+        {
+            var jsonObject = JObject.Parse(json);
+
+            int imported = (int)jsonObject["Imported"] !;
+            var failed = jsonObject["Failed"] !.ToObject<List<JObject>>() !.Select(failJson =>
+            {
+                var bankInfo = new CollectionBankInfo(
+                    bankName: (string)failJson["BankName"] !,
+                    accountNumber: (string)failJson["AccountNumber"] !,
+                    jdcPartnership: (int)failJson["JdcPartnership"] !
+                );
+
+                return new CollectionSummary(
+                    id: (Guid)failJson["Id"] !,
+                    erpId: (string)failJson["ErpId"] !,
+                    companyName: (string)failJson["CompanyName"] !,
+                    collectionBankInfo: bankInfo,
+                    creationDate: (DateTime)failJson["CreationDate"] !,
+                    modificationDate: (DateTime)failJson["ModificationDate"] !,
+                    statusCode: (int)failJson["StatusCode"] !
+                );
+            }).ToList().AsReadOnly();
+            return new PagedRecoveryMandate(imported, failed) !;
+        }
+
+        private CollectionSummary DeserializeCollectionSummary(string json)
+        {
+            var jsonObject = JObject.Parse(json);
+
+            var collectionBankInfo = new CollectionBankInfo(
+                bankName: (string)jsonObject["BankName"] !,
+                accountNumber: (string)jsonObject["AccountNumber"] !,
+                jdcPartnership: (int)jsonObject["JdcPartnership"] !);
+
+            var collectionSummary = new CollectionSummary(
+                id: (Guid)jsonObject["Id"] !,
+                erpId: (string)jsonObject["ErpId"] !,
+                companyName: (string)jsonObject["CompanyName"] !,
+                collectionBankInfo: collectionBankInfo,
+                creationDate: (DateTime)jsonObject["CreationDate"] !,
+                modificationDate: (DateTime)jsonObject["ModificationDate"] !,
+                statusCode: (int)jsonObject["StatusCode"] !
+            );
+
+            return collectionSummary;
         }
     }
 }

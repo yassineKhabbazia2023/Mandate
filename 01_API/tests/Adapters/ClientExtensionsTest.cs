@@ -4,6 +4,9 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
+    using KPMG.Pulse.Back.Accounting.Mandate.Client;
+    using Microsoft.AspNetCore.Http;
+
     public class ClientExtensionsTest
     {
         [Fact]
@@ -79,16 +82,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var model = collection.ToCollectionSummary();
 
+            var collectionBankInfo = new CollectionBankInfo(
+                bankName: "biap",
+                accountNumber: "12345678901",
+                jdcPartnership: 2);
+
             var expected = new Client.CollectionSummary(
-                id,
-                "1999156874",
-                "mega",
-                "biap",
-                "12345678901",
-                2,
-                new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
-                new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                (int)CollectionStatus.ToDo);
+                id: id,
+                erpId: "1999156874",
+                companyName: "mega",
+                collectionBankInfo: collectionBankInfo,
+                creationDate: new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                modificationDate: new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                statusCode: (int)CollectionStatus.ToDo);
 
             model.Should().BeEquivalentTo(expected);
         }

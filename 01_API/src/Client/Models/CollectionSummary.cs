@@ -13,9 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             Guid id,
             string erpId,
             string companyName,
-            string bankName,
-            string accountNumber,
-            int jdcPartnership,
+            CollectionBankInfo collectionBankInfo,
             DateTime creationDate,
             DateTime modificationDate,
             int statusCode)
@@ -23,9 +21,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             this.Id = id;
             this.ErpId = erpId;
             this.CompanyName = companyName;
-            this.BankName = bankName;
-            this.AccountNumber = accountNumber;
-            this.JdcPartnership = jdcPartnership;
+            this.BankName = collectionBankInfo.BankName;
+            this.AccountNumber = collectionBankInfo.AccountNumber;
+            this.JdcPartnership = collectionBankInfo.JdcPartnership;
             this.CreationDate = creationDate;
             this.ModificationDate = modificationDate;
             this.StatusCode = statusCode;

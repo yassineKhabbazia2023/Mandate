@@ -12,7 +12,6 @@ namespace Mandate.AzureFunctions.Activities
     using KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.Function.Helper;
-    using Microsoft.AspNetCore.Mvc;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Extensions.DurableTask;
     using Microsoft.Extensions.Logging;
@@ -26,7 +25,7 @@ namespace Mandate.AzureFunctions.Activities
         /// Initializes a new instance of the <see cref="RecoveryFormIOOrchestrator"/> class.
         /// </summary>
         /// <param name="preloadManager">A instance of the <see cref="IPreloadManager"/> class.</param>
-        /// <param name="logger">A instance of the <see cref="ILogger"/> class.</param>
+        /// <param name="logger">A instance of the <see cref="ILogger{RecoveryFormIOOrchestrator}"/> class.</param>
         public RecoveryFormIOOrchestrator(IPreloadManager preloadManager, ILogger<RecoveryFormIOOrchestrator> logger)
         {
             this.preloadManager = preloadManager;
@@ -64,7 +63,7 @@ namespace Mandate.AzureFunctions.Activities
                     failed += page.Failed.Count;
                     success = limit - failed;
 
-                    failedMandate.AddRange(page.Failed.ToList().Select(item => item.Stringify()).ToList());
+                    failedMandate.AddRange(page.Failed.Select(item => item.Stringify()).ToList());
                 }
             }
             catch (Exception ex)

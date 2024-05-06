@@ -118,6 +118,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 
         Task InsertFormIOCollectionAsync(CollectionDb collection);
 
-        Task<List<CompanyDb>> GetAllCompaniesByErpIdAsync(string erpId);
+        Task<CompanyDb> GetCompanyByErpIdSiretAsync(string erpId, string siretNumber);
     }
 }

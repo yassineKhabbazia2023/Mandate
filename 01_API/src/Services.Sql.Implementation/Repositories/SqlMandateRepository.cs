@@ -1630,21 +1630,47 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             await context.SaveChangesAsync();
         }
 
-        public async Task<List<CompanyDb>> GetAllCompaniesByErpIdAsync(string erpId)
+        public async Task<CompanyDb> GetCompanyByErpIdSiretAsync(string erpId, string siretNumber)
         {
             using var context = new MandateContext(this.options);
-            var companies = context.Company
-                .Where(item => item.ErpId == erpId);
 
-            if (!await companies.AnyAsync())
+            CompanyDb? company = null;
+
+            if (await context.Company.AnyAsync(i => i.ErpId == erpId))
+            {
+                var companiesByErpId = await context.Company
+                    .Where(i => i.ErpId == erpId)
+                    .OrderBy(item => item.SiretNumber)
+                    .ToListAsync();
+
+                if (companiesByErpId.Exists(item => item.SiretNumber == siretNumber))
+                {
+                    company = companiesByErpId.Find(item => item.SiretNumber == siretNumber);
+                }
+                else
+                {
+                    company = companiesByErpId.First();
+                }
+            }
+            else if (await context.Company.AnyAsync(i => i.SiretNumber == siretNumber))
+            {
+                company = await context.Company.FirstOrDefaultAsync(item => item.SiretNumber == siretNumber);
+            }
+            else
+            {
+                var companies = context.Company
+                    .Where(item => item.SiretNumber.Substring(0, 9) == siretNumber.Substring(0, 9))
+                    .OrderBy(item => item.SiretNumber);
+
+                company = await companies.FirstOrDefaultAsync();
+            }
+
+            if (company == null)
             {
                 throw CompanyNotFoundException.FromId(erpId);
             }
 
-            return await companies
-                .OrderBy(item => item.SiretNumber)
-                .ToListAsync()
-                .ConfigureAwait(false);
+            return company;
         }
 
         public async Task InsertFormIOCollectionAsync(CollectionDb collection)

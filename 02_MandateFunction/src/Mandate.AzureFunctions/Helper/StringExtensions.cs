@@ -10,7 +10,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Helper
     {
         public static string Stringify(this CollectionSummary collection)
         {
-            return $"{collection.Id}-{collection.AccountNumber} / {collection.ErpId}";
+            return collection != null ? $"{collection.Id}-{collection.AccountNumber} / {collection.ErpId}" : string.Empty;
         }
     }
 }

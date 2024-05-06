@@ -12,12 +12,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Functions
 
     public class RecoveryFormIOFunctionTest
     {
-        //private readonly Mock<IDurableOrchestrationClient> mockStarter;
         private readonly Mock<ILogger> mockLog;
 
         public RecoveryFormIOFunctionTest()
         {
-            //this.mockStarter = new Mock<IDurableOrchestrationClient>(MockBehavior.Strict);
             this.mockLog = new Mock<ILogger>();
         }
 

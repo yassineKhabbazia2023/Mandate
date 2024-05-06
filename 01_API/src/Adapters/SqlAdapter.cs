@@ -188,11 +188,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             await this.mandateRepository.DeleteFakeDataAsync().ConfigureAwait(false);
         }
 
-        public async Task<List<Company>> GetAllCompaniesByErpIdAsync(string erpId)
+        public async Task<Company> GetCompanyByErpIdSiretAsync(string erpId, string siret)
         {
-            return (await this.mandateRepository.GetAllCompaniesByErpIdAsync(erpId))
-                .Select(item => item.ToModel())
-                .ToList();
+            return (await this.mandateRepository.GetCompanyByErpIdSiretAsync(erpId, siret)).ToModel();
         }
 
         public async Task InsertFormIOCollectionAsync(Collection collection, int companyId)

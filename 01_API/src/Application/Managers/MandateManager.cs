@@ -215,8 +215,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
         public async Task InsertFormIOCollectionAsync(Collection collection)
         {
-            var erpId = collection.Company!.ErpId;
-            var companyId = (await this.databaseService.GetCompanyByErpIdAsync(erpId)).Id;
+            List<Company> companies = await this.databaseService.GetAllCompaniesByErpIdAsync(collection.Company?.ErpId!);
+            var companyId = GetCompany(companies, collection.Company?.SiretNumber!).Id;
+
             if (await this.databaseService.CheckCollecteConfigExistAsync(collection.Bban!))
             {
                 throw new ApplicationException($"Il existe une configuration de collecte pour ce RIB {StringExtensions.Concat(collection.Bban!.BankCode, collection.Bban!.BranchCode, collection.Bban!.AccountNumber, collection.Bban!.CheckDigits)}.");
@@ -271,6 +272,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         private static bool HasStatusChanged(int currentStatusCode, int previousStatusCode)
         {
             return currentStatusCode != previousStatusCode;
+        }
+
+        private static Company GetCompany(List<Company> companies, string siretNumber)
+        {
+            if (companies.Exists(item => item.SiretNumber == siretNumber))
+            {
+                return companies.Single(item => item.SiretNumber == siretNumber);
+            }
+            else
+            {
+                return companies.First();
+            }
         }
 
         private async Task<TechnicalCollection?> GetJdcCollectionAsync(TechnicalCollection mandat)

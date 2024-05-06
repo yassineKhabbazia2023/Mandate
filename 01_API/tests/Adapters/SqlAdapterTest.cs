@@ -379,6 +379,42 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         }
 
         [Fact]
+        public async Task GetAllCompaniesByErpIdAsync()
+        {
+            var comaniesDb = new List<CompanyDb>() { EntityDbFactory.CompanyDb };
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.GetAllCompaniesByErpIdAsync("1234567890"))
+                .ReturnsAsync(comaniesDb)
+                .Verifiable();
+
+            var adapter = new SqlAdapter(repository.Object);
+
+            var result = await adapter.GetAllCompaniesByErpIdAsync("1234567890");
+
+            var expectedCompany = comaniesDb[0].ToModel();
+
+            result.Should().BeEquivalentTo(new List<Company>() { expectedCompany });
+
+            repository.VerifyAll();
+        }
+
+        [Fact]
+        public async Task GetAllCompaniesByErpIdAsync_ShouldThrowException_WhenRepositoryThrow()
+        {
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.GetAllCompaniesByErpIdAsync("1234567890"))
+                .ThrowsAsync(new Sql.CompanyNotFoundException("message"))
+                .Verifiable();
+
+            var adapter = new SqlAdapter(repository.Object);
+
+            Func<Task> act = async () => await adapter.GetAllCompaniesByErpIdAsync("1234567890");
+            await act.Should().ThrowAsync<Sql.CompanyNotFoundException>().WithMessage("message");
+
+            repository.VerifyAll();
+        }
+
+        [Fact]
         public async Task InsertFormIOCollectionAsync()
         {
             // Arrange

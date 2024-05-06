@@ -1144,6 +1144,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             // Arrange
             var id = Guid.NewGuid();
             var company = TestHelper.GetCompany(1, "bankServicesProviderId");
+
+            var company2 = new Company(
+                2,
+                "SCI IMMO JACOBINS",
+                "83030022400010",
+                "1000332927",
+                "bankServicesProviderId",
+                TestHelper.GetSignatory(),
+                TestHelper.GetAddress());
+
             Bban bban = TestHelper.GetBban(string.Empty, true);
             Status status = TestHelper.GetStatus();
             var collection = new Collection(
@@ -1163,8 +1173,71 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(false)
                 .Verifiable();
 
-            this.mockDatabaseService.Setup(r => r.GetCompanyByErpIdAsync(company.ErpId!))
-                .ReturnsAsync(company)
+            this.mockDatabaseService.Setup(r => r.GetAllCompaniesByErpIdAsync(company.ErpId!))
+                .ReturnsAsync(new List<Company>() { company, company2 })
+                .Verifiable();
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions, this.mockLogger.Object);
+
+            // Act
+            await mandateManager.InsertFormIOCollectionAsync(collection);
+
+            // Assert
+            this.mockDatabaseService.VerifyAll();
+        }
+
+        [Fact]
+        public async Task InsertFormIOCollectionAsync_WhenNonExistentSiret()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+
+            var company = new Company(
+                1,
+                "SCI IMMO JACOBINS",
+                "83030022400010",
+                "1000332927",
+                "bankServicesProviderId",
+                TestHelper.GetSignatory(),
+                TestHelper.GetAddress());
+
+            var company2 = new Company(
+                2,
+                "SCI IMMO JACOBINS",
+                "83030022400011",
+                "1000332927",
+                "bankServicesProviderId",
+                TestHelper.GetSignatory(),
+                TestHelper.GetAddress());
+
+            Bban bban = TestHelper.GetBban(string.Empty, true);
+            Status status = TestHelper.GetStatus();
+            var collection = new Collection(
+                Guid.NewGuid(),
+                "yourServiceProviderId",
+                new Company(
+                    2,
+                    "SCI IMMO JACOBINS",
+                    "83030022400012",
+                    "1000332927",
+                    "bankServicesProviderId",
+                    TestHelper.GetSignatory(),
+                    TestHelper.GetAddress()),
+                bban,
+                DateTime.Now,
+                DateTime.Now,
+                status);
+
+            this.mockDatabaseService
+               .Setup(m => m.InsertFormIOCollectionAsync(collection, 1))
+               .Returns(Task.CompletedTask);
+
+            this.mockDatabaseService.Setup(r => r.CheckCollecteConfigExistAsync(bban))
+                .ReturnsAsync(false)
+                .Verifiable();
+
+            this.mockDatabaseService.Setup(r => r.GetAllCompaniesByErpIdAsync(company.ErpId!))
+                .ReturnsAsync(new List<Company>() { company, company2 })
                 .Verifiable();
 
             var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions, this.mockLogger.Object);
@@ -1196,8 +1269,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(true)
                 .Verifiable();
 
-            this.mockDatabaseService.Setup(r => r.GetCompanyByErpIdAsync(company.ErpId!))
-                .ReturnsAsync(company)
+            this.mockDatabaseService.Setup(r => r.GetAllCompaniesByErpIdAsync(company.ErpId!))
+                .ReturnsAsync(new List<Company> { company })
                 .Verifiable();
 
             var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions, this.mockLogger.Object);

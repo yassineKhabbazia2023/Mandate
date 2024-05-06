@@ -413,7 +413,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId =104,
+                CollaboratorId = 104,
                 Skip = 2,
                 Limit = 2,
             };
@@ -1173,7 +1173,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             PredictableGuid generator = new PredictableGuid();
 
             // Ensure this is the same ID used for the foreign key in CollectionDb
-            int companyId = 101;  
+            int companyId = 101;
             var erpId = "validErpId";
 
             var refBankDb = new RefBankDb()
@@ -1341,6 +1341,54 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             companyFolder.Count.Should().Be(1);
             companyFolder.Single().CompanyId.Should().Be(102);
             companyFolder.Single().JdcDossierId.Should().Be("folderId");
+        }
+
+        [Fact]
+        public async Task GetAllCompaniesByErpIdAsync()
+        {
+            CompanyDb company = EntityDbFactory.CompanyDb;
+            CompanyDb company2 = EntityDbFactory.CompanyDb;
+            CompanyDb company3 = EntityDbFactory.CompanyDb;
+            company2.Id = 103;
+            company2.SiretNumber = "12345678901220";
+            company3.Id = 104;
+            company3.ErpId = "1234567891";
+
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            await context.AddAsync(company);
+            await context.AddAsync(company2);
+            await context.AddAsync(company3);
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            var dbCompanies = await sqlMandateRepository.GetAllCompaniesByErpIdAsync("1234567890");
+
+            dbCompanies.Count.Should().Be(2);
+            dbCompanies[0].ErpId.Should().Be("1234567890");
+            dbCompanies[0].SiretNumber.Should().Be("12345678901220");
+            dbCompanies[1].ErpId.Should().Be("1234567890");
+            dbCompanies[1].SiretNumber.Should().Be("12345678901234");
+        }
+
+        [Fact]
+        public async Task GetAllCompaniesByErpIdAsync_ShouldThrowWhenNoCompanyFound()
+        {
+            CompanyDb company = EntityDbFactory.CompanyDb;
+
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            await context.AddAsync(company);
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            Func<Task> func = async () => await sqlMandateRepository.GetAllCompaniesByErpIdAsync("1234567891");
+            await func.Should().ThrowExactlyAsync<Sql.CompanyNotFoundException>()
+                .WithMessage("La company avec l'id '1234567891' n'a pas été trouvée dans le référentiel");
         }
 
         [Fact]

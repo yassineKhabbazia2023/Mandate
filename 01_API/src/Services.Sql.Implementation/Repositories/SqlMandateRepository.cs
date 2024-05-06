@@ -1630,6 +1630,23 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             await context.SaveChangesAsync();
         }
 
+        public async Task<List<CompanyDb>> GetAllCompaniesByErpIdAsync(string erpId)
+        {
+            using var context = new MandateContext(this.options);
+            var companies = context.Company
+                .Where(item => item.ErpId == erpId);
+
+            if (!await companies.AnyAsync())
+            {
+                throw CompanyNotFoundException.FromId(erpId);
+            }
+
+            return await companies
+                .OrderBy(item => item.SiretNumber)
+                .ToListAsync()
+                .ConfigureAwait(false);
+        }
+
         public async Task InsertFormIOCollectionAsync(CollectionDb collection)
         {
             using var context = new MandateContext(this.options);

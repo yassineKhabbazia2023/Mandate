@@ -4,9 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.Client;
-    using Microsoft.AspNetCore.Http;
-
     public class ClientExtensionsTest
     {
         [Fact]
@@ -82,7 +79,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var model = collection.ToCollectionSummary();
 
-            var collectionBankInfo = new CollectionBankInfo(
+            var collectionBankInfo = new Client.CollectionBankInfo(
                 bankName: "biap",
                 accountNumber: "12345678901",
                 jdcPartnership: 2);

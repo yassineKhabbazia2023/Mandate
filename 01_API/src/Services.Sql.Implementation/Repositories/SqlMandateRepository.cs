@@ -1643,14 +1643,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                     .OrderBy(item => item.SiretNumber)
                     .ToListAsync();
 
-                if (companiesByErpId.Exists(item => item.SiretNumber == siretNumber))
-                {
-                    company = companiesByErpId.Find(item => item.SiretNumber == siretNumber);
-                }
-                else
-                {
-                    company = companiesByErpId.First();
-                }
+                company = companiesByErpId.Find(item => item.SiretNumber == siretNumber) ?? companiesByErpId[0];
             }
             else if (await context.Company.AnyAsync(i => i.SiretNumber == siretNumber))
             {

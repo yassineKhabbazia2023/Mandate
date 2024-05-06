@@ -20,6 +20,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                     companyName: source.Company?.Name!,
                     bankName: source.Bban?.Bank?.Name!,
                     accountNumber: source.Bban?.AccountNumber!,
+                    jdcPartnership: (int)source.Bban?.Bank?.JdcAgreement.JdcPartnership!,
                     creationDate: source.CreationDate,
                     modificationDate: source.ModificationDate,
                     statusCode: (int)source.Status.StatusCode!);

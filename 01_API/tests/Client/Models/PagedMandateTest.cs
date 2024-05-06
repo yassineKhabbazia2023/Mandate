@@ -19,6 +19,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests
                     "Weyland Corporation",
                     "Crédit Agricole",
                     "98765432101",
+                    2,
                     new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
                     10),

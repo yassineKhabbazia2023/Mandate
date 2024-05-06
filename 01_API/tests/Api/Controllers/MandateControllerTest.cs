@@ -131,6 +131,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 companyName: "cn",
                 bankName: "bn",
                 accountNumber: "12345678901",
+                jdcPartnership: 2,
                 creationDate: new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                 modificationDate: new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                 statusCode: 30);

@@ -19,6 +19,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests.Models
                     "name",
                     "bank",
                     "12345678910",
+                    2,
                     DateTime.UtcNow,
                     DateTime.UtcNow,
                     30),

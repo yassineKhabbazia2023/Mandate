@@ -15,6 +15,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             string companyName,
             string bankName,
             string accountNumber,
+            int jdcPartnership,
             DateTime creationDate,
             DateTime modificationDate,
             int statusCode)
@@ -24,6 +25,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             this.CompanyName = companyName;
             this.BankName = bankName;
             this.AccountNumber = accountNumber;
+            this.JdcPartnership = jdcPartnership;
             this.CreationDate = creationDate;
             this.ModificationDate = modificationDate;
             this.StatusCode = statusCode;
@@ -38,6 +40,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
         public string BankName { get; }
 
         public string AccountNumber { get; }
+
+        public int JdcPartnership { get; }
 
         public DateTime CreationDate { get; }
 

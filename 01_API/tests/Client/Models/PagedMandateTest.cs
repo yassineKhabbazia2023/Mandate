@@ -19,7 +19,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests
                 new List<CollectionSummary>()
                 {
                     new CollectionSummary(
-                        id:new PredictableGuid().NewGuid(),
+                        id: new PredictableGuid().NewGuid(),
                         erpId: "1234567890",
                         companyName: "Weyland Corporation",
                         collectionBankInfo: collectionBankInfo,

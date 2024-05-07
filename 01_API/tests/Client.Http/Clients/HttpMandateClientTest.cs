@@ -59,15 +59,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Tests
         {
             var authentication = new BearerHttpClientAuthentication("tTest");
 
+            var collectionBankInfo = new Client.CollectionBankInfo(
+                bankName: "Crédit Agricole",
+                accountNumber: "98765432101",
+                jdcPartnership: 2);
+
             var collectionSummary = new CollectionSummary(
-                Guid.Empty,
-                "1234567890",
-                "Weyland Corporation",
-                "Crédit Agricole",
-                "98765432101",
-                new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
-                new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                10);
+                id: Guid.Empty,
+                erpId: "1234567890",
+                companyName: "Weyland Corporation",
+                collectionBankInfo: collectionBankInfo,
+                creationDate: new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                modificationDate: new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                statusCode: 20);
 
             var serializedCollectionSummary = JsonNode.Parse(JsonConvert.SerializeObject(collectionSummary)) !.ToJsonString();
             var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
@@ -111,6 +115,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Tests
 
             result.Should().BeEquivalentTo(collectionSummary);
         }
+
         [Fact]
         public async Task GetTechnicalCollectionSummaryAsync()
         {
@@ -233,15 +238,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Tests
         {
             var authentication = new BearerHttpClientAuthentication("tTest");
 
+            var collectionBankInfo = new CollectionBankInfo(
+                bankName: "bank",
+                accountNumber: "12345678910",
+                jdcPartnership: 2);
+
             var collectionSummary = new CollectionSummary(
-                Guid.Empty,
-                "12345",
-                "Name",
-                "bank",
-                "12345678910",
-                DateTime.UtcNow,
-                DateTime.UtcNow,
-                30);
+                id: Guid.Empty,
+                erpId: "12345",
+                companyName: "Name",
+                collectionBankInfo: collectionBankInfo,
+                creationDate: DateTime.UtcNow,
+                modificationDate: DateTime.UtcNow,
+                statusCode: 20);
 
             PagedRecoveryMandate page = new PagedRecoveryMandate(1, new List<CollectionSummary>() { collectionSummary });
 

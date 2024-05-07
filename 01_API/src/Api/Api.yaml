@@ -810,6 +810,10 @@ components:
           description: Defines the bank account number of the mandate BBAN
           type: string
           example: '66842913356'
+        jdcPartnership:
+          description: Defines the partnership of a collection
+          type: integer
+          example: 2
         bankName:
           description: Defines the name of the bank attached to the mandate
           type: string

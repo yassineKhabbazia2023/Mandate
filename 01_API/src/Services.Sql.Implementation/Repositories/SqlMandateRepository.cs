@@ -1660,7 +1660,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
 
             if (company == null)
             {
-                throw CompanyNotFoundException.FromId(erpId);
+                throw CompanyNotFoundException.FromEprIdSiret(erpId, siretNumber);
             }
 
             return company;

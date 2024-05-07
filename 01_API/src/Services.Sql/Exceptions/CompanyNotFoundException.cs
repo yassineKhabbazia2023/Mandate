@@ -37,5 +37,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         {
             return new CompanyNotFoundException($"La company avec le siret '{siret}' n'a pas été trouvée dans le référentiel");
         }
+
+        public static CompanyNotFoundException FromEprIdSiret(string erpId, string siret)
+        {
+            return new CompanyNotFoundException($"La company avec l\'erp id '{erpId}' et le siret '{siret}' n'a pas été trouvée dans le référentiel");
+        }
     }
 }

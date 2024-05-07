@@ -1425,7 +1425,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             Func<Task> func = async () => await sqlMandateRepository.GetCompanyByErpIdSiretAsync("1234567800", "98765432101240");
 
             await func.Should().ThrowExactlyAsync<Sql.CompanyNotFoundException>()
-                .WithMessage("La company avec l'id '1234567800' n'a pas été trouvée dans le référentiel");
+                .WithMessage("La company avec l'erp id '1234567800' et le siret '98765432101240' n'a pas été trouvée dans le référentiel");
         }
 
         [Fact]

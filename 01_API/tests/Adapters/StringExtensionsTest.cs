@@ -31,9 +31,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         [InlineData("HeLLo", false)]
         [InlineData("", false)]
         [InlineData(null, false)]
-        public void AllCharactersUpperCase_ShouldEvaluateCorrectly(string input, bool expected)
+        public void AllCharactersUpperCase_ShouldEvaluateCorrectly(string? input, bool expected)
         {
-            var result = StringExtensions.AllCharactersUpperCase(input);
+            var result = StringExtensions.AllCharactersUpperCase(input!);
             result.Should().Be(expected);
         }
 
@@ -52,7 +52,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         [InlineData("", "")]
         [InlineData(null, null)]
         [InlineData("l'eco", "l eco")]
-        public void Sanitize(string input, string result)
+        public void Sanitize(string? input, string? result)
         {
             input.Sanitize().Should().Be(result);
         }

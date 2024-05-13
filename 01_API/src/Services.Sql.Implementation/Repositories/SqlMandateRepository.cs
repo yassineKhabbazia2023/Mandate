@@ -43,7 +43,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 throw new InvalidOperationException($"there is more then one company with siret {siret}");
             }
 
-            return await company.SingleAsync() !;
+            return await company.SingleAsync()!;
         }
 
         public async Task<(List<CollectionDb>, int)> SearchCollectionsAsync(CollectionQuery query)
@@ -1779,7 +1779,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             {
                 SortOrder.Ascending => ApplyAscendingSort(mandates, query.SortCriteria),
                 SortOrder.Descending => ApplyDescendingSort(mandates, query.SortCriteria),
-                _ => mandates
+                _ => mandates,
             };
         }
 
@@ -1796,7 +1796,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                     .OrderBy(collection => collection.Statuses.Min(status => status.StatusDate)),
                 CollectionSortCriteria.ModificationDate => ApplyModificationDateSort(mandates, true),
                 CollectionSortCriteria.Status => ApplyStatusSort(mandates, true),
-                _ => mandates
+                _ => mandates,
             };
         }
 
@@ -1813,7 +1813,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                     .OrderByDescending(collection => collection.Statuses.Min(status => status.StatusDate)),
                 CollectionSortCriteria.ModificationDate => ApplyModificationDateSort(mandates, false),
                 CollectionSortCriteria.Status => ApplyStatusSort(mandates, false),
-                _ => mandates
+                _ => mandates,
             };
         }
 

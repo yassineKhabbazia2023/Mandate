@@ -27,7 +27,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             Client client = new Client
             {
                 Id = company.BankServicesProviderId!,
-                RaisonSociale = company.Name!.Sanitize() !,
+                RaisonSociale = company.Name!.Sanitize()!,
                 Siret = CreateSiretFromCompany(company),
                 Responsable = CreateResponsableFromCompany(company),
             };
@@ -140,10 +140,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 Adresse = new Adresse
                 {
                     CodePostal = company.Address?.ZipCode!,
-                    CplRue = company.Address?.Complements!.Sanitize() !,
-                    Pays = company.Address?.Country?.Sanitize() !,
-                    Rue = company.Address?.Street?.Sanitize() !,
-                    Ville = company.Address?.City?.Sanitize() !,
+                    CplRue = company.Address?.Complements!.Sanitize()!,
+                    Pays = company.Address?.Country?.Sanitize()!,
+                    Rue = company.Address?.Street?.Sanitize()!,
+                    Ville = company.Address?.City?.Sanitize()!,
                 },
                 Mail = company.Signatory?.Email,
                 Name = $"{company.Signatory?.Title ?? string.Empty} {company.Signatory?.FirstName?.Sanitize() ?? string.Empty} {company.Signatory?.LastName?.Sanitize() ?? string.Empty}",

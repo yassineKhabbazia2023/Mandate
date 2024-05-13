@@ -37,7 +37,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             };
 
             var formiosubmissionList = new List<FormioSubmission>() { formiosubmission };
-            var serializedFormioSubmissionList = JsonNode.Parse(JsonConvert.SerializeObject(formiosubmissionList)) !.ToJsonString();
+            var serializedFormioSubmissionList = JsonNode.Parse(JsonConvert.SerializeObject(formiosubmissionList))!.ToJsonString();
 
             var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -141,7 +141,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             };
 
             var formiosubmissionList = new List<FormioSubmission>() { formiosubmission };
-            var serializedFormioSubmissionList = JsonNode.Parse(JsonConvert.SerializeObject(formiosubmissionList)) !.ToJsonString();
+            var serializedFormioSubmissionList = JsonNode.Parse(JsonConvert.SerializeObject(formiosubmissionList))!.ToJsonString();
 
             var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -283,11 +283,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
                 Limit = 1,
                 Skip = 0,
                 Total = 1,
-                Submissions = JsonConvert.DeserializeObject<List<FormioSubmission>>(data) !,
+                Submissions = JsonConvert.DeserializeObject<List<FormioSubmission>>(data)!,
             };
 
             var formiosubmissionList = sub.Submissions;
-            var serializedFormioSubmissionList = JsonNode.Parse(JsonConvert.SerializeObject(formiosubmissionList)) !.ToJsonString();
+            var serializedFormioSubmissionList = JsonNode.Parse(JsonConvert.SerializeObject(formiosubmissionList))!.ToJsonString();
 
             var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -321,7 +321,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             var jeDeclareClient = new HttpFormioClient(logger.Object, factory.Object, this.options);
 
-            var res = await jeDeclareClient.CheckJdcPartnerBankAsync("demandemandat", "codeBankT") !;
+            var res = await jeDeclareClient.CheckJdcPartnerBankAsync("demandemandat", "codeBankT")!;
 
             res.Should().NotBeNull();
             res.Should().BeOfType<JObject>();
@@ -779,7 +779,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             formioSubmissionCollection.Submissions.Add(submission1);
 
-            var serializedFormioSubmissionCollection = JsonNode.Parse(JsonConvert.SerializeObject(formioSubmissionCollection.Submissions)) !.ToJsonString();
+            var serializedFormioSubmissionCollection = JsonNode.Parse(JsonConvert.SerializeObject(formioSubmissionCollection.Submissions))!.ToJsonString();
 
             var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -825,10 +825,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
 
             var dataJtoken = JToken.FromObject(submission.Data);
 
-            ((string)dataJtoken["bankCode"] !).Should().Be("123");
-            ((string)dataJtoken["bankSortCode"] !).Should().Be("456");
-            ((string)dataJtoken["bankAccountNumber"] !).Should().Be("789");
-            ((string)dataJtoken["bankCheckNumber"] !).Should().Be("46");
+            ((string)dataJtoken["bankCode"]!).Should().Be("123");
+            ((string)dataJtoken["bankSortCode"]!).Should().Be("456");
+            ((string)dataJtoken["bankAccountNumber"]!).Should().Be("789");
+            ((string)dataJtoken["bankCheckNumber"]!).Should().Be("46");
 
             client.VerifyAll();
             factory.VerifyAll();

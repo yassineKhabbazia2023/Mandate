@@ -413,7 +413,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             {
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
-                CollaboratorId =104,
+                CollaboratorId = 104,
                 Skip = 2,
                 Limit = 2,
             };
@@ -1173,7 +1173,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             PredictableGuid generator = new PredictableGuid();
 
             // Ensure this is the same ID used for the foreign key in CollectionDb
-            int companyId = 101;  
+            int companyId = 101;
             var erpId = "validErpId";
 
             var refBankDb = new RefBankDb()

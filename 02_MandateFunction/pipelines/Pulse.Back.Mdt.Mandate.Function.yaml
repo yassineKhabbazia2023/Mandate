@@ -32,4 +32,4 @@ extends:
       path: 02_MandateFunction\src\Mandate.AzureFunctions\KPMG.Pulse.Back.Accounting.Mandate.Function.csproj
       type: 'functionApp' 
       tests: 02_MandateFunction\tests\**\*.csproj
-    dotnetcore: 6.x
+    dotnetcore: 8.x

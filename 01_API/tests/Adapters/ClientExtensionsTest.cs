@@ -246,7 +246,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             act.Should().Throw<InvalidCastException>().WithMessage("Invalid SortOrder. Allowed values are [ Ascending, Descending]");
         }
 
-
         [Fact]
         public void ToModel_WhenNoSortCreteria_ShouldThrowException()
         {

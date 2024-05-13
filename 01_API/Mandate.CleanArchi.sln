@@ -140,6 +140,25 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Notifications", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Notifications.Tests", "tests\Services.Notifications\Mandate.Notifications.Tests.csproj", "{18E18E7F-DBE6-43F2-AB70-EE13B082417E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pipelines", "pipelines", "{6C324EF8-0BC6-4FAC-AFD4-929678A03704}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{43D46D8F-0282-42E2-A407-8370E5B0B151}"
+	ProjectSection(SolutionItems) = preProject
+		pipelines\Constellation.Proxy.Mandate.yaml = pipelines\Constellation.Proxy.Mandate.yaml
+		pipelines\KPMG.Pulse.Back.Mandate.yaml = pipelines\KPMG.Pulse.Back.Mandate.yaml
+		pipelines\Pulse.Back.Mdt.Mandate.SQL.yaml = pipelines\Pulse.Back.Mdt.Mandate.SQL.yaml
+		pipelines\Pulse.Back.Mdt.Mandate.yaml = pipelines\Pulse.Back.Mdt.Mandate.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AZF", "AZF", "{70DEA3CC-C805-451F-9179-759D32973434}"
+	ProjectSection(SolutionItems) = preProject
+		..\02_MandateFunction\pipelines\Pulse.Back.Mdt.Mandate.Function.yaml = ..\02_MandateFunction\pipelines\Pulse.Back.Mdt.Mandate.Function.yaml
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KPMG.Pulse.Back.Accounting.Mandate.Function", "..\02_MandateFunction\src\Mandate.AzureFunctions\KPMG.Pulse.Back.Accounting.Mandate.Function.csproj", "{1FF6B771-4325-4F40-8208-F6447CF73FB6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.AzureFunctions.Tests", "..\02_MandateFunction\tests\Mandate.AzureFunctions.Tests\Mandate.AzureFunctions.Tests.csproj", "{23466861-C907-44A1-856E-C2EACB4BC565}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -284,6 +303,14 @@ Global
 		{18E18E7F-DBE6-43F2-AB70-EE13B082417E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18E18E7F-DBE6-43F2-AB70-EE13B082417E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18E18E7F-DBE6-43F2-AB70-EE13B082417E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FF6B771-4325-4F40-8208-F6447CF73FB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FF6B771-4325-4F40-8208-F6447CF73FB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FF6B771-4325-4F40-8208-F6447CF73FB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FF6B771-4325-4F40-8208-F6447CF73FB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23466861-C907-44A1-856E-C2EACB4BC565}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23466861-C907-44A1-856E-C2EACB4BC565}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23466861-C907-44A1-856E-C2EACB4BC565}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23466861-C907-44A1-856E-C2EACB4BC565}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -342,6 +369,11 @@ Global
 		{32A10F25-6B6C-4537-AB05-5896E33DAA08} = {EE6267B4-407D-41DA-8EF1-F74120752372}
 		{AE3C5C9B-00E9-4681-9C8B-7B500BA9F2D1} = {32A10F25-6B6C-4537-AB05-5896E33DAA08}
 		{18E18E7F-DBE6-43F2-AB70-EE13B082417E} = {32A10F25-6B6C-4537-AB05-5896E33DAA08}
+		{6C324EF8-0BC6-4FAC-AFD4-929678A03704} = {1A399981-EB36-494C-857A-921582443956}
+		{43D46D8F-0282-42E2-A407-8370E5B0B151} = {6C324EF8-0BC6-4FAC-AFD4-929678A03704}
+		{70DEA3CC-C805-451F-9179-759D32973434} = {6C324EF8-0BC6-4FAC-AFD4-929678A03704}
+		{1FF6B771-4325-4F40-8208-F6447CF73FB6} = {BEBE4B63-38E1-4956-93EB-8C28E1737EF3}
+		{23466861-C907-44A1-856E-C2EACB4BC565} = {BEBE4B63-38E1-4956-93EB-8C28E1737EF3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {97AB0967-2109-4F52-B629-DEA955BFEF4D}

@@ -73,7 +73,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Tests
                 modificationDate: new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
                 statusCode: 20);
 
-            var serializedCollectionSummary = JsonNode.Parse(JsonConvert.SerializeObject(collectionSummary)) !.ToJsonString();
+            var serializedCollectionSummary = JsonNode.Parse(JsonConvert.SerializeObject(collectionSummary))!.ToJsonString();
             var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(serializedCollectionSummary, Encoding.UTF8, "application/json"),
@@ -254,7 +254,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Tests
 
             PagedRecoveryMandate page = new PagedRecoveryMandate(1, new List<CollectionSummary>() { collectionSummary });
 
-            var serialized = JsonNode.Parse(JsonConvert.SerializeObject(page)) !.ToJsonString();
+            var serialized = JsonNode.Parse(JsonConvert.SerializeObject(page))!.ToJsonString();
             var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(serialized, Encoding.UTF8, "application/json"),

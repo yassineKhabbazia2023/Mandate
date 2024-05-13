@@ -66,13 +66,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 throw new InvalidOperationException($"Database connection string is not definied (Missing setting: DbConnectionString)");
             }
 
-
             builder.Services
                 .AddAuthentication()
                 .AddConstellationIdentityService(
                 new ConstellationIdentityServiceAuthenticationOptions
                 {
-                    ServerAddress = new Uri(builder.Configuration["identityserviceApiUrl"] !),
+                    ServerAddress = new Uri(builder.Configuration["identityserviceApiUrl"]!),
                     AzureActiveDirectoryClientCredentials =
                     {
                         ClientId = builder.Configuration["AuthClientId"],
@@ -80,7 +79,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                         Scope = builder.Configuration["AuthAudience"],
                         Tenant = builder.Configuration["AuthTenant"],
                     },
-                }, out string[] schemeNames);
+                },
+                out string[] schemeNames);
             builder.Services
                 .AddAuthorization(options =>
                 {
@@ -96,32 +96,32 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             builder.Services.AddMandateSql(opt => opt.ConnectionString = builder.Configuration["DbConnectionString"]);
             builder.Services.AddMandateJeDeclare(opt =>
             {
-                opt.BaseUri = new Uri(builder.Configuration["JeDeclareBaseUri"] !);
-                opt.Login = builder.Configuration["JeDeclareLogin"] !;
-                opt.Password = builder.Configuration["JeDeclarePassword"] !;
-                opt.JdcCompteId = builder.Configuration["JeDeclareCompteId"] !;
-                opt.HistoryDateEnabledBanks = builder.Configuration["JeDeclareHistoryDateEnabledBanks"] !;
+                opt.BaseUri = new Uri(builder.Configuration["JeDeclareBaseUri"]!);
+                opt.Login = builder.Configuration["JeDeclareLogin"]!;
+                opt.Password = builder.Configuration["JeDeclarePassword"]!;
+                opt.JdcCompteId = builder.Configuration["JeDeclareCompteId"]!;
+                opt.HistoryDateEnabledBanks = builder.Configuration["JeDeclareHistoryDateEnabledBanks"]!;
             });
 
             builder.Services.AddMandateFormio(opt =>
             {
-                opt.BaseUri = new Uri(builder.Configuration["FormioBaseUri"] !);
-                opt.FormioApiKey = builder.Configuration["FormioApiKey"] !;
-                opt.DemandeMandateFormId = builder.Configuration["DemandeMandateFormId"] !;
+                opt.BaseUri = new Uri(builder.Configuration["FormioBaseUri"]!);
+                opt.FormioApiKey = builder.Configuration["FormioApiKey"]!;
+                opt.DemandeMandateFormId = builder.Configuration["DemandeMandateFormId"]!;
             });
 
             builder.Services.AddMandateApplication(opt =>
             {
-                opt.MandateCancellationSubject = builder.Configuration["MandateCancellationSubject"] !;
-                opt.MandateCancellationTemplateName = builder.Configuration["MandateCancellationTemplateName"] !;
-                opt.MandateCancellationFromEmail = builder.Configuration["MandateCancellationFromEmail"] !;
-                opt.MandateCancellationToEmail = builder.Configuration["MandateCancellationToEmail"] !;
-                opt.MandateCancellationCcEmails = new List<string>(builder.Configuration["MandateCancellationCcEmails"] !.Split(";"));
-                opt.MandateUploadedSubject = builder.Configuration["MandateUploadedSubject"] !;
-                opt.MandateUploadedTemplateName = builder.Configuration["MandateUploadedTemplateName"] !;
-                opt.MandateUploadedFromEmail = builder.Configuration["MandateUploadedFromEmail"] !;
-                opt.MandateUploadedToEmail = builder.Configuration["MandateUploadedToEmail"] !;
-                opt.MandateUploadedCcEmails = new List<string>(builder.Configuration["MandateUploadedCcEmails"] !.Split(";"));
+                opt.MandateCancellationSubject = builder.Configuration["MandateCancellationSubject"]!;
+                opt.MandateCancellationTemplateName = builder.Configuration["MandateCancellationTemplateName"]!;
+                opt.MandateCancellationFromEmail = builder.Configuration["MandateCancellationFromEmail"]!;
+                opt.MandateCancellationToEmail = builder.Configuration["MandateCancellationToEmail"]!;
+                opt.MandateCancellationCcEmails = new List<string>(builder.Configuration["MandateCancellationCcEmails"]!.Split(";"));
+                opt.MandateUploadedSubject = builder.Configuration["MandateUploadedSubject"]!;
+                opt.MandateUploadedTemplateName = builder.Configuration["MandateUploadedTemplateName"]!;
+                opt.MandateUploadedFromEmail = builder.Configuration["MandateUploadedFromEmail"]!;
+                opt.MandateUploadedToEmail = builder.Configuration["MandateUploadedToEmail"]!;
+                opt.MandateUploadedCcEmails = new List<string>(builder.Configuration["MandateUploadedCcEmails"]!.Split(";"));
             });
             builder.Services.AddMandateAdapters();
             builder.Services.AddPortailApi(builder.Configuration);
@@ -154,27 +154,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             });
 
             app.Run();
-        }
-
-        private static void InitializeAzureKeyVaultProvider(string applicationId, string clientKey)
-        {
-            clientCredential = new ClientCredential(applicationId, clientKey);
-            var azureKeyVaultProvider = new SqlColumnEncryptionAzureKeyVaultProvider(GetToken);
-            var providers = new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>();
-            providers.Add(SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, azureKeyVaultProvider);
-            SqlConnection.RegisterColumnEncryptionKeyStoreProviders(providers);
-        }
-
-        private static async Task<string> GetToken(string authority, string resource, string scope)
-        {
-            var authContext = new Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext(authority);
-            var result = await authContext.AcquireTokenAsync(resource, clientCredential).ConfigureAwait(false);
-            if (result == null)
-            {
-                throw new InvalidOperationException("Failed to obtain the access token");
-            }
-
-            return result.AccessToken;
         }
 
         private static Task WriteResponse(HttpContext context, HealthReport result)

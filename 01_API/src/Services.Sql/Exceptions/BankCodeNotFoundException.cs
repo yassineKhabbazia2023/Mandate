@@ -2,35 +2,26 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
+namespace KPMG.Pulse.Back.Accounting.Mandate.Sql;
+
+public class BankCodeNotFoundException : Exception
 {
-    using System.Runtime.Serialization;
-
-    [Serializable]
-    public class BankCodeNotFoundException : Exception
+    public BankCodeNotFoundException()
     {
-        public BankCodeNotFoundException()
-        {
-        }
+    }
 
-        public BankCodeNotFoundException(string message)
-            : base(message)
-        {
-        }
+    public BankCodeNotFoundException(string message)
+        : base(message)
+    {
+    }
 
-        public BankCodeNotFoundException(string message, Exception inner)
-            : base(message, inner)
-        {
-        }
+    public BankCodeNotFoundException(string message, Exception inner)
+        : base(message, inner)
+    {
+    }
 
-        protected BankCodeNotFoundException(SerializationInfo info, StreamingContext context)
-              : base(info, context)
-        {
-        }
-
-        public static BankCodeNotFoundException FromId(string bankCode)
-        {
-            return new BankCodeNotFoundException($"La banque avec le code '{bankCode}' n'a pas été trouvée dans le référentiel");
-        }
+    public static BankCodeNotFoundException FromId(string bankCode)
+    {
+        return new BankCodeNotFoundException($"La banque avec le code '{bankCode}' n'a pas été trouvée dans le référentiel");
     }
 }

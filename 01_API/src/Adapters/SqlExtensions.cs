@@ -16,12 +16,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return new Address(source.Street, source.Complements, source.ZipCode, source.City, source.Country);
         }
 
-        public static Bank ToModel(this Sql.RefBankDb source)
-        {
-            var bankagreement = new BankAgreement((JdcPartnership)source.JdcPartnership);
-            return new Bank(source.BankCode, source.BankName, source.BankGroup, source.EbicsCardId, bankagreement);
-        }
-
         public static Bban ToBbanModel(this Sql.CollectionDb source)
         {
             return new Bban(
@@ -31,6 +25,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 source.CheckDigits!,
                 source.JeDeclareCollection?.JdcRibId,
                 source.Bank?.ToModel());
+        }
+
+        public static Bank ToModel(this Sql.RefBankDb source)
+        {
+            var bankagreement = new BankAgreement((JdcPartnership)source.JdcPartnership);
+            return new Bank(source.BankCode, source.BankName, source.BankGroup, source.EbicsCardId, bankagreement);
         }
 
         public static Collection ToModel(this Sql.CollectionDb source)
@@ -198,7 +198,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             return new List<Sql.StatusDb>()
             {
-                new ()
+                new()
                 {
                     Id = Guid.NewGuid(),
                     CollectionId = collection.Id,

@@ -44,6 +44,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
 
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             return DeserializeCollectionSummary(responseBody) !;
+
         }
 
         public async Task<PagedTechnicalMandate> GetTechnicalCollectionSummaryAsync()
@@ -69,7 +70,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
             response.EnsureSuccessStatusCode();
 
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            return JsonConvert.DeserializeObject<PagedTechnicalMandate>(responseBody) !;
+            return JsonConvert.DeserializeObject<PagedTechnicalMandate>(responseBody)!;
         }
 
         public async Task<PagedRecoveryMandate> RecoveryFormIoAsync(int skip, int limit)

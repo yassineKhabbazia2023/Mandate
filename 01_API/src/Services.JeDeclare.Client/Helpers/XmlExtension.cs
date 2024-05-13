@@ -32,7 +32,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
             var serializer = new XmlSerializer(typeof(T));
             using TextReader textReader = new StringReader(xml);
 
-            return (T)serializer.Deserialize(textReader) !;
+            return (T)serializer.Deserialize(textReader)!;
         }
     }
 }

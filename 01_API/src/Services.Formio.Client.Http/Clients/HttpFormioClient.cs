@@ -74,7 +74,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
                 return null;
             }
 
-            return JObject.Parse(submissions.Single().Data.ToString() !);
+            return JObject.Parse(submissions.Single().Data.ToString()!);
         }
 
         public async Task<bool> CheckMadateDematSupportedAsync(string formId, string codeBank)
@@ -130,7 +130,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
                 this.logger.LogError(
                     exception,
-                    "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - projectId: {projectId} - codeBank: {codeBank} - Message : '{errorMessage}'",
+                    "{Class} - '{Method}': Exception was thrown : status code : '{StatusCode}' - projectId: {ProjectId} - codeBank: {CodeBank} - Message : '{ErrorMessage}'",
                     nameof(HttpFormioClient),
                     nameof(this.GetTemplateShemaAsync),
                     response.StatusCode,
@@ -184,7 +184,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
                 this.logger.LogError(
                     exception,
-                    "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - downloadUrl: {downloadUrl} - Message : '{errorMessage}'",
+                    "{Class} - '{Method}': Exception was thrown : status code : '{StatusCode}' - downloadUrl: {DownloadUrl} - Message : '{ErrorMessage}'",
                     nameof(HttpFormioClient),
                     nameof(this.DownloadSubmissionAsPDFWithTemplate),
                     response.StatusCode,
@@ -260,10 +260,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
             var formioSubmissionPdf = new FormioSubmissionPdf
             {
                 Data = bytesRead > 0 ? pdf : Array.Empty<byte>(),
-                Created = data["created"]?.Value<string>() !,
-                Modified = data["modified"]?.Value<string>() !,
-                Id = data["_id"]?.Value<string>() !,
-                Owner = data["owner"]?.Value<string>() !,
+                Created = data["created"]?.Value<string>()!,
+                Modified = data["modified"]?.Value<string>()!,
+                Id = data["_id"]?.Value<string>()!,
+                Owner = data["owner"]?.Value<string>()!,
             };
 
             return formioSubmissionPdf;
@@ -271,7 +271,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
         private static IList<FormioSubmission> DeserializeSubmissions(string responseBody)
         {
-            return JsonConvert.DeserializeObject<IList<FormioSubmission>>(responseBody) !;
+            return JsonConvert.DeserializeObject<IList<FormioSubmission>>(responseBody)!;
         }
 
         private async Task<string> GetResponseBodyAsync(string formId, IHttpClient client, string requestUri)
@@ -285,7 +285,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http
 
                 this.logger.LogError(
                     exception,
-                    "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - formiId: {formiId} - Message : '{errorMessage}'",
+                    "{Class} - '{Method}': Exception was thrown : status code : '{StatusCode}' - formiId: {FormiId} - Message : '{ErrorMessage}'",
                     nameof(HttpFormioClient),
                     nameof(this.CheckJdcPartnerBankAsync),
                     response.StatusCode,

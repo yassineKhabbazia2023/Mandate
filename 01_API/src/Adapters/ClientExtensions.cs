@@ -8,7 +8,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
     {
         public static Client.BankDetail ToBankDetail(this Bank source)
         {
-            var bankJdcDetail = new Client.BankJdcDetail(source.JdcAgreement.JdcPartnership.ToString("G") !);
+            var bankJdcDetail = new Client.BankJdcDetail(source.JdcAgreement.JdcPartnership.ToString("G")!);
             return new Client.BankDetail(source.Code!, source.Name, bankJdcDetail!);
         }
 

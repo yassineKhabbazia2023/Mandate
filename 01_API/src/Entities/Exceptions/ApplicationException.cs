@@ -2,30 +2,21 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate
+namespace KPMG.Pulse.Back.Accounting.Mandate;
+
+public class ApplicationException : Exception
 {
-    using System.Runtime.Serialization;
-
-    [Serializable]
-    public class ApplicationException : Exception
+    public ApplicationException()
     {
-        public ApplicationException()
-        {
-        }
+    }
 
-        public ApplicationException(string message)
-            : base(message)
-        {
-        }
+    public ApplicationException(string message)
+        : base(message)
+    {
+    }
 
-        public ApplicationException(string message, Exception inner)
-            : base(message, inner)
-        {
-        }
-
-        protected ApplicationException(SerializationInfo info, StreamingContext context)
-              : base(info, context)
-        {
-        }
+    public ApplicationException(string message, Exception inner)
+        : base(message, inner)
+    {
     }
 }

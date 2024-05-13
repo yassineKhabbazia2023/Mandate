@@ -25,7 +25,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Portal
                 }
                 else
                 {
-                    var headers = this.httpContextAccessor?.HttpContext?.Request.Headers!;
+                    var headers = this.httpContextAccessor.HttpContext?.Request.Headers!;
                     if (!headers.ContainsKey("Authorization"))
                     {
                         throw new InvalidOperationException("An Authorization header is mandatory.");

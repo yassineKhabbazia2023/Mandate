@@ -106,9 +106,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             var result = await formioClient.CheckJdcPartnerBankAsync("jdcsupportedbanks", "30004");
 
             result.Should().NotBeNull();
-            ((bool)result!["isPartnerBank"] !).Should().Be(false);
-            ((string)result!["bankCode"] !).Should().Be("30004");
-            ((string)result!["bankingGroup"] !).Should().Be("BNP");
+            ((bool)result!["isPartnerBank"]!).Should().Be(false);
+            ((string)result!["bankCode"]!).Should().Be("30004");
+            ((string)result!["bankingGroup"]!).Should().Be("BNP");
         }
 
         [Fact(Skip = "Integration Test")]
@@ -302,7 +302,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             var result = await formioClient.GetSubmissionByIdAsync("demandemandat", "5dd29cae73ff997779932250", auth);
 
             result.Should().NotBeNull();
-            ((string)result["_id"]) !.Should().Be("5dd29cae73ff997779932250");
+            ((string)result["_id"])!.Should().Be("5dd29cae73ff997779932250");
         }
 
         [Fact(Skip = "Integration Test")]
@@ -352,7 +352,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http.Tests
             var result = await formioClient.GetProjectDefinitionAsync("5ce57e521c42f37327ab37ab", auth);
 
             result.Should().NotBeNull();
-            ((string)result["_id"]) !.Should().Be("5ce57e521c42f37327ab37ab");
+            ((string)result["_id"])!.Should().Be("5ce57e521c42f37327ab37ab");
         }
 
         [Fact(Skip = "Integration Test")]

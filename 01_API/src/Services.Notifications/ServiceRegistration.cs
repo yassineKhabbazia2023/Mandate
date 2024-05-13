@@ -17,7 +17,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications
                 throw new ArgumentNullException(nameof(services));
             }
 
-            services.AddNotificationsClient(c => c.BaseUri = new Uri(configuration["MANDATE_NOTIFICATION_V2_API_URL"] !));
+            services.AddNotificationsClient(c => c.BaseUri = new Uri(configuration["MANDATE_NOTIFICATION_V2_API_URL"]!));
 
             services.AddSingleton<INotificationsProvider, NotificationsProvider>();
 

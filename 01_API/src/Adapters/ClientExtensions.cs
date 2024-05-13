@@ -8,18 +8,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
     {
         public static Client.BankDetail ToBankDetail(this Bank source)
         {
-            var bankJdcDetail = new Client.BankJdcDetail(source.JdcAgreement.JdcPartnership.ToString("G") !);
+            var bankJdcDetail = new Client.BankJdcDetail(source.JdcAgreement.JdcPartnership.ToString("G")!);
             return new Client.BankDetail(source.Code!, source.Name, bankJdcDetail!);
         }
 
         public static Client.CollectionSummary ToCollectionSummary(this Collection source)
         {
+            var collectionBankInfo = new Client.CollectionBankInfo(
+                bankName: source!.Bban?.Bank?.Name!,
+                accountNumber: source!.Bban?.AccountNumber!,
+                jdcPartnership: (int)source!.Bban?.Bank?.JdcAgreement.JdcPartnership!);
+
             return new Client.CollectionSummary(
                     id: source.Id,
                     erpId: source.Company?.ErpId!,
                     companyName: source.Company?.Name!,
-                    bankName: source.Bban?.Bank?.Name!,
-                    accountNumber: source.Bban?.AccountNumber!,
+                    collectionBankInfo: collectionBankInfo,
                     creationDate: source.CreationDate,
                     modificationDate: source.ModificationDate,
                     statusCode: (int)source.Status.StatusCode!);

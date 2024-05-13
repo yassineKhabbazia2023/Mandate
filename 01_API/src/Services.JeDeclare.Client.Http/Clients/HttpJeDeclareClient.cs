@@ -52,7 +52,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             this.logger.LogError(
                 exception,
-                "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - Message : '{errorMessage}'",
+                "{Class} - '{Method}': Exception was thrown : status code : '{StatusCode}' - jdcCompteId : '{JdcCompteId}' - jdcFolderId : '{JdcFolderId}' - Message : '{ErrorMessage}'",
                 nameof(HttpJeDeclareClient),
                 nameof(this.GetAllConfigurationFromFolderAsync),
                 response.StatusCode,
@@ -83,7 +83,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             this.logger.LogError(
                 exception,
-                "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - jdcRibId : '{jdcRibId}' - Message : '{errorMessage}'",
+                "{Class} - '{Method}': Exception was thrown : status code : '{StatusCode}' - jdcCompteId : '{JdcCompteId}' - jdcFolderId : '{JdcFolderId}' - jdcRibId : '{JdcRibId}' - Message : '{ErrorMessage}'",
                 nameof(HttpJeDeclareClient),
                 nameof(this.GetSignedMandatPdfAsync),
                 response.StatusCode,
@@ -118,7 +118,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             this.logger.LogError(
                 exception,
-                "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - jdcRibId : '{jdcRibId}' - Message : '{errorMessage}'",
+                "{Class} - '{Method}': Exception was thrown : status code : '{StatusCode}' - jdcCompteId : '{JdcCompteId}' - jdcFolderId : '{JdcFolderId}' - jdcRibId : '{JdcRibId}' - Message : '{ErrorMessage}'",
                 nameof(HttpJeDeclareClient),
                 nameof(this.GetMandatPdfAsync),
                 response.StatusCode,
@@ -157,7 +157,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             this.logger.LogError(
             exception,
-            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - serializedFolder : '{serializedFolder}' - Message : '{errorMessage}'",
+            "{Class} - '{Method}': Exception was thrown : status code : '{StatusCode}' - jdcCompteId : '{JdcCompteId}' - serializedFolder : '{SerializedFolder}' - Message : '{ErrorMessage}'",
             nameof(HttpJeDeclareClient),
             nameof(this.CreateFolderAsync),
             response.StatusCode,
@@ -195,7 +195,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             this.logger.LogError(
             exception,
-            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - serializedrib : '{serializedRib}' - Message : '{errorMessage}'",
+            "{Class} - '{Method}': Exception was thrown : status code : '{StatusCode}' - jdcCompteId : '{JdcCompteId}' - jdcFolderId : '{JdcFolderId}' - serializedrib : '{SerializedRib}' - Message : '{ErrorMessage}'",
             nameof(HttpJeDeclareClient),
             nameof(this.AddRibToFolderAsync),
             response.StatusCode,
@@ -261,7 +261,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
                 this.logger.LogError(
                 exception,
-                "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - serializedreleve : '{serializedReleve}' - Message : '{errorMessage}'",
+                "{Class} - '{Method}': Exception was thrown : status code : '{StatusCode}' - jdcCompteId : '{JdcCompteId}' - jdcFolderId : '{JdcFolderId}' - serializedreleve : '{SerializedReleve}' - Message : '{ErrorMessage}'",
                 nameof(HttpJeDeclareClient),
                 nameof(this.CreateCollecteConfigurationAsync),
                 response.StatusCode,
@@ -301,7 +301,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             this.logger.LogError(
             exception,
-            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - serializedreleve : '{serializedReleve}' - Message : '{errorMessage}'",
+            "{Class} - '{Method}': Exception was thrown : status code : '{StatusCode}' - jdcCompteId : '{JdcCompteId}' - jdcFolderId : '{JdcFolderId}' - serializedreleve : '{SerializedReleve}' - Message : '{ErrorMessage}'",
             nameof(HttpJeDeclareClient),
             nameof(this.UpdateCollecteConfigurationAsync),
             response.StatusCode,
@@ -338,7 +338,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             this.logger.LogError(
             exception,
-            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - jdcRibId : '{jdcRibId}' - Message : '{errorMessage}'",
+            "{Class} - '{Method}': Exception was thrown : status code : '{StatusCode}' - jdcCompteId : '{JdcCompteId}' - jdcFolderId : '{JdcFolderId}' - jdcRibId : '{JdcRibId}' - Message : '{ErrorMessage}'",
             nameof(HttpJeDeclareClient),
             nameof(this.UploadSignedMandat),
             response.StatusCode,
@@ -376,7 +376,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             this.logger.LogError(
             exception,
-            "{class} - '{method}': Exception was thrown : status code : '{statusCode}' - jdcCompteId : '{jdcCompteId}' - jdcFolderId : '{jdcFolderId}' - jdcRibId : '{jdcRibId}' - Message : '{errorMessage}'",
+            "{Class} - '{Method}': Exception was thrown : status code : '{StatusCode}' - jdcCompteId : '{JdcCompteId}' - jdcFolderId : '{JdcFolderId}' - jdcRibId : '{JdcRibId}' - Message : '{ErrorMessage}'",
             nameof(HttpJeDeclareClient),
             nameof(this.CheckSignedMandatExists),
             response.StatusCode,

@@ -37,7 +37,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         [InlineData("m", "Jhon", null, "m Jhon ")]
         [InlineData(null, "Jhon", "Doe", " Jhon Doe")]
         [InlineData("M", "J'hon", "Doe's", "M J hon Doe s")]
-        public void ToDossierClient_(string title, string firstName, string lastName, string fullName)
+        public void ToDossierClient_(string? title, string? firstName, string? lastName, string fullName)
         {
             Signatory signatory = new Signatory(title, firstName, lastName, "email@email.com");
             Address? address = new Address("street", "cmp", "zipcode", "city", "country");

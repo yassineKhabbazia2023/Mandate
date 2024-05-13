@@ -2,30 +2,21 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client
+namespace KPMG.Pulse.Back.Accounting.Mandate.Formio.Client;
+
+public class FormioApiException : Exception
 {
-    using System.Runtime.Serialization;
-
-    [Serializable]
-    public class FormioApiException : Exception
+    public FormioApiException()
     {
-        public FormioApiException()
-        {
-        }
+    }
 
-        public FormioApiException(string message)
-            : base(message)
-        {
-        }
+    public FormioApiException(string message)
+        : base(message)
+    {
+    }
 
-        public FormioApiException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        protected FormioApiException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
+    public FormioApiException(string message, Exception innerException)
+        : base(message, innerException)
+    {
     }
 }

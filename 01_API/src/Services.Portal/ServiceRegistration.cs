@@ -17,7 +17,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Portal
                 throw new ArgumentNullException(nameof(services));
             }
 
-            services.AddPortalClient(c => c.BaseUri = new Uri(configuration["PORTAL_API_URL"] !));
+            services.AddPortalClient(c => c.BaseUri = new Uri(configuration["PORTAL_API_URL"]!));
 
             services.AddSingleton<IAuthenticationContext, AuthenticationContext>();
             services.AddSingleton<IPortalProvider, PortalProvider>();

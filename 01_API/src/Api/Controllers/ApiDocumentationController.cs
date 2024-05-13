@@ -19,7 +19,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [HttpGet("api.json")]
         public IActionResult Get()
         {
-            return this.File(this.GetType().Assembly.GetManifestResourceStream("KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.API.Designer.json") !, "application/json");
+            return this.File(this.GetType().Assembly.GetManifestResourceStream("KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.API.Designer.json")!, "application/json");
         }
     }
 }

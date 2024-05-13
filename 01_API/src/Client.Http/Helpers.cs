@@ -1,4 +1,8 @@
-﻿namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
+﻿// <copyright file="Helpers.cs" company="KPMG">
+// Copyright (c) KPMG. All rights reserved.
+// </copyright>
+
+namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
 {
     public static class Helpers
     {

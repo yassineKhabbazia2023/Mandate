@@ -28,7 +28,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return submissions?
                 .Submissions?
                 .Select(item => item.ToCollection())
-                .ToList() !;
+                .ToList()!;
         }
 
         public async Task<Collection?> GetSubmissionMandateAsync(Bban bban)
@@ -45,7 +45,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 bban?.CheckDigits!,
                 token);
 
-            return submission.Submissions.Any() ? submission.Submissions.SingleOrDefault() !.ToCollection() : null;
+            return submission.Submissions.Any() ? submission.Submissions.SingleOrDefault()!.ToCollection() : null;
         }
     }
 }

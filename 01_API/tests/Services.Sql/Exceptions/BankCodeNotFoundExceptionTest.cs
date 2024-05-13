@@ -32,18 +32,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
         }
 
         [Fact]
-        public void Constructor_Serialize()
-        {
-            var exToSerialize = new BankCodeNotFoundException("message", new Exception("nested"));
-
-            var serializedEx = JsonConvert.SerializeObject(exToSerialize);
-            var deserializedEx = JsonConvert.DeserializeObject<BankCodeNotFoundException>(serializedEx);
-
-            deserializedEx.Should().NotBeNull();
-            deserializedEx?.Should().BeEquivalentTo(exToSerialize);
-        }
-
-        [Fact]
         public void Constructor_Custom()
         {
             var ex = BankCodeNotFoundException.FromId("12345");

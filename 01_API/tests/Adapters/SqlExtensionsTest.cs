@@ -386,7 +386,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var expected = new List<Sql.StatusDb>()
             {
-                new ()
+                new()
                     {
                         Id = Guid.NewGuid(),
                         CollectionId = collection.Id,

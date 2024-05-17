@@ -64,7 +64,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         {
             Guid id = Guid.NewGuid();
             Company company = new Company(101, "mega", "45207964300014", "1999156874", string.Empty, null, null);
-            Bank? bank = new Bank("12345", "biap", "biap group", string.Empty, null!);
+            Bank? bank = new Bank("12345", "biap", "biap group", string.Empty, new BankAgreement(JdcPartnership.NonPartner));
             Bban bban = new Bban("12345", "56789", "12345678901", "88", "6789", bank);
             Status status = new Status(CollectionStatus.ToDo, "todo");
 
@@ -79,15 +79,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var model = collection.ToCollectionSummary();
 
+            var collectionBankInfo = new Client.CollectionBankInfo(
+                bankName: "biap",
+                accountNumber: "12345678901",
+                jdcPartnership: 2);
+
             var expected = new Client.CollectionSummary(
-                id,
-                "1999156874",
-                "mega",
-                "biap",
-                "12345678901",
-                new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
-                new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                (int)CollectionStatus.ToDo);
+                id: id,
+                erpId: "1999156874",
+                companyName: "mega",
+                collectionBankInfo: collectionBankInfo,
+                creationDate: new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                modificationDate: new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                statusCode: (int)CollectionStatus.ToDo);
 
             model.Should().BeEquivalentTo(expected);
         }
@@ -242,7 +246,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             act.Should().Throw<InvalidCastException>().WithMessage("Invalid SortOrder. Allowed values are [ Ascending, Descending]");
         }
 
-
         [Fact]
         public void ToModel_WhenNoSortCreteria_ShouldThrowException()
         {
@@ -286,7 +289,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 null,
                 null);
 
-            Bban bban = new Bban("12345", "54321", "12345678901", "55", string.Empty, null);
+            Bank? bank = new Bank("12345", "biap", "biap group", string.Empty, new BankAgreement(JdcPartnership.NonPartner));
+            Bban bban = new Bban("12345", "54321", "12345678901", "55", string.Empty, bank);
 
             Collection collection = new Collection(
                     new Guid("00000002-0000-0000-0000-000000000000"),

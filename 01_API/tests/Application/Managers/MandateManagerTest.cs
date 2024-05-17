@@ -532,7 +532,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         [InlineData("", true)]
         [InlineData(null, true)]
         [InlineData("test", false)]
-        public async Task UploadSignedMandateAsync_CreationStatus_shouldNotWhenNoUpload(string mandate, bool isUploaded)
+        public async Task UploadSignedMandateAsync_CreationStatus_shouldNotWhenNoUpload(string? mandate, bool isUploaded)
         {
             // Arrange
             var collectionId = new PredictableGuid().NewGuid();
@@ -561,7 +561,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             this.mockJeDeclareService
                 .Setup(m => m.UploadSignedMandate(It.IsAny<Collection>(), It.IsAny<byte[]>()))
-                .ReturnsAsync(mandate);
+                .ReturnsAsync(mandate!);
 
             this.mockJeDeclareService
                 .Setup(m => m.CheckSignedMandatExists(It.IsAny<string>(), It.IsAny<string>()))

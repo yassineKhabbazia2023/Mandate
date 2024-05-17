@@ -1731,7 +1731,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             using (var stringReader = new StringReader(xml))
             {
                 var serializer = new XmlSerializer(typeof(T));
-                return (T)serializer.Deserialize(stringReader) !;
+                return (T)serializer.Deserialize(stringReader)!;
             }
         }
 

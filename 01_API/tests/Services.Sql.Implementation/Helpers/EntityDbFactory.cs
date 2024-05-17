@@ -9,7 +9,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
     public static class EntityDbFactory
     {
-        public static CollectionDb CollectionDb => new ()
+        public static CollectionDb CollectionDb => new()
         {
             Id = new PredictableGuid(101).NewGuid(),
             CompanyId = 102,
@@ -29,7 +29,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             ErpId = "1234567890",
         };
 
-        public static RefBankDb RefBankDb => new ()
+        public static RefBankDb RefBankDb => new()
         {
             BankCode = "12345",
             BankName = "bn1",
@@ -45,7 +45,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             EbicsCardId = null,
         };
 
-        public static RefStatusCodeDb RefStatusCodeDb => new ()
+        public static RefStatusCodeDb RefStatusCodeDb => new()
         {
             StatusCode = -1,
             CollectionStatusCode = null,
@@ -54,7 +54,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             StatusNameEn = "In progress",
         };
 
-        public static StatusDb StatusDb => new ()
+        public static StatusDb StatusDb => new()
         {
             Id = new PredictableGuid(103).NewGuid(),
             CollectionId = new PredictableGuid(101).NewGuid(),
@@ -66,7 +66,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             CreatedBy = "created1",
         };
 
-        public static CollaboratorDb CollaboratorDb => new ()
+        public static CollaboratorDb CollaboratorDb => new()
         {
             Id = 104,
             Email = "collab@email.com",
@@ -74,20 +74,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             LastName = "lname",
         };
 
-        public static CompanyCollaboratorDb CompanyCollaboratorDb => new ()
+        public static CompanyCollaboratorDb CompanyCollaboratorDb => new()
         {
             CompanyId = 102,
             CollaboratorId = 104,
         };
 
-        public static JeDeclareFolderDb JeDeclareFolderDb => new ()
+        public static JeDeclareFolderDb JeDeclareFolderDb => new()
         {
             Id = new PredictableGuid(104).NewGuid(),
             CompanyId = 102,
             JdcDossierId = "folderId",
         };
 
-        public static PersonalDb? PersonalDb => new ()
+        public static PersonalDb? PersonalDb => new()
         {
             Id = Guid.NewGuid(),
             CollectionId = new PredictableGuid(101).NewGuid(),
@@ -102,7 +102,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             Country = "France",
         };
 
-        public static JeDeclareCollectionDb? JeDeclareCollectionDb => new ()
+        public static JeDeclareCollectionDb? JeDeclareCollectionDb => new()
         {
             Id = Guid.NewGuid(),
             CollectionId = new PredictableGuid(101).NewGuid(),
@@ -110,9 +110,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             JdcRibId = "12347",
         };
 
-        public static List<StatusDb> Statuses => new ()
+        public static List<StatusDb> Statuses => new()
         {
-            new ()
+            new()
             {
                 Id = Guid.NewGuid(),
                 CollectionId = new PredictableGuid(101).NewGuid(),
@@ -123,7 +123,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             },
         };
 
-        public static RefPdfTemplateDb RefPdfTemplateDb => new ()
+        public static RefPdfTemplateDb RefPdfTemplateDb => new()
         {
             BankCode = "12345",
             PdfFile = Convert.FromBase64String("dGVzdA=="),

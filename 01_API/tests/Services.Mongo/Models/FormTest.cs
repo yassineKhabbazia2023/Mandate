@@ -66,7 +66,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Mongo.Tests
 ]
 ";
 
-            List<Form> document = JsonConvert.DeserializeObject<List<Form>>(mongoReference) !;
+            List<Form> document = JsonConvert.DeserializeObject<List<Form>>(mongoReference)!;
 
             document.Should().NotBeNull();
             document.Should().HaveCount(1);

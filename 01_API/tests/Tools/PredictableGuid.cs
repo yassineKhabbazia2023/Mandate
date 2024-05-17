@@ -14,6 +14,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
             this.diff = diff;
         }
 
-        public Guid NewGuid() => new (this.seed++, 0, 0, 0, 0, 0, 0, 0, 0, 0, this.diff);
+        public Guid NewGuid() => new(this.seed++, 0, 0, 0, 0, 0, 0, 0, 0, 0, this.diff);
     }
 }

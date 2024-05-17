@@ -130,7 +130,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         {
             using var memoryStream = new MemoryStream();
             await mandateFileStream.CopyToAsync(memoryStream);
-            byte[] fileBytes = memoryStream.ToArray() !;
+            byte[] fileBytes = memoryStream.ToArray()!;
 
             var collection = await this.databaseService.GetCollectionById(collectionId);
             var isJdcPartner = IsJdcPartner(collection);
@@ -149,7 +149,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 else
                 {
                     this.logger.LogError(
-                        "{methodName}, the upload of the signed mandate = {collectionId} / folderId = {folderId} and ribId = {ribId} failed / isUploaded = {isUploaded}, signedMandateContent = {signedMandateContent}",
+                        "{MethodName}, the upload of the signed mandate = {CollectionId} / folderId = {FolderId} and ribId = {RibId} failed / isUploaded = {IsUploaded}, signedMandateContent = {SignedMandateContent}",
                         nameof(this.UploadSignedMandateAsync),
                         collection.Id,
                         folderId,
@@ -311,7 +311,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             else
             {
                 this.logger.LogInformation(
-                    "{methodName}, the upload of the signed mandate = {collectionId} / folderId = {folderId} and ribId = {ribId} failed / isUploaded = {isUploaded}",
+                    "{MethodName}, the upload of the signed mandate = {CollectionId} / folderId = {FolderId} and ribId = {RibId} failed / isUploaded = {IsUploaded}",
                     nameof(this.UpdateStatusOnSignedMandateUploadAsync),
                     collection.Id,
                     folderId,

@@ -13,29 +13,29 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
     {
         public static Collection ToCollection(this FormioSubmission source)
         {
-            var node = JsonNode.Parse(JsonConvert.SerializeObject(source)) !.AsObject();
+            var node = JsonNode.Parse(JsonConvert.SerializeObject(source))!.AsObject();
             var data = node["data"];
             var headOffice = data?["headOffice"];
 
-            Signatory signatory = new (
-                 data?["signatoryTitle"]?.ToString() !,
-                 data?["signatoryFirstName"]?.ToString() !,
-                 data?["signatoryLastName"]?.ToString() !,
-                 data?["signatoryEmailAddress"]?.ToString() !);
+            Signatory signatory = new(
+                 data?["signatoryTitle"]?.ToString()!,
+                 data?["signatoryFirstName"]?.ToString()!,
+                 data?["signatoryLastName"]?.ToString()!,
+                 data?["signatoryEmailAddress"]?.ToString()!);
 
-            Address address = new (
-                headOffice?["signatoryStreetAddress"]?.ToString() !,
-                headOffice?["signatoryAddressComplements"]?.ToString() !,
-                headOffice?["signatoryAddressZipCode"]?.ToString() !,
-                headOffice?["signatoryAddressCity"]?.ToString() !,
-                headOffice?["signatoryAddressCountry"]?.ToString() !);
+            Address address = new(
+                headOffice?["signatoryStreetAddress"]?.ToString()!,
+                headOffice?["signatoryAddressComplements"]?.ToString()!,
+                headOffice?["signatoryAddressZipCode"]?.ToString()!,
+                headOffice?["signatoryAddressCity"]?.ToString()!,
+                headOffice?["signatoryAddressCountry"]?.ToString()!);
 
-            Company company = new (
+            Company company = new(
                 default,
-                data?["companyName"]?.ToString() !,
-                data?["SIRETNumber"]?.ToString() !,
-                data?["accountNumber"]?.ToString() !,
-                data?["jdcDossierId"]?.ToString() !,
+                data?["companyName"]?.ToString()!,
+                data?["SIRETNumber"]?.ToString()!,
+                data?["accountNumber"]?.ToString()!,
+                data?["jdcDossierId"]?.ToString()!,
                 signatory,
                 address);
 
@@ -57,11 +57,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 out modified);
 
             Bban? bban = new Bban(
-                data?["bankCode"]?.ToString() !,
-                data?["bankSortCode"]?.ToString() !,
-                data?["bankAccountNumber"]?.ToString() !,
-                data?["bankCheckNumber"]?.ToString() !,
-                data?["jdcRibId"]?.ToString() !,
+                data?["bankCode"]?.ToString()!,
+                data?["bankSortCode"]?.ToString()!,
+                data?["bankAccountNumber"]?.ToString()!,
+                data?["bankCheckNumber"]?.ToString()!,
+                data?["jdcRibId"]?.ToString()!,
                 null);
 
             return new Collection(

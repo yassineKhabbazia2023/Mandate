@@ -32,4 +32,4 @@ extends:
       path: 01_API\src\Api\Mandate.AspNetCore.csproj
       tests: 01_API\tests\**\*.csproj
       type: 'webApp' 
-    dotnetcore: 6.x
+    dotnetcore: 8.x

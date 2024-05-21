@@ -14,7 +14,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         /// <summary>
         /// AccountNumber match but no SIRET match.
         /// </summary>
-        AccountNumberMatchNoSiret,
+        AccountNumberNoMatchSiret,
 
         /// <summary>
         /// No AccountNumber Match and several SIRET matches.
@@ -24,7 +24,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         /// <summary>
         /// No AccountNumber Match and no SIRET match.
         /// </summary>
-        NoAccountNumberMatchNoSiret,
+        NoAccountNumberNoMatchSiret,
 
         /// <summary>
         /// No Bank found with code.

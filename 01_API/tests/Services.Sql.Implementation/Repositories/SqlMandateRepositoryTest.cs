@@ -6,6 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 {
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
+    using System;
 
     [Collection("SerialExecutionPublishDb")]
     public class SqlMandateRepositoryTest
@@ -1344,12 +1345,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         }
 
         [Fact]
-        public async Task GetCompanyByErpIdSiretAsync_WhenErpIdSiretMatch()
+        public async Task GetCompanyByErpIdSiretAsync_WhenErpIdSiretMatchOnes_ShouldReturnCompany()
         {
             await using var database = SqlServerFixture.CreateDatabase();
             using var context = new MandateContext(this.options);
+            CompanyDb company = EntityDbFactory.CompanyDb;
+            CompanyDb company2 = EntityDbFactory.CompanyDb;
+            company2.Id = 103;
+            company2.SiretNumber = "12345678901220";
 
-            await context.AddRangeAsync(GenerateCompanies());
+            await context.AddRangeAsync(new List<CompanyDb> { company, company2 });
             await context.SaveChangesAsync();
 
             var sqlMandateRepository = new SqlMandateRepository(this.options);
@@ -1361,20 +1366,47 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         }
 
         [Fact]
-        public async Task GetCompanyByErpIdSiretAsync_WhenErpIdMatchNonExistingSiret()
+        public async Task GetCompanyByErpIdSiretAsync_WhenErpIdSiretMatchTwice_ShouldThrowException()
         {
             await using var database = SqlServerFixture.CreateDatabase();
             using var context = new MandateContext(this.options);
+            CompanyDb company = EntityDbFactory.CompanyDb;
+            CompanyDb company2 = EntityDbFactory.CompanyDb;
+            CompanyDb company3 = EntityDbFactory.CompanyDb;
+            company2.Id = 103;
+            company3.Id = 104;
+            company3.SiretNumber = "12345678901220";
 
-            await context.AddRangeAsync(GenerateCompanies());
+            await context.AddRangeAsync(new List<CompanyDb> { company, company2, company3 });
             await context.SaveChangesAsync();
 
             var sqlMandateRepository = new SqlMandateRepository(this.options);
 
-            var dbCompany = await sqlMandateRepository.GetCompanyByErpIdSiretAsync("1234567890", "12345678901210");
+            Func<Task> func = async () => await sqlMandateRepository.GetCompanyByErpIdSiretAsync("1234567890", "12345678901234");
+            var exception = await func.Should().ThrowExactlyAsync<CustomCompanyNotFoundException>();
+            exception.And.Type.Should().Be(ExceptionType.AccountNumberMatchDoubleSiret);
+        }
 
-            dbCompany.ErpId.Should().Be("1234567890");
-            dbCompany.SiretNumber.Should().Be("12345678901220");
+        [Fact]
+        public async Task GetCompanyByErpIdSiretAsync_WhenErpIdNoSiretMatch_ShouldThrowException()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+            CompanyDb company = EntityDbFactory.CompanyDb;
+            CompanyDb company2 = EntityDbFactory.CompanyDb;
+            CompanyDb company3 = EntityDbFactory.CompanyDb;
+            company2.Id = 103;
+            company3.Id = 104;
+            company3.SiretNumber = "12345678901220";
+
+            await context.AddRangeAsync(new List<CompanyDb> { company, company2, company3 });
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            Func<Task> func = async () => await sqlMandateRepository.GetCompanyByErpIdSiretAsync("1234567890", "12345678901230");
+            var exception = await func.Should().ThrowExactlyAsync<CustomCompanyNotFoundException>();
+            exception.And.Type.Should().Be(ExceptionType.AccountNumberNoMatchSiret);
         }
 
         [Fact]
@@ -1395,7 +1427,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         }
 
         [Fact]
-        public async Task GetCompanyByErpIdSiretAsync_WhenNonExistingErpIdSirenMatch()
+        public async Task GetCompanyByErpIdSiretAsync_WhenNonExistingErpIdNoSiretMatch()
         {
             await using var database = SqlServerFixture.CreateDatabase();
             using var context = new MandateContext(this.options);
@@ -1404,11 +1436,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.SaveChangesAsync();
 
             var sqlMandateRepository = new SqlMandateRepository(this.options);
-
-            var dbCompany = await sqlMandateRepository.GetCompanyByErpIdSiretAsync("1234567800", "12345678901240");
-
-            dbCompany.ErpId.Should().Be("1234567890");
-            dbCompany.SiretNumber.Should().Be("12345678901220");
+            Func<Task> func = async () => await sqlMandateRepository.GetCompanyByErpIdSiretAsync("1234567800", "12345678901240");
+            var exception = await func.Should().ThrowExactlyAsync<CustomCompanyNotFoundException>();
+            exception.And.Type.Should().Be(ExceptionType.NoAccountNumberMatchDoubleSiret);
         }
 
         [Fact]
@@ -1424,8 +1454,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             Func<Task> func = async () => await sqlMandateRepository.GetCompanyByErpIdSiretAsync("1234567800", "98765432101240");
 
-            await func.Should().ThrowExactlyAsync<Sql.CompanyNotFoundException>()
-                .WithMessage("La company avec l'erp id '1234567800' et le siret '98765432101240' n'a pas été trouvée dans le référentiel");
+            var exception = await func.Should().ThrowExactlyAsync<CustomCompanyNotFoundException>();
+            exception.And.Type.Should().Be(ExceptionType.NoAccountNumberNoMatchSiret);
         }
 
         [Fact]

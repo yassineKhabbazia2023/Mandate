@@ -1647,7 +1647,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                 }
                 else if (companiesByErpId.Count == 0)
                 {
-                    throw new CustomCompanyNotFoundException(ExceptionType.AccountNumberMatchNoSiret);
+                    throw new CustomCompanyNotFoundException(ExceptionType.AccountNumberNoMatchSiret);
                 }
 
                 return companiesByErpId.Single();
@@ -1663,7 +1663,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             }
             else
             {
-                throw new CustomCompanyNotFoundException(ExceptionType.NoAccountNumberMatchDoubleSiret);
+                throw new CustomCompanyNotFoundException(ExceptionType.NoAccountNumberNoMatchSiret);
             }
         }
 

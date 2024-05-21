@@ -2,6 +2,8 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
     public class SqlExtensionsTest
@@ -563,6 +565,56 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             result.BankCode.Should().Be(expected.BankCode);
             result.CompanyId.Should().Be(101);
             result.RejectReason.Should().Be(expected.RejectReason);
+        }
+
+        [Fact]
+        public void ToMandateLogDB()
+        {
+            CustomException exception = new CustomException(
+                ExceptionType.NoAccountNumberMatchDoubleSiret,
+                "message",
+                new Exception("innermessage"));
+
+            Company company = new Company(
+                1,
+                "name",
+                "12345678901234",
+                "1234567890",
+                "1234",
+                It.IsAny<Signatory>(),
+                It.IsAny<Address>());
+
+            Bban bban = new Bban(
+                "12345",
+                "54321",
+                "12345678910",
+                "11",
+                "4321",
+                It.IsAny<Bank>());
+
+            Collection collection = new Collection(
+                It.IsAny<Guid>(),
+                "4321",
+                company,
+                bban,
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<Status>());
+
+            var result = collection.ToMandateLogDB(exception);
+            result.SiretNumber.Should().Be( "12345678901234");
+            result.ErpId.Should().Be("1234567890");
+            result.BankCode.Should().Be("12345");
+            result.AccountNumber.Should().Be("12345678910");
+            result.BranchCode.Should().Be("54321");
+            result.CheckDigits.Should().Be("11");
+            result.JdcDossierId.Should().Be("1234");
+            result.JdcReleveId.Should().Be("4321");
+            result.JdcRibId.Should().Be("4321");
+            result.ExceptionMessage.Should().Be( "message");
+            result.InnerExceptionMessage.Should().Be("innermessage");
+            result.ExceptionType.Should().Be(Sql.ExceptionType.NoAccountNumberMatchDoubleSiret);
+            result.CreationDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(10));
         }
     }
 }

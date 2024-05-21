@@ -26,6 +26,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
             this.Type = type;
         }
 
+        public CustomException(ExceptionType type, string message, Exception? innerException)
+            : base(message, innerException)
+        {
+            this.Type = type;
+        }
+
         public ExceptionType Type { get; set; }
     }
 }

@@ -1224,11 +1224,56 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions, this.mockLogger.Object);
             Func<Task> func = async () => await mandateManager.InsertFormIOCollectionAsync(collection);
 
-            await func.Should().ThrowExactlyAsync<CustomBankCodeNotFoundException>()
-                .WithMessage("message");
+            var exception = await func.Should().ThrowExactlyAsync<CustomBankCodeNotFoundException>();
+            exception.And.Type.Should().Be(Mandate.ExceptionType.BankCodeNotFound);
 
             // Assert
             this.mockDatabaseService.VerifyAll();
+        }
+
+        [Fact]
+        public async Task InsertFormIOCollectionAsync_ThrowException_WhenCompanyNotFound()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var company = TestHelper.GetCompany(1, "bankServicesProviderId");
+
+            Bban bban = TestHelper.GetBban(string.Empty, true);
+            Status status = TestHelper.GetStatus();
+            var collection = new Collection(
+                Guid.NewGuid(),
+                "yourServiceProviderId",
+                company,
+                bban,
+                DateTime.Now,
+                DateTime.Now,
+                status);
+
+            this.mockDatabaseService.Setup(m => m.GetBankByCodeAsync("code"))
+              .ReturnsAsync(bban.Bank!)
+              .Verifiable();
+
+            this.mockDatabaseService.Setup(m => m.GetCompanyByErpIdSiretAsync("1000332927", "83030022400011"))
+                .ThrowsAsync(new Mandate.CustomCompanyNotFoundException(Mandate.ExceptionType.NoAccountNumberMatchDoubleSiret, "message"))
+                .Verifiable();
+
+            this.mockDatabaseService
+              .Setup(m => m.InsertMandateLogAsync(
+                  collection,
+                  It.Is<Mandate.CustomCompanyNotFoundException>(item => item.Type == Mandate.ExceptionType.NoAccountNumberMatchDoubleSiret)))
+              .Returns(Task.CompletedTask)
+              .Verifiable();
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions, this.mockLogger.Object);
+            await mandateManager.InsertFormIOCollectionAsync(collection);
+
+            this.mockDatabaseService.Verify(item => item.GetBankByCodeAsync("code"), Times.Once);
+            this.mockDatabaseService.Verify(item => item.GetCompanyByErpIdSiretAsync("1000332927", "83030022400011"), Times.Once);
+            this.mockDatabaseService.Verify(
+                item => item.InsertMandateLogAsync(
+                collection,
+                It.Is<Mandate.CustomCompanyNotFoundException>(item => item.Type == Mandate.ExceptionType.NoAccountNumberMatchDoubleSiret)),
+                Times.Once);
         }
 
         [Fact]

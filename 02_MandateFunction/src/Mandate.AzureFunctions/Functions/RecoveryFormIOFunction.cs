@@ -7,6 +7,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using global::Mandate.AzureFunctions;
 using Microsoft.Azure.Functions.Worker;
@@ -35,25 +36,33 @@ public class RecoveryFormIOFunction
 
     private static async Task<RecoveryOrchestratorInput> FetchConfiguration(HttpRequestData req)
     {
-        //var input = await req.Content.ReadAsAsync<RecoveryOrchestratorInput>();
-        //var limitConfig = Environment.GetEnvironmentVariable("LimitRecoveryFormIo");
+        // Lire le contenu de la requête sous forme de chaîne
+        var json = await req.ReadAsStringAsync();
 
-        //int limit;
-        //limit = int.TryParse(limitConfig, out limit) ? limit : 50;
+        // Désérialiser la chaîne en un objet de type OrchestratorInput
+        var input = JsonSerializer.Deserialize<RecoveryOrchestratorInput>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+        });
 
-        //if (input != null)
-        //{
-        //    input.LimitConfig = limit;
-        //}
-        //else
-        //{
-        //    input = new RecoveryOrchestratorInput()
-        //    {
-        //        LimitConfig = limit,
-        //        Skip = 0,
-        //    };
-        //}
+        var limitConfig = Environment.GetEnvironmentVariable("LimitRecoveryFormIo");
 
-        return new RecoveryOrchestratorInput();
+        int limit;
+        limit = int.TryParse(limitConfig, out limit) ? limit : 50;
+
+        if (input != null)
+        {
+            input.LimitConfig = limit;
+        }
+        else
+        {
+            input = new RecoveryOrchestratorInput()
+            {
+                LimitConfig = limit,
+                Skip = 0,
+            };
+        }
+
+        return input;
     }
 }

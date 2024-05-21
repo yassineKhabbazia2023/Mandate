@@ -1156,8 +1156,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 status);
 
             this.mockDatabaseService
+              .Setup(m => m.GetBankByCodeAsync("code"))
+              .ReturnsAsync(TestHelper.GetBank())
+              .Verifiable();
+
+            this.mockDatabaseService
                .Setup(m => m.InsertFormIOCollectionAsync(collection, 1))
-               .Returns(Task.CompletedTask);
+               .Returns(Task.CompletedTask)
+               .Verifiable();
 
             this.mockDatabaseService.Setup(r => r.CheckCollecteConfigExistAsync(bban))
                 .ReturnsAsync(false)
@@ -1177,6 +1183,55 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         }
 
         [Fact]
+        public async Task InsertFormIOCollectionAsync_ThrowException_WhenBankNotFound()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var company = TestHelper.GetCompany(1, "bankServicesProviderId");
+
+            var company2 = new Company(
+                2,
+                "SCI IMMO JACOBINS",
+                "83030022400010",
+                "1000332927",
+                "bankServicesProviderId",
+                TestHelper.GetSignatory(),
+                TestHelper.GetAddress());
+
+            Bban bban = TestHelper.GetBban(string.Empty, true);
+            Status status = TestHelper.GetStatus();
+            var collection = new Collection(
+                Guid.NewGuid(),
+                "yourServiceProviderId",
+                company,
+                bban,
+                DateTime.Now,
+                DateTime.Now,
+                status);
+
+            this.mockDatabaseService
+              .Setup(m => m.GetBankByCodeAsync("code"))
+              .ThrowsAsync(new CustomBankCodeNotFoundException(Mandate.ExceptionType.BankCodeNotFound, "message"))
+              .Verifiable();
+
+            this.mockDatabaseService
+              .Setup(m => m.InsertMandateLogAsync(
+                  collection,
+                  It.Is<CustomBankCodeNotFoundException>(item => item.Type == Mandate.ExceptionType.BankCodeNotFound)))
+              .ThrowsAsync(new CustomBankCodeNotFoundException(Mandate.ExceptionType.BankCodeNotFound, "message"))
+              .Verifiable();
+
+            var mandateManager = new MandateManager(this.mockDatabaseService.Object, this.mockCompanyManager.Object, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions, this.mockLogger.Object);
+            Func<Task> func = async () => await mandateManager.InsertFormIOCollectionAsync(collection);
+
+            await func.Should().ThrowExactlyAsync<CustomBankCodeNotFoundException>()
+                .WithMessage("message");
+
+            // Assert
+            this.mockDatabaseService.VerifyAll();
+        }
+
+        [Fact]
         public async Task InsertFormIOCollectionAsync_Throw_Exception_When_Collect_Exists()
         {
             var company = TestHelper.GetCompany(1, "bankServicesProviderId");
@@ -1190,6 +1245,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 DateTime.Now,
                 DateTime.Now,
                 status);
+
+            this.mockDatabaseService
+              .Setup(m => m.GetBankByCodeAsync("code"))
+              .ReturnsAsync(TestHelper.GetBank())
+              .Verifiable();
 
             this.mockDatabaseService.Setup(r => r.CheckCollecteConfigExistAsync(bban))
                 .ReturnsAsync(true)

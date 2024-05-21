@@ -35,25 +35,25 @@ public class RecoveryFormIOFunction
 
     private static async Task<RecoveryOrchestratorInput> FetchConfiguration(HttpRequestData req)
     {
-        var input = await req.Content.ReadAsAsync<RecoveryOrchestratorInput>();
-        var limitConfig = Environment.GetEnvironmentVariable("LimitRecoveryFormIo");
+        //var input = await req.Content.ReadAsAsync<RecoveryOrchestratorInput>();
+        //var limitConfig = Environment.GetEnvironmentVariable("LimitRecoveryFormIo");
 
-        int limit;
-        limit = int.TryParse(limitConfig, out limit) ? limit : 50;
+        //int limit;
+        //limit = int.TryParse(limitConfig, out limit) ? limit : 50;
 
-        if (input != null)
-        {
-            input.LimitConfig = limit;
-        }
-        else
-        {
-            input = new RecoveryOrchestratorInput()
-            {
-                LimitConfig = limit,
-                Skip = 0,
-            };
-        }
+        //if (input != null)
+        //{
+        //    input.LimitConfig = limit;
+        //}
+        //else
+        //{
+        //    input = new RecoveryOrchestratorInput()
+        //    {
+        //        LimitConfig = limit,
+        //        Skip = 0,
+        //    };
+        //}
 
-        return input;
+        return new RecoveryOrchestratorInput();
     }
 }

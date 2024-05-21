@@ -11,6 +11,7 @@ namespace Mandate.AzureFunctions.Activities
     using global::Mandate.AzureFunctions;
     using KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
+    using KPMG.Pulse.Back.Accounting.Mandate.Function.Helper;
     using Microsoft.Azure.Functions.Worker;
     using Microsoft.DurableTask;
     using Microsoft.Extensions.Logging;
@@ -40,10 +41,8 @@ namespace Mandate.AzureFunctions.Activities
         public async Task RunOrchestrator(
             [OrchestrationTrigger] TaskOrchestrationContext context)
         {
-            int limit;
-            var input = context!.GetInput<OrchestratorInput>();
-            string? limitConfig = input?.LimitConfig;
-            limit = int.TryParse(limitConfig, out limit) ? limit : 50;
+            int failed = 0, success = 0;
+            List<string> failedMandate = new List<string>();
 
             try
             {

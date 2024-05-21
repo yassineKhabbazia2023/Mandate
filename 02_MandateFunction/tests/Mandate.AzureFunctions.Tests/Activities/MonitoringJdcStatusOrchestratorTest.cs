@@ -9,14 +9,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
     using global::Mandate.AzureFunctions.Activities;
     using global::Mandate.AzureFunctions.Interfaces;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
-    using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-    using Microsoft.Extensions.Configuration;
+    using Microsoft.DurableTask;
+    using Microsoft.DurableTask.Client;
     using Microsoft.Extensions.Logging;
 
     public class MonitoringJdcStatusOrchestratorTest
     {
-        private readonly Mock<IDurableOrchestrationContext> mockContext;
-        private readonly Mock<IMandateManager> mockMandateManager;
+        private readonly Mock<TaskOrchestrationContext> mockContext;
+        private readonly Mock<IMandateFunctionManager> mockMandateManager;
         private readonly Mock<ILogger<MonitoringJdcStatusOrchestrator>> mockLogger;
         private readonly MonitoringJdcStatusOrchestrator orchestrator;
 
@@ -46,23 +46,25 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
                 20),
             };
 
-            this.mockContext = new Mock<IDurableOrchestrationContext>();
+            this.mockContext = new Mock<TaskOrchestrationContext>();
             var pagedTechnicalMandate = new PagedTechnicalMandate(technicalCollectionSummaryList);
 
             // Setup the mock for CallActivityAsync
             this.mockContext.Setup(x => x.CallActivityAsync<PagedTechnicalMandate>(
                 nameof(MonitoringJdcStatusOrchestrator.GetCollections),
-                It.IsAny<Payload>()))
+                It.IsAny<Payload>(), 
+                null))
                 .ReturnsAsync(pagedTechnicalMandate)
                 .Verifiable();
 
             this.mockContext.Setup(x => x.CallActivityAsync(
                 nameof(MonitoringJdcStatusOrchestrator.RefreshCollectionsStatuses),
-                technicalCollectionSummaryList))
+                technicalCollectionSummaryList,
+                null))
                 .Returns(Task.CompletedTask)
                 .Verifiable();
 
-            this.mockMandateManager = new Mock<IMandateManager>();
+            this.mockMandateManager = new Mock<IMandateFunctionManager>();
             this.mockLogger = new Mock<ILogger<MonitoringJdcStatusOrchestrator>>();
 
             this.orchestrator = new MonitoringJdcStatusOrchestrator(this.mockMandateManager.Object, this.mockLogger.Object);
@@ -86,12 +88,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
             this.mockContext.Verify(
                x => x.CallActivityAsync<PagedTechnicalMandate>(
                nameof(MonitoringJdcStatusOrchestrator.GetCollections),
-               It.IsAny<Payload>()), Times.Once);
+               It.IsAny<Payload>(), 
+               null), Times.Once);
 
             this.mockContext.Verify(
                  x => x.CallActivityAsync<Task>(
                  nameof(MonitoringJdcStatusOrchestrator.RefreshCollectionsStatuses),
-                 It.Is<List<TechnicalCollectionSummary>>(l => l.Count == 1)), Times.Once);
+                 It.Is<List<TechnicalCollectionSummary>>(l => l.Count == 1), null), Times.Once);
         }
 
         [Fact]

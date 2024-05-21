@@ -6,7 +6,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using global::Mandate.AzureFunctions;
@@ -37,14 +36,18 @@ public class RecoveryFormIOFunction
     [ExcludeFromCodeCoverage]
     private static async Task<RecoveryOrchestratorInput> FetchConfiguration(HttpRequestData req)
     {
-        // Lire le contenu de la requête sous forme de chaîne
         var json = await req.ReadAsStringAsync();
 
-        // Désérialiser la chaîne en un objet de type OrchestratorInput
-        var input = JsonSerializer.Deserialize<RecoveryOrchestratorInput>(json, new JsonSerializerOptions
+        RecoveryOrchestratorInput input = null!;
+        var option = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
-        });
+        };
+
+        if (!string.IsNullOrEmpty(json))
+        {
+            input = JsonSerializer.Deserialize<RecoveryOrchestratorInput>(json, option) !;
+        }
 
         var limitConfig = Environment.GetEnvironmentVariable("LimitRecoveryFormIo");
 

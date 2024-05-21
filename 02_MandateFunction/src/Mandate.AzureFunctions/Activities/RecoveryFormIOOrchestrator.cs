@@ -47,7 +47,7 @@ namespace Mandate.AzureFunctions.Activities
             try
             {
                 var input = context!.GetInput<RecoveryOrchestratorInput>();
-                int limit = input.LimitConfig;
+                int limit = input!.LimitConfig;
 
                 int skip = input.Skip;
                 int imported = limit;

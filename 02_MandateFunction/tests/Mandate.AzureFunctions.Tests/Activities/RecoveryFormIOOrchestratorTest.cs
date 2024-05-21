@@ -4,13 +4,13 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
 {
+    using System.Collections.Generic;
     using global::Mandate.AzureFunctions;
     using global::Mandate.AzureFunctions.Activities;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using Microsoft.DurableTask;
     using Microsoft.Extensions.Logging;
     using Moq;
-    using System.Collections.Generic;
 
     public class RecoveryFormIOOrchestratorTest
     {

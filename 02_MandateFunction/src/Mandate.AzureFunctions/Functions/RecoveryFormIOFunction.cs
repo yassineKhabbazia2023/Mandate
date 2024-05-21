@@ -34,6 +34,7 @@ public class RecoveryFormIOFunction
         return starter.CreateCheckStatusResponse(req, instanceId);
     }
 
+    [ExcludeFromCodeCoverage]
     private static async Task<RecoveryOrchestratorInput> FetchConfiguration(HttpRequestData req)
     {
         // Lire le contenu de la requête sous forme de chaîne

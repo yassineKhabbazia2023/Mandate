@@ -2,6 +2,8 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using Microsoft.Azure.Functions.Worker.Http;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Functions
 {
     using global::Mandate.AzureFunctions;
@@ -12,6 +14,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Functions
     using Microsoft.DurableTask.Client;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
+    using System.Net;
 
     public class RecoveryFormIOFunctionTest
     {

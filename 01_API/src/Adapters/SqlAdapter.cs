@@ -27,8 +27,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public async Task<Bank> GetBankByCodeAsync(string bankCode)
         {
-            var refBankDb = await this.mandateRepository.GetRefBankByCodeAsync(bankCode).ConfigureAwait(false);
-            return refBankDb.ToModel();
+            try
+            {
+                var refBankDb = await this.mandateRepository.GetRefBankByCodeAsync(bankCode).ConfigureAwait(false);
+                return refBankDb.ToModel();
+            }
+            catch (BankCodeNotFoundException e)
+            {
+                throw new Mandate.CustomBankCodeNotFoundException((Mandate.ExceptionType)ExceptionType.BankCodeNotFound, e.Message);
+            }
         }
 
         public async Task<Status> GetRefStatusCodeByJdcCodeAsync(string jdcStatusCode)
@@ -190,7 +197,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public async Task<Company> GetCompanyByErpIdSiretAsync(string erpId, string siret)
         {
-            return (await this.mandateRepository.GetCompanyByErpIdSiretAsync(erpId, siret)).ToModel();
+            try
+            {
+                var company = await this.mandateRepository.GetCompanyByErpIdSiretAsync(erpId, siret);
+                return company.ToModel();
+            }
+            catch (CustomCompanyNotFoundException e)
+            {
+                throw new Mandate.CustomCompanyNotFoundException((Mandate.ExceptionType)e.Type, e.Message);
+            }
         }
 
         public async Task InsertFormIOCollectionAsync(Collection collection, int companyId)
@@ -198,6 +213,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             var collectionDb = collection.ToCollectionDB(companyId);
             await this.mandateRepository.CreateOrUpdateFolderAsync(collection?.Company?.BankServicesProviderId!, companyId);
             await this.mandateRepository.InsertFormIOCollectionAsync(collectionDb);
+        }
+
+        public async Task InsertMandateLogAsync(Collection collection, CustomException exception)
+        {
+            MandateLogDb mandateLog = collection.ToMandateLogDB(exception);
+            await this.mandateRepository.InsertMandateLogAsync(mandateLog);
         }
 
         private static Address CreateAddressFromDb(PersonalDb? personal)

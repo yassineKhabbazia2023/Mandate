@@ -1,0 +1,31 @@
+﻿// <copyright file="CustomException.cs" company="KPMG">
+// Copyright (c) KPMG. All rights reserved.
+// </copyright>
+
+namespace KPMG.Pulse.Back.Accounting.Mandate
+{
+    public class CustomException : Exception
+    {
+        public CustomException()
+        {
+        }
+
+        public CustomException(ExceptionType Type)
+        {
+            this.Type = Type;
+        }
+
+        public CustomException(string message)
+            : base(message)
+        {
+        }
+
+        public CustomException(ExceptionType type, string message)
+            : base(message)
+        {
+            this.Type = type;
+        }
+
+        public ExceptionType Type { get; set; }
+    }
+}

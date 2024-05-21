@@ -44,6 +44,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
         public DbSet<StatusDb> Status { get; set; } = null!;
 
+        public DbSet<MandateLogDb> MandateLog { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -152,6 +154,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<StatusDb>().Property(cp => cp.StatusDate).IsRequired(false);
             modelBuilder.Entity<StatusDb>().Property(cp => cp.MandateFile).IsRequired(false);
             modelBuilder.Entity<StatusDb>().Property(cp => cp.CreatedBy).HasMaxLength(100).IsUnicode(true).IsRequired(false);
+
+            modelBuilder.Entity<MandateLogDb>().HasKey(c => c.Id);
+            modelBuilder.Entity<MandateLogDb>().Property(c => c.ErpId).HasMaxLength(50).IsRequired(true);
+            modelBuilder.Entity<MandateLogDb>().Property(c => c.SiretNumber).IsFixedLength(true).HasMaxLength(14).IsRequired(true);
+            modelBuilder.Entity<MandateLogDb>().Property(cp => cp.BankCode).IsFixedLength(true).HasMaxLength(5).IsRequired(true);
+            modelBuilder.Entity<MandateLogDb>().Property(cp => cp.BranchCode).IsFixedLength(true).HasMaxLength(5).IsRequired(true);
+            modelBuilder.Entity<MandateLogDb>().Property(cp => cp.AccountNumber).IsFixedLength(true).HasMaxLength(11).IsRequired(true);
+            modelBuilder.Entity<MandateLogDb>().Property(cp => cp.CheckDigits).IsFixedLength(true).HasMaxLength(2).IsRequired(true);
+            modelBuilder.Entity<MandateLogDb>().Property(cp => cp.JdcDossierId).HasMaxLength(50).IsRequired(true);
+            modelBuilder.Entity<MandateLogDb>().Property(cp => cp.JdcReleveId).HasMaxLength(50).IsRequired(true);
+            modelBuilder.Entity<MandateLogDb>().Property(cp => cp.JdcRibId).HasMaxLength(50).IsRequired(true);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

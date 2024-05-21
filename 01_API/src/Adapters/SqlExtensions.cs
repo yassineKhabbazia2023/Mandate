@@ -225,6 +225,26 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
         }
 
+        public static Sql.MandateLogDb ToMandateLogDB(this Collection collection, CustomException exception)
+        {
+            return new Sql.MandateLogDb
+            {
+                ErpId = collection.Company?.ErpId!,
+                SiretNumber = collection.Company?.SiretNumber!,
+                BankCode = collection.Bban?.BankCode!,
+                BranchCode = collection.Bban?.BranchCode!,
+                AccountNumber = collection.Bban?.AccountNumber!,
+                CheckDigits = collection.Bban?.CheckDigits!,
+                JdcDossierId = collection.Company?.BankServicesProviderId!,
+                JdcReleveId = collection.CollectionServicesProviderId!,
+                JdcRibId = collection.Bban?.BbanServicesProviderId!,
+                CreationDate = DateTime.UtcNow,
+                ExceptionType = (Sql.ExceptionType)exception.Type,
+                ExceptionMessage = exception.Message,
+                InnerExceptionMessage = exception.InnerException?.Message,
+            };
+        }
+
         private static DateTime GetCreationDate(Sql.StatusDb? creationStatus)
         {
             return creationStatus!.StatusDate!.Value;

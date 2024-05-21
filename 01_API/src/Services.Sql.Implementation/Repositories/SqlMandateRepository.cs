@@ -1634,36 +1634,44 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
         {
             using var context = new MandateContext(this.options);
 
-            CompanyDb? company = null;
-
             if (await context.Company.AnyAsync(i => i.ErpId == erpId))
             {
                 var companiesByErpId = await context.Company
-                    .Where(i => i.ErpId == erpId)
+                    .Where(i => i.ErpId == erpId && i.SiretNumber == siretNumber)
                     .OrderBy(item => item.SiretNumber)
                     .ToListAsync();
 
-                company = companiesByErpId.Find(item => item.SiretNumber == siretNumber) ?? companiesByErpId[0];
+                if (companiesByErpId.Count > 1)
+                {
+                    throw new CustomCompanyNotFoundException(ExceptionType.AccountNumberMatchDoubleSiret);
+                }
+                else if (companiesByErpId.Count == 0)
+                {
+                    throw new CustomCompanyNotFoundException(ExceptionType.AccountNumberMatchNoSiret);
+                }
+
+                return companiesByErpId.Single();
             }
             else if (await context.Company.AnyAsync(i => i.SiretNumber == siretNumber))
             {
-                company = await context.Company.FirstOrDefaultAsync(item => item.SiretNumber == siretNumber);
+                if (await context.Company.CountAsync(i => i.SiretNumber == siretNumber) > 1)
+                {
+                    throw new CustomCompanyNotFoundException(ExceptionType.NoAccountNumberMatchDoubleSiret);
+                }
+
+                return await context.Company.SingleAsync(item => item.SiretNumber == siretNumber);
             }
             else
             {
-                var companies = context.Company
-                    .Where(item => item.SiretNumber.Substring(0, 9) == siretNumber.Substring(0, 9))
-                    .OrderBy(item => item.SiretNumber);
-
-                company = await companies.FirstOrDefaultAsync();
+                throw new CustomCompanyNotFoundException(ExceptionType.NoAccountNumberMatchDoubleSiret);
             }
+        }
 
-            if (company == null)
-            {
-                throw CompanyNotFoundException.FromEprIdSiret(erpId, siretNumber);
-            }
-
-            return company;
+        public async Task InsertMandateLogAsync(MandateLogDb mandateLog)
+        {
+            using var context = new MandateContext(this.options);
+            await context.AddAsync(mandateLog);
+            await context.SaveChangesAsync();
         }
 
         public async Task InsertFormIOCollectionAsync(CollectionDb collection)

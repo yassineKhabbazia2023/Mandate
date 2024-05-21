@@ -9,8 +9,8 @@ namespace Mandate.AzureFunctions.Activities
     using global::Mandate.AzureFunctions;
     using KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
-    using Microsoft.Azure.WebJobs;
-    using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+    using Microsoft.Azure.Functions.Worker;
+    using Microsoft.DurableTask;
     using Microsoft.Extensions.Logging;
 
     public class RecoveryFormIOOrchestrator
@@ -34,13 +34,13 @@ namespace Mandate.AzureFunctions.Activities
         /// </summary>
         /// <param name="context">instance of the <see cref="IDurableOrchestrationContext"/> class.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        [FunctionName("RecoveryFormIo")]
+        [Function("RecoveryFormIo")]
         public async Task RunOrchestrator(
-            [OrchestrationTrigger] IDurableOrchestrationContext context)
+            [OrchestrationTrigger] TaskOrchestrationContext context)
         {
             int limit;
             var input = context!.GetInput<OrchestratorInput>();
-            string limitConfig = input?.LimitConfig;
+            string? limitConfig = input?.LimitConfig;
             limit = int.TryParse(limitConfig, out limit) ? limit : 50;
 
             int skip = 0;
@@ -62,18 +62,18 @@ namespace Mandate.AzureFunctions.Activities
         /// </summary>
         /// <param name="tuple">tuple which contains skip and limit.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        [FunctionName(nameof(RecoverPage))]
+        [Function(nameof(RecoverPage))]
         public async Task<PagedRecoveryMandate> RecoverPage(
             [ActivityTrigger](int, int) tuple)
         {
             try
             {
-                this.logger.LogInformation("Starting {functionname} with skip {skip} and limit {limit}.", nameof(this.RecoverPage), tuple.Item1, tuple.Item2);
+                this.logger.LogInformation("Starting {Functionname} with skip {Skip} and limit {Limit}.", nameof(this.RecoverPage), tuple.Item1, tuple.Item2);
                 return await this.preloadManager.RecoveryAsync(tuple.Item1, tuple.Item2);
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, "MandateFunction - {functionName} : {message}", nameof(this.RecoverPage), ex.Message);
+                this.logger.LogError(ex, "MandateFunction - {FunctionName} : {Message}", nameof(this.RecoverPage), ex.Message);
                 throw;
             }
         }

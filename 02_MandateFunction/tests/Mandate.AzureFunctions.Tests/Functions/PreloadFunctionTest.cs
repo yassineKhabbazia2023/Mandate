@@ -6,8 +6,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Http.Internal;
-    using Microsoft.Azure.WebJobs;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
 
@@ -29,16 +27,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
             var rib = new Client.Bban("bankCodeM", "branchCodeM", "accountNumberM", "checkDigitsM");
 
             var request = CreateHttpRequest(rib);
-
-            var collectionSummary = new CollectionSummary(
-               Guid.Empty,
-               "1234567890",
-               "Weyland Corporation",
-               "Crédit Agricole",
-               "98765432101",
-               new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
-               new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-               10);
 
             var manager = new Mock<IPreloadManager>(MockBehavior.Strict);
             manager.Setup(m => m.GetRecoveryAsync(It.IsAny<Bban>()))

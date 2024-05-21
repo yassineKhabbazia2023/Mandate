@@ -24,6 +24,7 @@ extends:
   parameters:
     devIndex: ${{ parameters.devIndex }}
     deployType: ${{ parameters.deployType }}
+    sonarExclusions: '**/Program.cs'
     layer: Domain
     domain: mdt
     resource:

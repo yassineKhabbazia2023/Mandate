@@ -1,4 +1,4 @@
-﻿// <copyright file="IMandateManager.cs" company="KPMG">
+﻿// <copyright file="IMandateFunctionManager.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -11,7 +11,7 @@ namespace Mandate.AzureFunctions.Interfaces
     /// <summary>
     /// A service to get list of collection.
     /// </summary>
-    public interface IMandateManager
+    public interface IMandateFunctionManager
     {
         /// <summary>
         /// Get List of collections.

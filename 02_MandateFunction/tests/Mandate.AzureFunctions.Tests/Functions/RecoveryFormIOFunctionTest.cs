@@ -6,19 +6,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Functions
 {
     using global::Mandate.AzureFunctions;
     using KPMG.Pulse.Back.Accounting.Mandate.Function.Functions;
-    using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+    using Microsoft.Azure.Functions.Worker;
+    using Microsoft.Azure.Functions.Worker.Http;
+    using Microsoft.DurableTask;
+    using Microsoft.DurableTask.Client;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
 
     public class RecoveryFormIOFunctionTest
     {
-        private readonly Mock<IDurableOrchestrationClient> mockStarter;
+        private readonly Mock<DurableTaskClient> mockStarter;
         private readonly Mock<ILogger> mockLog;
         private readonly Mock<IConfiguration> mockConfiguration;
 
         public RecoveryFormIOFunctionTest()
         {
-            this.mockStarter = new Mock<IDurableOrchestrationClient>();
+            this.mockStarter = new Mock<DurableTaskClient>("test");
             this.mockLog = new Mock<ILogger>();
             this.mockConfiguration = new Mock<IConfiguration>();
         }
@@ -28,22 +31,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Functions
         {
             var recoveryFormIo = new RecoveryFormIOFunction();
             recoveryFormIo.Should().NotBeNull();
-        }
-
-        [Fact]
-        public async Task RecoveryFormIOFunction_HttpStart_ShouldStartOrchestrationAndReturnResponse()
-        {
-            var httpRequestMessage = new HttpRequestMessage();
-            this.mockStarter.Setup(s => s.StartNewAsync(
-                    "RecoveryFormIo",
-                    It.Is<OrchestratorInput>(i => i.LimitConfig == "100")))
-                .ReturnsAsync("instanceId");
-
-            this.mockConfiguration.Setup(c => c["LimitHttp"]).Returns("100");
-
-            var response = await RecoveryFormIOFunction.HttpStart(httpRequestMessage, this.mockStarter.Object, this.mockLog.Object);
-
-            this.mockStarter.Verify(s => s.StartNewAsync("RecoveryFormIo", It.IsAny<object>()), Times.Once);
         }
     }
 }

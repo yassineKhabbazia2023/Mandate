@@ -4,9 +4,9 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 {
+    using System;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
-    using System;
 
     [Collection("SerialExecutionPublishDb")]
     public class SqlMandateRepositoryTest

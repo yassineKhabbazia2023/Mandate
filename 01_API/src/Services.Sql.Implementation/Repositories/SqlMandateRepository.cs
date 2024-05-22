@@ -1649,8 +1649,10 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                 {
                     throw new CustomCompanyNotFoundException(ExceptionType.AccountNumberNoMatchSiret);
                 }
-
-                return companiesByErpId.Single();
+                else
+                {
+                    return companiesByErpId.Single();
+                }
             }
             else if (await context.Company.AnyAsync(i => i.SiretNumber == siretNumber))
             {

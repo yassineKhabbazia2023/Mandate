@@ -10,9 +10,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         {
         }
 
-        public CustomException(ExceptionType Type)
+        public CustomException(ExceptionType type)
         {
-            this.Type = Type;
+            this.Type = type;
         }
 
         public CustomException(string message)

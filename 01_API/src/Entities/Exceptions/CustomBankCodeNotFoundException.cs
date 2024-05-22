@@ -1,4 +1,4 @@
-﻿// <copyright file="BankCodeNotFoundException.cs" company="KPMG">
+﻿// <copyright file="CustomBankCodeNotFoundException.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 

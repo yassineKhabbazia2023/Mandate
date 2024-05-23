@@ -4,26 +4,19 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Functions
 {
-    using global::Mandate.AzureFunctions;
     using KPMG.Pulse.Back.Accounting.Mandate.Function.Functions;
-    using Microsoft.Azure.Functions.Worker;
-    using Microsoft.Azure.Functions.Worker.Http;
-    using Microsoft.DurableTask;
     using Microsoft.DurableTask.Client;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
 
     public class RecoveryFormIOFunctionTest
     {
         private readonly Mock<DurableTaskClient> mockStarter;
         private readonly Mock<ILogger> mockLog;
-        private readonly Mock<IConfiguration> mockConfiguration;
 
         public RecoveryFormIOFunctionTest()
         {
             this.mockStarter = new Mock<DurableTaskClient>("test");
             this.mockLog = new Mock<ILogger>();
-            this.mockConfiguration = new Mock<IConfiguration>();
         }
 
         [Fact]

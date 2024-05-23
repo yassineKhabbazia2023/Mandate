@@ -38,7 +38,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 var result = await this.bankManager.GetByCodeAsync(bankCode).ConfigureAwait(false);
                 return this.Ok(result.ToBankDetail());
             }
-            catch (BankCodeNotFoundException ex)
+            catch (Mandate.CustomBankCodeNotFoundException ex)
             {
                 return this.NotFound(new Error("BankCodeNotFound", correlationId, ex.Message));
             }

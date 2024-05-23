@@ -10,7 +10,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         /// Asynchronously retrieves a company by its SIRET number.
         /// </summary>
         /// <param name="siret">The SIRET number of the company to retrieve.</param>
-        /// <returns>A company associated with a siret</returns>
+        /// <returns>A company associated with a siret.</returns>
         Task<CompanyDb> GetCompanyBySiretAsync(string siret);
 
         /// <summary>
@@ -31,14 +31,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         /// Finds a pulse status in the reference table.
         /// </summary>
         /// <param name="jdcStatusCode">The jdc status code to retrieve pulse status code.</param>
-        /// <returns>A pulse status code</returns>
+        /// <returns>A pulse status code.</returns>
         Task<StatusDb> GetRefStatusCodeByJdcCodeAsync(string jdcStatusCode);
 
         /// <summary>
         /// Finds a pdf template in the reference table.
         /// </summary>
         /// <param name="bankCode">The bank code to retrieve (first paramater of the French BBAN).</param>
-        /// <returns>The pdf template file</returns>
+        /// <returns>The pdf template file.</returns>
         Task<byte[]> GetPdfTemplateByCodeAsync(string bankCode);
 
         /// <summary>
@@ -117,5 +117,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         Task UpdateCurrentStatusAsync(Guid collectionId);
 
         Task InsertFormIOCollectionAsync(CollectionDb collection);
+
+        Task<CompanyDb> GetCompanyByErpIdSiretAsync(string erpId, string siretNumber);
+
+        Task InsertMandateLogAsync(MandateLogDb mandateLog);
     }
 }

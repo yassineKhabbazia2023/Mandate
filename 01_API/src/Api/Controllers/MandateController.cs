@@ -315,11 +315,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                         this.logger.LogWarning("MandateAPI - {correlationId} - {functionName} : mandat trouvé {rib}", correlationId, nameof(this.RecoveryFormIOAsync), collection.Bban?.ToRibString());
                         failed.Add(collection);
                     }
-                    catch (Sql.CompanyNotFoundException ex)
-                    {
-                        this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName} : {message}", correlationId, nameof(this.RecoveryFormIOAsync), ex.Message);
-                        failed.Add(collection);
-                    }
                 }
 
                 return this.Ok(new PagedRecoveryMandate(

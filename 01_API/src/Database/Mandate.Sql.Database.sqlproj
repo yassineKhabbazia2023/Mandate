@@ -76,5 +76,6 @@
     <Build Include="Tables\Status.sql" />
     <Build Include="Tables\Collaborator.sql" />
     <Build Include="Tables\CompanyCollaborator.sql" />
+    <Build Include="Tables\MandateLog.sql" />
   </ItemGroup>
 </Project>

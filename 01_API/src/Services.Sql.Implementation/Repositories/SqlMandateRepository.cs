@@ -1630,6 +1630,52 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             await context.SaveChangesAsync();
         }
 
+        public async Task<CompanyDb> GetCompanyByErpIdSiretAsync(string erpId, string siretNumber)
+        {
+            using var context = new MandateContext(this.options);
+
+            if (await context.Company.AnyAsync(i => i.ErpId == erpId))
+            {
+                var companiesByErpId = await context.Company
+                    .Where(i => i.ErpId == erpId && i.SiretNumber == siretNumber)
+                    .OrderBy(item => item.SiretNumber)
+                    .ToListAsync();
+
+                if (companiesByErpId.Count > 1)
+                {
+                    throw new CustomCompanyNotFoundException(ExceptionType.AccountNumberMatchDoubleSiret);
+                }
+                else if (companiesByErpId.Count == 0)
+                {
+                    throw new CustomCompanyNotFoundException(ExceptionType.AccountNumberNoMatchSiret);
+                }
+                else
+                {
+                    return companiesByErpId.Single();
+                }
+            }
+            else if (await context.Company.AnyAsync(i => i.SiretNumber == siretNumber))
+            {
+                if (await context.Company.CountAsync(i => i.SiretNumber == siretNumber) > 1)
+                {
+                    throw new CustomCompanyNotFoundException(ExceptionType.NoAccountNumberMatchDoubleSiret);
+                }
+
+                return await context.Company.SingleAsync(item => item.SiretNumber == siretNumber);
+            }
+            else
+            {
+                throw new CustomCompanyNotFoundException(ExceptionType.NoAccountNumberNoMatchSiret);
+            }
+        }
+
+        public async Task InsertMandateLogAsync(MandateLogDb mandateLog)
+        {
+            using var context = new MandateContext(this.options);
+            await context.AddAsync(mandateLog);
+            await context.SaveChangesAsync();
+        }
+
         public async Task InsertFormIOCollectionAsync(CollectionDb collection)
         {
             using var context = new MandateContext(this.options);

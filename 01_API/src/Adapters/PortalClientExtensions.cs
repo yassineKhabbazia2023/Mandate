@@ -4,9 +4,11 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
+    using System.Diagnostics.CodeAnalysis;
     using KPMG.Constellation.Portal.Client;
     using KPMG.Pulse.Back.Accounting.Mandate;
 
+    [ExcludeFromCodeCoverage]
     public static class PortalClientExtensions
     {
         public static Company ToModel(this AccountsWithoutCacheResponseJson source)

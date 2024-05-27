@@ -2,6 +2,8 @@
 using KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions;
 using KPMG.Pulse.Back.Accounting.Mandate.Client.Http;
 using KPMG.Pulse.Back.Accounting.Mandate.Function;
+using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
 using Mandate.AzureFunctions.Interfaces;
 using Mandate.AzureFunctions.Managers;
 using Microsoft.Azure.Functions.Worker;
@@ -48,9 +50,13 @@ var host = new HostBuilder()
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
 
+        services.AddMandateSql(opt => opt.ConnectionString = context.Configuration["DbConnectionString"]);
+
         services.AddSingleton<IPreloadManager, PreloadManager>();
         services.AddSingleton<IMandateProvider, MandateProvider>();
         services.AddSingleton<IMandateFunctionManager, MandateFunctionManager>();
+        services.AddSingleton<IEventsFunctionManager, EventsFunctionManager>();
+        services.AddSingleton<ISqlAdapter, SqlAdapter>();
 
         services.AddMandateClient(options =>
         {

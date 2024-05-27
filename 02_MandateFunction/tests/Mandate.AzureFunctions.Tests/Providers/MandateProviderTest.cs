@@ -6,6 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
 {
     using Kpmg.Constellation.IdentityService.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
+    using Moq;
 
     public class MandateProviderTest
     {
@@ -23,11 +24,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
                 Guid.Empty,
                 "1234567890",
                 "Weyland Corporation",
-                "Crédit Agricole",
-                "98765432101",
+                new CollectionBankInfo("bankName", "accountNumber", 1),
                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                10);
+                10); ;
 
             var rib = new Bban(
                 bankCode: "bankCodeM",
@@ -114,8 +114,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
                 Guid.Empty,
                 "1234567890",
                 "Weyland Corporation",
-                "Crédit Agricole",
-                "98765432101",
+                new CollectionBankInfo("bankName", "accountNumber", 1),
                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
                 10);
@@ -169,6 +168,41 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
             var provider = new MandateProvider(factory.Object, authenticationContext.Object);
             Func<Task> act = async () => await provider.RecoveryAsync(0, 10);
             await act.Should().ThrowExactlyAsync<Exception>().WithMessage("message");
+
+            authenticationContext.Verify();
+            factory.Verify();
+            mandateClient.Verify();
+        }
+
+        [Fact]
+        public async Task RefreshCollectionsStatuses()
+        {
+            var collectionSummary = new TechnicalCollectionSummary(
+                Guid.Empty,
+                "fId",
+                "ribId",
+                default!,
+                10);
+
+            var list = new List<TechnicalCollectionSummary>() { collectionSummary };
+
+            var mandateClient = new Mock<IMandateClient>(MockBehavior.Strict);
+            mandateClient.Setup(c => c.RefreshMandatsStatusesAsync(list))
+                .ReturnsAsync(It.IsAny<bool>())
+                .Verifiable();
+
+            var factory = new Mock<IMandateClientFactory>(MockBehavior.Strict);
+            factory.Setup(f => f.Create("token3"))
+                .Returns(mandateClient.Object)
+                .Verifiable();
+
+            var authenticationContext = new Mock<ISystemAccountAuthenticationProvider>(MockBehavior.Strict);
+            authenticationContext.Setup(a => a.GetTokenAsync())
+                    .Returns(Task.FromResult("token3"))
+                    .Verifiable();
+
+            var provider = new MandateProvider(factory.Object, authenticationContext.Object);
+            await provider.RefreshCollectionsStatuses(list);
 
             authenticationContext.Verify();
             factory.Verify();

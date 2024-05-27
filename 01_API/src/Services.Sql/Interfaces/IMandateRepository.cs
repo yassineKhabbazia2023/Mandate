@@ -121,5 +121,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         Task<CompanyDb> GetCompanyByErpIdSiretAsync(string erpId, string siretNumber);
 
         Task InsertMandateLogAsync(MandateLogDb mandateLog);
+
+        Task CreateContactByEventAsync(CollaboratorDb contactDb);
+
+        Task UpdateContactByEventAsync(CollaboratorDb contactDb);
+
+        Task<CollaboratorDb?> GetContactByIdAsync(int contactId);
+
+        Task<CompanyDb?> GetAccountByIdAsync(int accountId);
+
+        Task CreateRoleAsync(CompanyCollaboratorDb accountContactDb);
+
+        Task DeleteRoleAsync(CompanyCollaboratorDb accountContactDb);
+
+        Task<CompanyCollaboratorDb?> GetAccountContactByAccountIdAndContactIdAsync(int accountId, int contactId);
+
+        Task UpdateCompanyAsync(CompanyDb accountDb);
+
+        Task CreateCompanyAsync(CompanyDb accountDb);
     }
 }

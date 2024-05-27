@@ -11,6 +11,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests.Exceptions
         {
             var ex = new CustomException();
             ex.Message.Should().Be("Exception of type 'KPMG.Pulse.Back.Accounting.Mandate.CustomException' was thrown.");
+            ex.Type.Should().Be(ExceptionType.AccountNumberMatchDoubleSiret);
+        }
+
+        [Fact]
+        public void Constructor_InitialiseType()
+        {
+            var ex = new CustomException(ExceptionType.AccountNumberMatchDoubleSiret);
+            ex.Message.Should().Be("Exception of type 'KPMG.Pulse.Back.Accounting.Mandate.CustomException' was thrown.");
+            ex.Type.Should().Be(ExceptionType.AccountNumberMatchDoubleSiret);
         }
 
         [Fact]

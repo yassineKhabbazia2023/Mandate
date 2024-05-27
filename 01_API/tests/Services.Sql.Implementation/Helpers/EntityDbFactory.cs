@@ -27,6 +27,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             Name = "cn1",
             SiretNumber = "12345678901234",
             ErpId = "1234567890",
+            IsActive = true,
         };
 
         public static RefBankDb RefBankDb => new()
@@ -72,6 +73,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             Email = "collab@email.com",
             FirstName = "fname",
             LastName = "lname",
+            IsActive = true,
         };
 
         public static CompanyCollaboratorDb CompanyCollaboratorDb => new()

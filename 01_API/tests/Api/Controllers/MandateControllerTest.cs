@@ -1371,6 +1371,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 Name = "cn",
                 ErpId = "123456789",
                 SiretNumber = "12345678910",
+                IsActive = true,
             });
 
             await context.SaveChangesAsync();

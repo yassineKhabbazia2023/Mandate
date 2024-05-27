@@ -15,8 +15,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
                 Guid.Empty,
                 "1234567890",
                 "Weyland Corporation",
-                "Crédit Agricole",
-                "98765432101",
+                new CollectionBankInfo("bankName", "accountNumber", 1),
                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
                 10);
@@ -52,8 +51,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
                 Guid.Empty,
                 "1234567890",
                 "Weyland Corporation",
-                "Crédit Agricole",
-                "98765432101",
+                new CollectionBankInfo("bankName", "accountNumber", 1),
                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
                 10);

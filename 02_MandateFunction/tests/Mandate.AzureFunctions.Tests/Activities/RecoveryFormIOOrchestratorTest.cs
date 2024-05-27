@@ -225,8 +225,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
                    Guid.NewGuid(),
                    (i + 1).ToString("00000000000"),
                    "Weyland Corporation",
-                   "Crédit Agricole",
-                   "98765432101",
+                   new CollectionBankInfo("bankName", "accountNumber", 1),
                    new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                    new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
                    10));

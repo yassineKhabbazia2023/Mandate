@@ -4,6 +4,7 @@
 	[Email] NVARCHAR(255) NOT NULL,
 	[FirstName] NVARCHAR(255) NULL,
 	[LastName] NVARCHAR(255) NULL,
+	[IsActive] BIT NOT NULL DEFAULT 1,
 
 	CONSTRAINT [PK_Collaborator] PRIMARY KEY ([Id]),
 	CONSTRAINT [UQ_Collaborator_Email] UNIQUE ([Email])

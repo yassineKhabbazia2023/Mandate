@@ -8,6 +8,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
     using System.Linq.Expressions;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
+    using Microsoft.Identity.Client;
 
     public class SqlMandateRepository : IMandateRepository
     {
@@ -31,7 +32,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             var company = context.Company
                     .Include(c => c.Personal)
                     .Include(c => c.JeDeclareFolder)
-                    .Where(_ => _.SiretNumber == siret);
+                    .Where(_ => _.SiretNumber == siret && _.IsActive);
 
             if (!await company.AnyAsync())
             {
@@ -84,7 +85,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 .SelectMany(c => c.CompanyCollaborators)
                 .Select(cc => cc.Company);
 
-            return await companiesForCollaborator.ToListAsync().ConfigureAwait(false);
+            return await companiesForCollaborator.Where(_ => _.IsActive).ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<RefBankDb> GetRefBankByCodeAsync(string bankCode)
@@ -451,6 +452,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                         Email = collab + "@kpmg.fr",
                         FirstName = "FAKE",
                         LastName = collab,
+                        IsActive = true,
                     });
                     await context.SaveChangesAsync();
                 }
@@ -1474,6 +1476,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                         JdcDossierId = "12345",
                     },
                     Collections = new List<CollectionDb>() { GenerateFakeCollection(Guid.NewGuid(), companyId), GenerateFakeCollection(Guid.NewGuid(), companyId) },
+                    IsActive = true,
                 });
                 await context.SaveChangesAsync();
             }
@@ -1502,7 +1505,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             var company = context.Company
                 .Include(c => c.Personal)
                 .Include(c => c.JeDeclareFolder)
-                .AsNoTracking().Where(c => c.ErpId == erpId);
+                .AsNoTracking().Where(c => c.ErpId == erpId && c.IsActive);
             if (!await company.AnyAsync().ConfigureAwait(false))
             {
                 throw CompanyNotFoundException.FromId(erpId);
@@ -1516,7 +1519,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             using var context = new MandateContext(this.options);
 
             var collab = context.Collaborator.AsNoTracking()
-                .Where(c => c.Email.ToLower() == collaboratorEmail.ToLower());
+                .Where(c => c.Email.ToLower() == collaboratorEmail.ToLower() && c.IsActive);
 
             return await collab.SingleAsync();
         }
@@ -1637,7 +1640,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             if (await context.Company.AnyAsync(i => i.ErpId == erpId))
             {
                 var companiesByErpId = await context.Company
-                    .Where(i => i.ErpId == erpId && i.SiretNumber == siretNumber)
+                    .Where(i => i.ErpId == erpId && i.SiretNumber == siretNumber && i.IsActive)
                     .OrderBy(item => item.SiretNumber)
                     .ToListAsync();
 
@@ -1661,7 +1664,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                     throw new CustomCompanyNotFoundException(ExceptionType.NoAccountNumberMatchDoubleSiret);
                 }
 
-                return await context.Company.SingleAsync(item => item.SiretNumber == siretNumber);
+                return await context.Company.SingleAsync(item => item.SiretNumber == siretNumber && item.IsActive);
             }
             else
             {
@@ -1696,6 +1699,86 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
         {
             var currentJdcStatusCode = await this.GetCurrentJdcStatusCodeAsync(collectionId);
             return currentJdcStatusCode.StatusCode == (int)JdcCollectionStatus.Activation_Requested_Collection_Pending;
+        }
+
+        public async Task CreateContactByEventAsync(CollaboratorDb contactDb)
+        {
+            ArgumentNullException.ThrowIfNull(nameof(contactDb));
+
+            using var context = new MandateContext(this.options);
+
+            await context.AddAsync(contactDb);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task UpdateContactByEventAsync(CollaboratorDb contactDb)
+        {
+            ArgumentNullException.ThrowIfNull(nameof(contactDb));
+
+            using var context = new MandateContext(this.options);
+
+            context.Update(contactDb);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<CollaboratorDb?> GetContactByIdAsync(int contactId)
+        {
+            using var context = new MandateContext(this.options);
+
+            return await context.Collaborator.SingleOrDefaultAsync(_ => _.Id == contactId && _.IsActive);
+        }
+
+        public async Task<CompanyDb?> GetAccountByIdAsync(int accountId)
+        {
+            using var context = new MandateContext(this.options);
+
+            return await context.Company.SingleOrDefaultAsync(_ => _.Id == accountId && _.IsActive);
+        }
+
+        public async Task CreateRoleAsync(CompanyCollaboratorDb accountContactDb)
+        {
+            ArgumentNullException.ThrowIfNull(nameof(accountContactDb));
+
+            using var context = new MandateContext(this.options);
+
+            await context.CompanyCollaborator.AddAsync(accountContactDb);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteRoleAsync(CompanyCollaboratorDb accountContactDb)
+        {
+            ArgumentNullException.ThrowIfNull(nameof(accountContactDb));
+
+            using var context = new MandateContext(this.options);
+
+            context.Remove(accountContactDb);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<CompanyCollaboratorDb?> GetAccountContactByAccountIdAndContactIdAsync(int accountId, int contactId)
+        {
+            using var context = new MandateContext(this.options);
+
+            return await context.CompanyCollaborator.SingleOrDefaultAsync(_ => _.CollaboratorId == contactId
+                                                                    && _.CompanyId == accountId);
+        }
+
+        public async Task CreateCompanyAsync(CompanyDb accountDb)
+        {
+            ArgumentNullException.ThrowIfNull(nameof(accountDb));
+            using var context = new MandateContext(this.options);
+
+            await context.Company.AddAsync(accountDb);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task UpdateCompanyAsync(CompanyDb accountDb)
+        {
+            ArgumentNullException.ThrowIfNull(nameof(accountDb));
+            using var context = new MandateContext(this.options);
+
+            context.Company.Update(accountDb);
+            await context.SaveChangesAsync();
         }
 
         private static CollectionDb GenerateFakeCollection(Guid collectionId, int companyId)

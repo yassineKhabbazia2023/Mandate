@@ -16,11 +16,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Services.Sql\Mandate.Sql.csproj" />
+	  <ProjectReference Include="..\Services.Sql\Mandate.Sql.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-		<InternalsVisibleTo Include="KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests" />
-	</ItemGroup>
-
 </Project>

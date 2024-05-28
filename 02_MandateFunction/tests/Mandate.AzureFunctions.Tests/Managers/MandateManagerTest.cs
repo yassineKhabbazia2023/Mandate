@@ -10,12 +10,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
     public class MandateManagerTest
     {
         private readonly Mock<IMandateProvider> mockMandateProvider;
-        private readonly MandateManager mandateManager;
+        private readonly MandateFunctionManager mandateManager;
 
         public MandateManagerTest()
         {
             this.mockMandateProvider = new Mock<IMandateProvider>();
-            this.mandateManager = new MandateManager(this.mockMandateProvider.Object);
+            this.mandateManager = new MandateFunctionManager(this.mockMandateProvider.Object);
         }
 
         [Fact]

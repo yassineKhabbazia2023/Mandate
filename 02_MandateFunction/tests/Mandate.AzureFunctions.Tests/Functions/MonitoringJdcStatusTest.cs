@@ -4,81 +4,87 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
 {
+    using System;
+    using System.Net;
+    using System.Threading.Tasks;
+    using global::Mandate.AzureFunctions;
     using global::Mandate.AzureFunctions.Functions;
-    using Microsoft.Azure.WebJobs;
-    using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-    using Microsoft.Azure.WebJobs.Extensions.Timers;
-    using Microsoft.Extensions.Configuration;
+    using Microsoft.Azure.Functions.Worker;
+    using Microsoft.Azure.Functions.Worker.Http;
+    using Microsoft.DurableTask;
+    using Microsoft.DurableTask.Client;
+    using Microsoft.DurableTask.Internal;
     using Microsoft.Extensions.Logging;
 
     public class MonitoringJdcStatusTest
     {
-        private readonly Mock<IDurableOrchestrationClient> mockStarter;
-        private readonly Mock<ILogger> mockLog;
-        private readonly Mock<IConfiguration> mockConfiguration;
+        private readonly Mock<ILogger> mockLogger;
+        private readonly Mock<IOrchestrationSubmitter> mockDurableClient;
 
         public MonitoringJdcStatusTest()
         {
-            this.mockStarter = new Mock<IDurableOrchestrationClient>();
-            this.mockLog = new Mock<ILogger>();
-            this.mockConfiguration = new Mock<IConfiguration>();
+            this.mockLogger = new Mock<ILogger>();
+            this.mockDurableClient = new Mock<IOrchestrationSubmitter>();
         }
 
         [Fact]
-        public async Task StatusesMonitoringDailyRunScheduleStart_ShouldStartOrchestration()
+        public async Task StatusesMonitoringDailyRunScheduleStart_Should_Start_Daily_Orchestration()
         {
             // Arrange
-            var timerInfo = new TimerInfo(null, new ScheduleStatus(), false);
-            this.mockStarter.Setup(s => s.StartNewAsync("MappingStatus", It.IsAny<object>()))
-                       .ReturnsAsync("instanceId");
+            var timerInfo = new TimerInfo()
+            {
+                IsPastDue = false,
+                ScheduleStatus = null,
+            };
+            var limitConfig = "100";
+            var statusCodesConfig = "200,201";
+            Environment.SetEnvironmentVariable("LimitDaily", limitConfig);
+            Environment.SetEnvironmentVariable("StatusCodesDaily", statusCodesConfig);
 
-            // Setup configuration values
-            this.mockConfiguration.Setup(c => c["LimitDaily"]).Returns("100");
-            this.mockConfiguration.Setup(c => c["StatusCodesDaily"]).Returns("1,2,3");
+            this.mockDurableClient
+                .Setup(x => x.ScheduleNewOrchestrationInstanceAsync("MappingStatus", It.IsAny<OrchestratorInput>(), It.IsAny<StartOrchestrationOptions>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync("instanceId");
 
             // Act
-            await MonitoringJdcStatus.StatusesMonitoringDailyRunScheduleStart(timerInfo, this.mockStarter.Object, this.mockLog.Object);
+            await MonitoringJdcStatus.StatusesMonitoringDailyRunScheduleStart(timerInfo, this.mockDurableClient.Object, this.mockLogger.Object);
 
             // Assert
-            this.mockStarter.Verify(s => s.StartNewAsync("MappingStatus", It.IsAny<object>()), Times.Once);
+            this.mockDurableClient.Verify(
+                x => x.ScheduleNewOrchestrationInstanceAsync(
+                    "MappingStatus",
+                    It.Is<OrchestratorInput>(input => input.LimitConfig == limitConfig && input.StatusCodesConfig == statusCodesConfig),
+                    It.IsAny<StartOrchestrationOptions>(),
+                    It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
-        public async Task StatusesMonitoringHourlyRunScheduleStart_ShouldStartOrchestration()
+        public async Task StatusesMonitoringHourlyRunSchedulStart_Should_Start_Hourly_Orchestration()
         {
             // Arrange
-            var timerInfo = new TimerInfo(null, new ScheduleStatus(), false);
-            this.mockStarter.Setup(s => s.StartNewAsync("MappingStatus", It.IsAny<object>()))
-                       .ReturnsAsync("instanceId");
+            var timerInfo = new TimerInfo()
+            {
+                IsPastDue = false,
+                ScheduleStatus = null,
+            };
+            var limitConfig = "50";
+            var statusCodesConfig = "200,202";
+            Environment.SetEnvironmentVariable("LimitHourly", limitConfig);
+            Environment.SetEnvironmentVariable("StatusCodesHourly", statusCodesConfig);
 
-            // Setup configuration values
-            this.mockConfiguration.Setup(c => c["LimitHourly"]).Returns("100");
-            this.mockConfiguration.Setup(c => c["StatusCodesHourly"]).Returns("1,2,3");
-
-            // Act
-            await MonitoringJdcStatus.StatusesMonitoringHourlyRunSchedulStart(timerInfo, this.mockStarter.Object, this.mockLog.Object);
-
-            // Assert
-            this.mockStarter.Verify(s => s.StartNewAsync("MappingStatus", It.IsAny<object>()), Times.Once);
-        }
-
-        [Fact]
-        public async Task HttpStart_ShouldStartOrchestrationAndReturnResponse()
-        {
-            // Arrange
-            var httpRequestMessage = new HttpRequestMessage();
-            this.mockStarter.Setup(s => s.StartNewAsync("MappingStatus", It.IsAny<object>()))
-                       .ReturnsAsync("instanceId");
-
-            // Setup configuration values
-            this.mockConfiguration.Setup(c => c["LimitHttp"]).Returns("100");
-            this.mockConfiguration.Setup(c => c["StatusCodesHttp"]).Returns("1,2,3");
+            this.mockDurableClient
+                .Setup(x => x.ScheduleNewOrchestrationInstanceAsync("MappingStatus", It.IsAny<OrchestratorInput>(), It.IsAny<StartOrchestrationOptions>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync("instanceId");
 
             // Act
-            var response = await MonitoringJdcStatus.HttpStart(httpRequestMessage, this.mockStarter.Object, this.mockLog.Object);
+            await MonitoringJdcStatus.StatusesMonitoringHourlyRunSchedulStart(timerInfo, this.mockDurableClient.Object, this.mockLogger.Object);
 
             // Assert
-            this.mockStarter.Verify(s => s.StartNewAsync("MappingStatus", It.IsAny<object>()), Times.Once);
+            this.mockDurableClient.Verify(
+                x => x.ScheduleNewOrchestrationInstanceAsync(
+                    "MappingStatus",
+                    It.Is<OrchestratorInput>(input => input.LimitConfig == limitConfig && input.StatusCodesConfig == statusCodesConfig),
+                    It.IsAny<StartOrchestrationOptions>(),
+                    It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

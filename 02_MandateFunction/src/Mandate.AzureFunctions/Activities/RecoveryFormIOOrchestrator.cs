@@ -5,12 +5,15 @@
 namespace Mandate.AzureFunctions.Activities
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using global::Mandate.AzureFunctions;
     using KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
-    using Microsoft.Azure.WebJobs;
-    using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+    using KPMG.Pulse.Back.Accounting.Mandate.Function.Helper;
+    using Microsoft.Azure.Functions.Worker;
+    using Microsoft.DurableTask;
     using Microsoft.Extensions.Logging;
 
     public class RecoveryFormIOOrchestrator
@@ -22,7 +25,7 @@ namespace Mandate.AzureFunctions.Activities
         /// Initializes a new instance of the <see cref="RecoveryFormIOOrchestrator"/> class.
         /// </summary>
         /// <param name="preloadManager">A instance of the <see cref="IPreloadManager"/> class.</param>
-        /// <param name="logger">A instance of the <see cref="ILogger"/> class.</param>
+        /// <param name="logger">A instance of the <see cref="ILogger{RecoveryFormIOOrchestrator}"/> class.</param>
         public RecoveryFormIOOrchestrator(IPreloadManager preloadManager, ILogger<RecoveryFormIOOrchestrator> logger)
         {
             this.preloadManager = preloadManager;
@@ -34,26 +37,45 @@ namespace Mandate.AzureFunctions.Activities
         /// </summary>
         /// <param name="context">instance of the <see cref="IDurableOrchestrationContext"/> class.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        [FunctionName("RecoveryFormIo")]
+        [Function("RecoveryFormIo")]
         public async Task RunOrchestrator(
-            [OrchestrationTrigger] IDurableOrchestrationContext context)
+            [OrchestrationTrigger] TaskOrchestrationContext context)
         {
-            int limit;
-            var input = context!.GetInput<OrchestratorInput>();
-            string limitConfig = input?.LimitConfig;
-            limit = int.TryParse(limitConfig, out limit) ? limit : 50;
+            int failed = 0, success = 0;
+            List<string> failedMandate = new List<string>();
 
-            int skip = 0;
-            int imported = limit;
-
-            while (imported == limit)
+            try
             {
-                var page = await context.CallActivityAsync<PagedRecoveryMandate>(
-                    nameof(this.RecoverPage),
-                    (skip, limit));
+                var input = context!.GetInput<RecoveryOrchestratorInput>();
+                int limit = input!.LimitConfig;
 
-                skip += page.Imported;
-                imported = page.Imported;
+                int skip = input.Skip;
+                int imported = limit;
+
+                while (imported == limit && limit > 0)
+                {
+                    var page = await context.CallActivityAsync<PagedRecoveryMandate>(
+                        nameof(this.RecoverPage),
+                        (skip, limit));
+
+                    skip += page.Imported;
+                    imported = page.Imported;
+                    failed += page.Failed.Count;
+                    success = limit - failed;
+
+                    failedMandate.AddRange(page.Failed.Select(item => item.Stringify()).ToList());
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = !string.IsNullOrEmpty(ex.InnerException?.Message) ? ex.InnerException.Message : ex.Message;
+                this.logger.LogError(ex, "MandateFunction - {functionName} : {message}", nameof(this.RecoverPage), message);
+                throw;
+            }
+            finally
+            {
+                this.logger.LogWarning("Finish {functionname} with {failed} failed and {success} success.", nameof(this.RunOrchestrator), failed, success);
+                this.logger.LogWarning("Finish {functionname} failted mandate {failedMandate}", nameof(this.RunOrchestrator), string.Join(',', failedMandate));
             }
         }
 
@@ -62,18 +84,18 @@ namespace Mandate.AzureFunctions.Activities
         /// </summary>
         /// <param name="tuple">tuple which contains skip and limit.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        [FunctionName(nameof(RecoverPage))]
+        [Function(nameof(RecoverPage))]
         public async Task<PagedRecoveryMandate> RecoverPage(
-            [ActivityTrigger](int, int) tuple)
+            [ActivityTrigger] (int, int) tuple)
         {
             try
             {
-                this.logger.LogInformation("Starting {functionname} with skip {skip} and limit {limit}.", nameof(this.RecoverPage), tuple.Item1, tuple.Item2);
+                this.logger.LogInformation("Starting {Functionname} with skip {Skip} and limit {Limit}.", nameof(this.RecoverPage), tuple.Item1, tuple.Item2);
                 return await this.preloadManager.RecoveryAsync(tuple.Item1, tuple.Item2);
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, "MandateFunction - {functionName} : {message}", nameof(this.RecoverPage), ex.Message);
+                this.logger.LogError(ex, "MandateFunction - {FunctionName} : {Message}", nameof(this.RecoverPage), ex.Message);
                 throw;
             }
         }

@@ -10,8 +10,8 @@ namespace Mandate.AzureFunctions.Activities
     using System.Threading.Tasks;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using Mandate.AzureFunctions.Interfaces;
-    using Microsoft.Azure.WebJobs;
-    using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+    using Microsoft.Azure.Functions.Worker;
+    using Microsoft.DurableTask;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
 
@@ -20,14 +20,15 @@ namespace Mandate.AzureFunctions.Activities
     /// </summary>
     public class MonitoringJdcStatusOrchestrator
     {
-        private readonly IMandateManager mandateManager;
+        private readonly IMandateFunctionManager mandateManager;
         private readonly ILogger<MonitoringJdcStatusOrchestrator> logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MonitoringJdcStatusOrchestrator"/> class.
         /// </summary>
-        /// <param name="mandateManager">A instance of the <see cref="IMandateManager"/> class.</param>
-        public MonitoringJdcStatusOrchestrator(IMandateManager mandateManager, ILogger<MonitoringJdcStatusOrchestrator> logger)
+        /// <param name="mandateManager">A instance of the <see cref="IMandateFunctionManager"/> class.</param>
+        /// <param name="logger">A instance of the <see cref="ILogger"/> class.</param>
+        public MonitoringJdcStatusOrchestrator(IMandateFunctionManager mandateManager, ILogger<MonitoringJdcStatusOrchestrator> logger)
         {
             this.mandateManager = mandateManager;
             this.logger = logger;
@@ -38,13 +39,13 @@ namespace Mandate.AzureFunctions.Activities
         /// </summary>
         /// <param name="context">instance of the <see cref="IDurableOrchestrationContext"/> class.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        [FunctionName("MappingStatus")]
+        [Function("MappingStatus")]
         public async Task RunOrchestrator(
-            [OrchestrationTrigger] IDurableOrchestrationContext context)
+            [OrchestrationTrigger] TaskOrchestrationContext context)
         {
             var input = context!.GetInput<OrchestratorInput>();
-            string limitConfig = input?.LimitConfig;
-            string statusCodesConfig = input?.StatusCodesConfig;
+            string? limitConfig = input?.LimitConfig;
+            string? statusCodesConfig = input?.StatusCodesConfig;
 
             int count = 0;
             int skip = 0;
@@ -54,7 +55,7 @@ namespace Mandate.AzureFunctions.Activities
                 limit = 100;
             }
 
-            List<int> statusCodes = ParceStatusCodes(statusCodesConfig);
+            List<int> statusCodes = ParseStatusCodes(statusCodesConfig!);
             do
             {
                 // Call activities without direct logging in the orchestrator
@@ -81,19 +82,19 @@ namespace Mandate.AzureFunctions.Activities
         /// <param name="payload">instance of the <see cref="Payload"/> class.</param>
         /// <param name="log">instance of the <see cref="ILogger"/> class.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        [FunctionName(nameof(GetCollections))]
+        [Function(nameof(GetCollections))]
         public async Task<PagedTechnicalMandate> GetCollections(
             [ActivityTrigger] Payload payload,
             ILogger log)
         {
             try
             {
-                log.LogInformation("Starting {functionname} with payload {payload}.", nameof(this.GetCollections), JsonConvert.SerializeObject(payload!));
+                log.LogInformation("Starting {Functionname} with payload {Payload}.", nameof(this.GetCollections), JsonConvert.SerializeObject(payload!));
                 return await this.mandateManager.GetCollectionsAsync(payload!.Skip, payload!.Limit, payload!.StatusCodes);
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, "MandateFunction - {functionName} : {message}", nameof(this.GetCollections), ex.Message);
+                this.logger.LogError(ex, "MandateFunction - {FunctionName} : {Message}", nameof(this.GetCollections), ex.Message);
                 throw;
             }
         }
@@ -104,23 +105,23 @@ namespace Mandate.AzureFunctions.Activities
         /// <param name="payload">instance of the <see cref="Payload"/> class.</param>
         /// <param name="log">instance of the <see cref="ILogger"/> class.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        [FunctionName(nameof(RefreshCollectionsStatuses))]
+        [Function(nameof(RefreshCollectionsStatuses))]
         public async Task RefreshCollectionsStatuses(
             [ActivityTrigger] List<TechnicalCollectionSummary> payload,
             ILogger log)
         {
             try
             {
-                log.LogInformation("Starting {functionname} with payload {nbr} elements.", nameof(this.RefreshCollectionsStatuses), payload!.Count);
+                log.LogInformation("Starting {Functionname} with payload {Nbr} elements.", nameof(this.RefreshCollectionsStatuses), payload!.Count);
                 await this.mandateManager.RefreshCollectionsStatuses(payload!);
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, "MandateFunction - {functionName} : {message}", nameof(this.RefreshCollectionsStatuses), ex.Message);
+                this.logger.LogError(ex, "MandateFunction - {FunctionName} : {Message}", nameof(this.RefreshCollectionsStatuses), ex.Message);
             }
         }
 
-        private static List<int> ParceStatusCodes(string codesString)
+        private static List<int> ParseStatusCodes(string codesString)
         {
             List<int> statusCodes = new List<int>();
 

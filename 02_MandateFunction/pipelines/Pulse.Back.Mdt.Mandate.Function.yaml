@@ -24,6 +24,7 @@ extends:
   parameters:
     devIndex: ${{ parameters.devIndex }}
     deployType: ${{ parameters.deployType }}
+    sonarExclusions: '**/Program.cs'
     layer: Domain
     domain: mdt
     resource:
@@ -31,5 +32,8 @@ extends:
       name: 'mdtFunction'
       path: 02_MandateFunction\src\Mandate.AzureFunctions\KPMG.Pulse.Back.Accounting.Mandate.Function.csproj
       type: 'functionApp' 
-      tests: 02_MandateFunction\tests\**\*.csproj
+      tests: |
+          02_MandateFunction\tests\**\*.csproj
+          01_API\tests\Services.Sql.Implementation\Mandate.Sql.Implementation.Tests.csproj
+          01_API\tests\Services.Sql\Mandate.Sql.Tests.csproj
     dotnetcore: 8.x

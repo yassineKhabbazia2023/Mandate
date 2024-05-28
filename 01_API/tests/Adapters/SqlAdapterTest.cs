@@ -379,6 +379,170 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         }
 
         [Fact]
+        public async Task GetCompanyByErpIdSiretAsync()
+        {
+            var comanyDb = EntityDbFactory.CompanyDb;
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.GetCompanyByErpIdSiretAsync("1234567890", "12345678901234"))
+                .ReturnsAsync(comanyDb)
+                .Verifiable();
+
+            var adapter = new SqlAdapter(repository.Object);
+
+            var result = await adapter.GetCompanyByErpIdSiretAsync("1234567890", "12345678901234");
+
+            var expectedCompany = comanyDb.ToModel();
+
+            result.Should().BeEquivalentTo(expectedCompany);
+
+            repository.VerifyAll();
+        }
+
+        [Theory]
+        [InlineData(ExceptionType.AccountNumberMatchDoubleSiret, Mandate.ExceptionType.AccountNumberMatchDoubleSiret)]
+        [InlineData(ExceptionType.AccountNumberNoMatchSiret, Mandate.ExceptionType.AccountNumberNoMatchSiret)]
+        [InlineData(ExceptionType.NoAccountNumberMatchDoubleSiret, Mandate.ExceptionType.NoAccountNumberMatchDoubleSiret)]
+        [InlineData(ExceptionType.NoAccountNumberNoMatchSiret, Mandate.ExceptionType.NoAccountNumberNoMatchSiret)]
+        public async Task GetCompanyByErpIdSiretAsync_ShouldThrowException_WhenRepositoryThrow(ExceptionType type, Mandate.ExceptionType expectedType)
+        {
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.GetCompanyByErpIdSiretAsync("1234567890", "12345678901234"))
+                .ThrowsAsync(new CustomCompanyNotFoundException(type, "message"))
+                .Verifiable();
+
+            var adapter = new SqlAdapter(repository.Object);
+
+            Func<Task> act = async () => await adapter.GetCompanyByErpIdSiretAsync("1234567890", "12345678901234");
+            var exception = await act.Should().ThrowAsync<Mandate.CustomCompanyNotFoundException>();
+            exception.And.Type.Should().Be(expectedType);
+
+            repository.VerifyAll();
+        }
+
+        [Fact]
+        public async Task InsertMandateLogAsync()
+        {
+            Company company = new Company(
+                1,
+                "name",
+                "12345678901234",
+                "1234567890",
+                "1234",
+                It.IsAny<Signatory>(),
+                It.IsAny<Address>());
+
+            Bban bban = new Bban(
+                "12345",
+                "54321",
+                "12345678910",
+                "11",
+                "4321",
+                It.IsAny<Bank>());
+
+            Collection collection = new Collection(
+                It.IsAny<Guid>(),
+                "4321",
+                company,
+                bban,
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<Status>());
+
+            MandateLogDb mandateLog = new MandateLogDb()
+            {
+                SiretNumber = "12345678901234",
+                ErpId = "1234567890",
+                BankCode = "12345",
+                AccountNumber = "12345678910",
+                BranchCode = "54321",
+                CheckDigits = "11",
+                JdcDossierId = "1234",
+                JdcReleveId = "4321",
+                JdcRibId = "4321",
+                ExceptionType = ExceptionType.NoAccountNumberMatchDoubleSiret,
+                ExceptionMessage = "message",
+                InnerExceptionMessage = "innermessage",
+            };
+
+            CustomException exception = new CustomException(
+                Mandate.ExceptionType.NoAccountNumberMatchDoubleSiret,
+                "message",
+                new Exception("innermessage"));
+
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.InsertMandateLogAsync(It.Is<MandateLogDb>(item => CompareMandateLog(item, mandateLog))))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            var adapter = new SqlAdapter(repository.Object);
+            await adapter.InsertMandateLogAsync(collection, exception);
+
+            repository.Verify(i => i.InsertMandateLogAsync(It.Is<MandateLogDb>(item => CompareMandateLog(item, mandateLog))), Times.Once);
+        }
+
+        [Fact]
+        public async Task InsertMandateLogAsync_ShhouldThrowException_WhenInsertMandateLogAsyncThrow()
+        {
+            Company company = new Company(
+                1,
+                "name",
+                "12345678901234",
+                "1234567890",
+                "1234",
+                It.IsAny<Signatory>(),
+                It.IsAny<Address>());
+
+            Bban bban = new Bban(
+                "12345",
+                "54321",
+                "12345678910",
+                "11",
+                "4321",
+                It.IsAny<Bank>());
+
+            Collection collection = new Collection(
+                It.IsAny<Guid>(),
+                "4321",
+                company,
+                bban,
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<Status>());
+
+            MandateLogDb mandateLog = new MandateLogDb()
+            {
+                SiretNumber = "12345678901234",
+                ErpId = "1234567890",
+                BankCode = "12345",
+                AccountNumber = "12345678910",
+                BranchCode = "54321",
+                CheckDigits = "11",
+                JdcDossierId = "1234",
+                JdcReleveId = "4321",
+                JdcRibId = "4321",
+                ExceptionType = ExceptionType.NoAccountNumberMatchDoubleSiret,
+                ExceptionMessage = "message",
+                InnerExceptionMessage = "innermessage",
+            };
+
+            CustomException exception = new CustomException(
+                Mandate.ExceptionType.NoAccountNumberMatchDoubleSiret,
+                "message",
+                new Exception("innermessage"));
+
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.InsertMandateLogAsync(It.Is<MandateLogDb>(item => CompareMandateLog(item, mandateLog))))
+                .Throws(new Exception("message"))
+                .Verifiable();
+
+            var adapter = new SqlAdapter(repository.Object);
+            Func<Task> func = async () => await adapter.InsertMandateLogAsync(collection, exception);
+            await func.Should().ThrowAsync<Exception>().WithMessage("message");
+
+            repository.Verify(i => i.InsertMandateLogAsync(It.Is<MandateLogDb>(item => CompareMandateLog(item, mandateLog))), Times.Once);
+        }
+
+        [Fact]
         public async Task InsertFormIOCollectionAsync()
         {
             // Arrange
@@ -594,6 +758,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             // Assert
             result.Should().Be(true);
             repository.Verify(r => r.CheckJdcStatusCodeIsPendingAsync(It.IsAny<Guid>()), Times.Once);
+        }
+
+        private static bool CompareMandateLog(MandateLogDb mandateLog, MandateLogDb mandateLog2)
+        {
+            mandateLog2.CreationDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(10));
+            return mandateLog.AccountNumber == mandateLog2.AccountNumber &&
+                mandateLog.BankCode == mandateLog2.BankCode &&
+                mandateLog.BranchCode == mandateLog2.BranchCode &&
+                mandateLog.CheckDigits == mandateLog2.CheckDigits &&
+                mandateLog.ErpId == mandateLog2.ErpId &&
+                mandateLog.SiretNumber == mandateLog2.SiretNumber &&
+                mandateLog.ExceptionMessage == mandateLog2.ExceptionMessage &&
+                mandateLog.InnerExceptionMessage == mandateLog2.InnerExceptionMessage &&
+                mandateLog.ExceptionType == mandateLog2.ExceptionType &&
+                mandateLog.JdcDossierId == mandateLog2.JdcDossierId &&
+                mandateLog.JdcRibId == mandateLog2.JdcRibId &&
+                mandateLog.JdcReleveId == mandateLog.JdcReleveId;
         }
     }
 }

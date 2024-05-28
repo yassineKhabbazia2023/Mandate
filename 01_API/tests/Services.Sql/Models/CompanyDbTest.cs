@@ -14,7 +14,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
 
             // Assert
             // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(8);
+            entity.GetType().GetProperties().Length.Should().Be(9);
 
             // Test all properties ; number of tests below should match the number of propeties above
             entity.Id.Should().Be(0);
@@ -36,6 +36,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             var entity = new CompanyDb()
             {
                 Id = comapnyId,
+                IsActive = false,
                 Personal = new PersonalDb
                 {
                     CompanyId = comapnyId,
@@ -79,6 +80,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
             entity.Name.Should().Be("JEAN LÉVAGE");
             entity.SiretNumber.Should().Be("40902900600031");
             entity.ErpId.Should().Be("1000265308");
+            entity.IsActive.Should().Be(false);
             entity.CompanyCollaborators.Count.Should().Be(1);
         }
     }

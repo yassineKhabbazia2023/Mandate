@@ -21,5 +21,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         public string? ErpId { get; set; }
 
         public List<CompanyCollaboratorDb> CompanyCollaborators { get; set; } = null!;
+
+        public bool IsActive { get; set; }
     }
 }

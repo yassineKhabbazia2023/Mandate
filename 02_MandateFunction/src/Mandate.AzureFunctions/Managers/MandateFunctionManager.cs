@@ -1,4 +1,4 @@
-﻿// <copyright file="MandateManager.cs" company="KPMG">
+﻿// <copyright file="MandateFunctionManager.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -11,15 +11,15 @@ namespace Mandate.AzureFunctions.Managers
     using Mandate.AzureFunctions.Interfaces;
 
     /// <inheritdoc/>
-    public class MandateManager : IMandateManager
+    public class MandateFunctionManager : IMandateFunctionManager
     {
         private readonly IMandateProvider mandateProvider;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MandateManager"/> class.
+        /// Initializes a new instance of the <see cref="MandateFunctionManager"/> class.
         /// </summary>
         /// <param name="mandateProvider">A instance of the <see cref="IMandateProvider"/> class.</param>
-        public MandateManager(IMandateProvider mandateProvider)
+        public MandateFunctionManager(IMandateProvider mandateProvider)
         {
             this.mandateProvider = mandateProvider;
         }

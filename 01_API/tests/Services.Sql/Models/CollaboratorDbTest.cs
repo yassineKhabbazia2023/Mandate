@@ -16,17 +16,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
                 Email = "smedini@kpmg.fr",
                 FirstName = null,
                 LastName = null,
+                IsActive = false,
             };
 
             // Assert
             // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(5);
+            entity.GetType().GetProperties().Length.Should().Be(6);
 
             // Test all properties ; number of tests below should match the number of propeties above
             entity.Id.Should().Be(1);
             entity.Email.Should().NotBeNull();
             entity.FirstName.Should().Be(null);
             entity.LastName.Should().Be(null);
+            entity.IsActive.Should().Be(false);
             entity.CompanyCollaborators.Should().BeNull();
         }
 

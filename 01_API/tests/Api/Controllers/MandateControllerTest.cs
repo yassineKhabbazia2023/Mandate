@@ -1371,6 +1371,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 Name = "cn",
                 ErpId = "123456789",
                 SiretNumber = "12345678910",
+                IsActive = true,
             });
 
             await context.SaveChangesAsync();
@@ -1441,46 +1442,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var mandateManager = new Mock<IMandateManager>();
             mandateManager.Setup(_ => _.InsertFormIOCollectionAsync(It.IsAny<Collection>()))
                             .Throws<ApplicationException>();
-
-            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, formIoManager.Object);
-
-            // Act
-            var result = (OkObjectResult)await controller.RecoveryFormIOAsync(0, 1000);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<OkObjectResult>();
-            mandateManager.Verify(_ => _.InsertFormIOCollectionAsync(It.IsAny<Collection>()), Times.Exactly(100));
-            ((Client.PagedRecoveryMandate)result.Value!).Imported.Should().Be(100);
-            ((Client.PagedRecoveryMandate)result.Value!).Failed.Count.Should().Be(100);
-        }
-
-        [Fact]
-        public async Task RecoveryFormIOAsync_ShouldThrow_CompanyNotFoundException()
-        {
-            // Arrange
-            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
-            var guidGenerator = new Mock<IGuidGenerator>();
-            guidGenerator.Setup(g => g.NewGuid())
-                .Returns(newGuid);
-
-            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
-            logger.Setup(x => x.Log(
-               It.IsAny<LogLevel>(),
-               It.IsAny<EventId>(),
-               It.IsAny<It.IsValueType>(),
-               It.IsAny<Exception?>(),
-               (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
-
-            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
-            formIoManager.Setup(item =>
-                item.GetAllCollectionAsync(0, 1000))
-               .ReturnsAsync(GetTestCollection())
-               .Verifiable();
-
-            var mandateManager = new Mock<IMandateManager>();
-            mandateManager.Setup(_ => _.InsertFormIOCollectionAsync(It.IsAny<Collection>()))
-                            .Throws<Sql.CompanyNotFoundException>();
 
             var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, formIoManager.Object);
 
@@ -1569,8 +1530,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             mandateManager.SetupSequence(ite =>
                 ite.InsertFormIOCollectionAsync(It.IsAny<Collection>()))
                 .Returns(Task.CompletedTask)
-                .ThrowsAsync(new ApplicationException())
-                .ThrowsAsync(new Sql.CompanyNotFoundException());
+                .Returns(Task.CompletedTask)
+                .ThrowsAsync(new ApplicationException());
 
             var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, formIoManager.Object);
 
@@ -1584,16 +1545,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             result.Should().NotBeNull();
             result.Should().BeOfType<OkObjectResult>();
             mandateManager.Verify(_ => _.InsertFormIOCollectionAsync(It.IsAny<Collection>()), Times.Exactly(3));
-            collectionsResult.Count.Should().Be(2);
+            collectionsResult.Count.Should().Be(1);
             collectionsResult[0].ErpId.Should().Be(company.ErpId);
             collectionsResult[0].CompanyName.Should().Be(company.Name);
             collectionsResult[0].AccountNumber.Should().Be(bban2.AccountNumber);
             collectionsResult[0].BankName.Should().Be(bban2.Bank!.Name);
-
-            collectionsResult[1].ErpId.Should().Be(company.ErpId);
-            collectionsResult[1].CompanyName.Should().Be(company.Name);
-            collectionsResult[1].AccountNumber.Should().Be(bban3.AccountNumber);
-            collectionsResult[1].BankName.Should().Be(bban3.Bank!.Name);
         }
 
         private static List<Collection> GetTestCollection()

@@ -209,15 +209,32 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
         public async Task InsertFormIOCollectionAsync(Collection collection)
         {
-            var siret = collection.Company!.SiretNumber;
-            var companyId = (await this.databaseService.GetCompanyBySiretAsync(siret)).Id;
-            if (await this.databaseService.CheckCollecteConfigExistAsync(collection.Bban!))
+            try
             {
-                throw new ApplicationException($"Il existe une configuration de collecte pour ce RIB {StringExtensions.Concat(collection.Bban!.BankCode, collection.Bban!.BranchCode, collection.Bban!.AccountNumber, collection.Bban!.CheckDigits)}.");
+                await this.databaseService.GetBankByCodeAsync(collection.Bban?.BankCode!);
+
+                var company = await this.databaseService.GetCompanyByErpIdSiretAsync(
+                        collection.Company?.ErpId!,
+                        collection.Company?.SiretNumber!);
+
+                if (await this.databaseService.CheckCollecteConfigExistAsync(collection.Bban!))
+                {
+                    throw new ApplicationException($"Il existe une configuration de collecte pour ce RIB {StringExtensions.Concat(collection.Bban!.BankCode, collection.Bban!.BranchCode, collection.Bban!.AccountNumber, collection.Bban!.CheckDigits)}.");
+                }
+                else
+                {
+                    await this.databaseService.InsertFormIOCollectionAsync(collection, company.Id);
+                }
             }
-            else
+            catch (CustomBankCodeNotFoundException e)
             {
-                await this.databaseService.InsertFormIOCollectionAsync(collection, companyId);
+                await this.databaseService.InsertMandateLogAsync(collection, e);
+                return;
+            }
+            catch (CustomCompanyNotFoundException e)
+            {
+                await this.databaseService.InsertMandateLogAsync(collection, e);
+                return;
             }
         }
 

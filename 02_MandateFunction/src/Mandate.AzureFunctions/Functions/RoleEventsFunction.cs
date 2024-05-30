@@ -24,7 +24,7 @@ public class RoleEventsFunction
 
     [Function("RoleCreatedEventFunction")]
     public async Task RoleCreatedEvent(
-    [ServiceBusTrigger("role", "role-created-mandate", Connection = "serviceBusNameSpace")]
+    [ServiceBusTrigger("account", "role-created-mandate", Connection = "serviceBusNameSpace")]
     ServiceBusReceivedMessage message,
     ServiceBusMessageActions messageActions)
     {

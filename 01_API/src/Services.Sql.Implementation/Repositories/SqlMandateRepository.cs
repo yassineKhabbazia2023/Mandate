@@ -1721,18 +1721,32 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             await context.SaveChangesAsync();
         }
 
-        public async Task<CollaboratorDb?> GetContactByIdAsync(int contactId)
+        public async Task<CollaboratorDb?> GetActiveContactByIdAsync(int contactId)
         {
             using var context = new MandateContext(this.options);
 
             return await context.Collaborator.SingleOrDefaultAsync(_ => _.Id == contactId && _.IsActive);
         }
 
-        public async Task<CompanyDb?> GetAccountByIdAsync(int accountId)
+        public async Task<CompanyDb?> GetActiveAccountByIdAsync(int accountId)
         {
             using var context = new MandateContext(this.options);
 
             return await context.Company.SingleOrDefaultAsync(_ => _.Id == accountId && _.IsActive);
+        }
+
+        public async Task<CollaboratorDb?> GetContactByIdAsync(int contactId)
+        {
+            using var context = new MandateContext(this.options);
+
+            return await context.FindAsync<CollaboratorDb>(contactId);
+        }
+
+        public async Task<CompanyDb?> GetAccountByIdAsync(int accountId)
+        {
+            using var context = new MandateContext(this.options);
+
+            return await context.FindAsync<CompanyDb>(accountId);
         }
 
         public async Task CreateRoleAsync(CompanyCollaboratorDb accountContactDb)

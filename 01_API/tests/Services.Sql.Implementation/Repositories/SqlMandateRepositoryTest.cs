@@ -1448,7 +1448,28 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         }
 
         [Fact]
-        public async Task GetContactByIdAsync_ShouldNotRetunWhenIsNotActive()
+        public async Task GetActiveContactByIdAsync_ShouldNotRetunWhenIsNotActive()
+        {
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            var collab = EntityDbFactory.CollaboratorDb;
+            var collab2 = EntityDbFactory.CollaboratorDb;
+            collab2.Id = 105;
+            collab2.Email = "collab2@email.com";
+            collab2.IsActive = false;
+            await context.Collaborator.AddAsync(collab);
+            await context.Collaborator.AddAsync(collab2);
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+            var res = await sqlMandateRepository.GetActiveContactByIdAsync(105);
+
+            res.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task GetContactByIdAsync_ShouldRetunWhenIsNotActive()
         {
             await using var database = SqlServerFixture.CreateDatabase();
             using var context = new MandateContext(this.options);
@@ -1465,7 +1486,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var sqlMandateRepository = new SqlMandateRepository(this.options);
             var res = await sqlMandateRepository.GetContactByIdAsync(105);
 
-            res.Should().BeNull();
+            res.Should().NotBeNull();
         }
 
         [Theory]
@@ -1979,7 +2000,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         }
 
         [Fact]
-        public async Task GetAccountByIdAsync_ShouldNotReturnCompany_WhenCompanyExistsAndIsNotActive()
+        public async Task GetAccountByIdAsync_ShouldReturnCompany_WhenCompanyExistsAndIsNotActive()
         {
             // Arrange
             await using var database = SqlServerFixture.CreateDatabase();
@@ -2040,6 +2061,73 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             // Act
             var result = await sqlMandateRepository.GetAccountByIdAsync(companyId);
+
+            // Assert
+            result.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task GetActiveAccountByIdAsync_ShouldNotReturnCompany_WhenCompanyExistsAndIsNotActive()
+        {
+            // Arrange
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            PredictableGuid generator = new PredictableGuid();
+            int companyId = 1;  // Ensure this is the same ID used for the foreign key in CollectionDb
+            var erpId = "validErpId";
+            var siretNumber = "40930900600031";
+
+            var refBankDb = new RefBankDb()
+            {
+                BankCode = "12345",
+                BankName = "bn1",
+                BankCommercialName = "bcn",
+                BankCategory = "bca",
+                BankGroup = "bg",
+                IsJdcScrapable = true,
+                IsJdcPartner = false,
+                HasReleveAgreement = false,
+                HasLiasseAgreement = null,
+                AllowsDemat = true,
+                JdcPartnership = (JdcPartnership)2,
+                EbicsCardId = null,
+            };
+
+            await context.RefBank.AddAsync(refBankDb);
+
+            var expectedCompany = new CompanyDb
+            {
+                Id = companyId,
+                Name = "Dior",
+                SiretNumber = siretNumber,
+                ErpId = erpId,
+                IsActive = false,
+            };
+
+            await context.Company.AddAsync(expectedCompany);
+            await context.SaveChangesAsync();
+
+            Guid collectionId = generator.NewGuid();
+            var collectionDb = new CollectionDb()
+            {
+                Id = collectionId,
+                CompanyId = companyId,  // This must match the ID of the Company record
+                BankCode = "12345",
+                BranchCode = "23456",
+                AccountNumber = "12345678901",
+                CheckDigits = "55",
+                LinkType = 7,
+                RejectReason = "reason1",
+            };
+
+            await context.Collection.AddAsync(collectionDb);
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            // Act
+            var result = await sqlMandateRepository.GetActiveAccountByIdAsync(companyId);
 
             // Assert
             result.Should().BeNull();

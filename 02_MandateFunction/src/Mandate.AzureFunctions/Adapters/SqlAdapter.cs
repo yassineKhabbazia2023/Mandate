@@ -39,15 +39,15 @@ public class SqlAdapter : ISqlAdapter
         await this.mandateRepository.UpdateContactByEventAsync(dbContact);
     }
 
-    public async Task<Contact?> GetContactByIdAsync(int contactId)
+    public async Task<Contact?> GetActiveContactByIdAsync(int contactId)
     {
-        var dbContact = await this.mandateRepository.GetContactByIdAsync(contactId);
+        var dbContact = await this.mandateRepository.GetActiveContactByIdAsync(contactId);
         return dbContact?.ToModel();
     }
 
-    public async Task<Account?> GetAccountByIdAsync(int accountId)
+    public async Task<Account?> GetActiveAccountByIdAsync(int accountId)
     {
-        CompanyDb? accountDb = await this.mandateRepository.GetAccountByIdAsync(accountId);
+        CompanyDb? accountDb = await this.mandateRepository.GetActiveAccountByIdAsync(accountId);
         return accountDb?.ToModel();
     }
 
@@ -87,5 +87,17 @@ public class SqlAdapter : ISqlAdapter
     public async Task UpdateAccountByEventAsync(Account account)
     {
         await this.mandateRepository.UpdateCompanyAsync(account.ToSql());
+    }
+
+    public async Task<Contact?> GetContactByIdAsync(int contactId)
+    {
+        var dbContact = await this.mandateRepository.GetContactByIdAsync(contactId);
+        return dbContact?.ToModel();
+    }
+
+    public async Task<Account?> GetAccountByIdAsync(int accountId)
+    {
+        CompanyDb? accountDb = await this.mandateRepository.GetAccountByIdAsync(accountId);
+        return accountDb?.ToModel();
     }
 }

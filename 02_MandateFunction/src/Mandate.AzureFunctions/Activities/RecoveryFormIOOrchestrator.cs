@@ -12,6 +12,7 @@ namespace Mandate.AzureFunctions.Activities
     using KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.Function.Helper;
+    using KPMG.Pulse.Back.Accounting.Mandate.Function.Models;
     using Microsoft.Azure.Functions.Worker;
     using Microsoft.DurableTask;
     using Microsoft.Extensions.Logging;
@@ -56,7 +57,7 @@ namespace Mandate.AzureFunctions.Activities
                 {
                     var page = await context.CallActivityAsync<PagedRecoveryMandate>(
                         nameof(this.RecoverPage),
-                        (skip, limit));
+                        new ActivityInput(skip, limit));
 
                     skip += page.Imported;
                     imported = page.Imported;
@@ -82,16 +83,16 @@ namespace Mandate.AzureFunctions.Activities
         /// <summary>
         /// Activity to Get list of collection.
         /// </summary>
-        /// <param name="tuple">tuple which contains skip and limit.</param>
+        /// <param name="input">tuple which contains skip and limit.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [Function(nameof(RecoverPage))]
         public async Task<PagedRecoveryMandate> RecoverPage(
-            [ActivityTrigger] (int, int) tuple)
+            [ActivityTrigger] ActivityInput input)
         {
             try
             {
-                this.logger.LogInformation("Starting {Functionname} with skip {Skip} and limit {Limit}.", nameof(this.RecoverPage), tuple.Item1, tuple.Item2);
-                return await this.preloadManager.RecoveryAsync(tuple.Item1, tuple.Item2);
+                this.logger.LogInformation("Starting {Functionname} with skip {Skip} and limit {Limit}.", nameof(this.RecoverPage), input.Skip, input.Limit);
+                return await this.preloadManager.RecoveryAsync(input.Skip, input.Limit);
             }
             catch (Exception ex)
             {

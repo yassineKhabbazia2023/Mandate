@@ -36,26 +36,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
 
             this.mockContext.Setup(ctx => ctx.GetInput<RecoveryOrchestratorInput>()).Returns(expectedInput);
 
-            (int, int) tuple = (0, 100);
             this.mockContext.Setup(x => x.CallActivityAsync<PagedRecoveryMandate>(
                 "RecoverPage",
-                tuple,
+                It.Is<Function.Models.ActivityInput>(t => t.Skip == 0 && t.Limit == 100),
                 null))
             .ReturnsAsync(GeneratePage(100))
             .Verifiable();
 
-            tuple.Item1 += 100;
             this.mockContext.Setup(x => x.CallActivityAsync<PagedRecoveryMandate>(
                 "RecoverPage",
-                tuple,
+                It.Is<Function.Models.ActivityInput>(t => t.Skip == 100 && t.Limit == 100),
                 null))
             .ReturnsAsync(GeneratePage(100))
             .Verifiable();
 
-            tuple.Item1 += 100;
             this.mockContext.Setup(x => x.CallActivityAsync<PagedRecoveryMandate>(
                 "RecoverPage",
-                tuple,
+                It.Is<Function.Models.ActivityInput>(t => t.Skip == 200 && t.Limit == 100),
                 null))
             .ReturnsAsync(GeneratePage(99))
             .Verifiable();
@@ -66,25 +63,25 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
             this.mockContext.Verify(
                x => x.CallActivityAsync<PagedRecoveryMandate>(
                nameof(RecoveryFormIOOrchestrator.RecoverPage),
-               It.IsAny<(int, int)>(),
+               It.IsAny<Function.Models.ActivityInput>(),
                null), Times.Exactly(3));
 
             this.mockContext.Verify(
                x => x.CallActivityAsync<PagedRecoveryMandate>(
                nameof(RecoveryFormIOOrchestrator.RecoverPage),
-               It.Is<(int, int)>(i => i.Item1 == 100 & i.Item2 == 100),
+               It.Is<Function.Models.ActivityInput>(i => i.Skip == 100 & i.Limit == 100),
                null), Times.Once);
 
             this.mockContext.Verify(
                x => x.CallActivityAsync<PagedRecoveryMandate>(
                nameof(RecoveryFormIOOrchestrator.RecoverPage),
-               It.Is<(int, int)>(i => i.Item1 == 0 & i.Item2 == 100),
+               It.Is<Function.Models.ActivityInput>(i => i.Skip == 0 & i.Limit == 100),
                null), Times.Once);
 
             this.mockContext.Verify(
                x => x.CallActivityAsync<PagedRecoveryMandate>(
                nameof(RecoveryFormIOOrchestrator.RecoverPage),
-               It.Is<(int, int)>(i => i.Item1 == 200 & i.Item2 == 100),
+               It.Is<Function.Models.ActivityInput>(i => i.Skip == 200 & i.Limit == 100),
                null), Times.Once);
         }
 
@@ -99,10 +96,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
 
             this.mockContext.Setup(ctx => ctx.GetInput<RecoveryOrchestratorInput>()).Returns(expectedInput);
 
-            (int, int) tuple = (0, 50);
             this.mockContext.Setup(x => x.CallActivityAsync<PagedRecoveryMandate>(
                 "RecoverPage",
-                tuple,
+                It.Is<Function.Models.ActivityInput>(t => t.Skip == 0 && t.Limit == 50),
                 null))
             .ReturnsAsync(GeneratePage(10))
             .Verifiable();
@@ -113,7 +109,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
             this.mockContext.Verify(
                x => x.CallActivityAsync<PagedRecoveryMandate>(
                nameof(RecoveryFormIOOrchestrator.RecoverPage),
-               It.Is<(int, int)>(i => i.Item1 == 0 & i.Item2 == 50),
+               It.Is<Function.Models.ActivityInput>(t => t.Skip == 0 && t.Limit == 50),
                null), Times.Once);
         }
 
@@ -131,10 +127,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
 
             this.mockContext.Setup(ctx => ctx.GetInput<RecoveryOrchestratorInput>()).Returns(expectedInput);
 
-            (int, int) tuple = (0, 10);
             this.mockContext.Setup(x => x.CallActivityAsync<PagedRecoveryMandate>(
                 "RecoverPage",
-                tuple,
+                It.Is<Function.Models.ActivityInput>(t => t.Skip == 0 && t.Limit == 10),
                 null))
             .ReturnsAsync(new PagedRecoveryMandate(1, collectionSummaries))
             .Verifiable();
@@ -145,7 +140,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
             this.mockContext.Verify(
                x => x.CallActivityAsync<PagedRecoveryMandate>(
                nameof(RecoveryFormIOOrchestrator.RecoverPage),
-               It.IsAny<(int, int)>(),
+               It.IsAny<Function.Models.ActivityInput>(),
                It.IsAny<TaskOptions>()),
                Times.Once);
         }
@@ -164,7 +159,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
             (int, int) tuple = (0, 10);
             this.mockContext.Setup(x => x.CallActivityAsync<PagedRecoveryMandate>(
                 "RecoverPage",
-                tuple,
+                It.Is<Function.Models.ActivityInput>(t => t.Skip == 0 && t.Limit == 10),
                 null))
             .ThrowsAsync(new Exception("message"))
             .Verifiable();
@@ -177,7 +172,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
             this.mockContext.Verify(
                x => x.CallActivityAsync<PagedRecoveryMandate>(
                nameof(RecoveryFormIOOrchestrator.RecoverPage),
-               It.IsAny<(int, int)>(),
+               It.IsAny<Function.Models.ActivityInput>(),
                It.IsAny<TaskOptions>()),
                Times.Once);
         }
@@ -192,7 +187,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
                               .Verifiable();
 
             RecoveryFormIOOrchestrator orchestrator = new RecoveryFormIOOrchestrator(this.preloadManager.Object, this.mockLogger.Object);
-            var result = await orchestrator.RecoverPage((0, 100));
+            var result = await orchestrator.RecoverPage(new Function.Models.ActivityInput(0, 100));
 
             // Assert
             result.Should().BeEquivalentTo(page);
@@ -208,7 +203,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests.Activities
                               .Verifiable();
 
             RecoveryFormIOOrchestrator orchestrator = new RecoveryFormIOOrchestrator(this.preloadManager.Object, this.mockLogger.Object);
-            Func<Task> act = async () => await orchestrator.RecoverPage((0, 100));
+            Func<Task> act = async () => await orchestrator.RecoverPage(new Function.Models.ActivityInput(0, 100));
 
             await act.Should().ThrowExactlyAsync<Exception>().WithMessage("message");
 

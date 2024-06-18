@@ -2,7 +2,7 @@
 (
 	[Id] INT NOT NULL,
 	[Name] NVARCHAR(100) NULL, 
-	[SiretNumber] CHAR(14) NOT NULL, 
+	[SiretNumber] CHAR(14) NULL, 
 	[ErpId] VARCHAR(50) NULL,
 	[IsActive] BIT NOT NULL DEFAULT 1,
 

@@ -16,7 +16,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 
         public string? Name { get; set; }
 
-        public string SiretNumber { get; set; } = null!;
+        public string? SiretNumber { get; set; }
 
         public string? ErpId { get; set; }
 

@@ -14,6 +14,10 @@ public interface ISqlAdapter
 
     Task DeleteContactByEventAsync(Contact contact);
 
+    Task<Contact?> GetActiveContactByIdAsync(int contactId);
+
+    Task<Account?> GetActiveAccountByIdAsync(int accountId);
+
     Task<Contact?> GetContactByIdAsync(int contactId);
 
     Task<Account?> GetAccountByIdAsync(int accountId);

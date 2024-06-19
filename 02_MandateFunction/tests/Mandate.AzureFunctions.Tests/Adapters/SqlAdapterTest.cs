@@ -51,7 +51,6 @@ public class SqlAdapterTest
 
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => sqlAdapter.UpdateContactByEventAsync(null!));
-
     }
 
     [Fact]
@@ -60,6 +59,28 @@ public class SqlAdapterTest
         // Arrange
         int contactId = 1;
         var contact = new Contact(1, "firstName", "lastName", "email", true);
+        CollaboratorDb dbContact = contact.ToSql();
+
+        var mockMandateRepository = new Mock<IMandateRepository>();
+        mockMandateRepository.Setup(r => r.GetActiveContactByIdAsync(contactId)).ReturnsAsync(dbContact);
+
+        var sqlAdapter = new SqlAdapter(mockMandateRepository.Object);
+
+        // Act
+        Contact? result = await sqlAdapter.GetActiveContactByIdAsync(contactId);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(contactId);
+        result.FirstName.Should().Be("firstName");
+    }
+
+    [Fact]
+    public async Task GetContactEventByIdAsync_WithValidContactId_ReturnsContact()
+    {
+        // Arrange
+        int contactId = 1;
+        var contact = new Contact(1, "firstName", "lastName", "email", false);
         CollaboratorDb dbContact = contact.ToSql();
 
         var mockMandateRepository = new Mock<IMandateRepository>();
@@ -83,6 +104,25 @@ public class SqlAdapterTest
         int accountId = 1;
         var mockMandateRepository = new Mock<IMandateRepository>();
         var expectedAccount = new Account(accountId, "name", "siretNumber", "accountNumber", true);
+        mockMandateRepository.Setup(x => x.GetActiveAccountByIdAsync(accountId)).ReturnsAsync(expectedAccount.ToSql());
+        var sqlAdapter = new SqlAdapter(mockMandateRepository.Object);
+
+        // Act
+        var result = await sqlAdapter.GetActiveAccountByIdAsync(accountId);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(accountId);
+        result.Name.Should().Be("name");
+    }
+
+    [Fact]
+    public async Task GetAccountEventByIdAsync_ReturnsAccount_WhenAccountExists()
+    {
+        // Arrange
+        int accountId = 1;
+        var mockMandateRepository = new Mock<IMandateRepository>();
+        var expectedAccount = new Account(accountId, "name", "siretNumber", "accountNumber", false);
         mockMandateRepository.Setup(x => x.GetAccountByIdAsync(accountId)).ReturnsAsync(expectedAccount.ToSql());
         var sqlAdapter = new SqlAdapter(mockMandateRepository.Object);
 
@@ -101,11 +141,11 @@ public class SqlAdapterTest
         // Arrange
         int accountId = 1;
         var mockMandateRepository = new Mock<IMandateRepository>();
-        mockMandateRepository.Setup(x => x.GetAccountByIdAsync(accountId)).ReturnsAsync((CompanyDb?)null);
+        mockMandateRepository.Setup(x => x.GetActiveAccountByIdAsync(accountId)).ReturnsAsync((CompanyDb?)null);
         var sqlAdapter = new SqlAdapter(mockMandateRepository.Object);
 
         // Act
-        var result = await sqlAdapter.GetAccountByIdAsync(accountId);
+        var result = await sqlAdapter.GetActiveAccountByIdAsync(accountId);
 
         // Assert
         result.Should().BeNull();

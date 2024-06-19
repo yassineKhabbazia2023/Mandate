@@ -42,8 +42,8 @@ public static class ModelExtensions
         return new Account(
             accountStateEventData.AccountId,
             accountStateEventData.LegalName,
-            string.Empty, // To review
+            accountStateEventData.SiretNumber,
             accountStateEventData.AccountNumber,
-            true); // To review
+            true);
     }
 }

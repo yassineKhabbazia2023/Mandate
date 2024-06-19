@@ -55,7 +55,6 @@ public class AccountEventsFunctionTest
                        AccountId = 1,
                        AccountNumber = "accountNumber",
                        AccountGlobalUniqueId = Guid.NewGuid(),
-                       IsFavorite = true,
                        LegalName = "Test",
                    });
 
@@ -143,7 +142,6 @@ public class AccountEventsFunctionTest
                 AccountId = 1,
                 AccountNumber = "accountNumber",
                 AccountGlobalUniqueId = Guid.NewGuid(),
-                IsFavorite = true,
                 LegalName = "Test",
             });
 

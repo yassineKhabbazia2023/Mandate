@@ -88,7 +88,7 @@ public class ModelExtensionsTest
         result.Should().NotBeNull();
         result.Id.Should().Be(accountStateEventData.AccountId);
         result.Name.Should().Be(accountStateEventData.LegalName);
-        result.SiretNumber.Should().Be(string.Empty);
+        result.SiretNumber.Should().Be(accountStateEventData.SiretNumber);
     }
 
     [Fact]

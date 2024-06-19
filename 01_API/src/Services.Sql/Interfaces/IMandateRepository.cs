@@ -126,6 +126,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 
         Task UpdateContactByEventAsync(CollaboratorDb contactDb);
 
+        Task<CollaboratorDb?> GetActiveContactByIdAsync(int contactId);
+
+        Task<CompanyDb?> GetActiveAccountByIdAsync(int accountId);
+
         Task<CollaboratorDb?> GetContactByIdAsync(int contactId);
 
         Task<CompanyDb?> GetAccountByIdAsync(int accountId);

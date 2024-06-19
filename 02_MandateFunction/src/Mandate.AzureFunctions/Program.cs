@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Azure.Identity;
 using KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions;
 using KPMG.Pulse.Back.Accounting.Mandate.Client.Http;
 using KPMG.Pulse.Back.Accounting.Mandate.Function;
@@ -7,6 +8,7 @@ using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
 using Mandate.AzureFunctions.Interfaces;
 using Mandate.AzureFunctions.Managers;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -57,6 +59,13 @@ var host = new HostBuilder()
         services.AddSingleton<IMandateFunctionManager, MandateFunctionManager>();
         services.AddSingleton<IEventsFunctionManager, EventsFunctionManager>();
         services.AddSingleton<ISqlAdapter, SqlAdapter>();
+        services.AddAzureClients(builder =>
+        {
+            builder.AddServiceBusClientWithNamespace(config["serviceBusNameSpace__fullyQualifiedNamespace"]).WithCredential(new DefaultAzureCredential(new DefaultAzureCredentialOptions
+            {
+                ManagedIdentityClientId = config["serviceBusNameSpace__clientId"],
+            }));
+        });
 
         services.AddMandateClient(options =>
         {

@@ -4,6 +4,8 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Client
 {
+    using Newtonsoft.Json;
+
     public class PagedRecoveryMandate
     {
         public PagedRecoveryMandate(int imported, IReadOnlyList<CollectionSummary> failed)
@@ -12,8 +14,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             this.Failed = failed;
         }
 
+        [JsonProperty("imported")]
         public int Imported { get; }
 
+        [JsonProperty("failed")]
         public IReadOnlyList<CollectionSummary> Failed { get; }
     }
 }

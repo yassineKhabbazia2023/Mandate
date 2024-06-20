@@ -21,30 +21,39 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             this.Id = id;
             this.ErpId = erpId;
             this.CompanyName = companyName;
-            this.BankName = collectionBankInfo!.BankName;
-            this.AccountNumber = collectionBankInfo!.AccountNumber;
+            this.BankName = collectionBankInfo!.BankName!;
+            this.AccountNumber = collectionBankInfo!.AccountNumber!;
             this.JdcPartnership = collectionBankInfo!.JdcPartnership;
             this.CreationDate = creationDate;
             this.ModificationDate = modificationDate;
             this.StatusCode = statusCode;
         }
 
+        [JsonProperty("id")]
         public Guid Id { get; }
 
+        [JsonProperty("erpId")]
         public string ErpId { get; }
 
+        [JsonProperty("companyName")]
         public string CompanyName { get; }
 
+        [JsonProperty("bankName")]
         public string BankName { get; }
 
+        [JsonProperty("accountNumber")]
         public string AccountNumber { get; }
 
+        [JsonProperty("jdcPartnership")]
         public int JdcPartnership { get; }
 
+        [JsonProperty("creationDate")]
         public DateTime CreationDate { get; }
 
+        [JsonProperty("modificationDate")]
         public DateTime ModificationDate { get; }
 
+        [JsonProperty("statusCode")]
         public int StatusCode { get; }
     }
 }

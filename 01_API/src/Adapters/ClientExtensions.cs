@@ -14,10 +14,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public static Client.CollectionSummary ToCollectionSummary(this Collection source)
         {
-            var collectionBankInfo = new Client.CollectionBankInfo(
-                bankName: source!.Bban?.Bank?.Name!,
-                accountNumber: source!.Bban?.AccountNumber!,
-                jdcPartnership: (int)source!.Bban?.Bank?.JdcAgreement.JdcPartnership!);
+            Client.CollectionBankInfo collectionBankInfo = null!;
+            if (source!.Bban?.Bank != null)
+            {
+                collectionBankInfo = new Client.CollectionBankInfo(
+                                bankName: source!.Bban?.Bank?.Name!,
+                                accountNumber: source!.Bban?.AccountNumber!,
+                                jdcPartnership: (int)source!.Bban?.Bank?.JdcAgreement?.JdcPartnership!);
+            }
 
             return new Client.CollectionSummary(
                     id: source.Id,

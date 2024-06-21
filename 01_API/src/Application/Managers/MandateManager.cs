@@ -211,7 +211,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         {
             try
             {
-                await this.databaseService.GetBankByCodeAsync(collection.Bban?.BankCode!);
+                Bank bank = await this.databaseService.GetBankByCodeAsync(collection.Bban?.BankCode!);
+                collection.Bban?.SetBank(bank);
 
                 var company = await this.databaseService.GetCompanyByErpIdSiretAsync(
                         collection.Company?.ErpId!,

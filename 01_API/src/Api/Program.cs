@@ -148,7 +148,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             app.MapControllers();
 
-            app.MapHealthChecks("/api/health", new HealthCheckOptions()
+            app.MapHealthChecks("/health", new HealthCheckOptions()
             {
                 ResponseWriter = WriteResponse,
             });

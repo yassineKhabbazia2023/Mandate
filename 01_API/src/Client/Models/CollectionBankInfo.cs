@@ -16,9 +16,12 @@ public class CollectionBankInfo
         this.JdcPartnership = jdcPartnership;
     }
 
+    [JsonProperty("bankName")]
     public string BankName { get; }
 
+    [JsonProperty("accountNumber")]
     public string AccountNumber { get; }
 
+    [JsonProperty("jdcPartnership")]
     public int JdcPartnership { get; }
 }

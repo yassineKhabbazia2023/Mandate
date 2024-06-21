@@ -113,23 +113,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
         private static PagedRecoveryMandate DeserializePagedRecoveryMandate(string json)
         {
             var jsonObject = JObject.Parse(json);
-
-            int imported = (int)jsonObject["Imported"] !;
-            var failed = jsonObject["Failed"] !.ToObject<List<JObject>>() !.Select(failJson =>
+            int imported = (int)jsonObject["imported"]!;
+            var failed = jsonObject["failed"]!.ToObject<List<JObject>>()!.Select(failJson =>
             {
                 var bankInfo = new CollectionBankInfo(
-                    bankName: (string)failJson["BankName"] !,
-                    accountNumber: (string)failJson["AccountNumber"] !,
-                    jdcPartnership: (int)failJson["JdcPartnership"] !);
+                    bankName: (string)failJson["bankName"]!,
+                    accountNumber: (string)failJson["accountNumber"]!,
+                    jdcPartnership: (int)failJson["jdcPartnership"]!);
 
                 return new CollectionSummary(
-                    id: (Guid)failJson["Id"] !,
-                    erpId: (string)failJson["ErpId"] !,
-                    companyName: (string)failJson["CompanyName"] !,
+                    id: (Guid)failJson["id"]!,
+                    erpId: (string)failJson["erpId"]!,
+                    companyName: (string)failJson["companyName"]!,
                     collectionBankInfo: bankInfo,
-                    creationDate: (DateTime)failJson["CreationDate"] !,
-                    modificationDate: (DateTime)failJson["ModificationDate"] !,
-                    statusCode: (int)failJson["StatusCode"] !);
+                    creationDate: (DateTime)failJson["creationDate"]!,
+                    modificationDate: (DateTime)failJson["modificationDate"]!,
+                    statusCode: (int)failJson["statusCode"]!);
             }).ToList().AsReadOnly();
             return new PagedRecoveryMandate(imported, failed) !;
         }
@@ -139,18 +138,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
             var jsonObject = JObject.Parse(json);
 
             var collectionBankInfo = new CollectionBankInfo(
-                bankName: (string)jsonObject["BankName"] !,
-                accountNumber: (string)jsonObject["AccountNumber"] !,
-                jdcPartnership: (int)jsonObject["JdcPartnership"] !);
+                bankName: (string)jsonObject["bankName"]!,
+                accountNumber: (string)jsonObject["accountNumber"]!,
+                jdcPartnership: (int)jsonObject["jdcPartnership"]!);
 
             var collectionSummary = new CollectionSummary(
-                id: (Guid)jsonObject["Id"] !,
-                erpId: (string)jsonObject["ErpId"] !,
-                companyName: (string)jsonObject["CompanyName"] !,
+                id: (Guid)jsonObject["id"]!,
+                erpId: (string)jsonObject["erpId"]!,
+                companyName: (string)jsonObject["companyName"]!,
                 collectionBankInfo: collectionBankInfo,
-                creationDate: (DateTime)jsonObject["CreationDate"] !,
-                modificationDate: (DateTime)jsonObject["ModificationDate"] !,
-                statusCode: (int)jsonObject["StatusCode"] !);
+                creationDate: (DateTime)jsonObject["creationDate"]!,
+                modificationDate: (DateTime)jsonObject["modificationDate"]!,
+                statusCode: (int)jsonObject["statusCode"]!);
 
             return collectionSummary;
         }

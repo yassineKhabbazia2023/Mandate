@@ -2,9 +2,11 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using Notifications.Commons.WebApi;
+using Notifications.Commons.WebApi.QueryParams;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
-    using Kpmg.Constellation.Notifications.V2.Client;
 
     public static class NotificationsExtensions
     {
@@ -15,19 +17,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 Subject = emailCommand!.Subject,
                 TemplateName = emailCommand!.TemplateName,
                 From = emailCommand!.From,
-                To = emailCommand!.To,
+                To = new List<string>() { emailCommand.To },
                 Cc = emailCommand!.Cc,
                 Attachements = emailCommand!.Attachements.Select(a => a.ToAttachmentFile()).ToList(),
                 Variables = emailCommand!.Variables,
             };
         }
 
-        public static AttachmentFile ToAttachmentFile(this AttachmentFileCommand attachmentFileCommand)
+        public static AttachmentFileDto ToAttachmentFile(this AttachmentFileCommand attachmentFileCommand)
         {
-            return new AttachmentFile
+            return new AttachmentFileDto
             {
                 FileName = attachmentFileCommand!.FileName,
                 Content = attachmentFileCommand!.Content,
+                Type = MailAttachmentType.Pdf,
             };
         }
     }

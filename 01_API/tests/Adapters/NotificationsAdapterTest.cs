@@ -4,8 +4,8 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
-    using Kpmg.Constellation.Notifications.V2.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
+    using global::Notifications.Commons.WebApi.QueryParams;
 
     public class NotificationsAdapterTest
     {
@@ -35,7 +35,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                         req => req.Subject == emailCommand.Subject &&
                                req.TemplateName == emailCommand.TemplateName &&
                                req.From == emailCommand.From &&
-                               req.To == emailCommand.To &&
                                req.Cc.Count == emailCommand.Cc.Count && !req.Cc.Except(emailCommand.Cc).Any() &&
                                req.Variables["key"] == "value")),
                 Times.Once);

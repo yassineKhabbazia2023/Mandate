@@ -8,11 +8,10 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-		<PackageReference Include="KPMG.Pulse.Back.Accounting.Mandate.Client" Version="0.1.1.33" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.21.0" />
 		<PackageReference Include="Kpmg.Constellation.IdentityService.Client.Http" Version="1.1.0.3" />
 		<PackageReference Include="Kpmg.Constellation.Net.Http" Version="1.2.1.2" />
-		<PackageReference Include="KPMG.Pulse.Back.Accounting.Mandate.Client.Http" Version="0.1.1.29" />
+		<PackageReference Include="KPMG.Pulse.Back.Accounting.Mandate.Client.Http" Version="0.1.1.33" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.1.2" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="1.2.1" />

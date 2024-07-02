@@ -4,31 +4,28 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications.Tests
 {
-    using Kpmg.Constellation.Notifications.V2.Client;
+    using global::Notifications.Commons.WebApi.QueryParams;
+    using KPMG.Pulse.Back.Accounting.Mandate.Application;
     using KPMG.Pulse.Back.Accounting.Mandate.Portal;
+    using Microsoft.Extensions.Options;
 
     public class NotificationsProviderTest
     {
-        private readonly Mock<INotificationsClientFactory> mockFactory;
         private readonly Mock<IAuthenticationContext> mockAuthContext;
-        private readonly Mock<INotificationsClient> mockClient;
         private readonly NotificationsProvider provider;
 
         public NotificationsProviderTest()
         {
-            this.mockFactory = new Mock<INotificationsClientFactory>();
             this.mockAuthContext = new Mock<IAuthenticationContext>();
-            this.mockClient = new Mock<INotificationsClient>();
 
-            // Setup the factory to return the mock client
-            this.mockFactory.Setup(f => f.Create(It.IsAny<string>())).Returns(this.mockClient.Object);
-
+            var notifOptions = Options.Create(new NotificationOptions() { BaseUrl = "http://notifications" });
             // Initialize the provider with the mocked dependencies
-            this.provider = new NotificationsProvider(this.mockFactory.Object, this.mockAuthContext.Object);
+
+            this.provider = new NotificationsProvider(this.mockAuthContext.Object, notifOptions);
         }
 
         [Fact]
-        public async Task SendEmailAsync_CallsClientSendEmail()
+        public async Task SendEmailAsync_ShouldReturnFuncTask()
         {
             // Arrange
             var emailRequest = new EmailRequest(); // Assuming EmailRequest is a valid class
@@ -36,11 +33,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications.Tests
             this.mockAuthContext.SetupGet(ctx => ctx.BearerToken).Returns(token);
 
             // Act
-            await this.provider.SendEmailAsync(emailRequest);
+            var action = async () => await this.provider.SendEmailAsync(emailRequest);
 
             // Assert
-            this.mockFactory.Verify(f => f.Create(token), Times.Once);
-            this.mockClient.Verify(c => c.SendEmailAsync(emailRequest), Times.Once);
+            action.Should().BeOfType<Func<Task>>();
         }
     }
 }

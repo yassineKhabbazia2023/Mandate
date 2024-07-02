@@ -30,7 +30,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             emailRequest.Subject.Should().Be("Test Subject");
             emailRequest.TemplateName.Should().Be("Test Template");
             emailRequest.From.Should().Be("from@example.com");
-            emailRequest.To.Should().Be("to@example.com");
+            emailRequest.To.Should().Contain("to@example.com");
             emailRequest.Cc.Should().BeEquivalentTo(new List<string> { "cc1@example.com", "cc2@example.com" });
             emailRequest.Attachements.Should().HaveCount(2);
             emailRequest.Attachements.Select(a => a.FileName).Should().Contain(new List<string> { "file1.txt", "file2.txt" });

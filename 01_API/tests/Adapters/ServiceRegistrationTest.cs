@@ -5,6 +5,7 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
     using KPMG.Constellation.Portal.Client;
+    using KPMG.Pulse.Back.Accounting.Mandate.Application;
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
@@ -15,6 +16,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Options;
 
     public class ServiceRegistrationTest
     {
@@ -55,7 +57,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             sc.AddHttpContextAccessor();
             sc.AddSingleton<IConfiguration>(configuration);
             sc.AddPortailApi((ConfigurationManager)configuration);
-            sc.AddNotificationsApi((ConfigurationManager)configuration);
+            sc.AddNotificationsApi(new Action<NotificationOptions>(options => options.BaseUrl = "https://notifications"));
 
             var sp = sc.BuildServiceProvider();
 

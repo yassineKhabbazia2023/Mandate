@@ -4,6 +4,7 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications.Tests
 {
+    using AutoFixture;
     using global::Notifications.Commons.WebApi.QueryParams;
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
     using KPMG.Pulse.Back.Accounting.Mandate.Portal;
@@ -37,6 +38,34 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications.Tests
 
             // Assert
             action.Should().BeOfType<Func<Task>>();
+        }
+
+
+        [Fact]
+        public void TrailUrl_ShouldThrowNull_IfUrlNull()
+        {
+            string url = string.Empty;
+            string api = "/api/notif";
+            var action = () => this.provider.TrailUrl(url, api);
+            action.Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void TrailUrl_ShouldThrowNull_ifApiIsNull()
+        {
+            string url = "https://hakounamata.com";
+            string api = string.Empty;
+            var action = () => this.provider.TrailUrl(url, api);
+            action.Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void TrailUrl_ShouldReturn_TrailedString()
+        {
+            string url = "https://www.hakounamatata.com/api/";
+            string api = "/notifications/timon";
+            string result = this.provider.TrailUrl(url, api);
+            result.Should().Be("https://www.hakounamatata.com/api/notifications/timon");
         }
     }
 }

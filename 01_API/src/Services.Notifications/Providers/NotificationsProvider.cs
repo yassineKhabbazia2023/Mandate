@@ -25,7 +25,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications
         public async Task SendEmailAsync(EmailRequest emailRequest)
         {
             string token = this.authenticationContext.BearerToken;
-            string url = this.options.Value.BaseUrl;
+            string url = this.TrailUrl(this.options.Value.BaseUrl, "/notifications/SendEmail");
             try
             {
                 using var http = new HttpClient();
@@ -39,6 +39,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications
             {
                 throw ex;
             }
+        }
+
+        public string TrailUrl(string url, string api)
+        {
+            if (string.IsNullOrEmpty(url)) { throw new ArgumentNullException(nameof(url)); }
+            if (string.IsNullOrEmpty(api)) { throw new ArgumentNullException(nameof(api)); }
+            if (url.EndsWith('/'))
+            {
+                url = url.Substring(0, url.Length - 1);
+            }
+
+            if (api.StartsWith('/'))
+            {
+                api = api.Substring(1, api.Length - 1);
+            }
+
+            return $"{url}/{api}";
         }
     }
 }

@@ -1739,14 +1739,14 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
         {
             using var context = new MandateContext(this.options);
 
-            return await context.FindAsync<CollaboratorDb>(contactId);
+            return await context.Collaborator.SingleOrDefaultAsync(_ => _.Id == contactId);
         }
 
         public async Task<CompanyDb?> GetAccountByIdAsync(int accountId)
         {
             using var context = new MandateContext(this.options);
 
-            return await context.FindAsync<CompanyDb>(accountId);
+            return await context.Company.SingleOrDefaultAsync(_ => _.Id == accountId);
         }
 
         public async Task CreateRoleAsync(CompanyCollaboratorDb accountContactDb)

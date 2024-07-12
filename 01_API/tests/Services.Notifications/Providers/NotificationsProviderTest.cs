@@ -6,6 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications.Tests
 {
     using AutoFixture;
     using global::Notifications.Commons.WebApi.QueryParams;
+    using Kpmg.Constellation.Net.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
     using KPMG.Pulse.Back.Accounting.Mandate.Portal;
     using Microsoft.Extensions.Options;
@@ -19,7 +20,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications.Tests
         {
             this.mockAuthContext = new Mock<IAuthenticationContext>();
 
-            var notifOptions = Options.Create(new NotificationOptions() { BaseUrl = "http://notifications" });
+            var notifOptions = Options.Create(new NotificationOptions() { BaseUrl = "http://www.kpmg.fr" });
             // Initialize the provider with the mocked dependencies
 
             this.provider = new NotificationsProvider(this.mockAuthContext.Object, notifOptions);
@@ -66,6 +67,29 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications.Tests
             string api = "/notifications/timon";
             string result = this.provider.TrailUrl(url, api);
             result.Should().Be("https://www.hakounamatata.com/api/notifications/timon");
+        }
+
+        [Fact]
+        public async Task SendEmailAsync_ShouldThrowNullArgument()
+        {
+            EmailRequest? emailRequest = null;
+            var action = async () => await this.provider.SendEmailAsync(emailRequest);
+            await action.Should().ThrowAsync<ArgumentNullException>();
+        }
+
+        [Fact]
+        public async Task SendEmailAsync_ShouldSendEmail()
+        {
+            EmailRequest emailRequest = new EmailRequest() { From = "noreply@kpmg.com", HtmlContent = "content" };
+            var mockHttp = new Mock<IHttpClient>();
+
+            HttpContent content = new StringContent("{}", encoding: Encoding.UTF8, "application/json");
+
+            mockHttp.Setup(client => client.PostAsync(It.IsAny<string>(), content)).ReturnsAsync(It.IsAny<HttpResponseMessage>);
+
+            var action = async () => await this.provider.SendEmailAsync(emailRequest);
+
+            action.Should().BeAssignableTo<Func<Task>>();
         }
     }
 }

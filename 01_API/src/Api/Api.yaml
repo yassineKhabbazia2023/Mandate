@@ -1,114 +1,122 @@
-﻿openapi: '3.0.0'
+﻿openapi: 3.0.0
 info:
-  version: '1.0.1'
-  title: 'KPMG Pulse Mandate API'
-  description: 'Mandate API of the KPMG Pulse Platform'
+  version: 1.0.1
+  title: KPMG Pulse Mandate API
+  description: Mandate API of the KPMG Pulse Platform
 servers:
-  - url: '/api'
-  - url: '/mandate/api'
+- url: "/api"
+- url: "/mandate/api"
 tags:
-  - name: Mandate
-  - name: Bank
-  - name: Company
-  - name: Fake Data
-  - name: Health
+- name: Mandate
+- name: Bank
+- name: Company
+- name: Fake Data
+- name: Health
 security:
-  - 'JWT': []
-
+- JWT: []
 paths:
-  /mandate:
+  "/mandate":
     get:
       tags:
-        - Mandate
+      - Mandate
       summary: Get a list of filtered mandates
       description: Get a list of filtered mandates
       operationId: GetCollectionsAsync
       parameters:
-        - in: query
-          name: skip
-          description: 'skip'
-          schema:
+      - in: query
+        name: skip
+        description: skip
+        schema:
+          type: integer
+        required: false
+        example: 0
+      - in: query
+        name: limit
+        description: limit
+        schema:
+          type: integer
+        required: false
+        example: 20
+      - in: query
+        name: searchTerm
+        description: searchTerm
+        schema:
+          type: string
+        required: false
+        example: '1000265308'
+      - in: query
+        name: creationDateStart
+        description: CreationDateStart
+        schema:
+          type: string
+        required: false
+        example: '2023-09-01'
+      - in: query
+        name: creationDateEnd
+        description: CreationDateEnd
+        schema:
+          type: string
+        required: false
+        example: '2023-09-01'
+      - in: query
+        name: modificationDateStart
+        description: modificationDateStart
+        schema:
+          type: string
+        required: false
+        example: '2023-09-01'
+      - in: query
+        name: modificationDateEnd
+        description: modificationDateEnd
+        schema:
+          type: string
+        required: false
+        example: '2023-09-01'
+      - in: query
+        name: statusCodes
+        description: StatusCodes
+        schema:
+          type: array
+          items:
             type: integer
-          required: false
-          example: 0
-        - in: query
-          name: limit
-          description: 'limit'
-          schema:
-            type: integer
-          required: false
-          example: 20
-        - in: query
-          name: searchTerm
-          description: 'searchTerm'
-          schema:
-            type: string
-          required: false
-          example: '1000265308'
-        - in: query
-          name: creationDateStart
-          description: 'CreationDateStart'
-          schema:
-            type: string
-          required: false
-          example: '2023-09-01'
-        - in: query
-          name: creationDateEnd
-          description: 'CreationDateEnd'
-          schema:
-            type: string
-          required: false
-          example: '2023-09-01'
-        - in: query
-          name: modificationDateStart
-          description: 'modificationDateStart'
-          schema:
-            type: string
-          required: false
-          example: '2023-09-01'
-        - in: query
-          name: modificationDateEnd
-          description: 'modificationDateEnd'
-          schema:
-            type: string
-          required: false
-          example: '2023-09-01'
-        - in: query
-          name: statusCodes
-          description: 'StatusCodes'
-          schema:
-            type: array
-            items:
-              type: integer
-          explode: true
-          required: false
-        - in: query
-          name: sortCriteria
-          description: 'sortCriteria'
-          schema:
-            type: string
-            enum: [ErpId, Name, AccountNumber, BankName, CreationDate, ModificationDate, Status]
-          required: false
-          example: ''
-        - in: query
-          name: sortOrder
-          description: 'sortOrder'
-          schema:
-            type: string
-            enum: [Ascending, Descending]
-          required: false
+        explode: true
+        required: false
+      - in: query
+        name: sortCriteria
+        description: sortCriteria
+        schema:
+          type: string
+          enum:
+          - ErpId
+          - Name
+          - AccountNumber
+          - BankName
+          - CreationDate
+          - ModificationDate
+          - Status
+        required: false
+        example: 
+      - in: query
+        name: sortOrder
+        description: sortOrder
+        schema:
+          type: string
+          enum:
+          - Ascending
+          - Descending
+        required: false
       responses:
         '200':
           description: Reference data for mandate
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PagedMandate'
+                "$ref": "#/components/schemas/PagedMandate"
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
+          "$ref": "#/components/responses/UnauthorizedError"
     post:
       tags:
-        - Mandate
+      - Mandate
       summary: Creates a new mandate
       description: Creates a new mandate
       operationId: PostCollectionAsync
@@ -116,7 +124,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CollectionCreationCommand'
+              "$ref": "#/components/schemas/CollectionCreationCommand"
       responses:
         '200':
           description: Entry was successfully created
@@ -126,345 +134,308 @@ paths:
                 description: Unique identifier of the created entry
                 type: object
                 required:
-                  - id
+                - id
                 properties:
                   id:
                     description: Unique identifier of the created entry
                     type: string
                     format: uuid
-                    example: 'e4ec92f2-a375-4574-b6de-235a9fe13028'
+                    example: e4ec92f2-a375-4574-b6de-235a9fe13028
         '400':
           description: The query contains invalid arguments
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'InvalidRequestBody':
+                InvalidRequestBody:
                   value:
-                    errorType: 'InvalidRequestBody'
+                    errorType: InvalidRequestBody
                     logReference: '12345'
-                    message: 'The code field is required.'
+                    message: The code field is required.
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
+          "$ref": "#/components/responses/UnauthorizedError"
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'CompanyForbidden':
+                CompanyForbidden:
                   value:
-                    errorType: 'CompanyForbidden'
+                    errorType: CompanyForbidden
                     logReference: '12345'
-                    message: 'The ''erpId'' must be part of your portfolio and have active engagement'
+                    message: The 'erpId' must be part of your portfolio and have active
+                      engagement
         '404':
           description: Elements of the query are not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'CompanyNotFound':
+                CompanyNotFound:
                   value:
-                    errorType: 'CompanyNotFound'
+                    errorType: CompanyNotFound
                     logReference: '12345'
-                    message: 'The ''erpId'' account number has not been found'
-                'BankNotFound':
+                    message: The 'erpId' account number has not been found
+                BankNotFound:
                   value:
-                    errorType: 'BankNotFound'
+                    errorType: BankNotFound
                     logReference: '12345'
-                    message: 'The ''xxxx'' bank code has not been found'
-  /mandate/{mandateId}/unsigned:
+                    message: The 'xxxx' bank code has not been found
+  "/mandate/{mandateId}/unsigned":
     get:
       tags:
-        - Mandate
+      - Mandate
       summary: Downloads an unsigned mandate
       description: Downloads an unsigned mandate
       operationId: DownloadUnsignedAsync
       parameters:
       - in: path
         name: mandateId
-        description: 'The mandate identifier (UUID) given by /mandate'
+        description: The mandate identifier (UUID) given by /mandate
         schema:
           type: string
           format: uuid
         required: true
-        example: 'e4ec92f2-a375-4574-b6de-235a9fe13028'
+        example: e4ec92f2-a375-4574-b6de-235a9fe13028
       responses:
         '200':
-          description: 'The unsigned mandate file (PDF format)'
+          description: The unsigned mandate file (PDF format)
           content:
             application/pdf:
               schema:
                 type: string
                 format: binary
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
+          "$ref": "#/components/responses/UnauthorizedError"
         '403':
-          description: 'Forbidden'
+          description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'CompanyForbidden':
+                CompanyForbidden:
                   value:
-                    errorType: 'CompanyForbidden'
+                    errorType: CompanyForbidden
                     logReference: '12345'
-                    message: 'The mandate belongs to a company that must be part of your portfolio and have active engagement'
+                    message: The mandate belongs to a company that must be part of
+                      your portfolio and have active engagement
         '404':
-          description: 'Mandate not found'
+          description: Mandate not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'MandateNotFound':
+                MandateNotFound:
                   value:
-                    errorType: 'MandateNotFound'
+                    errorType: MandateNotFound
                     logReference: '12345'
-                    message: 'The mandate with identifier ''mandateId'' has not been found'
-  /mandate/{mandateId}/signed:
-    get:
-      tags:
-        - Mandate
-      summary: Downloads a signed mandate
-      description: Downloads a signed mandate
-      operationId: DownloadSignedAsync
-      parameters:
-      - in: path
-        name: mandateId
-        description: 'The mandate identifier (UUID) given by /mandate'
-        schema:
-          type: string
-          format: uuid
-        required: true
-        example: 'e4ec92f2-a375-4574-b6de-235a9fe13028'
-      responses:
-        '200':
-          description: 'The signed mandate file (PDF format)'
-          content:
-            application/pdf:
-              schema:
-                type: string
-                format: binary
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          description: 'Forbidden'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                'CompanyForbidden':
-                  value:
-                    errorType: 'CompanyForbidden'
-                    logReference: '12345'
-                    message: 'The mandate belongs to a company that must be part of your portfolio and have active engagement'
-        '404':
-          description: 'Mandate not found'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                'MandateNotFound':
-                  value:
-                    errorType: 'MandateNotFound'
-                    logReference: '12345'
-                    message: 'The mandate with identifier ''mandateId'' has not been found'
+                    message: The mandate with identifier 'mandateId' has not been
+                      found
+  "/mandate/{mandateId}/signed":
     post:
       tags:
-        - Mandate
-      summary: Uploads a signed mandate
-      description: Uploads a signed mandate
+      - Mandate
+      summary: Uploads a signed mandate as form-data
+      description: Uploads a signed mandate PDF file using multipart/form-data
       operationId: UploadSignedMandateAsync
       parameters:
       - in: path
         name: mandateId
-        description: 'The mandate identifier (UUID) given by /mandate'
+        description: The mandate identifier (UUID) given by /mandate
         schema:
           type: string
           format: uuid
         required: true
-        example: 'e4ec92f2-a375-4574-b6de-235a9fe13028'
+        example: e4ec92f2-a375-4574-b6de-235a9fe13028
       requestBody:
         content:
-          application/pdf:
+          multipart/form-data:
             schema:
-              type: string
-              format: binary
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The signed mandate PDF file
+        required: true
       responses:
         '204':
-          description: 'Upload was successful'
+          description: Upload was successful
         '400':
           description: Invalid mandate status
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'InvalidMandateStatus':
+                InvalidMandateStatus:
                   value:
-                    errorType: 'InvalidMandateStatus'
+                    errorType: InvalidMandateStatus
                     logReference: '12345'
-                    message: 'The mandate status doesn''t currently allow a file upload'
+                    message: The mandate status doesn't currently allow a file upload
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
+          "$ref": "#/components/responses/UnauthorizedError"
         '403':
-          description: 'Forbidden'
+          description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'CompanyForbidden':
+                CompanyForbidden:
                   value:
-                    errorType: 'CompanyForbidden'
+                    errorType: CompanyForbidden
                     logReference: '12345'
-                    message: 'The mandate belongs to a company that must be part of your portfolio and have active engagement'
+                    message: The mandate belongs to a company that must be part of
+                      your portfolio and have active engagement
         '404':
-          description: 'Mandate not found'
+          description: Mandate not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'MandateNotFound':
+                MandateNotFound:
                   value:
-                    errorType: 'MandateNotFound'
+                    errorType: MandateNotFound
                     logReference: '12345'
-                    message: 'The mandate with identifier ''mandateId'' has not been found'
-  /mandate/{mandateId}/deactivate:
+                    message: The mandate with identifier 'mandateId' has not been
+                      found
+  "/mandate/{mandateId}/deactivate":
     post:
       tags:
-        - Mandate
+      - Mandate
       summary: Requests deactivation for the given mandate
       description: Requests deactivation for the given mandate
       operationId: DeactivateAsync
       parameters:
       - in: path
         name: mandateId
-        description: 'The mandate identifier (UUID) given by /mandate'
+        description: The mandate identifier (UUID) given by /mandate
         schema:
           type: string
           format: uuid
         required: true
-        example: 'e4ec92f2-a375-4574-b6de-235a9fe13028'
+        example: e4ec92f2-a375-4574-b6de-235a9fe13028
       responses:
         '204':
-          description: 'Deactivation was successful'
+          description: Deactivation was successful
         '400':
           description: Invalid mandate status
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'InvalidMandateStatus':
+                InvalidMandateStatus:
                   value:
-                    errorType: 'InvalidMandateStatus'
+                    errorType: InvalidMandateStatus
                     logReference: '12345'
-                    message: 'The mandate status doesn''t currently allow a deactivation'
+                    message: The mandate status doesn't currently allow a deactivation
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
+          "$ref": "#/components/responses/UnauthorizedError"
         '403':
-          description: 'Forbidden'
+          description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'CompanyForbidden':
+                CompanyForbidden:
                   value:
-                    errorType: 'CompanyForbidden'
+                    errorType: CompanyForbidden
                     logReference: '12345'
-                    message: 'The mandate belongs to a company that must be part of your portfolio and have active engagement'
+                    message: The mandate belongs to a company that must be part of
+                      your portfolio and have active engagement
         '404':
-          description: 'Mandate not found'
+          description: Mandate not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'MandateNotFound':
+                MandateNotFound:
                   value:
-                    errorType: 'MandateNotFound'
+                    errorType: MandateNotFound
                     logReference: '12345'
-                    message: 'The mandate with identifier ''mandateId'' has not been found'
-  /bank/{bankCode}:
+                    message: The mandate with identifier 'mandateId' has not been
+                      found
+  "/bank/{bankCode}":
     get:
       tags:
-        - Bank
+      - Bank
       summary: Get reference data for a bank
       description: Get reference data for a bank
       operationId: GetBankDetailsAsync
       parameters:
-        - in: path
-          name: bankCode
-          description: 'The bank code (first parameter of the French BBAN) to be queried'
-          schema:
-            type: string
-          required: true
-          example: '12345'
+      - in: path
+        name: bankCode
+        description: The bank code (first parameter of the French BBAN) to be queried
+        schema:
+          type: string
+        required: true
+        example: '12345'
       responses:
         '200':
           description: Reference data for the bank.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BankDetail'
+                "$ref": "#/components/schemas/BankDetail"
         '404':
-          description: 'Bank not found'
+          description: Bank not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'BankCodeNotFound':
+                BankCodeNotFound:
                   value:
-                    errorType: 'BankCodeNotFound'
+                    errorType: BankCodeNotFound
                     logReference: '12345'
-                    message: 'The ''xxxx'' bank code has not been found'
-  /bank/check-bban-validity:
+                    message: The 'xxxx' bank code has not been found
+  "/bank/check-bban-validity":
     get:
       tags:
-        - Bank
+      - Bank
       summary: Validates a French BBAN
       description: Validates a French BBAN
       operationId: ValidateBban
       parameters:
-        - in: query
-          name: bankCode
-          description: The bank code of the BBAN (first parameter)
-          schema:
-            type: string
-          required: true
-          example: '12345'
-        - in: query
-          name: branchCode
-          description: The branch code of the BBAN (second parameter)
-          schema:
-            type: string
-          required: true
-          example: '67890'
-        - in: query
-          name: accountNumber
-          description: The account number of the BBAN (third parameter)
-          schema:
-            type: string
-          required: true
-          example: '12345678901'
-        - in: query
-          name: checkDigits
-          description: The check digits of the BBAN (last parameter)
-          schema:
-            type: string
-          required: true
-          example: '23'
+      - in: query
+        name: bankCode
+        description: The bank code of the BBAN (first parameter)
+        schema:
+          type: string
+        required: true
+        example: '12345'
+      - in: query
+        name: branchCode
+        description: The branch code of the BBAN (second parameter)
+        schema:
+          type: string
+        required: true
+        example: '67890'
+      - in: query
+        name: accountNumber
+        description: The account number of the BBAN (third parameter)
+        schema:
+          type: string
+        required: true
+        example: '12345678901'
+      - in: query
+        name: checkDigits
+        description: The check digits of the BBAN (last parameter)
+        schema:
+          type: string
+        required: true
+        example: '23'
       responses:
         '200':
           description: Results of the BBAN validation.
@@ -474,224 +445,226 @@ paths:
                 description: Result of the BBAN validation.
                 type: object
                 required:
-                  - valid
+                - valid
                 properties:
                   valid:
                     description: Indicating whether if the BBAN is valid.
                     type: boolean
-  /company/{erpId}:
+  "/company/{erpId}":
     get:
       tags:
-        - Company
+      - Company
       summary: Gets reference data for a company
       description: Gets reference data for a company
       operationId: GetCompanyByErpIdAsync
       parameters:
-        - in: path
-          name: erpId
-          description: 'The identifier of the company to be queried'
-          schema:
-            type: string
-          required: true
-          example: '12345'
+      - in: path
+        name: erpId
+        description: The identifier of the company to be queried
+        schema:
+          type: string
+        required: true
+        example: '12345'
       responses:
         '200':
           description: Reference data for the Company.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Company'
+                "$ref": "#/components/schemas/Company"
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
+          "$ref": "#/components/responses/UnauthorizedError"
         '403':
-          description: 'Forbidden'
+          description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'CompanyForbidden':
+                CompanyForbidden:
                   value:
-                    errorType: 'CompanyForbidden'
+                    errorType: CompanyForbidden
                     logReference: '12345'
-                    message: 'The ''erpId'' must be part of your portfolio and have active engagement'
+                    message: The 'erpId' must be part of your portfolio and have active
+                      engagement
         '404':
-          description: 'Company not found'
+          description: Company not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'CompanyNotFound':
+                CompanyNotFound:
                   value:
-                    errorType: 'CompanyNotFound'
+                    errorType: CompanyNotFound
                     logReference: '12345'
-                    message: 'The ''erpId'' account number has not been found'
-  /fake/referential:
+                    message: The 'erpId' account number has not been found
+  "/fake/referential":
     put:
       tags:
-        - Fake Data
-      summary: Creates fake data into the referential tables (status, banks, aspose templates)
+      - Fake Data
+      summary: Creates fake data into the referential tables (status, banks, aspose
+        templates)
       operationId: CreateFakeRef
       responses:
         '204':
-          description: 'Operation was successful'
+          description: Operation was successful
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
+          "$ref": "#/components/responses/UnauthorizedError"
         '403':
-          description: 'Forbidden'
+          description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'FakeDataForbidden':
+                FakeDataForbidden:
                   value:
-                    errorType: 'FakeDataForbidden'
+                    errorType: FakeDataForbidden
                     logReference: '12345'
-                    message: 'Manipulating fake data requires a system token'
+                    message: Manipulating fake data requires a system token
     delete:
       tags:
-        - Fake Data
-      summary: Deletes fake data from the referential tables (status, banks, aspose templates)
+      - Fake Data
+      summary: Deletes fake data from the referential tables (status, banks, aspose
+        templates)
       operationId: DeleteFakeRef
       responses:
         '204':
-          description: 'Operation was successful'
+          description: Operation was successful
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
+          "$ref": "#/components/responses/UnauthorizedError"
         '403':
-          description: 'Forbidden'
+          description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'FakeDataForbidden':
+                FakeDataForbidden:
                   value:
-                    errorType: 'FakeDataForbidden'
+                    errorType: FakeDataForbidden
                     logReference: '12345'
-                    message: 'Manipulating fake data requires a system token'
-  /fake/auth:
+                    message: Manipulating fake data requires a system token
+  "/fake/auth":
     put:
       tags:
-        - Fake Data
+      - Fake Data
       summary: Creates fake data into the authentication tables (collab, companycollab)
       operationId: CreateFakeAuth
       responses:
         '204':
-          description: 'Operation was successful'
+          description: Operation was successful
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
+          "$ref": "#/components/responses/UnauthorizedError"
         '403':
-          description: 'Forbidden'
+          description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'FakeDataForbidden':
+                FakeDataForbidden:
                   value:
-                    errorType: 'FakeDataForbidden'
+                    errorType: FakeDataForbidden
                     logReference: '12345'
-                    message: 'Manipulating fake data requires a system token'
+                    message: Manipulating fake data requires a system token
     delete:
       tags:
-        - Fake Data
+      - Fake Data
       summary: Deletes fake data from the authentication tables (collab, companycollab)
       operationId: DeleteFakeAuth
       responses:
         '204':
-          description: 'Operation was successful'
+          description: Operation was successful
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
+          "$ref": "#/components/responses/UnauthorizedError"
         '403':
-          description: 'Forbidden'
+          description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'FakeDataForbidden':
+                FakeDataForbidden:
                   value:
-                    errorType: 'FakeDataForbidden'
+                    errorType: FakeDataForbidden
                     logReference: '12345'
-                    message: 'Manipulating fake data requires a system token'
-  /fake/data:
+                    message: Manipulating fake data requires a system token
+  "/fake/data":
     post:
       tags:
-        - Fake Data
+      - Fake Data
       summary: Adds fake data into the mandate tables
       operationId: AddFakeData
       responses:
         '204':
-          description: 'Operation was successful'
+          description: Operation was successful
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
+          "$ref": "#/components/responses/UnauthorizedError"
         '403':
-          description: 'Forbidden'
+          description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'FakeDataForbidden':
+                FakeDataForbidden:
                   value:
-                    errorType: 'FakeDataForbidden'
+                    errorType: FakeDataForbidden
                     logReference: '12345'
-                    message: 'Manipulating fake data requires a system token'
+                    message: Manipulating fake data requires a system token
     delete:
       tags:
-        - Fake Data
+      - Fake Data
       summary: Deletes fake data from the mandate tables
       operationId: DeleteFakeData
       responses:
         '204':
-          description: 'Operation was successful'
+          description: Operation was successful
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
+          "$ref": "#/components/responses/UnauthorizedError"
         '403':
-          description: 'Forbidden'
+          description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
               examples:
-                'FakeDataForbidden':
+                FakeDataForbidden:
                   value:
-                    errorType: 'FakeDataForbidden'
+                    errorType: FakeDataForbidden
                     logReference: '12345'
-                    message: 'Manipulating fake data requires a system token'
-  /health:
+                    message: Manipulating fake data requires a system token
+  "/health":
     get:
       tags:
-        - Health
+      - Health
       summary: Gets the status of the API
       operationId: GetHealth
       responses:
         '200':
-          description: 'The status of the API'
+          description: The status of the API
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   status:
-                    description: 'Global status of the API'
-                    $ref:  "#/components/schemas/HealthStatus"
+                    description: Global status of the API
+                    "$ref": "#/components/schemas/HealthStatus"
                     example: Healthy
                   sqlDatabase:
-                    description: 'Information of the SQL database'
+                    description: Information of the SQL database
                     type: object
                     properties:
                       status:
-                        description: 'Status of the SQL database'
-                        $ref:  "#/components/schemas/HealthStatus"
+                        description: Status of the SQL database
+                        "$ref": "#/components/schemas/HealthStatus"
                         example: Healthy
-
 components:
   securitySchemes:
-    'JWT':
+    JWT:
       type: http
       scheme: bearer
       bearerFormat: JWT
@@ -699,18 +672,18 @@ components:
     UnauthorizedError:
       description: Bearer token is missing or invalid
   schemas:
-    Address: 
+    Address:
       description: Data specific to the address
       type: object
       properties:
-        street: 
+        street:
           description: Defines the signatory street address
           type: string
-          example: 'RUE DU COMMERCE'
+          example: RUE DU COMMERCE
         addressComplement:
           description: Defines the signatory address complements
           type: string
-          example: ''
+          example: 
         zipCode:
           description: Defines the signatory address zip code
           type: string
@@ -718,63 +691,63 @@ components:
         city:
           description: Defines the signatory address city
           type: string
-          example: 'RAISMES'
+          example: RAISMES
         country:
           description: Defines the signatory address country
           type: string
-          example: 'FRANCE'
-    BankDetail: 
+          example: FRANCE
+    BankDetail:
       description: Reference data for a bank
       type: object
       properties:
-        code: 
-          description: 'Bank code, as defined in a French BBAN'
+        code:
+          description: Bank code, as defined in a French BBAN
           type: string
           example: '12345'
-        name: 
-          description: 'Bank name'
+        name:
+          description: Bank name
           type: string
-          example: 'Banque postale'
-        jeDeclare: 
-          $ref: '#/components/schemas/BankJdcDetail'
-    BankJdcDetail: 
+          example: Banque postale
+        jeDeclare:
+          "$ref": "#/components/schemas/BankJdcDetail"
+    BankJdcDetail:
       description: Data specific to JeDeclare.com
       type: object
       properties:
-        jdcPartnership: 
+        jdcPartnership:
           description: Defines the partnership of the Bank with JDC
           type: string
           enum:
-            - NonScrappable
-            - Scrappable
-            - NonPartner
-            - Partner
+          - NonScrappable
+          - Scrappable
+          - NonPartner
+          - Partner
           example: NonPartner
-    Bban: 
+    Bban:
       description: French BBAN (RIB)
       type: object
       properties:
-        bankCode: 
+        bankCode:
           description: The bank code of the BBAN (first parameter)
           type: string
           required: true
           example: '12345'
-        branchCode: 
+        branchCode:
           description: The branch code of the BBAN (second parameter)
           type: string
           required: true
           example: '67890'
-        accountNumber: 
+        accountNumber:
           description: The account number of the BBAN (third parameter)
           type: string
           required: true
           example: '12345678901'
-        checkDigits: 
+        checkDigits:
           description: The check digits of the BBAN (last parameter)
           type: string
           required: true
           example: '23'
-    CollectionCreationCommand: 
+    CollectionCreationCommand:
       description: Data needed to create a new mandate
       type: object
       properties:
@@ -784,20 +757,21 @@ components:
           required: true
           example: '1000265308'
         signatory:
-          $ref: '#/components/schemas/Signatory'
+          "$ref": "#/components/schemas/Signatory"
         address:
-          $ref: '#/components/schemas/Address'
+          "$ref": "#/components/schemas/Address"
         bban:
-          $ref: '#/components/schemas/Bban'
-    CollectionSummary: 
-      description: Summary of a data collection ; this object is intended to be used in tables
+          "$ref": "#/components/schemas/Bban"
+    CollectionSummary:
+      description: Summary of a data collection ; this object is intended to be used
+        in tables
       type: object
       properties:
-        id: 
+        id:
           description: Defines the mandate identifier
           type: string
           format: uuid
-          example: 'e4ec92f2-a375-4574-b6de-235a9fe13028'
+          example: e4ec92f2-a375-4574-b6de-235a9fe13028
         erpId:
           description: Defines the identifier of the company in the ERP
           type: string
@@ -805,44 +779,40 @@ components:
         companyName:
           description: Defines the company legal name
           type: string
-          example: 'Weyland Corporation'
+          example: Weyland Corporation
         accountNumber:
           description: Defines the bank account number of the mandate BBAN
           type: string
           example: '66842913356'
-        jdcPartnership:
-          description: Defines the partnership of a collection
-          type: integer
-          example: 2
         bankName:
           description: Defines the name of the bank attached to the mandate
           type: string
-          example: 'Crédit Agricole'
+          example: Crédit Agricole
         creationDate:
           description: Defines the creation date of the mandate
           type: string
-          example: '2023-08-14T13:12:31.926Z' 
+          example: '2023-08-14T13:12:31.926Z'
         modificationDate:
           description: Defines the last update date of the mandate
           type: string
-          example: '2023-08-14T13:12:31.926Z' 
+          example: '2023-08-14T13:12:31.926Z'
         statusCode:
           description: Defines the pulse status code of the collection mandate
           type: integer
           example: 40
-    Company: 
+    Company:
       description: Data specific to the company
       type: object
       properties:
-        id: 
+        id:
           description: Defines the company identifier
           type: string
           format: uuid
-          example: 'e4ec92f2-a375-4574-b6de-235a9fe13028'
+          example: e4ec92f2-a375-4574-b6de-235a9fe13028
         name:
           description: Defines the company legal name
           type: string
-          example: 'Weyland Corporation'
+          example: Weyland Corporation
         siretNumber:
           description: Defines the siret number of the account
           type: string
@@ -852,25 +822,25 @@ components:
           type: string
           example: '1000265308'
         signatory:
-          $ref: '#/components/schemas/Signatory'
+          "$ref": "#/components/schemas/Signatory"
         address:
-          $ref: '#/components/schemas/Address'
+          "$ref": "#/components/schemas/Address"
     Error:
       type: object
       description: Represents an error when calling the Mandate API
       required:
-        - errorType
-        - logReference
-        - message
+      - errorType
+      - logReference
+      - message
       properties:
         errorType:
           description: Identifier of the error
           type: string
-          example: 'InvalidCompanyCode'
+          example: InvalidCompanyCode
         logReference:
           description: Reference of the detailed log in Azure Insight
           type: string
-          example: '12345abcd'
+          example: 12345abcd
         message:
           description: Error message. Can be displayed on client side
           type: string
@@ -879,33 +849,33 @@ components:
       description: Represents the status of the health of the API
       type: string
       enum:
-        - Healthy
-        - Unhealthy
+      - Healthy
+      - Unhealthy
     PagedCounters:
       description: Contains query metadata for a paged result
       type: object
       properties:
-        all: 
+        all:
           description: Total number of matching mandates
           type: integer
           example: 32
-        status10: 
+        status10:
           description: Total number of mandates with status = 10 (Incident)
           type: integer
           example: 1
-        status20: 
+        status20:
           description: Total number of mandates with status = 20 (ToDo)
           type: integer
           example: 3
-        status30: 
+        status30:
           description: Total number of mandates with status = 30 (InProgress)
           type: integer
           example: 4
-        status40: 
+        status40:
           description: Total number of mandates with status = 40 (Active)
           type: integer
           example: 24
-        status50: 
+        status50:
           description: Total number of mandates with status = 50 (Inactive)
           type: integer
           example: 0
@@ -913,29 +883,29 @@ components:
       description: Contains one page of results + query metadata
       type: object
       properties:
-        counters: 
-          $ref: '#/components/schemas/PagedCounters'
-        data: 
+        counters:
+          "$ref": "#/components/schemas/PagedCounters"
+        data:
           type: array
           items:
-            $ref: '#/components/schemas/CollectionSummary'
-    Signatory: 
+            "$ref": "#/components/schemas/CollectionSummary"
+    Signatory:
       description: Data specific to the signatory
       type: object
       properties:
-        title: 
+        title:
           description: Defines the signatory title
           type: string
-          example: 'M'
+          example: M
         firstName:
           description: Defines the signatory first name
           type: string
-          example: 'maroo'
+          example: maroo
         lastName:
           description: Defines the signatory Last name
           type: string
-          example: 'elleuch'
+          example: elleuch
         email:
           description: Defines the signatory email
           type: string
-          example: 'elleuch@email.com'
+          example: elleuch@email.com

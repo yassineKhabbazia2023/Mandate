@@ -70,7 +70,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             sc.AddHttpContextAccessor();
             sc.AddSingleton<IConfiguration>(configuration);
             sc.AddPortailApi((ConfigurationManager)configuration);
-            sc.AddNotificationsApi((ConfigurationManager)configuration);
+            sc.AddNotificationsApi(new Action<NotificationOptions>(options => options.BaseUrl = "https://notifications"));
 
             var sp = sc.BuildServiceProvider();
 
@@ -108,7 +108,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         {
             IServiceCollection services = null!;
             ConfigurationManager configuration = new ConfigurationManager();
-            Action act = () => services.AddNotificationsApi(configuration);
+            Action act = () => services.AddNotificationsApi(new Action<NotificationOptions>(options => options.BaseUrl = "https://notifications"));
             act.Should().Throw<ArgumentNullException>();
         }
 

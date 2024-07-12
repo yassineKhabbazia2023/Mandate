@@ -109,23 +109,24 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 opt.FormioApiKey = builder.Configuration["FormioApiKey"]!;
                 opt.DemandeMandateFormId = builder.Configuration["DemandeMandateFormId"]!;
             });
-
+            string mandateCancellationCC = builder.Configuration["MandateCancellationCcEmails"] ?? string.Empty;
+            string uploadedCCEmails = builder.Configuration["MandateUploadedCcEmails"] ?? string.Empty;
             builder.Services.AddMandateApplication(opt =>
             {
                 opt.MandateCancellationSubject = builder.Configuration["MandateCancellationSubject"]!;
                 opt.MandateCancellationTemplateName = builder.Configuration["MandateCancellationTemplateName"]!;
                 opt.MandateCancellationFromEmail = builder.Configuration["MandateCancellationFromEmail"]!;
                 opt.MandateCancellationToEmail = builder.Configuration["MandateCancellationToEmail"]!;
-                opt.MandateCancellationCcEmails = new List<string>(builder.Configuration["MandateCancellationCcEmails"]!.Split(";"));
+                opt.MandateCancellationCcEmails = string.IsNullOrEmpty(mandateCancellationCC) ? new List<string>() : mandateCancellationCC.Split(";").ToList();
                 opt.MandateUploadedSubject = builder.Configuration["MandateUploadedSubject"]!;
                 opt.MandateUploadedTemplateName = builder.Configuration["MandateUploadedTemplateName"]!;
                 opt.MandateUploadedFromEmail = builder.Configuration["MandateUploadedFromEmail"]!;
                 opt.MandateUploadedToEmail = builder.Configuration["MandateUploadedToEmail"]!;
-                opt.MandateUploadedCcEmails = new List<string>(builder.Configuration["MandateUploadedCcEmails"]!.Split(";"));
+                opt.MandateUploadedCcEmails = string.IsNullOrEmpty(uploadedCCEmails) ? new List<string>() : uploadedCCEmails.Split(";").ToList();
             });
             builder.Services.AddMandateAdapters();
             builder.Services.AddPortailApi(builder.Configuration);
-            builder.Services.AddNotificationsApi(builder.Configuration);
+            builder.Services.AddNotificationsApi(option => option.BaseUrl = builder.Configuration["MANDATE_NOTIFICATION_V2_API_URL"]);
 
             var app = builder.Build();
 

@@ -2,9 +2,10 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using Notifications.Commons.WebApi.QueryParams;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications
 {
-    using Kpmg.Constellation.Notifications.V2.Client;
 
     public interface INotificationsProvider
     {

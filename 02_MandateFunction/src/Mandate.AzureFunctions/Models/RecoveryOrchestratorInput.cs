@@ -1,0 +1,13 @@
+﻿// <copyright file="RecoveryOrchestratorInput.cs" company="KPMG">
+// Copyright (c) KPMG. All rights reserved.
+// </copyright>
+
+namespace Mandate.AzureFunctions
+{
+    public class RecoveryOrchestratorInput
+    {
+        public int LimitConfig { get; set; }
+
+        public int Skip { get; set; }
+    }
+}

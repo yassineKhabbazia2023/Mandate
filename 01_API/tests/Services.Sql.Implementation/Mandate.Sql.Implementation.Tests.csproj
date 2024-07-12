@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+		<AssemblyName>KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests</AssemblyName>
+		<RootNamespace>KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SqlServer.DacFx" Version="162.2.111" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Tools\Mandate.Tools.Tests.csproj" />
+		<ProjectReference Include="..\..\src\Services.Sql.Implementation\Mandate.Sql.Implementation.csproj" />
+		<ProjectReference Include="..\..\src\Database\Mandate.Sql.Database.sqlproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="..\..\src\Database\bin\$(Configuration)\Mandate.Sql.Database.dacpac" Link="Mandate.Sql.Database.dacpac">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+</Project>

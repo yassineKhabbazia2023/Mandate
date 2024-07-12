@@ -1,0 +1,16 @@
+<!-- 
+	MSBuild files for all the Mandate source code projects which contains common properties
+-->
+
+<Project>
+	<!-- Include the parent 'Directory.Build.props' file -->
+	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+	<!-- Common NuGet packages for all source code projects -->
+	<ItemGroup>
+		<PackageReference Include="SonarAnalyzer.CSharp" Version="9.24.0.89429">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+</Project>

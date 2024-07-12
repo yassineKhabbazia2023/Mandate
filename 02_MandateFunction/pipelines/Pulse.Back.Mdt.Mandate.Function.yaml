@@ -1,0 +1,39 @@
+trigger: none
+pool:
+  vmImage: windows-latest
+
+parameters:
+- name: devIndex
+  displayName: 'Index de l environnement cible (seulement pour un déploiement sur env de DEV)'
+  type: number
+  default: 0
+- name: deployType
+  displayName: "Technical parameter : don t modify it !"
+  type: string
+  default: 'standard'
+
+resources:
+  repositories:
+  - repository: Pulse
+    name: 'Constellation/ConstellationDevOps'
+    type: git
+    ref: 'refs/heads/Release/v2.0'
+
+extends:
+  template: pipelines/templates/platform.back.api.yaml@Pulse
+  parameters:
+    devIndex: ${{ parameters.devIndex }}
+    deployType: ${{ parameters.deployType }}
+    sonarExclusions: '**/Program.cs'
+    layer: Domain
+    domain: mdt
+    resource:
+      id: '02'
+      name: 'mdtFunction'
+      path: 02_MandateFunction\src\Mandate.AzureFunctions\KPMG.Pulse.Back.Accounting.Mandate.Function.csproj
+      type: 'functionApp' 
+      tests: |
+          02_MandateFunction\tests\**\*.csproj
+          01_API\tests\Services.Sql.Implementation\Mandate.Sql.Implementation.Tests.csproj
+          01_API\tests\Services.Sql\Mandate.Sql.Tests.csproj
+    dotnetcore: 8.x

@@ -1,0 +1,94 @@
+name: $(TeamProject)_$(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+- main
+- develop
+- release/*
+
+pool:
+  vmImage: windows-latest
+
+resources:
+  repositories:
+    - repository: CICD
+      name: 'Plateforme Technologique/CICD'
+      type: git
+      ref: 'refs/heads/Release/v6.0'
+
+parameters:
+- name: devenv
+  type: string
+  default: 'dev55'
+
+extends:
+  template: PipelineTemplate.yaml@CICD
+  parameters:
+    versioning:
+      mode: legacy
+      major: 1
+    build:
+      sonarQube:
+        projectKey: MyPulseV2_Api_Mandate
+        projectName: "(MyPulseV2)[API] Mandate"
+        sonarExclusions: "Program.cs"
+        qualityGateName: "[Pulse] Default"
+      tooling:
+        dotnetCore:
+        - 6.x
+        nuget:
+          feed: Constellation/Constellation
+      steps:
+      - type: dotnetcore
+        name: MandateApi
+        netcoreProjects: src\Api\Mandate.AspNetCore.csproj
+        test:
+        - name: KPMG.Pulse.Back.Accounting.Mandate_tests
+          netcoreProjects: |
+            '**/*.Tests.csproj'
+       # publishFeed:
+       #   feedName: Constellation/KPMGPulse
+       #   packageName: KPMG.Pulse.Back.Accounting.Mandate
+       #   description: |
+       #     KPMG.Pulse.Back.Accounting.Mandate v$(GitVersion.number)
+      - type: dotnetcore
+        name: PreloadFunction
+        netcoreProjects: src/Mandate.AzureFunctions/Mandate.AzureFunctions.csproj
+        test: 
+        - name: PreloadFunction_tests
+          netcoreProjects: |
+            '**/*.Tests.csproj'
+        # publishFeed:
+          # feedName: Constellation/KPMGPulse
+          # packageName: function-preload
+          # description: |
+            # Preload Function v$(GitVersion.number)
+
+    deploy:
+      environments:
+      - name: DEV
+        displayName: Developpement
+        condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+        poolAgent: Pulse-${{ parameters.devenv }}
+        variables:
+        - name: azureSC
+          value: PULSE-DEV
+        - name: webapp
+          value: fr${{ parameters.devenv }}mandateapp01mandateapi
+        - name : resourceGroup
+          value: fr${{ parameters.devenv }}mandate
+        - name: appConfiguration
+          value: frdevcommonapp01config
+        - name: envName
+          value: ${{ parameters.devenv }}
+      steps:
+      - type: az-app
+        name: MandateApi
+        artifact: MandateApi
+        azureServiceConnection: $(azureSC)
+        appName: $(webapp)
+        appType: webApp
+        resourceGroup: $(resourceGroup)
+        appConfiguration:
+          name: $(appConfiguration)
+          keyPrefix: MandateApi_
+          label: $(envName)

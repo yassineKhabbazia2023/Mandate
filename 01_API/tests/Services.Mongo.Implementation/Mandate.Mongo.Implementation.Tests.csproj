@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+		<AssemblyName>KPMG.Pulse.Back.Accounting.Mandate.Mongo.Implementation.Tests</AssemblyName>
+		<RootNamespace>KPMG.Pulse.Back.Accounting.Mandate.Mongo.Implementation.Tests</RootNamespace>
+	</PropertyGroup>
+
+</Project>

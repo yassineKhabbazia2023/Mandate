@@ -1,0 +1,78 @@
+﻿// <copyright file="ListeRelevesTest.cs" company="KPMG">
+// Copyright (c) KPMG. All rights reserved.
+// </copyright>
+
+namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Tests
+{
+    public class ListeRelevesTest
+    {
+        [Fact]
+        public void Deserialization()
+        {
+            var jdcReference = @"<?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>
+<listeReleves xmlns=""http://jedeclare.com/gestion"">
+    <releve>
+        <id>12368142</id>
+        <etat>10</etat>
+        <typeLiaison>1</typeLiaison>
+        <destinataire>
+            <id>19581575</id>
+        </destinataire>
+        <rib>
+            <id>12368142</id>
+            <libelle>SG CHAMALIERES NUGER</libelle>
+            <civiliteTitulaire>M</civiliteTitulaire>
+            <nomTitulaire>DOLY</nomTitulaire>
+            <prenomTitulaire>JEAN SIMON</prenomTitulaire>
+            <etablissement>30003</etablissement>
+            <guichet>01958</guichet>
+            <numCompte>00020046441</numCompte>
+            <cle>65</cle>
+        </rib>
+        <carte>
+            <id>249543</id>
+            <statut>2</statut>
+            <codeBanque></codeBanque>
+            <nomConfig></nomConfig>
+            <userId></userId>
+            <partnerId></partnerId>
+            <emailResponsable></emailResponsable>
+            <fileFormat></fileFormat>
+            <carteEBICs></carteEBICs>
+        </carte>
+        <periodicite>
+            <id>1</id>
+        </periodicite>
+    </releve>
+    <releve>
+        <id>11963157</id>
+        <etat>9</etat>
+        <typeLiaison>-1</typeLiaison>
+        <rib>
+            <id>11963157</id>
+            <libelle>NUGER CHAMALIERES</libelle>
+            <civiliteTitulaire>M</civiliteTitulaire>
+            <nomTitulaire>DOLY</nomTitulaire>
+            <prenomTitulaire>JEAN SIMON</prenomTitulaire>
+            <etablissement>13489</etablissement>
+            <guichet>02792</guichet>
+            <numCompte>19804200200</numCompte>
+            <cle>61</cle>
+        </rib>
+    </releve>
+</listeReleves>
+";
+
+            using var jdcReader = new StringReader(jdcReference);
+            var respSerializer = new XmlSerializer(typeof(ListeReleves));
+            var listeReleves = respSerializer.Deserialize(jdcReader) as ListeReleves;
+
+            listeReleves.Should().NotBeNull();
+            listeReleves!.Releve.Should().NotBeNull();
+            listeReleves!.Releve.Should().HaveCount(2);
+            listeReleves!.Releve![0].Id.Should().Be("12368142");
+
+            // TODO : other properties
+        }
+    }
+}

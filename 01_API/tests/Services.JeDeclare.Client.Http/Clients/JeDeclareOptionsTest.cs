@@ -1,0 +1,127 @@
+﻿// <copyright file="JeDeclareOptionsTest.cs" company="KPMG">
+// Copyright (c) KPMG. All rights reserved.
+// </copyright>
+
+namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
+{
+    public class JeDeclareOptionsTest
+    {
+        [Fact]
+        public void Constructor()
+        {
+            var options = new JeDeclareOptions();
+
+            options.BaseUri.Should().BeNull();
+            options.Login.Should().BeNull();
+            options.Password.Should().BeNull();
+            options.HistoryDateEnabledBanks.Should().BeNull();
+            options.JdcCompteId.Should().BeNull();
+        }
+
+        [Fact]
+        public void JeDeclareOptions_ValueChanged()
+        {
+            var options = new JeDeclareOptions()
+            {
+                BaseUri = new Uri("https://toto.com"),
+                Login = "loginT",
+                Password = "passwordT",
+                JdcCompteId = "jdcCompteIdT",
+                HistoryDateEnabledBanks = "historyDateEnabledBanksT",
+            };
+
+            options.BaseUri.Should().BeEquivalentTo(new Uri("https://toto.com/"));
+            options.Login.Should().Be("loginT");
+            options.Password.Should().Be("passwordT");
+            options.JdcCompteId.Should().Be("jdcCompteIdT");
+            options.HistoryDateEnabledBanks.Should().Be("historyDateEnabledBanksT");
+        }
+
+        [Fact]
+        public void JeDeclareOptions_Validate_When_All_Variable_Entered()
+        {
+            var options = new JeDeclareOptions()
+            {
+                BaseUri = new Uri("https://toto.com/"),
+                Login = "loginT",
+                Password = "passwordT",
+                JdcCompteId = "JdcCompteId",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
+            };
+
+            var action = () => options.Validate();
+            action.Should().NotThrow<Exception>();
+        }
+
+        [Fact]
+        public void JeDeclareOptions_Validate_WhenBaseUriIsNull()
+        {
+            var options = new JeDeclareOptions()
+            {
+                BaseUri = null,
+                Login = "loginT",
+                Password = "passwordT",
+                JdcCompteId = "JdcCompteId",
+            };
+
+            var action = () => options.Validate();
+            action.Should().Throw<Exception>().WithMessage("Instance of JeDeclareOptions is invalid, BaseUri is null");
+        }
+
+        [Fact]
+        public void JeDeclareOptions_Validate_WhenLoginIsNull()
+        {
+            var options = new JeDeclareOptions()
+            {
+                BaseUri = new Uri("https://toto.com"),
+                Password = "passwordT",
+            };
+
+            var action = () => options.Validate();
+            action.Should().Throw<Exception>().WithMessage("Instance of JeDeclareOptions is invalid, Login is null");
+        }
+
+        [Fact]
+        public void JeDeclareOptions_Validate_WhenPasswordIsNull()
+        {
+            var options = new JeDeclareOptions()
+            {
+                BaseUri = new Uri("https://toto.com"),
+                Login = "loginT",
+            };
+
+            var action = () => options.Validate();
+            action.Should().Throw<Exception>().WithMessage("Instance of JeDeclareOptions is invalid, Password is null");
+        }
+
+        [Fact]
+        public void JeDeclareOptions_Validate_WhenCompteId_IsNull()
+        {
+            var options = new JeDeclareOptions()
+            {
+                BaseUri = new Uri("https://toto.com"),
+                Login = "loginT",
+                Password = "Password",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
+            };
+
+            var action = () => options.Validate();
+            action.Should().Throw<Exception>().WithMessage("Instance of JeDeclareOptions is invalid, JdcCompteId is null");
+        }
+
+        [Fact]
+        public void JeDeclareOptions_Validate_WhenHistoryBank_IsNull()
+        {
+            var options = new JeDeclareOptions()
+            {
+                BaseUri = new Uri("https://toto.com"),
+                Login = "loginT",
+                Password = "Password",
+                JdcCompteId = "JdcCompteId",
+            };
+
+            var action = () => options.Validate();
+            action.Should().Throw<Exception>().WithMessage("Instance of JeDeclareOptions is invalid, HistoryDateEnabledBanks is null");
+        }
+    }
+}

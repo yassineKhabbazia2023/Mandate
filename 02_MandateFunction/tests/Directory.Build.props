@@ -1,0 +1,32 @@
+<!-- 
+	MSBuild files for all the Mandate unit tests projects which contains common properties
+-->
+
+<Project>
+	<!-- Include the parent 'Directory.Build.props' file -->
+	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+	<!-- Common NuGet packages for all unit tests projects -->
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+		<PackageReference Include="xunit" Version="2.8.0" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.8.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="FluentAssertions" Version="6.12.0" />
+		<PackageReference Include="FluentAssertions.Json" Version="6.1.0" />
+		<PackageReference Include="Moq" Version="4.18.4" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="coverlet.collector" Version="6.0.2">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<Using Include="System.Text" />
+		<Using Include="System.Xml" />
+		<Using Include="System.Xml.Serialization" />
+		<Using Include="FluentAssertions" />
+		<Using Include="Moq" />
+		<Using Include="Xunit" />
+	</ItemGroup>
+</Project>

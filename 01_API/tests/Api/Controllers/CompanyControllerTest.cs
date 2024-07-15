@@ -12,13 +12,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
     {
         private readonly Mock<ILogger<CompanyController>> mockLogger;
         private readonly Mock<ICompanyManager> mockCompanyManager;
+        private readonly Mock<IAuthenticationServices> mockAuthenticationServices;
         private readonly CompanyController controller;
 
         public CompanyControllerTest()
         {
             this.mockLogger = new Mock<ILogger<CompanyController>>();
             this.mockCompanyManager = new Mock<ICompanyManager>();
-            this.controller = new CompanyController(this.mockLogger.Object, this.mockCompanyManager.Object);
+            this.mockAuthenticationServices = new Mock<IAuthenticationServices>();
+            this.controller = new CompanyController(this.mockLogger.Object, this.mockCompanyManager.Object, this.mockAuthenticationServices.Object);
         }
 
         [Fact]
@@ -26,6 +28,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         {
             // Arrange
             string testErpId = "testErpId";
+            var userEmail = "user@email.test";
 
             // Create Signatory and Address objects
             var signatory = new Signatory("Mr.", "John", "Doe", "john.doe@example.com");
@@ -34,8 +37,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             // Create Company object
             var expectedCompany = new Company(1, "Example Company", "12345678901234", testErpId, "BSP1234", signatory, address);
 
-            this.mockCompanyManager.Setup(m => m.GetCompanyByErpIdAsync(testErpId))
-                               .ReturnsAsync(expectedCompany);
+            this.mockAuthenticationServices
+                .Setup(m => m.Email)
+                .Returns(userEmail);
+
+            this.mockCompanyManager
+                .Setup(m => m.GetCompanyByErpIdAsync(testErpId, userEmail))
+                .ReturnsAsync(expectedCompany);
 
             // Act
             var result = await this.controller.GetCompanyByErpIdAsync(testErpId);
@@ -52,8 +60,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         {
             // Arrange
             string testErpId = "nonExistingErpId";
-            this.mockCompanyManager.Setup(m => m.GetCompanyByErpIdAsync(testErpId))
-                                   .ThrowsAsync(new CompanyNotFoundException("Company not found"));
+            string userEmail = "user@email.test";
+
+            this.mockAuthenticationServices
+                .Setup(m => m.Email)
+                .Returns(userEmail);
+
+            this.mockCompanyManager
+                .Setup(m => m.GetCompanyByErpIdAsync(testErpId, userEmail))
+                .ThrowsAsync(new CompanyNotFoundException("Company not found"));
 
             // Act
             var result = await this.controller.GetCompanyByErpIdAsync(testErpId);
@@ -67,8 +82,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         {
             // Arrange
             string testErpId = "testErpId";
-            this.mockCompanyManager.Setup(m => m.GetCompanyByErpIdAsync(testErpId))
-                                   .ThrowsAsync(new Exception("Internal server error"));
+            string userEmail = "user@email.test";
+
+            this.mockAuthenticationServices
+                .Setup(m => m.Email)
+                .Returns(userEmail);
+
+            this.mockCompanyManager
+                .Setup(m => m.GetCompanyByErpIdAsync(testErpId, userEmail))
+                .ThrowsAsync(new Exception("Internal server error"));
 
             // Act
             var result = await this.controller.GetCompanyByErpIdAsync(testErpId);

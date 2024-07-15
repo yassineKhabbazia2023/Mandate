@@ -81,11 +81,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         /// Asynchronously retrieves a company's details from the database based on the provided ERP identifier.
         /// </summary>
         /// <param name="erpId">The ERP identifier of the company to be retrieved.</param>
+        /// <param name="userEmail">The connected user's email address</param>
         /// <returns>
         /// A task that represents the asynchronous operation.
         /// The task result contains an instance of <see cref="CompanyDb"/> corresponding to the specified ERP ID.
         /// </returns>
-        Task<CompanyDb> GetCompanyByErpIdAsync(string erpId);
+        Task<CompanyDb> GetCompanyByErpIdAsync(string erpId, string userEmail);
 
         /// <summary>
         /// Asynchronously retrieves a collaborator by his email.

@@ -65,7 +65,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             try
             {
-                var result = await this.mandateManager.CreateMandate(collectionCreationCommand.ToModel());
+                string userEmail = "user@email.test";
+                var result = await this.mandateManager.CreateMandate(collectionCreationCommand.ToModel(), userEmail);
                 return this.Ok(new SaveResult(result));
             }
             catch (Exception ex)

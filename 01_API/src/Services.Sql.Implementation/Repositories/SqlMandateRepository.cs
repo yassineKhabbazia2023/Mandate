@@ -1498,20 +1498,47 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             context.RemoveRange(await context.Company.Where(s => fakeCompanyIds.Contains(s.Id)).ToListAsync());
             await context.SaveChangesAsync();
         }
+        public class QueryResult
+        {
+            public CompanyDb CompanyDb { get; set; }
+            public int? CollaboratorId { get; set; }
+        }
 
-        public async Task<CompanyDb> GetCompanyByErpIdAsync(string erpId)
+        public async Task<CompanyDb> GetCompanyByErpIdAsync(string erpId, string userEmail)
         {
             using var context = new MandateContext(this.options);
-            var company = context.Company
-                .Include(c => c.Personal)
-                .Include(c => c.JeDeclareFolder)
-                .AsNoTracking().Where(c => c.ErpId == erpId && c.IsActive);
-            if (!await company.AnyAsync().ConfigureAwait(false))
+
+            var result = await (
+                from collaborator in context.Collaborator
+                from company in context.Company
+                join cc in context.CompanyCollaborator
+                    on new { com = company.Id, col = collaborator.Id }
+                    equals new { com = cc.CompanyId, col = cc.CollaboratorId }
+                    into cc_join_table
+                from companyCollaborator in cc_join_table.DefaultIfEmpty()
+                where company.ErpId == erpId && collaborator.Email == userEmail && collaborator.IsActive
+                select new QueryResult
+                {
+                    CompanyDb = company,
+                    CollaboratorId = companyCollaborator.CollaboratorId,
+                }).FirstOrDefaultAsync();
+
+            if (result == null)
             {
                 throw CompanyNotFoundException.FromId(erpId);
             }
 
-            return await company.SingleAsync().ConfigureAwait(false);
+            if (!result.CompanyDb.IsActive)
+            {
+                throw InactiveCompanyException.FromId(erpId);
+            }
+
+            if (result.CollaboratorId == null)
+            {
+                throw InaccessibleCompanyException.FromId(erpId);
+            }
+
+            return result.CompanyDb;
         }
 
         public async Task<CollaboratorDb> GetCollaboratorByEmailAsync(string collaboratorEmail)

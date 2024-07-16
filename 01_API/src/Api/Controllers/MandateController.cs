@@ -7,6 +7,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Http.Timeouts;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
 
@@ -58,7 +59,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             }
         }
 
+        /// <summary>
+        /// we add temporary this decorator of request timeout until we have a better performant solution
+        /// </summary>
+        /// <param name="collectionCreationCommand">Collection command</param>
+        /// <returns>the GUID Id of the created mandate</returns>
+
         [HttpPost]
+        [RequestTimeout(120000)]
         public async Task<IActionResult> PostCollectionAsync([FromBody] CollectionCreationCommand collectionCreationCommand)
         {
             var correlationId = "0"; // TODO

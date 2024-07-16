@@ -11,14 +11,29 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
 
     public class PreloadFunctionTest
     {
+        private Mock<ILogger<PreloadFunction>> logger;
+        private Mock<IPreloadManager> manager;
+        private PreloadFunction preloadFunction;
+
+        public PreloadFunctionTest()
+        {
+            this.logger = new Mock<ILogger<PreloadFunction>>(MockBehavior.Strict);
+            this.logger.Setup(x => x.Log(
+               It.IsAny<LogLevel>(),
+               It.IsAny<EventId>(),
+               It.IsAny<It.IsValueType>(),
+               It.IsAny<Exception?>(),
+               (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
+
+            this.manager = new Mock<IPreloadManager>(MockBehavior.Strict);
+            this.preloadFunction = new PreloadFunction(this.manager.Object, this.logger.Object);
+
+        }
+
         [Fact]
         public void Constructor()
         {
-            var manager = new Mock<IPreloadManager>(MockBehavior.Strict);
-
-            var preloadFunction = new PreloadFunction(manager.Object);
-
-            preloadFunction.Should().NotBeNull();
+            this.preloadFunction.Should().NotBeNull();
         }
 
         [Fact]
@@ -28,8 +43,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
 
             var request = CreateHttpRequest(rib);
 
-            var manager = new Mock<IPreloadManager>(MockBehavior.Strict);
-            manager.Setup(m => m.GetRecoveryAsync(It.IsAny<Bban>()))
+            this.manager.Setup(m => m.GetRecoveryAsync(It.IsAny<Bban>()))
                 .Callback<Bban>(b =>
                 {
                     b.BankCode.Should().Be("bankCodeM");
@@ -40,20 +54,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
                 .Returns(Task.CompletedTask)
             .Verifiable();
 
-            var logger = new Mock<ILogger>(MockBehavior.Strict);
-            logger.Setup(x => x.Log(
-                It.IsAny<LogLevel>(),
-                It.IsAny<EventId>(),
-                It.IsAny<It.IsValueType>(),
-                It.IsAny<Exception?>(),
-                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
+            await this.preloadFunction.PreloadFunctionAsync(req: request);
 
-            var preloadFunction = new PreloadFunction(manager.Object);
-
-            await preloadFunction.PreloadFunctionAsync(req: request, logger.Object);
-
-            manager.VerifyAll();
-            logger.VerifyAll();
+            this.manager.VerifyAll();
         }
 
         [Fact]
@@ -63,8 +66,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
 
             var request = CreateHttpRequest(rib);
 
-            var manager = new Mock<IPreloadManager>(MockBehavior.Strict);
-            manager.Setup(m => m.GetRecoveryAsync(It.IsAny<Bban>()))
+            this.manager.Setup(m => m.GetRecoveryAsync(It.IsAny<Bban>()))
                 .Callback<Bban>(b =>
                 {
                     b.BankCode.Should().Be("bankCodeM");
@@ -75,21 +77,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
                 .Throws(new Exception())
             .Verifiable();
 
-            var logger = new Mock<ILogger>(MockBehavior.Strict);
-            logger.Setup(x => x.Log(
-                It.IsAny<LogLevel>(),
-                It.IsAny<EventId>(),
-                It.IsAny<It.IsValueType>(),
-                It.IsAny<Exception?>(),
-                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>())); // Ignore all logs
-
-            var preloadFunction = new PreloadFunction(manager.Object);
-
-            Func<Task> action = async () => await preloadFunction.PreloadFunctionAsync(req: request, logger.Object);
+            Func<Task> action = async () => await this.preloadFunction.PreloadFunctionAsync(req: request);
 
             action.Should().ThrowAsync<Exception>();
-            manager.VerifyAll();
-            logger.VerifyAll();
+            this.manager.VerifyAll();
         }
 
         private static HttpRequest CreateHttpRequest(object body)

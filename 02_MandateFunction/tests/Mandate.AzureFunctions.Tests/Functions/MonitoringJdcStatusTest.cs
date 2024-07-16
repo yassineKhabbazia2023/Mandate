@@ -5,26 +5,21 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
 {
     using System;
-    using System.Net;
     using System.Threading.Tasks;
     using global::Mandate.AzureFunctions;
     using global::Mandate.AzureFunctions.Functions;
     using Microsoft.Azure.Functions.Worker;
-    using Microsoft.Azure.Functions.Worker.Http;
     using Microsoft.DurableTask;
-    using Microsoft.DurableTask.Client;
-    using Microsoft.DurableTask.Internal;
-    using Microsoft.Extensions.Logging;
 
     public class MonitoringJdcStatusTest
     {
-        private readonly Mock<ILogger> mockLogger;
-        private readonly Mock<IOrchestrationSubmitter> mockDurableClient;
+        private readonly MyFunctionContextStub functionContext;
+        private readonly Mock<DurableTaskClientStub> mockDurableTaskClient;
 
         public MonitoringJdcStatusTest()
         {
-            this.mockLogger = new Mock<ILogger>();
-            this.mockDurableClient = new Mock<IOrchestrationSubmitter>();
+            this.functionContext = new MyFunctionContextStub();
+            this.mockDurableTaskClient = new Mock<DurableTaskClientStub>();
         }
 
         [Fact]
@@ -41,15 +36,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
             Environment.SetEnvironmentVariable("LimitDaily", limitConfig);
             Environment.SetEnvironmentVariable("StatusCodesDaily", statusCodesConfig);
 
-            this.mockDurableClient
+            this.mockDurableTaskClient
                 .Setup(x => x.ScheduleNewOrchestrationInstanceAsync("MappingStatus", It.IsAny<OrchestratorInput>(), It.IsAny<StartOrchestrationOptions>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync("instanceId");
 
+
             // Act
-            await MonitoringJdcStatus.StatusesMonitoringDailyRunScheduleStart(timerInfo, this.mockDurableClient.Object, this.mockLogger.Object);
+            await MonitoringJdcStatus.StatusesMonitoringDailyRunScheduleStart(timerInfo, this.mockDurableTaskClient.Object, this.functionContext);
 
             // Assert
-            this.mockDurableClient.Verify(
+            this.mockDurableTaskClient.Verify(
                 x => x.ScheduleNewOrchestrationInstanceAsync(
                     "MappingStatus",
                     It.Is<OrchestratorInput>(input => input.LimitConfig == limitConfig && input.StatusCodesConfig == statusCodesConfig),
@@ -71,15 +67,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
             Environment.SetEnvironmentVariable("LimitHourly", limitConfig);
             Environment.SetEnvironmentVariable("StatusCodesHourly", statusCodesConfig);
 
-            this.mockDurableClient
+            this.mockDurableTaskClient
                 .Setup(x => x.ScheduleNewOrchestrationInstanceAsync("MappingStatus", It.IsAny<OrchestratorInput>(), It.IsAny<StartOrchestrationOptions>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync("instanceId");
 
             // Act
-            await MonitoringJdcStatus.StatusesMonitoringHourlyRunSchedulStart(timerInfo, this.mockDurableClient.Object, this.mockLogger.Object);
+            await MonitoringJdcStatus.StatusesMonitoringHourlyRunSchedulStart(timerInfo, this.mockDurableTaskClient.Object, this.functionContext);
 
             // Assert
-            this.mockDurableClient.Verify(
+            this.mockDurableTaskClient.Verify(
                 x => x.ScheduleNewOrchestrationInstanceAsync(
                     "MappingStatus",
                     It.Is<OrchestratorInput>(input => input.LimitConfig == limitConfig && input.StatusCodesConfig == statusCodesConfig),

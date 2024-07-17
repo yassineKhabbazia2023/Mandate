@@ -84,12 +84,11 @@ namespace Mandate.AzureFunctions.Activities
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [Function(nameof(GetCollections))]
         public async Task<PagedTechnicalMandate> GetCollections(
-            [ActivityTrigger] Payload payload,
-            ILogger log)
+            [ActivityTrigger] Payload payload)
         {
             try
             {
-                log.LogInformation("Starting {Functionname} with payload {Payload}.", nameof(this.GetCollections), JsonConvert.SerializeObject(payload!));
+                this.logger.LogInformation("Starting {Functionname} with payload {Payload}.", nameof(this.GetCollections), JsonConvert.SerializeObject(payload!));
                 return await this.mandateManager.GetCollectionsAsync(payload!.Skip, payload!.Limit, payload!.StatusCodes);
             }
             catch (Exception ex)
@@ -107,12 +106,11 @@ namespace Mandate.AzureFunctions.Activities
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [Function(nameof(RefreshCollectionsStatuses))]
         public async Task RefreshCollectionsStatuses(
-            [ActivityTrigger] List<TechnicalCollectionSummary> payload,
-            ILogger log)
+            [ActivityTrigger] List<TechnicalCollectionSummary> payload)
         {
             try
             {
-                log.LogInformation("Starting {Functionname} with payload {Nbr} elements.", nameof(this.RefreshCollectionsStatuses), payload!.Count);
+                this.logger.LogInformation("Starting {Functionname} with payload {Nbr} elements.", nameof(this.RefreshCollectionsStatuses), payload!.Count);
                 await this.mandateManager.RefreshCollectionsStatuses(payload!);
             }
             catch (Exception ex)

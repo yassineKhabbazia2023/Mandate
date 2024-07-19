@@ -16,6 +16,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     [Authorize]
     [ServiceFilter(typeof(MandateAuthorizationFilterAttribute))]
     public class MandateController : ControllerBase
+
     {
         private readonly ILogger<MandateController> logger;
         private readonly IMandateManager mandateManager;
@@ -66,11 +67,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         /// <returns>the GUID Id of the created mandate</returns>
 
         [HttpPost]
-        [RequestTimeout(120000)]
+        [RequestTimeout("TwoSecondsTimeOut")]
         public async Task<IActionResult> PostCollectionAsync([FromBody] CollectionCreationCommand collectionCreationCommand)
         {
             var correlationId = "0"; // TODO
-
             try
             {
                 string email = this.authenticationContext.Email!;

@@ -127,6 +127,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             builder.Services.AddMandateAdapters();
             builder.Services.AddPortailApi(builder.Configuration);
             builder.Services.AddNotificationsApi(option => option.BaseUrl = builder.Configuration["MANDATE_NOTIFICATION_V2_API_URL"]);
+            builder.Services.AddRequestTimeouts(options =>
+            {
+                options.AddPolicy("TwoSecondsTimeOut", TimeSpan.FromSeconds(120));
+            });
 
             var app = builder.Build();
 
@@ -154,6 +158,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 ResponseWriter = WriteResponse,
             });
 
+            app.UseRequestTimeouts();
             app.Run();
         }
 

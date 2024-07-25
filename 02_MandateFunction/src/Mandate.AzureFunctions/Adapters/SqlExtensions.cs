@@ -19,6 +19,7 @@ public static class SqlExtensions
             Email = contact.Email,
             FirstName = contact.FirstName,
             LastName = contact.LastName,
+            IsActive = contact.IsActive,
         };
     }
 

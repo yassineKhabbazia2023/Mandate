@@ -7,6 +7,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Http.Timeouts;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
 
@@ -15,6 +16,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     [Authorize]
     [ServiceFilter(typeof(MandateAuthorizationFilterAttribute))]
     public class MandateController : ControllerBase
+
     {
         private readonly ILogger<MandateController> logger;
         private readonly IMandateManager mandateManager;
@@ -58,14 +60,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             }
         }
 
+        /// <summary>
+        /// we add temporary this decorator of request timeout until we have a better performant solution
+        /// </summary>
+        /// <param name="collectionCreationCommand">Collection command</param>
+        /// <returns>the GUID Id of the created mandate</returns>
+
         [HttpPost]
+        [RequestTimeout("TwoSecondsTimeOut")]
         public async Task<IActionResult> PostCollectionAsync([FromBody] CollectionCreationCommand collectionCreationCommand)
         {
             var correlationId = "0"; // TODO
-
             try
             {
-                var result = await this.mandateManager.CreateMandate(collectionCreationCommand.ToModel());
+                string email = this.authenticationContext.Email!;
+                var result = await this.mandateManager.CreateMandate(collectionCreationCommand.ToModel(), email);
                 return this.Ok(new SaveResult(result));
             }
             catch (Exception ex)

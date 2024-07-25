@@ -107,7 +107,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
                               .ReturnsAsync(expectedMandate);
 
             // Act
-            var result = await this.orchestrator.GetCollections(payload, this.mockLogger.Object);
+            var result = await this.orchestrator.GetCollections(payload);
 
             // Assert
             result.Should().BeEquivalentTo(expectedMandate);
@@ -120,7 +120,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
             var payload = new List<TechnicalCollectionSummary>();
 
             // Act
-            await this.orchestrator.RefreshCollectionsStatuses(payload, this.mockLogger.Object);
+            await this.orchestrator.RefreshCollectionsStatuses(payload);
 
             // Assert
             this.mockMandateManager.Verify(m => m.RefreshCollectionsStatuses(payload), Times.Once);

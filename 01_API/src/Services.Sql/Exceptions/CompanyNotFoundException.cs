@@ -22,16 +22,16 @@ public class CompanyNotFoundException : Exception
 
     public static CompanyNotFoundException FromId(string erpId)
     {
-        return new CompanyNotFoundException($"La company avec l\'id '{erpId}' n'a pas été trouvée dans le référentiel");
+        return new CompanyNotFoundException($"La société avec l\'id '{erpId}' n'a pas été trouvée dans le référentiel");
     }
 
     public static CompanyNotFoundException FromSiret(string siret)
     {
-        return new CompanyNotFoundException($"La company avec le siret '{siret}' n'a pas été trouvée dans le référentiel");
+        return new CompanyNotFoundException($"La société avec le siret '{siret}' n'a pas été trouvée dans le référentiel");
     }
 
     public static CompanyNotFoundException FromEprIdSiret(string erpId, string siret)
     {
-        return new CompanyNotFoundException($"La company avec l\'erp id '{erpId}' et le siret '{siret}' n'a pas été trouvée dans le référentiel");
+        return new CompanyNotFoundException($"La société avec l\'erp id '{erpId}' et le siret '{siret}' n'a pas été trouvée dans le référentiel");
     }
 }

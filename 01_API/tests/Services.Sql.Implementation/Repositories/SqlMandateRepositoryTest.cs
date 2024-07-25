@@ -1314,6 +1314,26 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             context.RefStatusCode.Count().Should().Be(0);
         }
 
+        public async Task AddCollaboratorFakeData(MandateContext context, int collaboratorId, string userEmail, int companyId, bool collabIsActive = true)
+        {
+            var collabDb = new CollaboratorDb()
+            {
+                Id = collaboratorId,
+                Email = userEmail,
+                IsActive = collabIsActive,
+            };
+
+            await context.Collaborator.AddAsync(collabDb);
+
+            var ccDb = new CompanyCollaboratorDb()
+            {
+                CollaboratorId = collaboratorId,
+                CompanyId = companyId,
+            };
+
+            await context.CompanyCollaborator.AddAsync(ccDb);
+        }
+
         [Fact]
         public async Task GetCompanyByErpIdAsync_ShouldReturnCompany_WhenCompanyExists()
         {
@@ -1325,7 +1345,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             // Ensure this is the same ID used for the foreign key in CollectionDb
             int companyId = 101;
+            int collaboratorId = 651;
             var erpId = "validErpId";
+            var userEmail = "user@email.test";
 
             var refBankDb = new RefBankDb()
             {
@@ -1370,13 +1392,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 RejectReason = "reason1",
             };
 
+            await this.AddCollaboratorFakeData(context, collaboratorId, userEmail, companyId);
+
             await context.Collection.AddAsync(collectionDb);
             await context.SaveChangesAsync();
 
             var sqlMandateRepository = new SqlMandateRepository(this.options);
 
             // Act
-            var result = await sqlMandateRepository.GetCompanyByErpIdAsync(erpId);
+            var result = await sqlMandateRepository.GetCompanyByErpIdAsync(erpId, userEmail);
 
             // Assert
             result.Id.Should().Be(expectedCompany.Id);
@@ -1394,9 +1418,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             var sqlMandateRepository = new SqlMandateRepository(this.options);
             var nonExistingErpId = "nonExistingErpId";
+            var userEmail = "user@email.test";
 
             // Act & Assert
-            Func<Task> act = async () => await sqlMandateRepository.GetCompanyByErpIdAsync(nonExistingErpId);
+            Func<Task> act = async () => await sqlMandateRepository.GetCompanyByErpIdAsync(nonExistingErpId, userEmail);
 
             await act.Should().ThrowAsync<CompanyNotFoundException>();
         }
@@ -1934,7 +1959,88 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         }
 
         [Fact]
-        public async Task GetCompanyByErpIdAsync_ShouldNotReturnCompany_WhenCompanyExistsAndIsNotActive()
+        public async Task GetCompanyByErpIdAsync_ShouldNotReturnCompany_WhenCompanyExistsAndIsNotInPortfolio()
+        {
+            // Arrange
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            PredictableGuid generator = new PredictableGuid();
+            int companyId = 1;
+            int otherCompanyId = 14323;
+            var erpId = "validErpId";
+            int collaboratorId = 652;
+            var userEmail = "user@email.test";
+            var siretNumber = "40930900600031";
+
+            var refBankDb = new RefBankDb()
+            {
+                BankCode = "12345",
+                BankName = "bn1",
+                BankCommercialName = "bcn",
+                BankCategory = "bca",
+                BankGroup = "bg",
+                IsJdcScrapable = true,
+                IsJdcPartner = false,
+                HasReleveAgreement = false,
+                HasLiasseAgreement = null,
+                AllowsDemat = true,
+                JdcPartnership = (JdcPartnership)2,
+                EbicsCardId = null,
+            };
+
+            await context.RefBank.AddAsync(refBankDb);
+
+            var expectedCompany = new CompanyDb
+            {
+                Id = companyId,
+                Name = "Dior",
+                SiretNumber = siretNumber,
+                ErpId = erpId,
+                IsActive = true,
+            };
+
+            await context.Company.AddAsync(expectedCompany);
+
+            var otherCompany = new CompanyDb
+            {
+                Id = otherCompanyId,
+                Name = "Other",
+                SiretNumber = siretNumber,
+                ErpId = "0123456789",
+                IsActive = true,
+            };
+            await context.Company.AddAsync(otherCompany);
+
+            await context.SaveChangesAsync();
+
+            Guid collectionId = generator.NewGuid();
+            var collectionDb = new CollectionDb()
+            {
+                Id = collectionId,
+                CompanyId = companyId,
+                BankCode = "12345",
+                BranchCode = "23456",
+                AccountNumber = "12345678901",
+                CheckDigits = "55",
+                LinkType = 7,
+                RejectReason = "reason1",
+            };
+
+            await this.AddCollaboratorFakeData(context, collaboratorId, userEmail, otherCompanyId);
+            await context.Collection.AddAsync(collectionDb);
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            // Act & Assert
+            Func<Task> act = async () => await sqlMandateRepository.GetCompanyByErpIdAsync(erpId, userEmail);
+
+            await act.Should().ThrowAsync<InaccessibleCompanyException>();
+        }
+        
+        [Fact]
+        public async Task GetCompanyByErpIdAsync_ShouldNotReturnCompany_WhenCollaboratorIsInactive()
         {
             // Arrange
             await using var database = SqlServerFixture.CreateDatabase();
@@ -1943,6 +2049,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             PredictableGuid generator = new PredictableGuid();
             int companyId = 1;  // Ensure this is the same ID used for the foreign key in CollectionDb
             var erpId = "validErpId";
+            int collaboratorId = 652;
+            var userEmail = "user@email.test";
             var siretNumber = "40930900600031";
 
             var refBankDb = new RefBankDb()
@@ -1988,15 +2096,85 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 RejectReason = "reason1",
             };
 
+            await this.AddCollaboratorFakeData(context, collaboratorId, userEmail, companyId, false);
             await context.Collection.AddAsync(collectionDb);
             await context.SaveChangesAsync();
 
             var sqlMandateRepository = new SqlMandateRepository(this.options);
 
             // Act & Assert
-            Func<Task> act = async () => await sqlMandateRepository.GetCompanyByErpIdAsync(erpId);
+            Func<Task> act = async () => await sqlMandateRepository.GetCompanyByErpIdAsync(erpId, userEmail);
 
             await act.Should().ThrowAsync<CompanyNotFoundException>();
+        }
+        
+        [Fact]
+        public async Task GetCompanyByErpIdAsync_ShouldNotReturnCompany_WhenCompanyExistsAndIsNotActive()
+        {
+            // Arrange
+            await using var database = SqlServerFixture.CreateDatabase();
+            using var context = new MandateContext(this.options);
+
+            PredictableGuid generator = new PredictableGuid();
+            int companyId = 1;  // Ensure this is the same ID used for the foreign key in CollectionDb
+            var erpId = "validErpId";
+            int collaboratorId = 652;
+            var userEmail = "user@email.test";
+            var siretNumber = "40930900600031";
+
+            var refBankDb = new RefBankDb()
+            {
+                BankCode = "12345",
+                BankName = "bn1",
+                BankCommercialName = "bcn",
+                BankCategory = "bca",
+                BankGroup = "bg",
+                IsJdcScrapable = true,
+                IsJdcPartner = false,
+                HasReleveAgreement = false,
+                HasLiasseAgreement = null,
+                AllowsDemat = true,
+                JdcPartnership = (JdcPartnership)2,
+                EbicsCardId = null,
+            };
+
+            await context.RefBank.AddAsync(refBankDb);
+
+            var expectedCompany = new CompanyDb
+            {
+                Id = companyId,
+                Name = "Dior",
+                SiretNumber = siretNumber,
+                ErpId = erpId,
+                IsActive = false,
+            };
+
+            await context.Company.AddAsync(expectedCompany);
+            await context.SaveChangesAsync();
+
+            Guid collectionId = generator.NewGuid();
+            var collectionDb = new CollectionDb()
+            {
+                Id = collectionId,
+                CompanyId = companyId,  // This must match the ID of the Company record
+                BankCode = "12345",
+                BranchCode = "23456",
+                AccountNumber = "12345678901",
+                CheckDigits = "55",
+                LinkType = 7,
+                RejectReason = "reason1",
+            };
+
+            await this.AddCollaboratorFakeData(context, collaboratorId, userEmail, companyId);
+            await context.Collection.AddAsync(collectionDb);
+            await context.SaveChangesAsync();
+
+            var sqlMandateRepository = new SqlMandateRepository(this.options);
+
+            // Act & Assert
+            Func<Task> act = async () => await sqlMandateRepository.GetCompanyByErpIdAsync(erpId, userEmail);
+
+            await act.Should().ThrowAsync<InactiveCompanyException>();
         }
 
         [Fact]

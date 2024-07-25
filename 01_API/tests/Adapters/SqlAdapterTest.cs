@@ -299,6 +299,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var companyId = 101;
             var collectionId = Guid.Parse("b1111111-1111-1111-1111-111111111111");
             var erpId = "erpId";
+            var userEmail = "user@email.test";
 
             var companydb = new CompanyDb()
             {
@@ -327,7 +328,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             };
 
             var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
-            repository.Setup(r => r.GetCompanyByErpIdAsync(erpId))
+            repository.Setup(r => r.GetCompanyByErpIdAsync(erpId, userEmail))
                 .ReturnsAsync(companydb)
                 .Verifiable();
 
@@ -338,11 +339,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var adapter = new SqlAdapter(repository.Object);
 
             // Act
-            var result = await adapter.GetCompanyByErpIdAsync(erpId);
+            var result = await adapter.GetCompanyByErpIdAsync(erpId, userEmail);
 
             // Assert
             result.Should().BeEquivalentTo(expectedResult);
-            repository.Verify(r => r.GetCompanyByErpIdAsync(erpId), Times.Once);
+            repository.Verify(r => r.GetCompanyByErpIdAsync(erpId, userEmail), Times.Once);
         }
 
         [Fact]

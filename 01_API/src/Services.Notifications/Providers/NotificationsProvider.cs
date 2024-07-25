@@ -24,6 +24,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications
 
         public async Task SendEmailAsync(EmailRequest emailRequest)
         {
+            if (emailRequest == null) { throw new ArgumentNullException(nameof(emailRequest)); }
             string token = this.authenticationContext.BearerToken;
             string url = this.TrailUrl(this.options.Value.BaseUrl, "/notifications/SendEmail");
             try

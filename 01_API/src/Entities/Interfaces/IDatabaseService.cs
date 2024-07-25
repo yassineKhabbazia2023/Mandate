@@ -8,7 +8,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
     {
         Task<Company> GetCompanyBySiretAsync(string siret);
 
-        Task<Company> GetCompanyByErpIdAsync(string erpId);
+        Task<Company> GetCompanyByErpIdAsync(string erpId, string userEmail);
 
         Task<Bank> GetBankByCodeAsync(string bankCode);
 

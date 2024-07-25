@@ -67,9 +67,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 tuple.Item1.Select(i => i.ToModel()).ToList());
         }
 
-        public async Task<Company> GetCompanyByErpIdAsync(string erpId)
+        public async Task<Company> GetCompanyByErpIdAsync(string erpId, string userEmail)
         {
-            var company = await this.mandateRepository.GetCompanyByErpIdAsync(erpId);
+            var company = await this.mandateRepository.GetCompanyByErpIdAsync(erpId, userEmail);
             return company.ToModel();
         }
 

@@ -641,6 +641,26 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             this.mockDatabaseService.Verify(m => m.CreateStatusAsync(It.IsAny<Guid>(), It.IsAny<int>()), Times.Once);
         }
 
+        public async Task AddCollaboratorFakeData(MandateContext context, int collaboratorId, string userEmail, int companyId)
+        {
+            var collabDb = new CollaboratorDb()
+            {
+                Id = collaboratorId,
+                Email = userEmail,
+                IsActive = true,
+            };
+
+            await context.Collaborator.AddAsync(collabDb);
+
+            var ccDb = new CompanyCollaboratorDb()
+            {
+                CollaboratorId = collaboratorId,
+                CompanyId = companyId,
+            };
+
+            await context.CompanyCollaborator.AddAsync(ccDb);
+        }
+
         [Fact]
         public async Task CreateMandate_Case_Ok()
         {
@@ -648,6 +668,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             var rib = new Bban("CodeB", "54321", "12345678901", "01", "ribId", bank);
             var signature = new Signatory("M", "marwen", "elleuch", "maroo@email.com");
             var adresse = new Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+            var userEmail = "user@email.test";
+            int collaboratorId = 2342;
 
             var command = new CollectionCreationCommand(
                 "1234567890",
@@ -691,6 +713,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             var companyManager = new CompanyManager(adapter);
 
             var dossierClient = new Company(companyDb.Id, "cn1", "12345678901234", "1234567890", "folderId", signature, adresse);
+            await this.AddCollaboratorFakeData(context, collaboratorId, userEmail, companyDb.Id);
+            await context.SaveChangesAsync();
 
             this.mockJeDeclareService.Setup(item => item.CreateFolderAsync(
                 It.Is<Company>(c =>
@@ -714,7 +738,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             var mandateManager = new MandateManager(adapter, companyManager, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions, this.mockLogger.Object);
 
-            Guid collectionId = await mandateManager.CreateMandate(command);
+            Guid collectionId = await mandateManager.CreateMandate(command, userEmail);
 
             collectionId.Should().NotBeEmpty();
 
@@ -779,6 +803,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             var rib = new Bban("CodeB", "54321", "12345678901", "01", "ribId", bank);
             var signature = new Signatory("M", "marwen", "elleuch", "maroo@email.com");
             var adresse = new Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+            var userEmail = "user@email.test";
+            var collaboratorId = 123;
 
             var command = new CollectionCreationCommand(
                 "1234567890",
@@ -797,6 +823,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             bankRef.BankCode = "CodeB";
             bankRef.JdcPartnership = (JdcPartnership)2;
             await context.RefBank.AddAsync(bankRef);
+            await context.SaveChangesAsync();
+
+            await this.AddCollaboratorFakeData(context, collaboratorId, userEmail, companyDb.Id);
             await context.SaveChangesAsync();
 
             var sqlRepo = new SqlMandateRepository(this.options);
@@ -820,7 +849,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             var mandateManager = new MandateManager(adapter, companyManager, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions, this.mockLogger.Object);
 
-            Func<Task> acttion = () => mandateManager.CreateMandate(command);
+            Func<Task> acttion = () => mandateManager.CreateMandate(command, userEmail);
 
             int count = context.Collection.Count();
             count.Should().Be(0);
@@ -839,6 +868,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             var rib = new Bban("CodeB", "23456", "12345678901", "55", "ribId", bank);
             var signature = new Signatory("M", "marwen", "elleuch", "maroo@email.com");
             var adresse = new Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+            var userEmail = "user@email.test";
+            var collaboratorId = 32423;
 
             var command = new CollectionCreationCommand(
                 "1234567890",
@@ -865,6 +896,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             await context.Collection.AddAsync(coll);
             await context.SaveChangesAsync();
 
+            await this.AddCollaboratorFakeData(context, collaboratorId, userEmail, companyDb.Id);
+            await context.SaveChangesAsync();
+
             var sqlRepo = new SqlMandateRepository(this.options);
 
             var adapter = new SqlAdapter(sqlRepo);
@@ -886,7 +920,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             var mandateManager = new MandateManager(adapter, companyManager, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions, this.mockLogger.Object);
 
-            Func<Task> acttion = () => mandateManager.CreateMandate(command);
+            Func<Task> acttion = () => mandateManager.CreateMandate(command, userEmail);
 
             int count = context.Collection.Count();
             count.Should().Be(1);

@@ -6,9 +6,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications.Tests
 {
     using AutoFixture;
     using global::Notifications.Commons.WebApi.QueryParams;
+    using Kpmg.Constellation.Net.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
     using KPMG.Pulse.Back.Accounting.Mandate.Portal;
     using Microsoft.Extensions.Options;
+    using Newtonsoft.Json;
+    using System.Net;
 
     public class NotificationsProviderTest
     {
@@ -19,7 +22,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications.Tests
         {
             this.mockAuthContext = new Mock<IAuthenticationContext>();
 
-            var notifOptions = Options.Create(new NotificationOptions() { BaseUrl = "http://notifications" });
+            var notifOptions = Options.Create(new NotificationOptions() { BaseUrl = "http://www.kpmg.fr" });
             // Initialize the provider with the mocked dependencies
 
             this.provider = new NotificationsProvider(this.mockAuthContext.Object, notifOptions);
@@ -66,6 +69,70 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications.Tests
             string api = "/notifications/timon";
             string result = this.provider.TrailUrl(url, api);
             result.Should().Be("https://www.hakounamatata.com/api/notifications/timon");
+        }
+
+        [Fact]
+        public async Task SendEmailAsync_ShouldThrowNullArgument()
+        {
+            EmailRequest? emailRequest = null;
+            var action = async () => await this.provider.SendEmailAsync(emailRequest);
+            await action.Should().ThrowAsync<ArgumentNullException>();
+        }
+
+        [Fact]
+        public async Task SendEmailAsync_ShouldSendEmail()
+        {
+            EmailRequest emailRequest = new EmailRequest() { From = "noreply@kpmg.com", HtmlContent = "content" };
+            var mockHttp = new Mock<IHttpClient>();
+
+            HttpContent content = new StringContent("{}", encoding: Encoding.UTF8, "application/json");
+
+            mockHttp.Setup(client => client.PostAsync(It.IsAny<string>(), content)).ReturnsAsync(It.IsAny<HttpResponseMessage>);
+
+            var action = async () => await this.provider.SendEmailAsync(emailRequest);
+
+            action.Should().BeAssignableTo<Func<Task>>();
+        }
+
+        [Fact]
+        public async Task SendEmailAsync_CallsHttpClientPostAsync_WithCorrectUrlAndContent()
+        {
+            // Arrange
+            var handler = new TestHttpMessageHandler
+            {
+                ResponseToReturn = new HttpResponseMessage(HttpStatusCode.OK),
+                LastRequest = new HttpRequestMessage(HttpMethod.Post, "http://api.example.com/notifications/SendEmail")
+ 
+            };
+
+            var httpClient = new HttpClient(handler);
+
+            var authContextMock = new Mock<IAuthenticationContext>();
+            var optionsMock = new Mock<IOptions<NotificationOptions>>();
+
+            authContextMock.Setup(a => a.BearerToken).Returns("test-token");
+            optionsMock.Setup(o => o.Value).Returns(new NotificationOptions { BaseUrl = "http://api.example.com" });
+
+            var emailRequest = new EmailRequest { /* Set properties */ };
+
+            // Act
+            await this.provider.SendEmailAsync(emailRequest);
+
+            // Assert
+            handler.LastRequest.Should().NotBeNull();
+            handler.LastRequest.Method.Should().Be(HttpMethod.Post);
+            handler.LastRequest.RequestUri.Should().Be("http://api.example.com/notifications/SendEmail");
+        }
+    }
+    public class TestHttpMessageHandler : HttpMessageHandler
+    {
+        public HttpRequestMessage LastRequest { get; set; }
+        public HttpResponseMessage ResponseToReturn { get; set; }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            LastRequest = request;
+            return Task.FromResult(ResponseToReturn);
         }
     }
 }

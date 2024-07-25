@@ -29,23 +29,30 @@ public class AccountEventsFunction
 ServiceBusReceivedMessage message,
 ServiceBusMessageActions messageActions)
     {
-        this.logger.LogInformation("Message ID: {Id}", message.MessageId);
-        this.logger.LogInformation("Message Body: {Body}", message.Body);
-        this.logger.LogInformation("Message Content-Type: {ContentType}", message.ContentType);
-
-        var accountEvent = JsonConvert.DeserializeObject<AccountCreatedEvent>(message.Body.ToString());
-        if (accountEvent!.Data == null || accountEvent.Data?.AccountId <= 0)
+        try
         {
+            this.logger.LogInformation("Message ID: {Id}", message.MessageId);
+            this.logger.LogInformation("Message Body: {Body}", message.Body);
+            this.logger.LogInformation("Message Content-Type: {ContentType}", message.ContentType);
+
+            var accountEvent = JsonConvert.DeserializeObject<AccountCreatedEvent>(message.Body.ToString());
+            if (accountEvent!.Data == null || accountEvent.Data?.AccountId <= 0)
+            {
+                await messageActions.CompleteMessageAsync(message);
+                return;
+            }
+
+            var accountEntity = accountEvent!.Data!.ToModel();
+
+            await this.manager.CreateAccountByEventAsync(accountEntity!);
+
+            // Complete the message
             await messageActions.CompleteMessageAsync(message);
-            return;
         }
-
-        var accountEntity = accountEvent!.Data!.ToModel();
-
-        await this.manager.CreateAccountByEventAsync(accountEntity!);
-
-        // Complete the message
-        await messageActions.CompleteMessageAsync(message);
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "An error occurred while processing the message with ID: {Id}, Body: {Body}", message.MessageId, message.Body);
+        }
     }
 
     [Function("AccountDeletedEventFunction")]
@@ -77,23 +84,30 @@ ServiceBusMessageActions messageActions)
 ServiceBusReceivedMessage message,
 ServiceBusMessageActions messageActions)
     {
-        this.logger.LogInformation("Message ID: {Id}", message.MessageId);
-        this.logger.LogInformation("Message Body: {Body}", message.Body);
-        this.logger.LogInformation("Message Content-Type: {ContentType}", message.ContentType);
-
-        var accountEvent = JsonConvert.DeserializeObject<AccountUpdatedEvent>(message.Body.ToString());
-
-        if (accountEvent!.Data == null || accountEvent.Data?.AccountId <= 0)
+        try
         {
+            this.logger.LogInformation("Message ID: {Id}", message.MessageId);
+            this.logger.LogInformation("Message Body: {Body}", message.Body);
+            this.logger.LogInformation("Message Content-Type: {ContentType}", message.ContentType);
+
+            var accountEvent = JsonConvert.DeserializeObject<AccountUpdatedEvent>(message.Body.ToString());
+
+            if (accountEvent!.Data == null || accountEvent.Data?.AccountId <= 0)
+            {
+                await messageActions.CompleteMessageAsync(message);
+                return;
+            }
+
+            var accountEntity = accountEvent.Data!.ToModel();
+
+            await this.manager.UpdateAccountByEventAsync(accountEntity!);
+
+            // Complete the message
             await messageActions.CompleteMessageAsync(message);
-            return;
         }
-
-        var accountEntity = accountEvent.Data!.ToModel();
-
-        await this.manager.UpdateAccountByEventAsync(accountEntity!);
-
-        // Complete the message
-        await messageActions.CompleteMessageAsync(message);
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "An error occurred while processing the message with ID: {Id}, Body: {Body}", message.MessageId, message.Body);
+        }
     }
 }

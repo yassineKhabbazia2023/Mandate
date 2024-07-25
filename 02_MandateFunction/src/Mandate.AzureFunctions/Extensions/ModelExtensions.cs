@@ -39,7 +39,7 @@ public static class ModelExtensions
     {
         ArgumentNullException.ThrowIfNull(accountStateEventData);
 
-        string? cleanedSiretNumber = accountStateEventData.SiretNumber?.Trim().Replace(" ", string.Empty);
+        string? cleanedSiretNumber = accountStateEventData.SiretNumber?.Replace(" ", string.Empty);
 
         if (cleanedSiretNumber?.Length > 14)
         {

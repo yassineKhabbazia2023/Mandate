@@ -8,7 +8,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
     using System.Linq.Expressions;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
-    using Microsoft.Identity.Client;
 
     public class SqlMandateRepository : IMandateRepository
     {
@@ -1498,47 +1497,35 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             context.RemoveRange(await context.Company.Where(s => fakeCompanyIds.Contains(s.Id)).ToListAsync());
             await context.SaveChangesAsync();
         }
-        public class QueryResult
-        {
-            public CompanyDb CompanyDb { get; set; }
-            public int? CollaboratorId { get; set; }
-        }
 
         public async Task<CompanyDb> GetCompanyByErpIdAsync(string erpId, string userEmail)
         {
             using var context = new MandateContext(this.options);
 
-            var result = await (
-                from collaborator in context.Collaborator
-                from company in context.Company
-                join cc in context.CompanyCollaborator
-                    on new { com = company.Id, col = collaborator.Id }
-                    equals new { com = cc.CompanyId, col = cc.CollaboratorId }
-                    into cc_join_table
-                from companyCollaborator in cc_join_table.DefaultIfEmpty()
-                where company.ErpId == erpId && collaborator.Email == userEmail && collaborator.IsActive
-                select new QueryResult
-                {
-                    CompanyDb = company,
-                    CollaboratorId = companyCollaborator.CollaboratorId,
-                }).FirstOrDefaultAsync();
+            var company = await context.Company
+                .Include(c => c.Personal)
+                .Include(c => c.JeDeclareFolder)
+                .Include(c => c.CompanyCollaborators.Where(c => c.Collaborator.Email.ToLower() == userEmail.ToLower() && c.Collaborator.IsActive))
+                .ThenInclude(c => c.Collaborator)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.ErpId == erpId);
 
-            if (result == null)
+            if (company is null)
             {
                 throw CompanyNotFoundException.FromId(erpId);
             }
 
-            if (!result.CompanyDb.IsActive)
+            if (!company.IsActive)
             {
                 throw InactiveCompanyException.FromId(erpId);
             }
 
-            if (result.CollaboratorId == null)
+            if (!company.CompanyCollaborators.Any())
             {
                 throw InaccessibleCompanyException.FromId(erpId);
             }
 
-            return result.CompanyDb;
+            return company;
         }
 
         public async Task<CollaboratorDb> GetCollaboratorByEmailAsync(string collaboratorEmail)

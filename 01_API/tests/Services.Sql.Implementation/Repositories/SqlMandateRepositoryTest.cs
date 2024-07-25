@@ -1367,6 +1367,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             await context.RefBank.AddAsync(refBankDb);
 
+            var personalDB = new PersonalDb()
+            {
+                FirstName = "firstname",
+                LastName = "lastname",
+                Email = "email",
+            };
+
             var expectedCompany = new CompanyDb
             {
                 Id = companyId,
@@ -1374,6 +1381,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 SiretNumber = "40930900600031",
                 ErpId = erpId,
                 IsActive = true,
+                Personal = personalDB,
             };
 
             await context.Company.AddAsync(expectedCompany);
@@ -1407,6 +1415,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             result.ErpId.Should().Be(expectedCompany.ErpId);
             result.SiretNumber.Should().Be(expectedCompany.SiretNumber);
             result.Name.Should().Be(expectedCompany.Name);
+            result.Personal?.Email.Should().BeEquivalentTo(expectedCompany.Personal.Email);
         }
 
         [Fact]

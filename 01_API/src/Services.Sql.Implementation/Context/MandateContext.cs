@@ -99,7 +99,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 .WithOne(jdf => jdf.Company)
                 .HasForeignKey<JeDeclareFolderDb>(jdf => jdf.CompanyId);
             modelBuilder.Entity<CompanyDb>().Property(c => c.Name).HasMaxLength(255).IsUnicode(true).IsRequired(false);
-            modelBuilder.Entity<CompanyDb>().Property(c => c.SiretNumber).IsFixedLength(true).HasMaxLength(14).IsRequired(false);
+            modelBuilder.Entity<CompanyDb>().Property(c => c.SiretNumber).IsFixedLength(true).HasMaxLength(150).IsRequired(false);
             modelBuilder.Entity<CompanyDb>().Property(c => c.ErpId).HasMaxLength(50).IsRequired(false);
 
             modelBuilder.Entity<PersonalDb>().HasKey(cp => cp.Id);
@@ -157,7 +157,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
             modelBuilder.Entity<MandateLogDb>().HasKey(c => c.Id);
             modelBuilder.Entity<MandateLogDb>().Property(c => c.ErpId).HasMaxLength(50).IsRequired(true);
-            modelBuilder.Entity<MandateLogDb>().Property(c => c.SiretNumber).IsFixedLength(true).HasMaxLength(150).IsRequired(true);
+            modelBuilder.Entity<MandateLogDb>().Property(c => c.SiretNumber).IsFixedLength(true).HasMaxLength(14).IsRequired(true);
             modelBuilder.Entity<MandateLogDb>().Property(cp => cp.BankCode).IsFixedLength(true).HasMaxLength(5).IsRequired(true);
             modelBuilder.Entity<MandateLogDb>().Property(cp => cp.BranchCode).IsFixedLength(true).HasMaxLength(5).IsRequired(true);
             modelBuilder.Entity<MandateLogDb>().Property(cp => cp.AccountNumber).IsFixedLength(true).HasMaxLength(11).IsRequired(true);

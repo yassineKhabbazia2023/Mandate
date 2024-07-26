@@ -79,7 +79,6 @@ public class ModelExtensionsTest
             AccountId = 1,
             LegalName = "Test Company",
             AccountNumber = "123456",
-            SiretNumber = "123456789 12345",
         };
 
         // Act
@@ -89,26 +88,7 @@ public class ModelExtensionsTest
         result.Should().NotBeNull();
         result.Id.Should().Be(accountStateEventData.AccountId);
         result.Name.Should().Be(accountStateEventData.LegalName);
-        result.SiretNumber.Should().Be(accountStateEventData.SiretNumber.Trim().Replace(" ", string.Empty));
-    }
-
-    [Fact]
-    public void ToModel_WithSiretNumberLongerThan14Characters_ShouldThrowArgumentException()
-    {
-        // Arrange
-        var accountStateEventData = new AccountStateEventData
-        {
-            AccountId = 1,
-            LegalName = "Test Company",
-            AccountNumber = "123456",
-            SiretNumber = "123456789 123456789",
-        };
-
-        // Act
-        Action act = () => accountStateEventData.ToModel();
-
-        // Assert
-        act.Should().Throw<ArgumentException>();
+        result.SiretNumber.Should().Be(accountStateEventData.SiretNumber);
     }
 
     [Fact]

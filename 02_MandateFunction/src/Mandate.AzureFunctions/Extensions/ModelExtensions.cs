@@ -39,17 +39,10 @@ public static class ModelExtensions
     {
         ArgumentNullException.ThrowIfNull(accountStateEventData);
 
-        string? cleanedSiretNumber = accountStateEventData.SiretNumber?.Replace(" ", string.Empty);
-
-        if (cleanedSiretNumber?.Length > 14)
-        {
-            throw new ArgumentException("Siret number cannot be more than 14 characters.");
-        }
-
         return new Account(
             accountStateEventData.AccountId,
             accountStateEventData.LegalName,
-            cleanedSiretNumber,
+            accountStateEventData.SiretNumber,
             accountStateEventData.AccountNumber,
             true);
     }

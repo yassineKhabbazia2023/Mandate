@@ -157,7 +157,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
             modelBuilder.Entity<MandateLogDb>().HasKey(c => c.Id);
             modelBuilder.Entity<MandateLogDb>().Property(c => c.ErpId).HasMaxLength(50).IsRequired(true);
-            modelBuilder.Entity<MandateLogDb>().Property(c => c.SiretNumber).IsFixedLength(true).HasMaxLength(14).IsRequired(true);
+            modelBuilder.Entity<MandateLogDb>().Property(c => c.SiretNumber).IsFixedLength(true).HasMaxLength(150).IsRequired(true);
             modelBuilder.Entity<MandateLogDb>().Property(cp => cp.BankCode).IsFixedLength(true).HasMaxLength(5).IsRequired(true);
             modelBuilder.Entity<MandateLogDb>().Property(cp => cp.BranchCode).IsFixedLength(true).HasMaxLength(5).IsRequired(true);
             modelBuilder.Entity<MandateLogDb>().Property(cp => cp.AccountNumber).IsFixedLength(true).HasMaxLength(11).IsRequired(true);

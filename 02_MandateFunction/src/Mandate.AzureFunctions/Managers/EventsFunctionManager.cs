@@ -127,11 +127,6 @@ public class EventsFunctionManager : IEventsFunctionManager
             return;
         }
 
-        if (!dbCompany.IsActive)
-        {
-            this.logger.LogWarning("Since the value of IsActive in this entry is false, this update will deactivate the company in this database.");
-        }
-
         await this.sqlAdapter.UpdateAccountByEventAsync(account);
         this.logger.LogInformation("Account with ID {Id} successfully updated in database.", account.Id);
 
@@ -145,11 +140,6 @@ public class EventsFunctionManager : IEventsFunctionManager
             this.logger.LogError("Contact with ID {Id} does not exists in database. Start creating new entry...", contact.Id);
             await this.CreateContactByEventAsync(contact);
             return;
-        }
-
-        if (!contact.IsActive)
-        {
-            this.logger.LogWarning("Since the value of IsActive in this entry is false, this update will deactivate the contact in this database.");
         }
 
         await this.sqlAdapter.UpdateContactByEventAsync(contact);

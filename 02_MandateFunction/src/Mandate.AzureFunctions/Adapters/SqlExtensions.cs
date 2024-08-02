@@ -42,6 +42,7 @@ public static class SqlExtensions
             Name = account.Name,
             SiretNumber = account.SiretNumber,
             ErpId = account.AccountNumber,
+            IsActive = account.IsActive,
         };
     }
 

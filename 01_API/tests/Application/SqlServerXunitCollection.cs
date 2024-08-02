@@ -6,7 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests;
 
-    [CollectionDefinition("SerialExecutionPublishDb")]
+    [CollectionDefinition("SqlServerXunitCollection")]
     public class SqlServerXunitCollection : ICollectionFixture<SqlServerFixture>
     {
     }

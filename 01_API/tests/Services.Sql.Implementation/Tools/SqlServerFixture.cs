@@ -1,120 +1,114 @@
-﻿// <copyright file="SqlServerFixture.cs" company="KPMG">
-// Copyright (c) KPMG. All rights reserved.
-// </copyright>
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Dac;
+using System.Data;
+using System.Diagnostics;
 
-namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
+namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests;
+public class SqlServerFixture : IAsyncLifetime
 {
-    using System.Diagnostics;
-    using Microsoft.Data.SqlClient;
-    using Microsoft.SqlServer.Dac;
+    private const string Instance = "cst-unit-tests";
+    private const string DatabaseName = "Mandate.Sql.Database";
+    private const string DacName = $"{DatabaseName}.dacpac";
+    public SqlConnection _connection;
 
-    public class SqlServerFixture : IDisposable
+    public string ConnectionString { get; private set; }
+
+    private static void SqlOperation(string arguments)
     {
-        private const string Instance = "cst-unit-tests";
-        private const string DatabaseName = "Mandate.Sql.Database";
-        private const string DacName = $"{DatabaseName}.dacpac";
-        private static string connectionString = string.Empty;
-        private bool disposedValue = false;
-
-        public SqlServerFixture()
+        var parameters = new ProcessStartInfo()
         {
-            SqlOperation($"create {Instance} -s");
-            var csBuilder = new SqlConnectionStringBuilder()
-            {
-                DataSource = Environment.GetEnvironmentVariable("UNITTESTS_SQLSERVER_DATASOURCE") ?? $"(localdb)\\{Instance}",
-                InitialCatalog = DatabaseName,
-                IntegratedSecurity = true,
-            };
+            CreateNoWindow = true,
+            Arguments = arguments,
+            FileName = "SqlLocalDB.exe",
+            UseShellExecute = false,
+            WindowStyle = ProcessWindowStyle.Hidden,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+        };
 
-            connectionString = csBuilder.ConnectionString;
-        }
+        using var createDb = Process.Start(parameters);
+        createDb!.WaitForExit();
 
-        ~SqlServerFixture()
+        if (createDb.ExitCode != 0)
         {
-            this.Dispose(disposing: false);
+            throw new Exception($"Couldn't execute SqlLocalDb with arguments '{arguments}'");
         }
+    }
 
-        public static string ConnectionString
+    public Task InitializeAsync()
+    {
+        SqlOperation($"create {Instance} -s");
+        var csBuilder = new SqlConnectionStringBuilder()
         {
-            get
-            {
-                return connectionString;
-            }
-        }
+            DataSource = Environment.GetEnvironmentVariable("UNITTESTS_SQLSERVER_DATASOURCE") ?? $"(localdb)\\{Instance}",
+            InitialCatalog = DatabaseName,
+            IntegratedSecurity = true,
+        };
 
-        public static SqlServerDatabase CreateDatabase()
+        ConnectionString = csBuilder.ConnectionString;
+
+        var dacDeployOptions = new DacDeployOptions
         {
-            var dacDeployOptions = new DacDeployOptions()
-            {
-                CreateNewDatabase = true,
-            };
+            CreateNewDatabase = true,
+        };
 
-            using var dacPackage = DacPackage.Load(DacName);
-            var dacServices = new DacServices(connectionString);
-            dacServices.Deploy(dacPackage, DatabaseName, true, dacDeployOptions, CancellationToken.None);
-            var database = new SqlServerDatabase(connectionString);
-            Connect(database);
-            return database;
-        }
+        using var dacPackage = DacPackage.Load(DacName);
+        var dacServices = new DacServices(ConnectionString);
+        dacServices.Deploy(dacPackage, DatabaseName, true, dacDeployOptions, CancellationToken.None);
+        _connection = new SqlConnection(ConnectionString);
+        _connection.Open();
 
-        public void Dispose()
+        return Task.CompletedTask;
+    }
+
+    public async Task DisposeAsync()
+    {
+        if (_connection != null)
         {
-            this.Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            await DropDatabase();
+            _connection.Dispose();
         }
+    }
 
-        internal static async Task DropDatabase(SqlServerDatabase database)
-        {
-            await database.ExecuteNonQueryAsync($"ALTER DATABASE [{DatabaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE").ConfigureAwait(false);
-            await database.ExecuteNonQueryAsync("USE master").ConfigureAwait(false);
-            await database.ExecuteNonQueryAsync($"DROP DATABASE [{DatabaseName}]").ConfigureAwait(false);
-        }
+    internal async Task DropDatabase()
+    {
+        await ExecuteNonQueryAsync($"ALTER DATABASE [{DatabaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE").ConfigureAwait(false);
+        await ExecuteNonQueryAsync("USE master").ConfigureAwait(false);
+        await ExecuteNonQueryAsync($"DROP DATABASE [{DatabaseName}]").ConfigureAwait(false);
+    }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposedValue)
-            {
-                if (disposing)
-                {
-                    SqlOperation($"stop {Instance}");
-                    SqlOperation($"delete {Instance}");
+    public async Task<int> ExecuteNonQueryAsync(string sqlCommand, params SqlParameter[] arguments)
+    {
+        using var command = _connection.CreateCommand();
+        command.CommandText = sqlCommand;
+        command.Parameters.AddRange(arguments);
+        return await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+    }
 
-                    string homePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+    public void ClearTables()
+    {
+        using var command = _connection.CreateCommand();
+        command.CommandText = @"
+            DELETE Mandate.JeDeclareFolder
+            DELETE Mandate.JeDeclareCollection
+            DELETE Mandate.CompanyCollaborator
+            DELETE Mandate.Status
+            DELETE Mandate.Personal
+            DELETE Mandate.Collection
+            DELETE Mandate.RefBank
+            DELETE Mandate.RefPdfTemplate
+            DELETE Mandate.RefStatusCode
+            DELETE Mandate.Company
+            DELETE Mandate.Collaborator
+";
+        command.ExecuteNonQuery();
+    }
 
-                    File.Delete($"{homePath}/{DatabaseName}.mdf");
-                    File.Delete($"{homePath}/{DatabaseName}_log.ldf");
-                }
-
-                this.disposedValue = true;
-            }
-        }
-
-        private static void SqlOperation(string arguments)
-        {
-            var parameters = new ProcessStartInfo()
-            {
-                CreateNoWindow = true,
-                Arguments = arguments,
-                FileName = "SqlLocalDB.exe",
-                UseShellExecute = false,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-            };
-
-            using var createDb = Process.Start(parameters);
-            createDb!.WaitForExit();
-
-            if (createDb.ExitCode != 0)
-            {
-                throw new Exception($"Couldn't execute SqlLocalDb with arguments '{arguments}'");
-            }
-        }
-
-        private static void Connect(SqlServerDatabase database)
-        {
-            // Decrypt encrypted columns
-            // Insert referential values
-        }
+    public DataTable ExecuteQuery(string query)
+    {
+        using var adapter = new SqlDataAdapter(query, _connection);
+        var dataTable = new DataTable();
+        adapter.Fill(dataTable);
+        return dataTable;
     }
 }

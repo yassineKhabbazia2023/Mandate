@@ -2047,7 +2047,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             await act.Should().ThrowAsync<InaccessibleCompanyException>();
         }
-        
+
         [Fact]
         public async Task GetCompanyByErpIdAsync_ShouldNotReturnCompany_WhenCollaboratorIsInactive()
         {
@@ -2086,7 +2086,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 Name = "Dior",
                 SiretNumber = siretNumber,
                 ErpId = erpId,
-                IsActive = false,
+                IsActive = true,
             };
 
             await context.Company.AddAsync(expectedCompany);
@@ -2114,9 +2114,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             // Act & Assert
             Func<Task> act = async () => await sqlMandateRepository.GetCompanyByErpIdAsync(erpId, userEmail);
 
-            await act.Should().ThrowAsync<CompanyNotFoundException>();
+            await act.Should().ThrowAsync<InaccessibleCompanyException>();
         }
-        
+
         [Fact]
         public async Task GetCompanyByErpIdAsync_ShouldNotReturnCompany_WhenCompanyExistsAndIsNotActive()
         {

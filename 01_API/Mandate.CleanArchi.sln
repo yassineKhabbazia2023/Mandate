@@ -159,6 +159,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KPMG.Pulse.Back.Accounting.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.AzureFunctions.Tests", "..\02_MandateFunction\tests\Mandate.AzureFunctions.Tests\Mandate.AzureFunctions.Tests.csproj", "{23466861-C907-44A1-856E-C2EACB4BC565}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{1B2826FD-16E8-4B2E-8153-6EEC8B1C574F}"
+	ProjectSection(SolutionItems) = preProject
+		330875-generate-update-requests-for-statuses-of-companies.sql = 330875-generate-update-requests-for-statuses-of-companies.sql
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

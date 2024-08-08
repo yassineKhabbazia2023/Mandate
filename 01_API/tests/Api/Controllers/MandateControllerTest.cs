@@ -4,36 +4,33 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 {
-    using System.Net;
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests;
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests.Tools;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.Abstractions;
     using Microsoft.Extensions.Options;
+    using System.Net;
 
-    [Collection("SerialExecutionPublishDb")]
     public class MandateControllerTest
+        : SqlServerTestBase
     {
-        private readonly Mock<IJeDeclareService> mockJeDeclareService;
-        private readonly Mock<IAsposeHelper> mockAsposeHelper;
-        private readonly IOptions<MandateEmailOptions> emailOptions;
-        private readonly Mock<ILogger<MandateManager>> mockMandateLogger;
-        private IOptions<SqlMandateRepositoryOptions> options;
+        private readonly Mock<IJeDeclareService> _mockJeDeclareService;
+        private readonly Mock<IAsposeHelper> _mockAsposeHelper;
+        private readonly IOptions<MandateEmailOptions> _emailOptions;
+        private readonly Mock<ILogger<MandateManager>> _mockMandateLogger;
 
-        public MandateControllerTest()
+        public MandateControllerTest(SqlServerFixture sqlServerFixture)
+            : base(sqlServerFixture)
         {
-            this.options = Options.Create(new SqlMandateRepositoryOptions()
-            {
-                ConnectionString = Sql.Implementation.Tests.SqlServerFixture.ConnectionString,
-            });
-            this.mockJeDeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
-            this.mockAsposeHelper = new Mock<IAsposeHelper>(MockBehavior.Strict);
-            this.emailOptions = Options.Create(new MandateEmailOptions
+            _mockJeDeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
+            _mockAsposeHelper = new Mock<IAsposeHelper>(MockBehavior.Strict);
+            _emailOptions = Options.Create(new MandateEmailOptions
             {
                 MandateCancellationSubject = "Your Cancellation Subject",
                 MandateCancellationTemplateName = "CancellationTemplate",
@@ -46,7 +43,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 MandateUploadedToEmail = "upload_to@example.com",
                 MandateUploadedCcEmails = new List<string> { "upload_cc1@example.com", "upload_cc2@example.com" },
             });
-            this.mockMandateLogger = new Mock<ILogger<MandateManager>>(MockBehavior.Loose);
+            _mockMandateLogger = new Mock<ILogger<MandateManager>>(MockBehavior.Loose);
         }
 
         [Fact]
@@ -1360,10 +1357,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         public async Task RecoveryFormIOAsync_ShouldCallGetAllCollectionAsyncAndInsertFormIOCollectionAsync_AndReturnOkResult()
         {
             // Arrange
-            await using var database = SqlServerFixture.CreateDatabase();
-
-            this.options = Options.Create(new SqlMandateRepositoryOptions() { ConnectionString = SqlServerFixture.ConnectionString });
-            using var context = new MandateContext(this.options);
+            using var context = new MandateContext(_options);
 
             await context.Company.AddAsync(new Sql.CompanyDb()
             {
@@ -1375,13 +1369,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             });
 
             await context.SaveChangesAsync();
-            var sqlRepo = new SqlMandateRepository(this.options);
+            var sqlRepo = new SqlMandateRepository(_options);
 
             await sqlRepo.CreateFakeRefAsync();
             var adapter = new SqlAdapter(sqlRepo);
             var companyManager = new CompanyManager(adapter);
 
-            var mandateManager = new MandateManager(adapter, companyManager, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions, this.mockMandateLogger.Object);
+            var mandateManager = new MandateManager(adapter, companyManager, _mockJeDeclareService.Object, _mockAsposeHelper.Object, null!, _emailOptions, _mockMandateLogger.Object);
 
             var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
             var guidGenerator = new Mock<IGuidGenerator>();

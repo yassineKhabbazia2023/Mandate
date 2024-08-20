@@ -2,22 +2,23 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using KPMG.Constellation.Portal.Client;
+using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
+using KPMG.Pulse.Back.Accounting.Mandate.Application;
+using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client;
+using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
+using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
+using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
+using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
+using KPMG.Pulse.Back.Accounting.Mandate.Portal;
+using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
+using Mandate.Messaging;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 {
-    using KPMG.Constellation.Portal.Client;
-    using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
-    using KPMG.Pulse.Back.Accounting.Mandate.Application;
-    using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client;
-    using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
-    using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
-    using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
-    using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
-    using KPMG.Pulse.Back.Accounting.Mandate.Portal;
-    using KPMG.Pulse.Back.Accounting.Mandate.Sql;
-    using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
-
     public class ServiceRegistrationTest
     {
         [Fact]
@@ -31,6 +32,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 new KeyValuePair<string, string?>("ConstellationAudience", "ConstellationAudience"),
                 new KeyValuePair<string, string?>("ConstellationTenant", "ConstellationTenant"),
                 new KeyValuePair<string, string?>("MANDATE_NOTIFICATION_V2_API_URL", "https://notifications"),
+                new KeyValuePair<string, string?>("ServiceBusQueueCreateQueueName", "big-queue"),
+                new KeyValuePair<string, string?>("hubServiceBus:fullyQualifiedNamespace", "ahah"),
+                new KeyValuePair<string, string?>("hubServiceBus:clientId", "watashi"),
             };
 
             var configuration = new ConfigurationManager()
@@ -71,11 +75,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             sc.AddSingleton<IConfiguration>(configuration);
             sc.AddPortailApi((ConfigurationManager)configuration);
             sc.AddNotificationsApi(new Action<NotificationOptions>(options => options.BaseUrl = "https://notifications"));
+            sc.AddServiceBusConfiguration(configuration);
 
             var sp = sc.BuildServiceProvider();
 
             // Make sure we don't forget services ; exclude services from Microsoft (IOption, ...)
-            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(23);
+            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(25);
 
             // Test all services ; number of tests below should match the number of services above
             sp.GetService<IBankManager>().Should().NotBeNull();

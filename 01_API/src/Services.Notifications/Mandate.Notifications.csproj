@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="Kpmg.AspNetCore.Authentication.ConstellationIdentityService" Version="1.1.0.3" />
+	<PackageReference Include="Kpmg.AspNetCore.Authentication.ConstellationIdentityService" Version="1.1.0.10" />
 	<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
 	<PackageReference Include="Pulse.Back.Notifications.Commons" Version="1.0.0.8" />
   </ItemGroup>

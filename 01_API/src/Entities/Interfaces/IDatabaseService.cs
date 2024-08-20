@@ -10,6 +10,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<Company> GetCompanyByErpIdAsync(string erpId, string userEmail);
 
+        Task<Company> GetCompanyByErpIdAsync(string erpId, int contactId);
+
         Task<Bank> GetBankByCodeAsync(string bankCode);
 
         Task<Status> GetRefStatusCodeByJdcCodeAsync(string jdcStatusCode);

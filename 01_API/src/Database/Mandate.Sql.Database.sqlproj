@@ -59,6 +59,7 @@
     <Folder Include="Security\Always Encrypted Keys" />
     <Folder Include="Security\Always Encrypted Keys\Column Encryption Keys" />
     <Folder Include="Security\Always Encrypted Keys\Column Master Keys" />
+    <Folder Include="PostDeployment" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -77,5 +78,6 @@
     <Build Include="Tables\Collaborator.sql" />
     <Build Include="Tables\CompanyCollaborator.sql" />
     <Build Include="Tables\MandateLog.sql" />
+    <PostDeploy Include="PostDeployment\AddCreationInprogressStatus.sql" />
   </ItemGroup>
 </Project>

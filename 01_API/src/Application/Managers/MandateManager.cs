@@ -10,85 +10,75 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
     using System.Collections.Generic;
     using System.Linq;
+    using KPMG.Pulse.Back.Accounting.Mandate.Application.Interfaces;
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
 
     public class MandateManager : IMandateManager
     {
         private readonly IDatabaseService databaseService;
-        private readonly ICompanyManager companyManager;
         private readonly IJeDeclareService jeDeclareService;
         private readonly IAsposeHelper asposeHelper;
         private readonly INotificationsService notificationsService;
         private readonly IOptions<MandateEmailOptions> options;
         private readonly ILogger<MandateManager> logger;
+        private readonly IEventManager eventManager;
 
-        public MandateManager(IDatabaseService databaseService, ICompanyManager companyManager, IJeDeclareService jeDeclareService, IAsposeHelper asposeHelper, INotificationsService notificationsService, IOptions<MandateEmailOptions> options, ILogger<MandateManager> logger)
+        public MandateManager(
+            IDatabaseService databaseService,
+            IJeDeclareService jeDeclareService,
+            IAsposeHelper asposeHelper,
+            INotificationsService notificationsService,
+            IOptions<MandateEmailOptions> options,
+            ILogger<MandateManager> logger,
+            IEventManager eventManager)
         {
             this.databaseService = databaseService;
-            this.companyManager = companyManager;
             this.jeDeclareService = jeDeclareService;
             this.asposeHelper = asposeHelper;
             this.notificationsService = notificationsService;
             this.options = options ?? throw new ArgumentNullException(nameof(options));
             this.logger = logger;
+            this.eventManager = eventManager;
         }
 
-        public async Task<Guid> CreateMandate(CollectionCreationCommand mandateCreation, string userEmail)
+        public async Task<Guid> CreateMandateAsync(CollectionCreationCommand mandateCreation, int contactId)
         {
-            Company company = await this.companyManager.GetCompanyByErpIdAsync(mandateCreation.ErpId, userEmail);
-
-            Bank bank = await this.databaseService.GetBankByCodeAsync(mandateCreation.Bban.BankCode);
-
-            Company toAdd = new Company(
-                company.Id,
-                company.Name,
-                company.SiretNumber,
-                mandateCreation.ErpId,
-                null,
-                mandateCreation.Signatory,
-                mandateCreation.Address);
-
-            Company dossierClient = await this.jeDeclareService.CreateFolderAsync(toAdd);
-
-            // Création du dossier coté SQL
-            await this.databaseService.CreateOrUpdateFolderAsync(dossierClient.BankServicesProviderId!, company.Id);
-
-            // Verification du bank partenaire ou non partenaire
-            if (bank.JdcAgreement.JdcPartnership != JdcPartnership.Partner && string.IsNullOrWhiteSpace(bank.EbicsCardId))
-            {
-                throw new ApplicationException($"L'établissement bancaire {bank.Code} n'est pas partenaire de JeDeclare.com mais est défini sans connexion à une carte EBICs.");
-            }
+            var company = await this.databaseService.GetCompanyByErpIdAsync(mandateCreation.ErpId, contactId);
 
             // vérifier si la collecte existe
             if (await this.databaseService.CheckCollecteConfigExistAsync(mandateCreation.Bban))
             {
-                throw new ApplicationException($"Il existe une configuration de collecte pour ce RIB {StringExtensions.Concat(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber, mandateCreation.Bban.CheckDigits)}.");
+                throw new JdcCollecteConfigExistException(
+                    $"Il existe une configuration de collecte pour ce RIB {StringExtensions.Concat(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber, mandateCreation.Bban.CheckDigits)}.");
             }
 
-            // Création du rib coté jeDeclare
-            Bban rib = await this.jeDeclareService.AddRibToFolderAsync(
-                dossierClient.BankServicesProviderId,
-                mandateCreation,
-                bank);
+            var bank = await this.databaseService.GetBankByCodeAsync(mandateCreation.Bban.BankCode);
 
-            // Création de la collecte
-            Guid collectionId = await this.databaseService.CreateCollectionAsync(rib, company.Id);
+            // Verification du bank partenaire ou non partenaire
+            if (bank.JdcAgreement.JdcPartnership != JdcPartnership.Partner && string.IsNullOrWhiteSpace(bank.EbicsCardId))
+            {
+                throw new BankHasNoJdcPartnershipException($"L'établissement bancaire {bank.Code} n'est pas partenaire de JeDeclare.com mais est défini sans connexion à une carte EBICs.");
+            }
 
-            // création de la collecte coté jeDeclare
-            string createdReleveId = await this.jeDeclareService.CreateCollecteConfigurationAsync(
-                toAdd,
-                rib,
-                dossierClient.BankServicesProviderId!);
+            var message = new MandateCreationMessage
+            {
+                Id = company.Id,
+                Name = company.Name,
+                SiretNumber = company.SiretNumber,
+                ErpId = company.ErpId,
+                Address = mandateCreation.Address,
+                Signatory = mandateCreation.Signatory,
+                BankServicesProviderId = null,
+                Bank = bank,
+                Bban = mandateCreation.Bban,
+                Company = company,
+            };
 
-            // save Signatory
-            await this.databaseService.SaveSignatoryAsync(null, collectionId, mandateCreation.Signatory, mandateCreation.Address);
+            var collectionId = await this.databaseService.CreateCollectionAsync(mandateCreation.Bban, company.Id);
 
-            // crétaion JeDeclareCollection coté sql
-            await this.databaseService.InsertServicesProviderIds(collectionId, createdReleveId, rib?.BbanServicesProviderId!);
-
-            // Creation mandate Status 10
-            await this.databaseService.CreateStatusAsync(collectionId, (int)JdcCollectionStatus.Activation_Requested_Collection_Pending);
+            await this.eventManager.PublishCreateMandateAsync(message);
 
             return collectionId;
         }
@@ -237,6 +227,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 await this.databaseService.InsertMandateLogAsync(collection, e);
                 return;
             }
+        }
+
+        public async Task<bool> CheckIfMandateCreationIsStillInProgressAsync(Guid collectionId)
+        {
+            var collection = await this.databaseService.GetCollectionById(collectionId);
+            return collection != null && collection.Status.StatusCode == CollectionStatus.Creation_Inprogress;
         }
 
         internal async Task<byte[]> DownloadPdfForJdcPartner(Collection collection)

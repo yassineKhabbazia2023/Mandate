@@ -2,6 +2,8 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
     public static class SqlExtensions
@@ -154,7 +156,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return new Sql.StatusDb()
             {
                 IsCurrent = true,
-                StatusCode = (int)JdcCollectionStatus.InitialCreate,
+                StatusCode = (int)CollectionStatus.Creation_Inprogress,
                 StatusDate = DateTime.UtcNow,
             };
         }
@@ -242,6 +244,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 ExceptionType = (Sql.ExceptionType)exception.Type,
                 ExceptionMessage = exception.Message,
                 InnerExceptionMessage = exception.InnerException?.Message,
+            };
+        }
+
+        public static CollectionDb ToCollectionDb(this Bban source, int companyId)
+        {
+            return new CollectionDb()
+            {
+                JdcRibId = source.BbanServicesProviderId,
+                AccountNumber = source.AccountNumber,
+                BankCode = source.BankCode,
+                BranchCode = source.BranchCode,
+                CheckDigits = source.CheckDigits,
+                CompanyId = companyId,
             };
         }
 

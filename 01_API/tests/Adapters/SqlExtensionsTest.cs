@@ -181,7 +181,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             Sql.StatusDb status = SqlExtensions.DefaultStatus();
 
             status.IsCurrent.Should().BeTrue();
-            status.StatusCode.Should().Be(-1);
+            status.StatusCode.Should().Be((int)CollectionStatus.Creation_Inprogress);
             status.StatusDate.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
         }
 

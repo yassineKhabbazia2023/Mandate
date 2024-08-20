@@ -89,6 +89,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         Task<CompanyDb> GetCompanyByErpIdAsync(string erpId, string userEmail);
 
         /// <summary>
+        /// Asynchronously retrieves a company's details from the database based on the provided ERP identifier.
+        /// </summary>
+        /// <param name="erpId">The ERP identifier of the company to be retrieved.</param>
+        /// <param name="contactId">The collaborator Id.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// The task result contains an instance of <see cref="CompanyDb"/> corresponding to the specified ERP ID.
+        /// </returns>
+        Task<CompanyDb> GetCompanyByErpIdAsync(string erpId, int contactId);
+
+        /// <summary>
         /// Asynchronously retrieves a collaborator by his email.
         /// </summary>
         /// <param name="collaboratorEmail">The email of the collaborator.</param>
@@ -144,5 +155,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         Task UpdateCompanyAsync(CompanyDb accountDb);
 
         Task CreateCompanyAsync(CompanyDb accountDb);
+        Task<JeDeclareFolderDb?> GetJdcFolderAsync(int companyId);
+        Task<CollectionDb?> GetCollectionAsync(string bankCode, string branchCode, string accountNumber, string checkDigits, int companyId);
+        Task<JeDeclareCollectionDb?> GetServicesProviderIdsAsync(Guid collectionId);
+        Task<StatusDb> GetStatusAsync(Guid collectionId);
+        Task<PersonalDb?> GetCollectionSignatoryAsync(Guid collectionId);
     }
 }

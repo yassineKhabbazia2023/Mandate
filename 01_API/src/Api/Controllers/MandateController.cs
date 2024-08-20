@@ -6,10 +6,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http.Timeouts;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
+    using CollectionQuery = KPMG.Pulse.Back.Accounting.Mandate.Client.CollectionQuery;
 
     [ApiController]
     [Route("api/mandate")]
@@ -24,7 +26,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         private readonly IGuidGenerator guidGenerator;
         private readonly IFormioManager formIoManager;
 
-        public MandateController(ILogger<MandateController> logger, IMandateManager mandateManager, IAuthenticationServices authenticationContext, IGuidGenerator guidGenerator, IFormioManager formIoManager)
+        public MandateController( ILogger<MandateController> logger, IMandateManager mandateManager, IAuthenticationServices authenticationContext, IGuidGenerator guidGenerator, IFormioManager formIoManager )
         {
             this.logger = logger;
             this.mandateManager = mandateManager;
@@ -38,7 +40,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetCollectionsAsync([FromQuery] string? searchTerm, [FromQuery] DateTime? creationDateStart, [FromQuery] DateTime? creationDateEnd, [FromQuery] DateTime? modificationDateStart, [FromQuery] DateTime? modificationDateEnd, [FromQuery] List<int>? statusCodes, [FromQuery] int? limit, [FromQuery] int? skip, [FromQuery] string? sortOrder, [FromQuery] string? sortCriteria)
+        public async Task<IActionResult> GetCollectionsAsync( [FromQuery] string? searchTerm, [FromQuery] DateTime? creationDateStart, [FromQuery] DateTime? creationDateEnd, [FromQuery] DateTime? modificationDateStart, [FromQuery] DateTime? modificationDateEnd, [FromQuery] List<int>? statusCodes, [FromQuery] int? limit, [FromQuery] int? skip, [FromQuery] string? sortOrder, [FromQuery] string? sortCriteria )
         {
             var correlationId = "0"; // TODO
 
@@ -61,27 +63,51 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         }
 
         /// <summary>
-        /// we add temporary this decorator of request timeout until we have a better performant solution
+        /// we add temporary this decorator of request timeout until we have a better performant solution.
         /// </summary>
-        /// <param name="collectionCreationCommand">Collection command</param>
-        /// <returns>the GUID Id of the created mandate</returns>
-
+        /// <param name="collectionCreationCommand">Collection command.</param>
+        /// <param name="contactId">Collaborator id.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
-        [RequestTimeout("TwoSecondsTimeOut")]
-        public async Task<IActionResult> PostCollectionAsync([FromBody] CollectionCreationCommand collectionCreationCommand)
+        public async Task<IActionResult> CreateMandateAsync(
+            [FromBody] CollectionCreationCommand collectionCreationCommand,
+            [FromQuery] int contactId)
         {
-            var correlationId = "0"; // TODO
+            var correlationId = "0";
             try
             {
-                string email = this.authenticationContext.Email!;
-                var result = await this.mandateManager.CreateMandate(collectionCreationCommand.ToModel(), email);
-                return this.Ok(new SaveResult(result));
+                var collectionId = await this.mandateManager.CreateMandateAsync(collectionCreationCommand.ToModel(), contactId);
+                return this.Ok(new SaveResult(collectionId));
             }
-            catch (Exception ex)
+            catch (CompanyNotFoundException ex)
             {
-                // TODO
-                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.PostCollectionAsync));
-                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
+                this.logger.LogError(ex, "Company was not found - {correlationId} - {functionName}", correlationId, nameof(this.CreateMandateAsync));
+                return this.StatusCode(StatusCodes.Status400BadRequest, new Error("CompanyNotFound", correlationId, ex.Message));
+            }
+            catch (InactiveCompanyException ex)
+            {
+                this.logger.LogError(ex, "Company is inactive - {correlationId} - {functionName}", correlationId, nameof(this.CreateMandateAsync));
+                return this.StatusCode(StatusCodes.Status400BadRequest, new Error("CompanyInactive", correlationId, ex.Message));
+            }
+            catch (InaccessibleCompanyException ex)
+            {
+                this.logger.LogError(ex, "Company is inaccessible - {correlationId} - {functionName}", correlationId, nameof(this.CreateMandateAsync));
+                return this.StatusCode(StatusCodes.Status400BadRequest, new Error("CompanyInaccessible", correlationId, ex.Message));
+            }
+            catch (CustomBankCodeNotFoundException ex)
+            {
+                this.logger.LogError(ex, "Bank was not found - {correlationId} - {functionName}", correlationId, nameof(this.CreateMandateAsync));
+                return this.StatusCode(StatusCodes.Status400BadRequest, new Error("BankNotFound", correlationId, ex.Message));
+            }
+            catch (JdcCollecteConfigExistException ex)
+            {
+                this.logger.LogError(ex, "JDC collecte config exists - {correlationId} - {functionName}", correlationId, nameof(this.CreateMandateAsync));
+                return this.StatusCode(StatusCodes.Status400BadRequest, new Error("JdcCollecteConfigExists", correlationId, ex.Message));
+            }
+            catch (BankHasNoJdcPartnershipException ex)
+            {
+                this.logger.LogError(ex, "Bank has no JDC partnership - {correlationId} - {functionName}", correlationId, nameof(this.CreateMandateAsync));
+                return this.StatusCode(StatusCodes.Status400BadRequest, new Error("BankHasNoJdcPartnership", correlationId, ex.Message));
             }
         }
 
@@ -89,7 +115,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetTechnicalCollectionsAsync([FromQuery] string? searchTerm, [FromQuery] DateTime? creationDateStart, [FromQuery] DateTime? creationDateEnd, [FromQuery] DateTime? modificationDateStart, [FromQuery] DateTime? modificationDateEnd, [FromQuery] List<int>? statusCodes, [FromQuery] int? limit, [FromQuery] int? skip, [FromQuery] string? sortOrder, [FromQuery] string? sortCriteria)
+        public async Task<IActionResult> GetTechnicalCollectionsAsync( [FromQuery] string? searchTerm, [FromQuery] DateTime? creationDateStart, [FromQuery] DateTime? creationDateEnd, [FromQuery] DateTime? modificationDateStart, [FromQuery] DateTime? modificationDateEnd, [FromQuery] List<int>? statusCodes, [FromQuery] int? limit, [FromQuery] int? skip, [FromQuery] string? sortOrder, [FromQuery] string? sortCriteria )
         {
             string correlationId = Guid.NewGuid().ToString();
 
@@ -114,7 +140,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> RefreshMandatsStatusesAsync([FromBody] List<TechnicalCollectionSummary> mandates)
+        public async Task<IActionResult> RefreshMandatsStatusesAsync( [FromBody] List<TechnicalCollectionSummary> mandates )
         {
             string correlationId = Guid.NewGuid().ToString();
 
@@ -135,7 +161,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DownloadUnsignedAsync([FromRoute] string mandateId)
+        public async Task<IActionResult> DownloadUnsignedAsync( [FromRoute] string mandateId )
         {
             var correlationId = "0"; // TODO
             try
@@ -226,7 +252,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
         [HttpPost("{mandateId}/signed")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadSignedMandateAsync([FromRoute] string mandateId, [FromForm] IFormFile file)
+        public async Task<IActionResult> UploadSignedMandateAsync( [FromRoute] string mandateId, [FromForm] IFormFile file )
         {
             var correlationId = "0"; // TODO
             if (!Guid.TryParse(mandateId, out var parsedMandateId))
@@ -263,7 +289,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         }
 
         [HttpPost("{mandateId}/deactivate")]
-        public async Task<IActionResult> DeactivateAsync([FromRoute] string mandateId)
+        public async Task<IActionResult> DeactivateAsync( [FromRoute] string mandateId )
         {
             var correlationId = "0"; // TODO
             if (!Guid.TryParse(mandateId, out var parsedMandateId))
@@ -283,7 +309,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         }
 
         [HttpPost("recovery")]
-        public async Task<IActionResult> Recovery([FromBody] Bban rib)
+        public async Task<IActionResult> Recovery( [FromBody] Bban rib )
         {
             var correlationId = "0"; // TODO
             try
@@ -305,7 +331,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         }
 
         [HttpPost("recovery-form-io")]
-        public async Task<IActionResult> RecoveryFormIOAsync([FromQuery] int skip, [FromQuery] int limit)
+        public async Task<IActionResult> RecoveryFormIOAsync( [FromQuery] int skip, [FromQuery] int limit )
         {
             var correlationId = "0";
             try
@@ -334,6 +360,27 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             {
                 this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.RecoveryFormIOAsync));
                 return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
+            }
+        }
+
+        [HttpGet("{mandateId}/check/status")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> CheckMandateCreationStatus([FromRoute] string mandateId)
+        {
+            try
+            {
+                var isStillInprogress = await this.mandateManager.CheckIfMandateCreationIsStillInProgressAsync(Guid.Parse(mandateId));
+                if (isStillInprogress)
+                {
+                    return this.NoContent();
+                }
+                return this.Ok();
+
+            }
+            catch (CollectionNotFoundException ex)
+            {
+                return this.NotFound(new Error("CollectionNotFound", mandateId, ex.Message));
             }
         }
     }

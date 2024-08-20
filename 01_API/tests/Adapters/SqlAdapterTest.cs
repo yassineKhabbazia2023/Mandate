@@ -347,6 +347,60 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         }
 
         [Fact]
+        public async Task GetCompanyByErpIdAsync_byId()
+        {
+            // Arrange
+            var companyId = 101;
+            var collectionId = Guid.Parse("b1111111-1111-1111-1111-111111111111");
+            var erpId = "erpId";
+            var contactId = 2;
+
+            var companydb = new CompanyDb()
+            {
+                Id = companyId,
+                Name = "Microsoft",
+                Personal = new PersonalDb
+                {
+                    CollectionId = collectionId,
+                    CompanyId = companyId,
+                    Title = "Mr.",
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Email = "john.doe@example.com",
+                    Street = "123 Main St",
+                    Complements = "Apt 4B",
+                    ZipCode = "12345",
+                    City = "Sample City",
+                    Country = "ExampleLand",
+                },
+                SiretNumber = "40902900600031",
+                ErpId = "1000265308",
+                JeDeclareFolder = new JeDeclareFolderDb()
+                {
+                    JdcDossierId = "bankServicesProviderIdT",
+                },
+            };
+
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.GetCompanyByErpIdAsync(erpId, contactId))
+                .ReturnsAsync(companydb)
+                .Verifiable();
+
+            var expectedAdress = new Address("123 Main St", "Apt 4B", "12345", "Sample City", "ExampleLand");
+            var expectedSignatory = new Signatory("Mr.", "John", "Doe", "john.doe@example.com");
+            var expectedResult = new Company(companyId, "Microsoft", "40902900600031", "1000265308", "bankServicesProviderIdT", expectedSignatory, expectedAdress);
+
+            var adapter = new SqlAdapter(repository.Object);
+
+            // Act
+            var result = await adapter.GetCompanyByErpIdAsync(erpId, contactId);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedResult);
+            repository.Verify(r => r.GetCompanyByErpIdAsync(erpId, contactId), Times.Once);
+        }
+
+        [Fact]
         public async Task GetCollaboratorByEmail()
         {
             var repository = new Mock<IMandateRepository>(MockBehavior.Strict);

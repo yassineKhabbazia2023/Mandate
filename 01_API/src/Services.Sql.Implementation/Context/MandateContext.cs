@@ -62,7 +62,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 .WithOne(p => p.Collection)
                 .HasForeignKey<PersonalDb>(p => p.CollectionId)
                 .IsRequired(false);
-            modelBuilder.Entity<CollectionDb>().Property(cp => cp.JdcRibId).IsFixedLength(false).HasMaxLength(100).IsRequired(false);
             modelBuilder.Entity<CollectionDb>().Property(cp => cp.BankCode).IsFixedLength(true).HasMaxLength(5).IsRequired(true);
             modelBuilder.Entity<CollectionDb>().Property(cp => cp.BranchCode).IsFixedLength(true).HasMaxLength(5).IsRequired(true);
             modelBuilder.Entity<CollectionDb>().Property(cp => cp.AccountNumber).IsFixedLength(true).HasMaxLength(11).IsRequired(true);

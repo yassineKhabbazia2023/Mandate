@@ -251,7 +251,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             return new CollectionDb()
             {
-                JdcRibId = source.BbanServicesProviderId,
                 AccountNumber = source.AccountNumber,
                 BankCode = source.BankCode,
                 BranchCode = source.BranchCode,

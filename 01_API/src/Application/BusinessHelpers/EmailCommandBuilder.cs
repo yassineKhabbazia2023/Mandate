@@ -13,7 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             string emailBody = $@"
                 Bonjour,<br><br>
                 Désactivation de collecte<br><br>
-                La collecte a été désactivée pour le compte suivant :<br><br>
+                La collecte doit être désactivée pour le compte suivant :<br><br>
 
                {GenerateEmailListContent(emailData)}
 

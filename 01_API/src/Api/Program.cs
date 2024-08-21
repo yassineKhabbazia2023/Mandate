@@ -151,6 +151,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             app.UseHttpsRedirection();
 
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
             app.UseCors("CorsPolicy");
 
             app.UseAuthorization();

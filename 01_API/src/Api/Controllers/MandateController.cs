@@ -8,7 +8,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
     using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Http.Timeouts;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
     using CollectionQuery = KPMG.Pulse.Back.Accounting.Mandate.Client.CollectionQuery;
@@ -74,6 +73,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             [FromQuery] int contactId)
         {
             var correlationId = "0";
+
+            if (contactId == default)
+            {
+                this.logger.LogError("contactId is required - {correlationId} - {functionName}", correlationId, nameof(this.CreateMandateAsync));
+                return this.StatusCode(StatusCodes.Status400BadRequest, new Error("ParamRequired", correlationId, "contactId is required."));
+            }
+
             try
             {
                 var collectionId = await this.mandateManager.CreateMandateAsync(collectionCreationCommand.ToModel(), contactId);
@@ -81,17 +87,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             }
             catch (CompanyNotFoundException ex)
             {
-                this.logger.LogError(ex, "Company was not found - {correlationId} - {functionName}", correlationId, nameof(this.CreateMandateAsync));
+                this.logger.LogError(ex, "Company was not found - {correlationId} - {contactId} - {functionName}", correlationId, contactId, nameof(this.CreateMandateAsync));
                 return this.StatusCode(StatusCodes.Status400BadRequest, new Error("CompanyNotFound", correlationId, ex.Message));
             }
             catch (InactiveCompanyException ex)
             {
-                this.logger.LogError(ex, "Company is inactive - {correlationId} - {functionName}", correlationId, nameof(this.CreateMandateAsync));
+                this.logger.LogError(ex, "Company is inactive - {correlationId} - {contactId} - {functionName}", correlationId, contactId, nameof(this.CreateMandateAsync));
                 return this.StatusCode(StatusCodes.Status400BadRequest, new Error("CompanyInactive", correlationId, ex.Message));
             }
             catch (InaccessibleCompanyException ex)
             {
-                this.logger.LogError(ex, "Company is inaccessible - {correlationId} - {functionName}", correlationId, nameof(this.CreateMandateAsync));
+                this.logger.LogError(ex, "Company is inaccessible - {correlationId} - {contactId} - {functionName}", correlationId, contactId, nameof(this.CreateMandateAsync));
                 return this.StatusCode(StatusCodes.Status400BadRequest, new Error("CompanyInaccessible", correlationId, ex.Message));
             }
             catch (CustomBankCodeNotFoundException ex)

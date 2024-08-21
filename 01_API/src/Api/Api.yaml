@@ -114,7 +114,6 @@ paths:
                 "$ref": "#/components/schemas/PagedMandate"
         '401':
           "$ref": "#/components/responses/UnauthorizedError"
-  "/mandate/{contactId}":
     post:
       tags:
       - Mandate

@@ -176,9 +176,7 @@
             "$ref": "#/components/responses/UnauthorizedError"
           }
         }
-      }
-    },
-    "/mandate/{contactId}": {
+      },
       "post": {
         "tags": [
           "Mandate"
@@ -188,13 +186,13 @@
         "operationId": "PostCollectionAsync",
         "parameters": [
           {
-            "in": "path",
+            "in": "query",
             "name": "contactId",
             "description": "the contact identifier",
             "schema": {
               "type": "integer"
             },
-            "required": false,
+            "required": true,
             "example": 1
           }
         ],
@@ -377,14 +375,14 @@
         }
       }
     },
-    "/mandate/{mandateId}/check/status": {
+    "/mandate/{mandateId}/verify-creation": {
       "get": {
         "tags": [
           "Mandate"
         ],
-        "summary": "Check status of the mandate",
-        "description": "check the creation of the mandate",
-        "operationId": "CheckMandateCreationStatus",
+        "summary": "Verify the creation of the mandate",
+        "description": "Verify the creation of the mandate",
+        "operationId": "VerifyMandateCreation",
         "parameters": [
           {
             "in": "path",
@@ -403,7 +401,7 @@
             "description": "The mandate creation is done"
           },
           "204": {
-            "description": "The mandate creation is still in progress"
+            "description": "The mandate creation is not yet done"
           }
         }
       }

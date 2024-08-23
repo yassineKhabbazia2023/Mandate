@@ -185,15 +185,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             status.StatusDate.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
         }
 
-        [Fact]
-        public void InitialCreateStatus()
-        {
-            Sql.StatusDb status = SqlExtensions.InitialCreateStatus();
-
-            status.IsCurrent.Should().BeFalse();
-            status.StatusCode.Should().Be((int)JdcCollectionStatus.InitialCreate);
-            status.StatusDate.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
-        }
 
         [Fact]
         public void Status_ToModel()

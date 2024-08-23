@@ -185,7 +185,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             status.StatusDate.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
         }
 
-
         [Fact]
         public void Status_ToModel()
         {

@@ -172,7 +172,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             base.OnConfiguring(optionsBuilder);
             optionsBuilder.LogTo(Console.WriteLine);
             optionsBuilder.EnableSensitiveDataLogging();
-            optionsBuilder.UseSqlServer(this.options.Value.ConnectionString, sqlOptions => { sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(3), null); });
+            optionsBuilder.UseSqlServer(this.options.Value.ConnectionString, sqlOptions => { sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(30), null); });
         }
     }
 }

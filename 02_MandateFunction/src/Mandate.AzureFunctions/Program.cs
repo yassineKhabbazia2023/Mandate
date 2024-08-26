@@ -75,9 +75,9 @@ var host = new HostBuilder()
 
         services.AddAzureClients(builder =>
         {
-            builder.AddServiceBusClientWithNamespace(config["serviceBusNameSpace__fullyQualifiedNamespace"]).WithCredential(new DefaultAzureCredential(new DefaultAzureCredentialOptions
+            builder.AddServiceBusClientWithNamespace(config["serviceBusNameSpace:fullyQualifiedNamespace"]).WithCredential(new DefaultAzureCredential(new DefaultAzureCredentialOptions
             {
-                ManagedIdentityClientId = config["serviceBusNameSpace__clientId"],
+                ManagedIdentityClientId = config["serviceBusNameSpace:clientId"],
             }));
         });
 

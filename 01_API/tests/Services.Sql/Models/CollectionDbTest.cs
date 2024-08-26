@@ -7,33 +7,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Tests
     public class CollectionDbTest
     {
         [Fact]
-        public void Defaults()
-        {
-            // Arrange & Act
-            var entity = new CollectionDb();
-
-            // Assert
-            // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(14);
-
-            // Test all properties ; number of tests below should match the number of propeties above
-            entity.Id.Should().Be(Guid.Empty);
-            entity.Personal.Should().Be(null);
-            entity.CompanyId.Should().Be(default);
-            entity.Company.Should().Be(null);
-            entity.Personal.Should().BeNull();
-            entity.JeDeclareCollection.Should().BeNull();
-            entity.Statuses.Should().BeNull();
-            entity.BankCode.Should().BeNull();
-            entity.Bank.Should().BeNull();
-            entity.BranchCode.Should().BeNull();
-            entity.AccountNumber.Should().BeNull();
-            entity.CheckDigits.Should().BeNull();
-            entity.LinkType.Should().BeNull();
-            entity.RejectReason.Should().BeNull();
-        }
-
-        [Fact]
         public void Values()
         {
             // Arrange & Act

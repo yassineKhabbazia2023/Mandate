@@ -31,7 +31,5 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         public int? LinkType { get; set; } = null!;
 
         public string? RejectReason { get; set; } = null!;
-
-        public string? JdcRibId { get; set; } = null!;
     }
 }

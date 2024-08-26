@@ -161,6 +161,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
         }
 
+        public static Sql.StatusDb InitialCreateStatus()
+        {
+            return new Sql.StatusDb()
+            {
+                IsCurrent = false,
+                StatusCode = (int)JdcCollectionStatus.InitialCreate,
+                StatusDate = DateTime.UtcNow,
+            };
+        }
+
         public static Sql.JeDeclareFolderDb ToJeDeclareFolderDb(this Company company)
         {
             return new Sql.JeDeclareFolderDb()

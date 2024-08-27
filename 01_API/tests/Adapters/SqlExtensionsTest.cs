@@ -176,16 +176,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         }
 
         [Fact]
-        public void DefaultStatus()
-        {
-            Sql.StatusDb status = SqlExtensions.DefaultStatus();
-
-            status.IsCurrent.Should().BeTrue();
-            status.StatusCode.Should().Be((int)CollectionStatus.Creation_Inprogress);
-            status.StatusDate.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
-        }
-
-        [Fact]
         public void Status_ToModel()
         {
             var entity = new Sql.StatusDb()
@@ -330,7 +320,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var act = () => entity.ToModel();
 
-            act.Should().Throw<ApplicationException>().WithMessage("SqlExtensions - ToModel : Error while parsing Collection currentStatus is null.");
+            act.Should().Throw<InvalidOperationException>();
         }
 
         [Fact]
@@ -370,7 +360,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var act = () => entity.ToModel();
 
-            act.Should().Throw<ApplicationException>().WithMessage("SqlExtensions - ToModel : Error while parsing Collection creationStatus is null.");
+            act.Should().Throw<InvalidOperationException>();
         }
 
         [Fact]

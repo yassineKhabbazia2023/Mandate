@@ -48,10 +48,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
             Bban? bban = source.ToBbanModel();
 
-            var currentStatus = source.Statuses?.SingleOrDefault(i => i.IsCurrent);
-            var creationStatus = source.Statuses?.SingleOrDefault(i => i.StatusCode == -1);
-
-            ValidateStatuses(currentStatus, creationStatus);
+            var currentStatus = source.Statuses?.Single(i => i.IsCurrent);
+            var creationStatus = source.Statuses?.Single(i => i.StatusCode == (int)CollectionStatus.Creation_Inprogress);
 
             Status? status = currentStatus!.ToModel();
 
@@ -151,22 +149,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
         }
 
-        public static Sql.StatusDb DefaultStatus()
+        public static Sql.StatusDb CreationInProgress()
         {
             return new Sql.StatusDb()
             {
                 IsCurrent = true,
                 StatusCode = (int)CollectionStatus.Creation_Inprogress,
-                StatusDate = DateTime.UtcNow,
-            };
-        }
-
-        public static Sql.StatusDb InitialCreateStatus()
-        {
-            return new Sql.StatusDb()
-            {
-                IsCurrent = false,
-                StatusCode = (int)JdcCollectionStatus.InitialCreate,
                 StatusDate = DateTime.UtcNow,
             };
         }
@@ -283,19 +271,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             else
             {
                 return currentStatus.StatusDate!.Value;
-            }
-        }
-
-        private static void ValidateStatuses(Sql.StatusDb? currentStatus, Sql.StatusDb? creationStatus)
-        {
-            if (currentStatus == null)
-            {
-                throw new ApplicationException($"{nameof(SqlExtensions)} - {nameof(ToModel)} : Error while parsing Collection {nameof(currentStatus)} is null.");
-            }
-
-            if (creationStatus == null)
-            {
-                throw new ApplicationException($"{nameof(SqlExtensions)} - {nameof(ToModel)} : Error while parsing Collection {nameof(creationStatus)} is null.");
             }
         }
     }

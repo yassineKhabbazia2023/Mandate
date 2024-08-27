@@ -1968,7 +1968,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             {
                 return mandates.Where(item =>
                     item.Statuses.Any(s =>
-                        s.StatusCode == -1 &&
+                        s.StatusCode == 99 &&
                         (s.StatusDate.HasValue &&
                         s.StatusDate.Value.Date >= query.CreationDateStart.Value.Date &&
                         s.StatusDate.Value.Date <= query.CreationDateEnd.Value.Date)));
@@ -2022,7 +2022,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                 CollectionSortCriteria.AccountNumber => mandates.OrderBy(item => item.AccountNumber),
                 CollectionSortCriteria.BankName => mandates.OrderBy(item => item.Bank!.BankName),
                 CollectionSortCriteria.CreationDate => mandates
-                    .Where(collection => collection.Statuses.Any(status => status.RefStatusCode!.StatusCode == -1))
+                    .Where(collection => collection.Statuses.Any(status => status.RefStatusCode!.StatusCode == (int)JdcCollectionStatus.Creation_InProgress))
                     .OrderBy(collection => collection.Statuses.Min(status => status.StatusDate)),
                 CollectionSortCriteria.ModificationDate => ApplyModificationDateSort(mandates, true),
                 CollectionSortCriteria.Status => ApplyStatusSort(mandates, true),
@@ -2039,7 +2039,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                 CollectionSortCriteria.AccountNumber => mandates.OrderByDescending(item => item.AccountNumber),
                 CollectionSortCriteria.BankName => mandates.OrderByDescending(item => item.Bank!.BankName),
                 CollectionSortCriteria.CreationDate => mandates
-                    .Where(collection => collection.Statuses.Any(status => status.RefStatusCode!.StatusCode == -1))
+                    .Where(collection => collection.Statuses.Any(status => status.RefStatusCode!.StatusCode == (int)JdcCollectionStatus.Creation_InProgress))
                     .OrderByDescending(collection => collection.Statuses.Min(status => status.StatusDate)),
                 CollectionSortCriteria.ModificationDate => ApplyModificationDateSort(mandates, false),
                 CollectionSortCriteria.Status => ApplyStatusSort(mandates, false),

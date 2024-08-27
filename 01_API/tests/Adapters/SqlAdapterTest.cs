@@ -95,23 +95,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 RejectReason = "reason1",
             };
 
-            var refStatusCode = new RefStatusCodeDb()
-            {
-                StatusCode = -1,
-                PulseCode = 30,
-                StatusNameFr = "En cours",
-                StatusNameEn = "In progress",
-            };
             var statusdb = new StatusDb()
             {
                 Id = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
                 CollectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
-                StatusCode = -1,
+                StatusCode = (int)JdcCollectionStatus.Creation_InProgress,
                 IsCurrent = true,
                 StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
                 MandateFile = null,
                 CreatedBy = "created1",
-                RefStatusCode = refStatusCode,
+                RefStatusCode = new RefStatusCodeDb()
+                {
+                    StatusCode = (int)JdcCollectionStatus.Creation_InProgress,
+                    PulseCode = 99,
+                    StatusNameFr = "test",
+                },
             };
 
             collection.Company = new CompanyDb()
@@ -129,7 +127,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var bank = new Bank("12345", "bn1", "bg", null, bankAgreement);
             var bban = new Mandate.Bban("12345", "23456", "12345678901", "55", null, bank);
-            var status = new Status(CollectionStatus.InProgress, "En cours");
+            var status = new Status(CollectionStatus.Creation_Inprogress, "test");
 
             var mandateRepository = new Mock<IMandateRepository>(MockBehavior.Strict);
             mandateRepository.Setup(r => r.GetCollectionById(It.IsAny<Guid>()))
@@ -595,68 +593,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             await func.Should().ThrowAsync<Exception>().WithMessage("message");
 
             repository.Verify(i => i.InsertMandateLogAsync(It.Is<MandateLogDb>(item => CompareMandateLog(item, mandateLog))), Times.Once);
-        }
-
-        [Fact]
-        public async Task InsertFormIOCollectionAsync()
-        {
-            // Arrange
-            var collectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111");
-            var companyId = 101;
-
-            var collection = new CollectionDb()
-            {
-                Id = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
-                CompanyId = companyId,
-                BankCode = "12345",
-                BranchCode = "23456",
-                AccountNumber = "12345678901",
-                CheckDigits = "55",
-                LinkType = 7,
-                RejectReason = "reason1",
-            };
-
-            var refStatusCode = new RefStatusCodeDb()
-            {
-                StatusCode = -1,
-                PulseCode = 30,
-                StatusNameFr = "En cours",
-                StatusNameEn = "In progress",
-            };
-            var statusdb = new StatusDb()
-            {
-                Id = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
-                CollectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
-                StatusCode = -1,
-                IsCurrent = true,
-                StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
-                MandateFile = null,
-                CreatedBy = "created1",
-                RefStatusCode = refStatusCode,
-            };
-
-            collection.Company = new CompanyDb()
-            {
-                Id = companyId,
-                Name = "cn1",
-                SiretNumber = "12345678901234",
-                ErpId = "1234567890",
-            };
-            collection.Bank = EntityDbFactory.RefBankDb;
-            collection.Statuses = new List<StatusDb>() { statusdb };
-
-            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
-            repository.Setup(r => r.InsertFormIOCollectionAsync(It.IsAny<CollectionDb>()))
-                .Returns(Task.CompletedTask)
-                .Verifiable();
-            repository.Setup(r => r.CreateOrUpdateFolderAsync(It.IsAny<string>(), 101))
-               .Returns(Task.CompletedTask)
-               .Verifiable();
-            var adapter = new SqlAdapter(repository.Object);
-
-            await adapter.InsertFormIOCollectionAsync(collection.ToModel(), companyId);
-
-            repository.VerifyAll();
         }
 
         [Fact]

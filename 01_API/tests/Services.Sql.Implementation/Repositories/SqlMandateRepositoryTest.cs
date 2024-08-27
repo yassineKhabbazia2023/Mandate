@@ -40,12 +40,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             refStatusCode2.StatusNameFr = "Actif";
             refStatusCode3.StatusCode = 4;
             refStatusCode3.CollectionStatusCode = 2;
-            refStatusCode3.PulseCode = 40;
+            refStatusCode3.PulseCode = 40; 
             refStatusCode3.StatusNameFr = "Attente mandat signé";
             await context.RefStatusCode.AddAsync(refStatusCode1);
             await context.RefStatusCode.AddAsync(refStatusCode2);
             await context.RefStatusCode.AddAsync(refStatusCode3);
-
             var company1 = EntityDbFactory.CompanyDb;
             var company2 = EntityDbFactory.CompanyDb;
             company2.Id = 202;
@@ -331,9 +330,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             response26.Item1.Count.Should().Be(5);
             response26.Item1[0].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(30);
             response26.Item1[1].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(40);
-            response26.Item1[2].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
-            response26.Item1[3].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
-            response26.Item1[4].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
+            response26.Item1[2].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(99);
+            response26.Item1[3].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(99);
+            response26.Item1[4].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(99);
 
             // Sort by status desc
             var querySt = new CollectionQuery()
@@ -345,9 +344,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var responseSt = await sqlMandateRepository.SearchCollectionsAsync(querySt);
             responseSt.Item2.Should().Be(5);
             responseSt.Item1.Count.Should().Be(5);
-            responseSt.Item1[0].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
-            responseSt.Item1[1].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
-            responseSt.Item1[2].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(100);
+            responseSt.Item1[0].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(99);
+            responseSt.Item1[1].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(99);
+            responseSt.Item1[2].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(99);
             responseSt.Item1[3].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(40);
             responseSt.Item1[4].Statuses.Single(s => s.IsCurrent).RefStatusCode!.PulseCode.Should().Be(30);
 
@@ -543,7 +542,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             // Filter on status = 2
             var query47 = new CollectionQuery()
             {
-                StatusCodes = new List<int> { 100 },
+                StatusCodes = new List<int> { (int)JdcCollectionStatus.Creation_InProgress },
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
                 CollaboratorId = 104,
@@ -558,7 +557,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             // Filter on all statuses
             var query48 = new CollectionQuery()
             {
-                StatusCodes = new List<int> { 30, 40, 100 },
+                StatusCodes = new List<int> { 30, 40, 99 },
                 SortCriteria = CollectionSortCriteria.AccountNumber,
                 SortOrder = SortOrder.Ascending,
                 CollaboratorId = 104,
@@ -2635,10 +2634,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             var sqlMandateRepository = new SqlMandateRepository(_options);
 
-            var statusResult = await sqlMandateRepository.GetRefStatusCodeByJdcCodeAsync("-1");
+            var statusResult = await sqlMandateRepository.GetRefStatusCodeByJdcCodeAsync("99");
 
-            statusResult.RefStatusCode!.StatusCode.Should().Be(-1);
-            statusResult.RefStatusCode!.PulseCode.Should().Be(100);
+            statusResult.RefStatusCode!.StatusCode.Should().Be(99);
+            statusResult.RefStatusCode!.PulseCode.Should().Be(99);
         }
 
         [Fact]

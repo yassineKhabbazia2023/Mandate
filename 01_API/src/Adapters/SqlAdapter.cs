@@ -129,7 +129,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         public async Task<Guid> CreateCollectionAsync(Bban bban, int companyId)
         {
             CollectionDb collection = bban.ToSql(companyId);
-            collection.Statuses = new List<StatusDb>() { SqlExtensions.DefaultStatus(), SqlExtensions.InitialCreateStatus() };
+            collection.Statuses = new List<StatusDb>() { SqlExtensions.CreationInProgress() };
             return (await this.mandateRepository.CreateCollectionAsync(collection)).Id;
         }
 

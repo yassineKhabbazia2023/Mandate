@@ -1650,7 +1650,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                     !c.Statuses.Any(status => status.StatusCode == (int)JdcCollectionStatus.Incident && status.IsCurrent == true));
         }
 
-        public async Task<Guid?> GetCollectionIfAlreadyExistingInIncident(string bankCode, string branchCode, string accountNumber)
+        public async Task<Guid?> GetCollectionIfAlreadyExistingInIncidentStatus(string bankCode, string branchCode, string accountNumber)
         {
             using var context = new MandateContext(this.options);
 

@@ -736,7 +736,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         }
 
         [Fact]
-        public async Task CreateMandate_Given_AMandateIsAlreadyInIncident_Should_RecreateSuccessfully()
+        public async Task CreateMandate_Given_AMandateIsAlreadyExistingInIncidentStatus_Should_RecreateSuccessfully()
         {
             var bank = new Bank("CodeB", "name", "group", "ebicsCardId", new BankAgreement(Mandate.JdcPartnership.Partner));
             var rib = new Mandate.Bban("CodeB", "54321", "12345678901", "01", "ribId", bank);

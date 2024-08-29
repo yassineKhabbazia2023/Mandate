@@ -51,11 +51,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
             var collectionId = await this.databaseService.GetCollectionIfAlreadyExistingInIncident(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber);
 
+            // If the collection is found with the status Incident, then we update the status to Creation_InProgress.
             if (collectionId.HasValue)
             {
                 await this.databaseService.CreateStatusAsync(collectionId.Value, (int)JdcCollectionStatus.Creation_InProgress);
             }
 
+            // If the collection has not been found, we can create a new collection normally.
             if (!collectionId.HasValue)
             {
                 collectionId = await this.databaseService.CreateCollectionAsync(mandateCreation.Bban, company.Id);

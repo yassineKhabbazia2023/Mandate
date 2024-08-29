@@ -59,5 +59,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         Task<Company> GetCompanyByErpIdSiretAsync(string erpId, string siret);
 
         Task InsertMandateLogAsync(Collection collection, CustomException exception);
+
+        Task<Guid?> GetCollectionIfAlreadyExistingInIncidentStatus(string bankCode, string branchCode, string accountNumber);
     }
 }

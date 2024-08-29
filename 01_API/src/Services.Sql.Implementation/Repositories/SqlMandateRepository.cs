@@ -1646,8 +1646,26 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                 .AnyAsync(c =>
                     c.BankCode == bankCode &&
                     c.BranchCode == branchCode &&
-                    c.AccountNumber == accountNumber);
+                    c.AccountNumber == accountNumber &&
+                    !c.Statuses.Any(status => status.StatusCode == (int)JdcCollectionStatus.Incident && status.IsCurrent == true));
         }
+
+        public async Task<Guid?> GetCollectionIfAlreadyExistingInIncidentStatus(string bankCode, string branchCode, string accountNumber)
+        {
+            using var context = new MandateContext(this.options);
+
+            var collectionId = await context.Collection
+                .Where(c =>
+                    c.BankCode == bankCode &&
+                    c.BranchCode == branchCode &&
+                    c.AccountNumber == accountNumber &&
+                    c.Statuses.Any(status => status.StatusCode == (int)JdcCollectionStatus.Incident && status.IsCurrent == true))
+                .Select(c => c.Id)
+                .SingleOrDefaultAsync();
+
+            return collectionId;
+        }
+
 
         public async Task<JeDeclareCollectionDb?> GetServicesProviderIdsAsync(Guid collectionId)
         {

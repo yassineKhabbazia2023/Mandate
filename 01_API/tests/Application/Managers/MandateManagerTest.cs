@@ -697,6 +697,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             this._mockDatabaseService.Setup(x => x.CreateCollectionAsync(mandateCreation.Bban, company.Id))
                 .ReturnsAsync(collectionId);
 
+
+            this._mockDatabaseService.Setup(x => x.GetCollectionIfAlreadyExistingInIncidentStatus(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber))
+                .ReturnsAsync((Guid?)null);
+
             var mandateMessage = new MandateCreationMessage
             {
                 Id = company.Id,
@@ -729,6 +733,84 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             this._mockDatabaseService.Verify(x => x.GetBankByCodeAsync(mandateCreation.Bban.BankCode), Times.Once);
             this._mockDatabaseService.Verify(x => x.CreateCollectionAsync(mandateCreation.Bban, company.Id), Times.Once);
             this._mockEventManager.Verify(x => x.PublishCreateMandateAsync(It.IsAny<MandateCreationMessage>(), It.IsAny<string?>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateMandate_Given_AMandateIsAlreadyExistingInIncidentStatus_Should_RecreateSuccessfully()
+        {
+            var bank = new Bank("CodeB", "name", "group", "ebicsCardId", new BankAgreement(Mandate.JdcPartnership.Partner));
+            var rib = new Mandate.Bban("CodeB", "54321", "12345678901", "01", "ribId", bank);
+            var signature = new Mandate.Signatory("M", "marwen", "elleuch", "maroo@email.com");
+            var adresse = new Mandate.Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+
+            int collaboratorId = 2342;
+
+            var mandateCreation = new Mandate.CollectionCreationCommand(
+                "1234567890",
+                signature,
+                adresse,
+                rib);
+
+            var company = new Mandate.Company(
+                12,
+                "Test",
+                "dsdsdsdsds",
+                "123",
+                null,
+                signature,
+                adresse);
+
+            this._mockDatabaseService.Setup(x => x.CheckCollecteConfigExistAsync(mandateCreation.Bban))
+                .ReturnsAsync(false)
+                .Verifiable();
+
+            this._mockDatabaseService.Setup(x => x.GetCompanyByErpIdAsync(mandateCreation.ErpId, collaboratorId))
+                .ReturnsAsync(company);
+
+            this._mockDatabaseService.Setup(x => x.GetBankByCodeAsync(mandateCreation.Bban.BankCode))
+                .ReturnsAsync(bank);
+
+            var collectionId = Guid.NewGuid();
+
+
+            this._mockDatabaseService.Setup(x => x.CreateStatusAsync(collectionId, (int)JdcCollectionStatus.Creation_InProgress))
+                .ReturnsAsync(new Status(CollectionStatus.Creation_Inprogress, "creation in progress"));
+
+            this._mockDatabaseService.Setup(x => x.GetCollectionIfAlreadyExistingInIncidentStatus(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber))
+                .ReturnsAsync(collectionId);
+
+            var mandateMessage = new MandateCreationMessage
+            {
+                Id = company.Id,
+                Name = company.Name,
+                SiretNumber = company.SiretNumber,
+                ErpId = company.ErpId,
+                Address = mandateCreation.Address,
+                Signatory = mandateCreation.Signatory,
+                BankServicesProviderId = null,
+                Bank = bank,
+                Bban = rib,
+                Company = company
+            };
+
+            this._mockEventManager.Setup(x => x.PublishCreateMandateAsync(It.IsAny<MandateCreationMessage>(), It.IsAny<string?>()))
+                .Callback<MandateCreationMessage, string?>((message, correlationId) =>
+                {
+                    message.Should().BeEquivalentTo(mandateMessage);
+                })
+                .Returns(Task.CompletedTask);
+
+            var mandateManager = new MandateManager(this._mockDatabaseService.Object, this._mockJeDeclareService.Object, this._mockAsposeHelper.Object, null!, this._emailOptions, this._mockLogger.Object, this._mockEventManager.Object);
+
+            var res = await mandateManager.CreateMandateAsync(mandateCreation, collaboratorId);
+
+            // Assert
+            res.Should().Be(collectionId);
+            this._mockDatabaseService.Verify(x => x.CheckCollecteConfigExistAsync(mandateCreation.Bban), Times.Once);
+            this._mockDatabaseService.Verify(x => x.GetCompanyByErpIdAsync(mandateCreation.ErpId, collaboratorId), Times.Once);
+            this._mockDatabaseService.Verify(x => x.GetBankByCodeAsync(mandateCreation.Bban.BankCode), Times.Once);
+            this._mockEventManager.Verify(x => x.PublishCreateMandateAsync(It.IsAny<MandateCreationMessage>(), It.IsAny<string?>()), Times.Once);
+            this._mockDatabaseService.Verify(x => x.CreateCollectionAsync(mandateCreation.Bban, company.Id), Times.Never);
         }
 
         [Fact]

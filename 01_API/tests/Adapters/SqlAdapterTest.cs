@@ -767,5 +767,52 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 mandateLog.JdcRibId == mandateLog2.JdcRibId &&
                 mandateLog.JdcReleveId == mandateLog.JdcReleveId;
         }
+
+        [Fact]
+        public async Task GetCollectionIfAlreadyExistingInIncidentStatus_Service_ShouldReturnCollectionId_WhenIncidentStatusExists()
+        {
+            // Arrange
+            var bankCode = "BANK1";
+            var branchCode = "BRANCH1";
+            var accountNumber = "ACC123";
+            var expectedCollectionId = Guid.NewGuid();
+
+            var repositoryMock = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repositoryMock.Setup(r => r.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber))
+                          .ReturnsAsync(expectedCollectionId)
+                          .Verifiable();
+
+            var adapter = new SqlAdapter(repositoryMock.Object);
+
+            // Act
+            var result = await adapter.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber);
+
+            // Assert
+            result.Should().Be(expectedCollectionId);
+            repositoryMock.VerifyAll();
+        }
+
+        [Fact]
+        public async Task GetCollectionIfAlreadyExistingInIncidentStatus_Service_ShouldReturnNull_WhenNoCollectionExists()
+        {
+            // Arrange
+            var bankCode = "BANK1";
+            var branchCode = "BRANCH1";
+            var accountNumber = "ACC123";
+
+            var repositoryMock = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repositoryMock.Setup(r => r.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber))
+                          .ReturnsAsync((Guid?)null)
+                          .Verifiable();
+
+            var adapter = new SqlAdapter(repositoryMock.Object);
+
+            // Act
+            var result = await adapter.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber);
+
+            // Assert
+            result.Should().BeNull();
+            repositoryMock.VerifyAll();
+        }
     }
 }

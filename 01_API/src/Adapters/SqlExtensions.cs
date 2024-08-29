@@ -49,7 +49,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             Bban? bban = source.ToBbanModel();
 
             var currentStatus = source.Statuses?.Single(i => i.IsCurrent);
-            var creationStatus = source.Statuses?.Single(i => i.StatusCode == (int)CollectionStatus.Creation_Inprogress);
+            var creationStatus = source.Statuses?
+                .OrderByDescending(i => i.StatusDate)
+                .First(i => i.StatusCode == (int)CollectionStatus.Creation_Inprogress);
 
             Status? status = currentStatus!.ToModel();
 

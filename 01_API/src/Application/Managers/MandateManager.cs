@@ -58,7 +58,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             }
 
             // But if the collection has not been found, we can create a new collection normally.
-            if (!collectionId.HasValue)
+            else
             {
                 collectionId = await this.databaseService.CreateCollectionAsync(mandateCreation.Bban, company.Id);
             }

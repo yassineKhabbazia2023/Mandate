@@ -1654,20 +1654,18 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
         {
             using var context = new MandateContext(this.options);
 
-            var collection = await context.Collection.Include(c => c.Statuses)
-                .SingleOrDefaultAsync(c =>
+            var collectionId = await context.Collection
+                .Where(c =>
                     c.BankCode == bankCode &&
                     c.BranchCode == branchCode &&
                     c.AccountNumber == accountNumber &&
-                    c.Statuses.Any(status => status.StatusCode == (int)JdcCollectionStatus.Incident && status.IsCurrent == true));
+                    c.Statuses.Any(status => status.StatusCode == (int)JdcCollectionStatus.Incident && status.IsCurrent == true))
+                .Select(c => c.Id)
+                .SingleOrDefaultAsync();
 
-            if (collection is null)
-            {
-                return null;
-            }
-            
-            return collection?.Id;
+            return collectionId;
         }
+
 
         public async Task<JeDeclareCollectionDb?> GetServicesProviderIdsAsync(Guid collectionId)
         {

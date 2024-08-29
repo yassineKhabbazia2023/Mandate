@@ -364,6 +364,105 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         }
 
         [Fact]
+        public void ToModelCollection_ThrowInvalidOperationException_WhenNoCreationInProgressStatus()
+        {
+            var entity = new Sql.CollectionDb()
+            {
+                Id = Guid.NewGuid(),
+                BankCode = "30003",
+                BranchCode = "12345",
+                AccountNumber = "12345678901",
+                CheckDigits = "11",
+                JeDeclareCollection = new Sql.JeDeclareCollectionDb()
+                {
+                    JdcReleveId = "6789",
+                    JdcRibId = "6781",
+                },
+                Bank = new Sql.RefBankDb()
+                {
+                    BankCode = "c",
+                    BankName = "n",
+                    BankGroup = "g",
+                    EbicsCardId = "e",
+                    JdcPartnership = (Sql.JdcPartnership)2,
+                },
+                Statuses = new List<Sql.StatusDb>
+        {
+            new Sql.StatusDb()
+            {
+                Id = Guid.NewGuid(),
+                IsCurrent = true,
+                StatusDate = DateTime.Now,
+                RefStatusCode = new Sql.RefStatusCodeDb(),
+                StatusCode = 20,
+            },
+            new Sql.StatusDb()
+            {
+                Id = Guid.NewGuid(),
+                IsCurrent = false,
+                StatusDate = DateTime.Now.AddMinutes(-10),
+                RefStatusCode = new Sql.RefStatusCodeDb(),
+                StatusCode = 30,
+            },
+        },
+            };
+
+            var act = () => entity.ToModel();
+
+            act.Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public void ToModelCollection_ShouldPickLatestCreationInProgressStatus_WhenMultipleStatusesExist()
+        {
+            var entity = new Sql.CollectionDb()
+            {
+                Id = Guid.NewGuid(),
+                BankCode = "30003",
+                BranchCode = "12345",
+                AccountNumber = "12345678901",
+                CheckDigits = "11",
+                JeDeclareCollection = new Sql.JeDeclareCollectionDb()
+                {
+                    JdcReleveId = "6789",
+                    JdcRibId = "6781",
+                },
+                Bank = new Sql.RefBankDb()
+                {
+                    BankCode = "c",
+                    BankName = "n",
+                    BankGroup = "g",
+                    EbicsCardId = "e",
+                    JdcPartnership = (Sql.JdcPartnership)2,
+                },
+                Statuses = new List<Sql.StatusDb>
+        {
+            new Sql.StatusDb()
+            {
+                Id = Guid.NewGuid(),
+                IsCurrent = true,
+                RefStatusCode = new Sql.RefStatusCodeDb(),
+                StatusDate = DateTime.Now,
+                StatusCode = (int)CollectionStatus.Creation_Inprogress,
+            },
+            new Sql.StatusDb()
+            {
+                Id = Guid.NewGuid(),
+                IsCurrent = false,
+                RefStatusCode = new Sql.RefStatusCodeDb(),
+                StatusDate = DateTime.Now.AddMinutes(-10),
+                StatusCode = (int)CollectionStatus.Creation_Inprogress,
+            },
+        },
+            };
+
+            var model = entity.ToModel();
+
+            model.CreationDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
+        }
+
+
+        [Fact]
         public void ToStatusesDB()
         {
             // Arrange

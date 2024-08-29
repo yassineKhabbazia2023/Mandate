@@ -60,6 +60,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task InsertMandateLogAsync(Collection collection, CustomException exception);
 
-        Task<Guid?> GetCollectionIdIfAlreadyCreatedInIncident(string bankCode, string branchCode, string accountNumber);
+        Task<Guid?> GetCollectionIfAlreadyExistingInIncident(string bankCode, string branchCode, string accountNumber);
     }
 }

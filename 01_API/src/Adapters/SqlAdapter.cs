@@ -15,7 +15,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             this.mandateRepository = mandateRepository;
         }
 
-        public async Task<Guid?> GetCollectionIdIfAlreadyCreatedInIncident(string bankCode, string branchCode, string accountNumber)
+        public async Task<Guid?> GetCollectionIfAlreadyExistingInIncident(string bankCode, string branchCode, string accountNumber)
         {
             var collectionId = await this.mandateRepository.GetCollectionIfAlreadyExistingInIncident(bankCode, branchCode, accountNumber);
             return collectionId;

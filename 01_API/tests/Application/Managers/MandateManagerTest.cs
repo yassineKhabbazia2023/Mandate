@@ -698,7 +698,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .ReturnsAsync(collectionId);
 
 
-            this._mockDatabaseService.Setup(x => x.GetCollectionIdIfAlreadyCreatedInIncident(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber))
+            this._mockDatabaseService.Setup(x => x.GetCollectionIfAlreadyExistingInIncident(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber))
                 .ReturnsAsync((Guid?)null);
 
             var mandateMessage = new MandateCreationMessage
@@ -776,7 +776,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             this._mockDatabaseService.Setup(x => x.CreateStatusAsync(collectionId, (int)JdcCollectionStatus.Creation_InProgress))
                 .ReturnsAsync(new Status(CollectionStatus.Creation_Inprogress, "creation in progress"));
 
-            this._mockDatabaseService.Setup(x => x.GetCollectionIdIfAlreadyCreatedInIncident(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber))
+            this._mockDatabaseService.Setup(x => x.GetCollectionIfAlreadyExistingInIncident(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber))
                 .ReturnsAsync(collectionId);
 
             var mandateMessage = new MandateCreationMessage

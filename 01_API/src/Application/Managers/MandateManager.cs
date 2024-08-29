@@ -46,20 +46,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         public async Task<Guid> CreateMandateAsync(CollectionCreationCommand mandateCreation, int contactId)
         {
             var company = await this.databaseService.GetCompanyByErpIdAsync(mandateCreation.ErpId, contactId);
+            await this.CheckIfCollectionWithSameBbanAlreadyExistsAsync(mandateCreation);
+            Bank bank = await this.GetBankAndVerifyParnershipAsync(mandateCreation);
 
-            // vérifier si la collecte existe
-            if (await this.databaseService.CheckCollecteConfigExistAsync(mandateCreation.Bban))
+            var collectionId = await this.databaseService.GetCollectionIdIfAlreadyCreatedInIncident(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber);
+
+            if (collectionId.HasValue)
             {
-                throw new JdcCollecteConfigExistException(
-                    $"Il existe une configuration de collecte pour ce RIB {StringExtensions.Concat(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber, mandateCreation.Bban.CheckDigits)}.");
+                await this.databaseService.CreateStatusAsync(collectionId.Value, (int)JdcCollectionStatus.Creation_InProgress);
             }
 
-            var bank = await this.databaseService.GetBankByCodeAsync(mandateCreation.Bban.BankCode);
-
-            // Verification du bank partenaire ou non partenaire
-            if (bank.JdcAgreement.JdcPartnership != JdcPartnership.Partner && string.IsNullOrWhiteSpace(bank.EbicsCardId))
+            if (!collectionId.HasValue)
             {
-                throw new BankHasNoJdcPartnershipException($"L'établissement bancaire {bank.Code} n'est pas partenaire de JeDeclare.com mais est défini sans connexion à une carte EBICs.");
+                collectionId = await this.databaseService.CreateCollectionAsync(mandateCreation.Bban, company.Id);
             }
 
             var message = new MandateCreationMessage
@@ -76,11 +75,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 Company = company,
             };
 
-            var collectionId = await this.databaseService.CreateCollectionAsync(mandateCreation.Bban, company.Id);
-
             await this.eventManager.PublishCreateMandateAsync(message);
 
-            return collectionId;
+            return collectionId.Value;
         }
 
         public async Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query)
@@ -244,6 +241,28 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
             using var stream = new MemoryStream(pdfBytes);
             return this.asposeHelper.DeleteFirstPageFromPdf(stream);
+        }
+
+        private async Task CheckIfCollectionWithSameBbanAlreadyExistsAsync(CollectionCreationCommand mandateCreation)
+        {
+            if (await this.databaseService.CheckCollecteConfigExistAsync(mandateCreation.Bban))
+            {
+                throw new JdcCollecteConfigExistException(
+                    $"Il existe une configuration de collecte pour ce RIB {StringExtensions.Concat(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber, mandateCreation.Bban.CheckDigits)}.");
+            }
+        }
+
+        private async Task<Bank> GetBankAndVerifyParnershipAsync(CollectionCreationCommand mandateCreation)
+        {
+            var bank = await this.databaseService.GetBankByCodeAsync(mandateCreation.Bban.BankCode);
+
+            // Verification du bank partenaire ou non partenaire
+            if (bank.JdcAgreement.JdcPartnership != JdcPartnership.Partner && string.IsNullOrWhiteSpace(bank.EbicsCardId))
+            {
+                throw new BankHasNoJdcPartnershipException($"L'établissement bancaire {bank.Code} n'est pas partenaire de JeDeclare.com mais est défini sans connexion à une carte EBICs.");
+            }
+
+            return bank;
         }
 
         private static bool IsJdcPartner(Collection collection)

@@ -15,6 +15,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             this.mandateRepository = mandateRepository;
         }
 
+        public async Task<Guid?> GetCollectionIdIfAlreadyCreatedInIncident(string bankCode, string branchCode, string accountNumber)
+        {
+            var collectionId = await this.mandateRepository.UpdateCollectIfAlreadyCreatedWithStatusIncident(bankCode, branchCode, accountNumber);
+            return collectionId;
+        }
+
         public async Task<Company> GetCompanyBySiretAsync(string siret)
         {
             var companyDb = await this.mandateRepository.GetCompanyBySiretAsync(siret).ConfigureAwait(false);

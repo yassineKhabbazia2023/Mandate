@@ -1646,8 +1646,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                 .AnyAsync(c =>
                     c.BankCode == bankCode &&
                     c.BranchCode == branchCode &&
-                    c.AccountNumber == accountNumber &&
-                    !c.Statuses.Any(status => status.IsCurrent && status.StatusCode == (int)JdcCollectionStatus.Incident));
+                    c.AccountNumber == accountNumber);
         }
 
         public async Task<JeDeclareCollectionDb?> GetServicesProviderIdsAsync(Guid collectionId)

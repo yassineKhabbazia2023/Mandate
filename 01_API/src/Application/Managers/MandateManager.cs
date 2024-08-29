@@ -1,20 +1,17 @@
 ﻿// <copyright file="MandateManager.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
-
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("KPMG.Pulse.Back.Accounting.Mandate.Application.Tests")]
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
-    using System.Collections.Generic;
-    using System.Linq;
     using KPMG.Pulse.Back.Accounting.Mandate.Application.Interfaces;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
-
+  
     public class MandateManager : IMandateManager
     {
         private readonly IDatabaseService databaseService;
@@ -229,10 +226,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             }
         }
 
-        public async Task<bool> CheckIfMandateCreationIsStillInProgressAsync(Guid collectionId)
+        public async Task<bool?> CheckIfMandateCreationIsStillInProgressAsync(Guid collectionId)
         {
             var collection = await this.databaseService.GetCollectionById(collectionId);
-            return collection != null && collection.Status.StatusCode == CollectionStatus.Creation_Inprogress;
+            return collection?.Status.StatusCode switch
+            {
+                CollectionStatus.Creation_Inprogress => true,
+                CollectionStatus.Incident => false,
+                _ => null,
+            };
         }
 
         internal async Task<byte[]> DownloadPdfForJdcPartner(Collection collection)

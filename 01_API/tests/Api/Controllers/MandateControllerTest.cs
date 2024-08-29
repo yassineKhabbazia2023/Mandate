@@ -1573,11 +1573,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, formIoManager.Object);
 
             // Act
-            var result = (OkResult)await controller.CheckMandateCreationStatus(mandateId.ToString());
+            var result = (OkObjectResult)await controller.CheckMandateCreationStatus(mandateId.ToString());
 
             //Assert
-
-            result.StatusCode.Should().Be(200);
+            var expected = new OkObjectResult(new { isStillInProgress = false });
+            result.Should().BeEquivalentTo(expected);
         }
 
         [Fact]
@@ -1606,11 +1606,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, formIoManager.Object);
 
             // Act
-            var result = (NoContentResult)await controller.CheckMandateCreationStatus(mandateId.ToString());
+            var expected = new OkObjectResult(new { isStillInProgress = true });
+            var result = (OkObjectResult)await controller.CheckMandateCreationStatus(mandateId.ToString());
 
             //Assert
-
-            result.StatusCode.Should().Be(204);
+            result.Should().BeEquivalentTo(expected);
         }
 
         [Fact]

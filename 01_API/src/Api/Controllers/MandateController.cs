@@ -376,12 +376,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         {
             try
             {
-                var isStillInprogress = await this.mandateManager.CheckIfMandateCreationIsStillInProgressAsync(Guid.Parse(mandateId));
-                if (isStillInprogress)
+                var isStillInProgress = await this.mandateManager.CheckIfMandateCreationIsStillInProgressAsync(Guid.Parse(mandateId));
+                if (isStillInProgress is null)
                 {
                     return this.NoContent();
                 }
-                return this.Ok();
+
+                return this.Ok(new { isStillInProgress });
 
             }
             catch (CollectionNotFoundException ex)

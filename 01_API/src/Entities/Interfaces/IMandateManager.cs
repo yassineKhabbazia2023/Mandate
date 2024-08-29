@@ -24,6 +24,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task InsertFormIOCollectionAsync(Collection collection);
 
-        Task<bool> CheckIfMandateCreationIsStillInProgressAsync(Guid collectionId);
+        Task<bool?> CheckIfMandateCreationIsStillInProgressAsync(Guid collectionId);
     }
 }

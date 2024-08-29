@@ -160,6 +160,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         Task<JeDeclareCollectionDb?> GetServicesProviderIdsAsync(Guid collectionId);
         Task<StatusDb> GetStatusAsync(Guid collectionId);
         Task<PersonalDb?> GetCollectionSignatoryAsync(Guid collectionId);
-        Task<Guid?> UpdateCollectIfAlreadyCreatedWithStatusIncident(string bankCode, string branchCode, string accountNumber);
+        Task<Guid?> GetCollectionIfAlreadyExistingInIncident(string bankCode, string branchCode, string accountNumber);
     }
 }

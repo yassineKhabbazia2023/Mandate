@@ -1650,7 +1650,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                     !c.Statuses.Any(status => status.StatusCode == (int)JdcCollectionStatus.Incident && status.IsCurrent == true));
         }
 
-        public async Task<Guid?> UpdateCollectIfAlreadyCreatedWithStatusIncident(string bankCode, string branchCode, string accountNumber)
+        public async Task<Guid?> GetCollectionIfAlreadyExistingInIncident(string bankCode, string branchCode, string accountNumber)
         {
             using var context = new MandateContext(this.options);
 
@@ -1665,15 +1665,8 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             {
                 return null;
             }
-
-            var existingCollectHasIncidentStatus = collection.Statuses.Any( s => s.IsCurrent is true && s.CollectionStatusCode == (int)JdcCollectionStatus.Incident);
-
-            if (existingCollectHasIncidentStatus)
-            {
-                return collection?.Id;
-            }
-
-            return null;
+            
+            return collection?.Id;
         }
 
         public async Task<JeDeclareCollectionDb?> GetServicesProviderIdsAsync(Guid collectionId)

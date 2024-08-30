@@ -1659,13 +1659,17 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                     c.BankCode == bankCode &&
                     c.BranchCode == branchCode &&
                     c.AccountNumber == accountNumber &&
-                    c.Statuses.Any(status => status.StatusCode == (int)JdcCollectionStatus.Incident && status.IsCurrent == true))
+                    c.Statuses.Any(status => status.StatusCode == (int)JdcCollectionStatus.Incident && status.IsCurrent))
                 .Select(c => c.Id)
                 .SingleOrDefaultAsync();
 
-            return collectionId;
-        }
+            if (collectionId != Guid.Empty)
+            {
+                return collectionId;
+            }
 
+            return null;
+        }
 
         public async Task<JeDeclareCollectionDb?> GetServicesProviderIdsAsync(Guid collectionId)
         {
@@ -1692,7 +1696,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
         {
             using var context = new MandateContext(this.options);
 
-            return await context.Status                
+            return await context.Status
                 .FirstOrDefaultAsync(status => status.CollectionId == collectionId);
         }
 

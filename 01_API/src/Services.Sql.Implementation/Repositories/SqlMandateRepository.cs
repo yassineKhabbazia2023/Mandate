@@ -1660,12 +1660,11 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                     c.BranchCode == branchCode &&
                     c.AccountNumber == accountNumber &&
                     c.Statuses.Any(status => status.StatusCode == (int)JdcCollectionStatus.Incident && status.IsCurrent == true))
-                .Select(c => c.Id)
+                .Select(c => (Guid?)c.Id)
                 .SingleOrDefaultAsync();
 
             return collectionId;
         }
-
 
         public async Task<JeDeclareCollectionDb?> GetServicesProviderIdsAsync(Guid collectionId)
         {

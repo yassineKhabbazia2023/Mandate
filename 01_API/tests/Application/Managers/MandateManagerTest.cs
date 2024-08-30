@@ -4,23 +4,22 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 {
-    using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Application.Interfaces;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests.Tools;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using Moq;
+    using System.Collections.Generic;
 
     public class MandateManagerTest : SqlServerTestBase
     {
         private readonly Mock<IDatabaseService> _mockDatabaseService;
         private readonly Mock<ICompanyManager> _mockCompanyManager;
         private readonly Mock<IJeDeclareService> _mockJeDeclareService;
-        private readonly Mock<IAsposeHelper>_mockAsposeHelper;
+        private readonly Mock<IAsposeHelper> _mockAsposeHelper;
         private readonly Mock<ILogger<MandateManager>> _mockLogger;
         private readonly Mock<INotificationsService> _mockNotificationsService;
         private readonly IOptions<MandateEmailOptions> _emailOptions;
@@ -49,6 +48,28 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 MandateUploadedCcEmails = new List<string> { "upload_cc1@example.com", "upload_cc2@example.com" },
             });
             this._mockEventManager = new Mock<IEventManager>(MockBehavior.Strict);
+        }
+
+        [Fact]
+        public async Task GetMandateStatusAsync_WithExistingCollection_ReturnsCorrectStats()
+        {
+            // Arrange
+            var awaitedStatus = CollectionStatus.Creation_Inprogress;
+            Guid collectionId = Guid.NewGuid();
+            var collection = new Collection(collectionId, null, null, null, DateTime.UtcNow, DateTime.UtcNow, new Status(awaitedStatus, nameof(CollectionStatus.Creation_Inprogress)));
+
+            this._mockDatabaseService
+                .Setup(m => m.GetCollectionById(collectionId))
+                .ReturnsAsync(collection);
+
+            IOptions<MandateEmailOptions> options = Options.Create(new MandateEmailOptions());
+            var mandateManager = new MandateManager(this._mockDatabaseService.Object, null!, null!, null!, options, null!, null!);
+
+            // Act
+            var result = await mandateManager.GetMandateStatusAsync(collectionId);
+
+            // Assert
+            result.Should().Be(awaitedStatus);
         }
 
         [Fact]
@@ -363,11 +384,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         }
 
         [Theory]
-        [InlineData(9, true, CollectionStatus.Incident, CollectionStatus.ToDo, true)]
-        [InlineData(9, true, CollectionStatus.Incident, CollectionStatus.ToDo, false)]
-        [InlineData(10, true, CollectionStatus.ToDo, CollectionStatus.ToDo, false)]
-        [InlineData(10, false, CollectionStatus.ToDo, CollectionStatus.InProgress, false)]
-        public async Task RefreshMandatsStatusesAsync_CaseOk(int newJdcStatusCode, bool oldJdcStatusCodePending, CollectionStatus newStatus, CollectionStatus oldStatus, bool isSignedMandatUploaded)
+        [InlineData("9", true, CollectionStatus.Incident, CollectionStatus.ToDo, true)]
+        [InlineData("9", true, CollectionStatus.Incident, CollectionStatus.ToDo, false)]
+        [InlineData("10", true, CollectionStatus.ToDo, CollectionStatus.ToDo, false)]
+        [InlineData("10", false, CollectionStatus.ToDo, CollectionStatus.InProgress, false)]
+        [InlineData("boum", false, CollectionStatus.ToDo, CollectionStatus.InProgress, false)]
+        public async Task RefreshMandatsStatusesAsync_CaseOk(string newJdcStatusCode, bool oldJdcStatusCodePending, CollectionStatus newStatus, CollectionStatus oldStatus, bool isSignedMandatUploaded)
         {
             // Arrange
             var technicalCollections = new List<TechnicalCollection>()
@@ -381,7 +403,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                         "03558",
                         "00020006536",
                         "41"),
-                    newJdcStatusCode.ToString()),
+                    newJdcStatusCode),
             };
             var collection = new Collection(
                 new PredictableGuid().NewGuid(),
@@ -1341,66 +1363,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             using var expectedAsposeDoc = new Aspose.Pdf.Document(expectedResultMemoryStream);
 
             expectedAsposeDoc.Pages.Count.Should().Be(1);
-        }
-
-        [Fact]
-        public async Task CheckIfMandateCreationIsStillInProgressAsync_GivenCollectionIdWithCreationInprogressStatus_ShouldReturnTrue()
-        {
-            // Arrange
-            var id = Guid.NewGuid();
-            var statusToFind = CollectionStatus.ToDo;
-            Bban bban = TestHelper.GetBban("ebicsCardId", true);
-            Status status = TestHelper.GetStatus(CollectionStatus.Creation_Inprogress);
-            var collection = new Collection(
-                Guid.NewGuid(),
-                "yourServiceProviderId",
-                null,
-                bban,
-                DateTime.Now,
-                DateTime.Now,
-                status);
-
-            _mockDatabaseService
-                .Setup(m => m.GetCollectionById(id))
-                .ReturnsAsync(collection);
-            var mandateManager = new MandateManager(_mockDatabaseService.Object, _mockJeDeclareService.Object, _mockAsposeHelper.Object, null!, _emailOptions, _mockLogger.Object, this._mockEventManager.Object);
-
-            // Act
-            var result = await mandateManager.CheckIfMandateCreationIsStillInProgressAsync(id);
-
-            // Assert
-            result.Should().BeTrue();
-
-        }
-
-        [Fact]
-        public async Task CheckIfMandateCreationIsStillInProgressAsync_GivenCollectionIdAndPendintStatus_ShouldReturnNull()
-        {
-            // Arrange
-            var id = Guid.NewGuid();
-            var statusToFind = CollectionStatus.ToDo;
-            Bban bban = TestHelper.GetBban("ebicsCardId", true);
-            Status status = TestHelper.GetStatus(CollectionStatus.Creation_Inprogress);
-            var collection = new Collection(
-                Guid.NewGuid(),
-                "yourServiceProviderId",
-                null,
-                bban,
-                DateTime.Now,
-                DateTime.Now,
-                status);
-
-            _mockDatabaseService
-                .Setup(m => m.GetCollectionById(id))
-                .ReturnsAsync(collection);
-            var mandateManager = new MandateManager(_mockDatabaseService.Object, _mockJeDeclareService.Object, _mockAsposeHelper.Object, null!, _emailOptions, _mockLogger.Object, this._mockEventManager.Object);
-
-            // Act
-            var result = await mandateManager.CheckIfMandateCreationIsStillInProgressAsync(id);
-
-            // Assert
-            result.Should().BeTrue();
-
         }
 
         private static bool CompareAdress(Address address1, Address address2)

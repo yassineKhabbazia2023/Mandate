@@ -11,7 +11,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests.Tools;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
@@ -1547,36 +1546,28 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             collectionsResult[0].BankName.Should().Be(bban2.Bank!.Name);
         }
 
-        [Fact]
+        [InlineData(CollectionStatus.Incident, false)]
+        [InlineData(CollectionStatus.Inactive, true)]
+        [InlineData(CollectionStatus.Active, true)]
+        [InlineData(CollectionStatus.ToDo, true)]
+        [InlineData(CollectionStatus.InProgress, true)]
+        [Theory]
 
-        public async Task VerifyMandateCreation_Given_MandateWithOtherStatusThanCreationInprogress_ShouldReturn200()
+        public async Task VerifyMandateCreation_Given_MandateWithOtherStatusThanCreationInprogress_ShouldReturn200(CollectionStatus status, bool created)
         {
             // Arrange
+            var logger = new Mock<ILogger<MandateController>>();
             var mandateId = Guid.NewGuid();
-            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
-            logger.Setup(x => x.Log(
-               It.IsAny<LogLevel>(),
-               It.IsAny<EventId>(),
-               It.IsAny<It.IsValueType>(),
-               It.IsAny<Exception?>(),
-               (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
-
-            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
-            var guidGenerator = new Mock<IGuidGenerator>();
-            guidGenerator.Setup(g => g.NewGuid())
-                .Returns(newGuid);
-
-            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
             var mandateManager = new Mock<IMandateManager>();
-            mandateManager.Setup(m => m.CheckIfMandateCreationIsStillInProgressAsync(mandateId))
-                .ReturnsAsync(false);
-            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, formIoManager.Object);
+            mandateManager.Setup(m => m.GetMandateStatusAsync(mandateId))
+                .ReturnsAsync(status);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, null!);
 
             // Act
-            var result = (OkObjectResult)await controller.CheckMandateCreationStatus(mandateId.ToString());
+            var result = await controller.CheckMandateCreationStatus(mandateId.ToString());
 
-            //Assert
-            var expected = new OkObjectResult(new { isStillInProgress = false });
+            // Assert
+            var expected = new OkObjectResult(new { created = created });
             result.Should().BeEquivalentTo(expected);
         }
 
@@ -1586,30 +1577,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         {
             // Arrange
             var mandateId = Guid.NewGuid();
-            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
-            logger.Setup(x => x.Log(
-               It.IsAny<LogLevel>(),
-               It.IsAny<EventId>(),
-               It.IsAny<It.IsValueType>(),
-               It.IsAny<Exception?>(),
-               (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
-
-            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
-            var guidGenerator = new Mock<IGuidGenerator>();
-            guidGenerator.Setup(g => g.NewGuid())
-                .Returns(newGuid);
-
-            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+            var logger = new Mock<ILogger<MandateController>>();
             var mandateManager = new Mock<IMandateManager>();
-            mandateManager.Setup(m => m.CheckIfMandateCreationIsStillInProgressAsync(mandateId))
-                .ReturnsAsync(true);
-            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, formIoManager.Object);
+            mandateManager.Setup(m => m.GetMandateStatusAsync(mandateId))
+                .ReturnsAsync(CollectionStatus.Creation_Inprogress);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, null!);
 
             // Act
-            var expected = new OkObjectResult(new { isStillInProgress = true });
-            var result = (OkObjectResult)await controller.CheckMandateCreationStatus(mandateId.ToString());
+            var expected = new NoContentResult();
+            var result = await controller.CheckMandateCreationStatus(mandateId.ToString());
 
-            //Assert
+            // Assert
             result.Should().BeEquivalentTo(expected);
         }
 
@@ -1620,30 +1598,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             // Arrange
             var mandateId = Guid.NewGuid();
             var expectedError = new Client.Error("CollectionNotFound", mandateId.ToString(), "error");
-            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
-            logger.Setup(x => x.Log(
-               It.IsAny<LogLevel>(),
-               It.IsAny<EventId>(),
-               It.IsAny<It.IsValueType>(),
-               It.IsAny<Exception?>(),
-               (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
+            var logger = new Mock<ILogger<MandateController>>();
 
-            var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
-            var guidGenerator = new Mock<IGuidGenerator>();
-            guidGenerator.Setup(g => g.NewGuid())
-                .Returns(newGuid);
-
-            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
             var mandateManager = new Mock<IMandateManager>();
-            mandateManager.Setup(m => m.CheckIfMandateCreationIsStillInProgressAsync(mandateId))
+            mandateManager.Setup(m => m.GetMandateStatusAsync(mandateId))
                 .ThrowsAsync(new Sql.CollectionNotFoundException("error"));
-            var controller = new MandateController(logger.Object, mandateManager.Object, null!, guidGenerator.Object, formIoManager.Object);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, null!);
 
             // Act
             var result = (NotFoundObjectResult)await controller.CheckMandateCreationStatus(mandateId.ToString());
 
             // Assert
-
             result.StatusCode.Should().Be((int)HttpStatusCode.NotFound);
             result.Value.Should().BeEquivalentTo(expectedError);
         }

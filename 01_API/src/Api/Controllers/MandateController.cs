@@ -25,7 +25,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         private readonly IGuidGenerator guidGenerator;
         private readonly IFormioManager formIoManager;
 
-        public MandateController( ILogger<MandateController> logger, IMandateManager mandateManager, IAuthenticationServices authenticationContext, IGuidGenerator guidGenerator, IFormioManager formIoManager )
+        public MandateController(ILogger<MandateController> logger, IMandateManager mandateManager, IAuthenticationServices authenticationContext, IGuidGenerator guidGenerator, IFormioManager formIoManager)
         {
             this.logger = logger;
             this.mandateManager = mandateManager;
@@ -39,7 +39,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetCollectionsAsync( [FromQuery] string? searchTerm, [FromQuery] DateTime? creationDateStart, [FromQuery] DateTime? creationDateEnd, [FromQuery] DateTime? modificationDateStart, [FromQuery] DateTime? modificationDateEnd, [FromQuery] List<int>? statusCodes, [FromQuery] int? limit, [FromQuery] int? skip, [FromQuery] string? sortOrder, [FromQuery] string? sortCriteria )
+        public async Task<IActionResult> GetCollectionsAsync([FromQuery] string? searchTerm, [FromQuery] DateTime? creationDateStart, [FromQuery] DateTime? creationDateEnd, [FromQuery] DateTime? modificationDateStart, [FromQuery] DateTime? modificationDateEnd, [FromQuery] List<int>? statusCodes, [FromQuery] int? limit, [FromQuery] int? skip, [FromQuery] string? sortOrder, [FromQuery] string? sortCriteria)
         {
             var correlationId = "0"; // TODO
 
@@ -121,7 +121,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetTechnicalCollectionsAsync( [FromQuery] string? searchTerm, [FromQuery] DateTime? creationDateStart, [FromQuery] DateTime? creationDateEnd, [FromQuery] DateTime? modificationDateStart, [FromQuery] DateTime? modificationDateEnd, [FromQuery] List<int>? statusCodes, [FromQuery] int? limit, [FromQuery] int? skip, [FromQuery] string? sortOrder, [FromQuery] string? sortCriteria )
+        public async Task<IActionResult> GetTechnicalCollectionsAsync([FromQuery] string? searchTerm, [FromQuery] DateTime? creationDateStart, [FromQuery] DateTime? creationDateEnd, [FromQuery] DateTime? modificationDateStart, [FromQuery] DateTime? modificationDateEnd, [FromQuery] List<int>? statusCodes, [FromQuery] int? limit, [FromQuery] int? skip, [FromQuery] string? sortOrder, [FromQuery] string? sortCriteria)
         {
             string correlationId = Guid.NewGuid().ToString();
 
@@ -146,7 +146,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> RefreshMandatsStatusesAsync( [FromBody] List<TechnicalCollectionSummary> mandates )
+        public async Task<IActionResult> RefreshMandatsStatusesAsync([FromBody] List<TechnicalCollectionSummary> mandates)
         {
             string correlationId = Guid.NewGuid().ToString();
 
@@ -167,7 +167,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DownloadUnsignedAsync( [FromRoute] string mandateId )
+        public async Task<IActionResult> DownloadUnsignedAsync([FromRoute] string mandateId)
         {
             var correlationId = "0"; // TODO
             try
@@ -258,7 +258,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
         [HttpPost("{mandateId}/signed")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadSignedMandateAsync( [FromRoute] string mandateId, [FromForm] IFormFile file )
+        public async Task<IActionResult> UploadSignedMandateAsync([FromRoute] string mandateId, [FromForm] IFormFile file)
         {
             var correlationId = "0"; // TODO
             if (!Guid.TryParse(mandateId, out var parsedMandateId))
@@ -295,7 +295,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         }
 
         [HttpPost("{mandateId}/deactivate")]
-        public async Task<IActionResult> DeactivateAsync( [FromRoute] string mandateId )
+        public async Task<IActionResult> DeactivateAsync([FromRoute] string mandateId)
         {
             var correlationId = "0"; // TODO
             if (!Guid.TryParse(mandateId, out var parsedMandateId))
@@ -315,7 +315,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         }
 
         [HttpPost("recovery")]
-        public async Task<IActionResult> Recovery( [FromBody] Bban rib )
+        public async Task<IActionResult> Recovery([FromBody] Bban rib)
         {
             var correlationId = "0"; // TODO
             try
@@ -337,7 +337,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         }
 
         [HttpPost("recovery-form-io")]
-        public async Task<IActionResult> RecoveryFormIOAsync( [FromQuery] int skip, [FromQuery] int limit )
+        public async Task<IActionResult> RecoveryFormIOAsync([FromQuery] int skip, [FromQuery] int limit)
         {
             var correlationId = "0";
             try
@@ -376,14 +376,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         {
             try
             {
-                var isStillInProgress = await this.mandateManager.CheckIfMandateCreationIsStillInProgressAsync(Guid.Parse(mandateId));
-                if (isStillInProgress is null)
+                var mandateStatus = await this.mandateManager.GetMandateStatusAsync(Guid.Parse(mandateId));
+                return mandateStatus switch
                 {
-                    return this.NoContent();
-                }
-
-                return this.Ok(new { isStillInProgress });
-
+                    CollectionStatus.Creation_Inprogress => this.NoContent(),
+                    CollectionStatus.Incident => this.Ok(new { created = false }),
+                    _ => this.Ok(new { created = true }),
+                };
             }
             catch (CollectionNotFoundException ex)
             {

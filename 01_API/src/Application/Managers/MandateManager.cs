@@ -225,15 +225,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             }
         }
 
-        public async Task<bool?> CheckIfMandateCreationIsStillInProgressAsync(Guid collectionId)
+        public async Task<CollectionStatus?> GetMandateStatusAsync(Guid collectionId)
         {
             var collection = await this.databaseService.GetCollectionById(collectionId);
-            return collection?.Status.StatusCode switch
-            {
-                CollectionStatus.Creation_Inprogress => true,
-                CollectionStatus.Incident => false,
-                _ => null,
-            };
+            return collection.Status.StatusCode;
         }
 
         internal async Task<byte[]> DownloadPdfForJdcPartner(Collection collection)

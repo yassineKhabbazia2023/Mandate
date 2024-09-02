@@ -104,7 +104,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         /// </summary>
         /// <param name="collaboratorEmail">The email of the collaborator.</param>
         /// <returns>The task result contains an instance of <see cref="CollaboratorDb"/> corresponding to the specified email.</returns>
-        Task<CollaboratorDb> GetCollaboratorByEmailAsync(string collaboratorEmail);
+        Task<CollaboratorDb?> GetCollaboratorByEmailAsync(string collaboratorEmail);
 
         /// <summary>
         /// Save JeDeclare folder identifier.

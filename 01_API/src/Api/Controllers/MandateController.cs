@@ -54,6 +54,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 var result = await this.mandateManager.GetAllCollectionsAsync(collectionQuery.ToModel());
                 return this.Ok(result.ToPageMandateDetails());
             }
+            catch (UnauthorizedAccessException)
+            {
+                this.logger.LogError("The user is not authorized - MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.GetCollectionsAsync));
+                return this.StatusCode(StatusCodes.Status401Unauthorized, new Error("Unauthorized", correlationId, "You are not authorized to access this resource."));
+            }
             catch (Exception ex)
             {
                 this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.GetCollectionsAsync));

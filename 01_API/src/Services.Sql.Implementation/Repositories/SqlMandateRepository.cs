@@ -1564,14 +1564,16 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             return company;
         }
 
-        public async Task<CollaboratorDb> GetCollaboratorByEmailAsync(string collaboratorEmail)
+        public async Task<CollaboratorDb?> GetCollaboratorByEmailAsync(string collaboratorEmail)
         {
+            var normalizedEmail = collaboratorEmail.ToLower();
+
             using var context = new MandateContext(this.options);
 
-            var collab = context.Collaborator.AsNoTracking()
-                .Where(c => c.Email.ToLower() == collaboratorEmail.ToLower() && c.IsActive);
+            var collab = await context.Collaborator.AsNoTracking()
+                .SingleOrDefaultAsync(c => c.Email.ToLower() == normalizedEmail && c.IsActive);
 
-            return await collab.SingleAsync();
+            return collab;
         }
 
         public async Task<JeDeclareFolderDb?> GetJdcFolderAsync(int companyId)

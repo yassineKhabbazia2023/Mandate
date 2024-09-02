@@ -82,6 +82,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         public async Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query)
         {
             Collaborator collaborator = await this.databaseService.GetCollaboratorByEmail(query!.CollaboratorEmail);
+
+            if (collaborator is null)
+            {
+                throw new UnauthorizedAccessException("Collaborator not authorized or does not exist.");
+            }
+
             return await this.databaseService.GetAllCollectionsAsync(query, collaborator.Id).ConfigureAwait(false);
         }
 

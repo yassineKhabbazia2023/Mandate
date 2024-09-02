@@ -1571,9 +1571,9 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             using var context = new MandateContext(this.options);
 
             var collab = await context.Collaborator.AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Email.ToLower() == normalizedEmail && c.IsActive);
+                .SingleOrDefaultAsync(c => c.Email.ToLower() == normalizedEmail && c.IsActive);
 
-            if (collab == null)
+            if (collab is null)
             {
                 throw new UnauthorizedAccessException("Collaborator not authorized or does not exist.");
             }

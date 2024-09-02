@@ -10,7 +10,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         public async Task GetCollectionByBban()
         {
             Bban bban = EntityFactory.Bban;
-            Status status = new Status(CollectionStatus.ToDo, "En Cours");
+            Status status = new Status(CollectionStatus.ToDo, "En Cours", Mandate.JdcCollectionStatus.Creation_InProgress);
             Collection collection = new Collection(
                 Guid.Empty,
                 "23414",
@@ -43,7 +43,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         public async Task GetCollectionByBban_When_GetSubmissionMandateAsync_Exception()
         {
             Bban bban = EntityFactory.Bban;
-            Status status = new Status(CollectionStatus.ToDo, "En Cours");
+            Status status = new Status(CollectionStatus.ToDo, "En Cours", Mandate.JdcCollectionStatus.Creation_InProgress);
 
             var services = new Mock<IFormioService>(MockBehavior.Strict);
             services.Setup(item =>
@@ -68,7 +68,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         public async Task GetAllCollectionAsync()
         {
             Bban bban = EntityFactory.Bban;
-            Status status = new Status(CollectionStatus.ToDo, "En Cours");
+            Status status = new Status(CollectionStatus.ToDo, "En Cours", Mandate.JdcCollectionStatus.Creation_InProgress);
             Collection collection = new Collection(
                 Guid.Empty,
                 "23414",
@@ -96,7 +96,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         public async Task GetAllCollectionAsync_When_GetAllCollectionAsync_Throw_Exception()
         {
             Bban bban = EntityFactory.Bban;
-            Status status = new Status(CollectionStatus.ToDo, "En Cours");
+            Status status = new Status(CollectionStatus.ToDo, "En Cours", Mandate.JdcCollectionStatus.Creation_InProgress);
             Collection collection = new Collection(
                 Guid.Empty,
                 "23414",

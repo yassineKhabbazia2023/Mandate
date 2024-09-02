@@ -16,7 +16,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
                 EntityFactory.Bban,
                 new DateTime(2023, 8, 30, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 8, 30, 0, 0, 0, DateTimeKind.Utc),
-                new Status(CollectionStatus.Active, "active"));
+                new Status(CollectionStatus.Active, "active", JdcCollectionStatus.Creation_InProgress));
 
             // Make sure we don't forget propeties
             entity.GetType().GetProperties().Length.Should().Be(7);
@@ -27,7 +27,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
             entity.Company.Should().NotBeNull();
             entity.Bban.Should().NotBeNull();
             entity.CreationDate.Should().Be(new DateTime(2023, 8, 30, 0, 0, 0, DateTimeKind.Utc));
-            entity.Status.Should().BeEquivalentTo(new Status(CollectionStatus.Active, "active"));
+            entity.Status.Should().BeEquivalentTo(new Status(CollectionStatus.Active, "active", JdcCollectionStatus.Creation_InProgress));
         }
     }
 }

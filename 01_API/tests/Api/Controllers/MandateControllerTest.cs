@@ -83,7 +83,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     bban,
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new Status(CollectionStatus.InProgress, "En cours"));
+                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress));
 
             var pm = new PagedMandate(
                 new Counters(1, 1, 0, 0, 0, 0),
@@ -241,7 +241,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     bban,
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new Status(CollectionStatus.InProgress, "En cours"));
+                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress));
 
             var pm = new PagedTechnicalMandate(
                 new Counters(1, 1, 0, 0, 0, 0),
@@ -1210,7 +1210,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     bban,
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new Status(CollectionStatus.InProgress, "En cours"));
+                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress));
 
             var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
             formIoManager.Setup(item =>
@@ -1324,7 +1324,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     bban,
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new Status(CollectionStatus.InProgress, "En cours"));
+                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress));
 
             var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
             formIoManager.Setup(item =>
@@ -1468,7 +1468,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             Bban bban2 = new Bban("30027", "00002", "12345678901", "55", "789", bank);
             Bban bban3 = new Bban("30027", "00003", "12345678901", "55", "789", bank);
 
-            Status status = new Status(CollectionStatus.InProgress, "InProgress");
+            Status status = new Status(CollectionStatus.InProgress, "InProgress", JdcCollectionStatus.Creation_InProgress);
 
             List<Collection> collections = new List<Collection>()
             {
@@ -1824,7 +1824,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     bban,
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new Status(CollectionStatus.InProgress, "En cours")));
+                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress)));
             }
 
             return collections;

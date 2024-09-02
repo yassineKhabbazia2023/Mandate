@@ -127,7 +127,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var bank = new Bank("12345", "bn1", "bg", null, bankAgreement);
             var bban = new Mandate.Bban("12345", "23456", "12345678901", "55", null, bank);
-            var status = new Status(CollectionStatus.Creation_Inprogress, "test");
+            var status = new Status(CollectionStatus.Creation_Inprogress, "test", Mandate.JdcCollectionStatus.Creation_InProgress);
 
             var mandateRepository = new Mock<IMandateRepository>(MockBehavior.Strict);
             mandateRepository.Setup(r => r.GetCollectionById(It.IsAny<Guid>()))
@@ -802,7 +802,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var repositoryMock = new Mock<IMandateRepository>(MockBehavior.Strict);
             repositoryMock.Setup(r => r.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber))
-                          .ReturnsAsync((Guid?)null)
+                          .ReturnsAsync(Guid.Empty)
                           .Verifiable();
 
             var adapter = new SqlAdapter(repositoryMock.Object);
@@ -811,7 +811,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var result = await adapter.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber);
 
             // Assert
-            result.Should().BeNull();
+            result.Should().Be(Guid.Empty);
             repositoryMock.VerifyAll();
         }
     }

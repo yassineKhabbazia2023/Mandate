@@ -48,16 +48,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
             var collectionId = await this.databaseService.GetCollectionIfAlreadyExistingInIncidentStatus(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber);
 
-            // If the collection has been found with the status Incident, then we can update the status to Creation_InProgress.
-            if (collectionId.HasValue)
-            {
-                await this.databaseService.CreateStatusAsync(collectionId.Value, (int)JdcCollectionStatus.Creation_InProgress);
-            }
-
-            // But if the collection has not been found, we can create a new collection normally.
-            else
+            // if the collection has not been found, we can create a new collection normally.
+            if (collectionId == Guid.Empty)
             {
                 collectionId = await this.databaseService.CreateCollectionAsync(mandateCreation.Bban, company.Id);
+            }
+            // If the collection has been found with the status Incident, then we can update the status to Creation_InProgress.
+            else
+            {
+                await this.databaseService.CreateStatusAsync(collectionId, (int)JdcCollectionStatus.Creation_InProgress);
+
             }
 
             var message = new MandateCreationMessage
@@ -76,7 +76,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
             await this.eventManager.PublishCreateMandateAsync(message);
 
-            return collectionId.Value;
+            return collectionId;
         }
 
         public async Task<PagedMandate> GetAllCollectionsAsync(CollectionQueryDto query)

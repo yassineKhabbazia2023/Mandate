@@ -255,6 +255,37 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         }
 
         [Fact]
+        public async Task GetAllCollectionsAsync_ReturnsException_When_Collaborator_IsNull()
+        {
+            var query = new CollectionQueryDto(
+                 "search",
+                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                 new List<int>() { -1, 3 },
+                 10,
+                 0,
+                 Mandate.SortOrder.Ascending,
+                 Mandate.CollectionSortCriteria.AccountNumber,
+                 "collab@email.com");
+
+            Collaborator collaborator = EntityFactory.Collaborator;
+
+            var databaseService = new Mock<IDatabaseService>(MockBehavior.Strict);
+            databaseService.Setup(r => r.GetCollaboratorByEmail("collab@email.com"))
+                .ReturnsAsync((Collaborator)null)
+                .Verifiable();
+
+            var mandateManager = new MandateManager(databaseService.Object, new Mock<IJeDeclareService>(MockBehavior.Strict).Object, null!, null!, _emailOptions, _mockLogger.Object, this._mockEventManager.Object);
+
+            Func<Task> action = async () => await mandateManager.GetAllCollectionsAsync(query);
+            await action.Should().ThrowAsync<UnauthorizedAccessException>();
+
+            databaseService.VerifyAll();
+        }
+
+        [Fact]
         public async Task GetAllCollectionsAsync_When_GetCollaboratorByEmail_Throw_Exception()
         {
             var query = new CollectionQueryDto(

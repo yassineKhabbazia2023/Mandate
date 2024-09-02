@@ -144,7 +144,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             throw new NotImplementedException();
         }
 
-        public async Task<Collaborator> GetCollaboratorByEmail(string collaboratorEmail)
+        public async Task<Collaborator?> GetCollaboratorByEmail(string collaboratorEmail)
         {
             var collabDb = await this.mandateRepository.GetCollaboratorByEmailAsync(collaboratorEmail).ConfigureAwait(false);
 

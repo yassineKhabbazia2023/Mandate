@@ -1432,9 +1432,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             var sqlMandateRepository = new SqlMandateRepository(_options);
 
-            Func<Task> act = async () => await sqlMandateRepository.GetCollaboratorByEmailAsync("collab@email.com");
+            var res = await sqlMandateRepository.GetCollaboratorByEmailAsync("collab@email.com");
 
-            await act.Should().ThrowAsync<UnauthorizedAccessException>();
+            res.Should().BeNull();
         }
 
         [Fact]
@@ -1745,9 +1745,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             }
 
             var sqlMandateRepository = new SqlMandateRepository(_options);
-            Func<Task> act = async () => await sqlMandateRepository.GetCollaboratorByEmailAsync("collaborator@email.com");
+            var res = await sqlMandateRepository.GetCollaboratorByEmailAsync("collaborator@email.com");
 
-            await act.Should().ThrowAsync<Exception>();
+            res.Should().BeNull();
         }
 
         [Fact]

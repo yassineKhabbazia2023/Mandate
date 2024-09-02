@@ -1564,7 +1564,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             return company;
         }
 
-        public async Task<CollaboratorDb> GetCollaboratorByEmailAsync(string collaboratorEmail)
+        public async Task<CollaboratorDb?> GetCollaboratorByEmailAsync(string collaboratorEmail)
         {
             var normalizedEmail = collaboratorEmail.ToLower();
 
@@ -1572,11 +1572,6 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
 
             var collab = await context.Collaborator.AsNoTracking()
                 .SingleOrDefaultAsync(c => c.Email.ToLower() == normalizedEmail && c.IsActive);
-
-            if (collab is null)
-            {
-                throw new UnauthorizedAccessException("Collaborator not authorized or does not exist.");
-            }
 
             return collab;
         }

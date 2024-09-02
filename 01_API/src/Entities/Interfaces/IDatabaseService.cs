@@ -38,7 +38,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<Collection> UpdateCollection(Guid id, Collection collection);
 
-        Task<Collaborator> GetCollaboratorByEmail(string collaboratorEmail);
+        Task<Collaborator?> GetCollaboratorByEmail(string collaboratorEmail);
 
         Task SaveSignatoryAsync(int? companyId, Guid? collectionId, Signatory signatory, Address address);
 

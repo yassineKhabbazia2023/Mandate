@@ -1566,12 +1566,19 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
 
         public async Task<CollaboratorDb> GetCollaboratorByEmailAsync(string collaboratorEmail)
         {
+            var normalizedEmail = collaboratorEmail.ToLower();
+
             using var context = new MandateContext(this.options);
 
-            var collab = context.Collaborator.AsNoTracking()
-                .Where(c => c.Email.ToLower() == collaboratorEmail.ToLower() && c.IsActive);
+            var collab = await context.Collaborator.AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Email.ToLower() == normalizedEmail && c.IsActive);
 
-            return await collab.SingleAsync();
+            if (collab == null)
+            {
+                throw new UnauthorizedAccessException("Collaborator not authorized or does not exist.");
+            }
+
+            return collab;
         }
 
         public async Task<JeDeclareFolderDb?> GetJdcFolderAsync(int companyId)

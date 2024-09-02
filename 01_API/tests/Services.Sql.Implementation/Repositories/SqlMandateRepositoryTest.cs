@@ -1400,6 +1400,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var collab2 = EntityDbFactory.CollaboratorDb;
             collab2.Id = 105;
             collab2.Email = "collab2@email.com";
+            collab2.IsActive = true;
             await context.Collaborator.AddAsync(collab);
             await context.Collaborator.AddAsync(collab2);
             await context.SaveChangesAsync();
@@ -1433,7 +1434,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             Func<Task> act = async () => await sqlMandateRepository.GetCollaboratorByEmailAsync("collab@email.com");
 
-            await act.Should().ThrowAsync<InvalidOperationException>();
+            await act.Should().ThrowAsync<UnauthorizedAccessException>();
         }
 
         [Fact]

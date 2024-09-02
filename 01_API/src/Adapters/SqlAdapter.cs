@@ -148,7 +148,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             var collabDb = await this.mandateRepository.GetCollaboratorByEmailAsync(collaboratorEmail).ConfigureAwait(false);
 
-            return collabDb.ToModel();
+            return collabDb?.ToModel();
         }
 
         public async Task<Collection> GetCollectionById(Guid collectionId)

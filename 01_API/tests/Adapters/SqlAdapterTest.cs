@@ -776,16 +776,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var branchCode = "BRANCH1";
             var accountNumber = "ACC123";
             var expectedCollectionId = Guid.NewGuid();
+            var erpId = "123";
 
             var repositoryMock = new Mock<IMandateRepository>(MockBehavior.Strict);
-            repositoryMock.Setup(r => r.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber))
+            repositoryMock.Setup(r => r.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber, erpId))
                           .ReturnsAsync(expectedCollectionId)
                           .Verifiable();
 
             var adapter = new SqlAdapter(repositoryMock.Object);
 
             // Act
-            var result = await adapter.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber);
+            var result = await adapter.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber, erpId);
 
             // Assert
             result.Should().Be(expectedCollectionId);
@@ -799,16 +800,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var bankCode = "BANK1";
             var branchCode = "BRANCH1";
             var accountNumber = "ACC123";
+            var erpId = "123";
 
             var repositoryMock = new Mock<IMandateRepository>(MockBehavior.Strict);
-            repositoryMock.Setup(r => r.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber))
+            repositoryMock.Setup(r => r.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber, erpId))
                           .ReturnsAsync(Guid.Empty)
                           .Verifiable();
 
             var adapter = new SqlAdapter(repositoryMock.Object);
 
             // Act
-            var result = await adapter.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber);
+            var result = await adapter.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber, erpId);
 
             // Assert
             result.Should().Be(Guid.Empty);

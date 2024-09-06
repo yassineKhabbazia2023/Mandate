@@ -133,7 +133,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
                 createdReleveId = await this.jeDeclareClient.CreateCollecteConfigurationAsync(
                 mandateCreationMessageAndCompany.Company,
                 mandateCreationMessageAndCompany.CollectionIdAndRib.Bban,
-                mandateCreationMessageAndCompany.MandateCreationMessage.Signatory,
+                mandateCreationMessageAndCompany.MandateCreationMessage.Signatory!,
                 mandateCreationMessageAndCompany.Company.BankServicesProviderId!);
             }
             catch (Exception ex)
@@ -169,6 +169,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
                     Email = mandateCreationMessageAndCompany.MandateCreationMessage.Signatory.Email,
                     Title = mandateCreationMessageAndCompany.MandateCreationMessage.Signatory.Title,
                     CollectionId = mandateCreationMessageAndCompany.CollectionIdAndRib.CollectionId,
+                    Street = mandateCreationMessageAndCompany.MandateCreationMessage.Address!.Street,
+                    Complements = mandateCreationMessageAndCompany.MandateCreationMessage.Address!.Complements,
+                    ZipCode = mandateCreationMessageAndCompany.MandateCreationMessage.Address!.ZipCode,
+                    City = mandateCreationMessageAndCompany.MandateCreationMessage.Address!.City,
+                    Country = mandateCreationMessageAndCompany.MandateCreationMessage.Address!.Country,
                 });
             }
 

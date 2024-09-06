@@ -7,8 +7,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq.Expressions;
 
+    [ExcludeFromCodeCoverage]
     public class SqlMandateRepository : IMandateRepository
     {
         private readonly IOptions<SqlMandateRepositoryOptions> options;
@@ -1649,19 +1651,22 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                     c.BankCode == bankCode &&
                     c.BranchCode == branchCode &&
                     c.AccountNumber == accountNumber &&
-                    !c.Statuses.Any(status => status.StatusCode == (int)JdcCollectionStatus.Incident && status.IsCurrent == true));
+                    !c.Statuses.Any(status => status.StatusCode == (int)JdcCollectionStatus.Creation_Failed && status.IsCurrent));
         }
 
-        public async Task<Guid> GetCollectionIfAlreadyExistingInIncidentStatus(string bankCode, string branchCode, string accountNumber)
+        public async Task<Guid> GetCollectionIfAlreadyExistingInIncidentStatus(string bankCode, string branchCode, string accountNumber, string erpId)
         {
             using var context = new MandateContext(this.options);
 
-           return await context.Collection.AsNoTracking()
-                .Where(c =>
-                    c.BankCode == bankCode &&
-                    c.BranchCode == branchCode &&
-                    c.AccountNumber == accountNumber &&
-                    c.Statuses.Any(status => status.StatusCode == (int)JdcCollectionStatus.Incident && status.IsCurrent))
+            var collectionQuery = context.Collection.AsNoTracking()
+                .Where(c => c.Company!.ErpId == erpId && c.BankCode == bankCode);
+
+            collectionQuery = collectionQuery
+                .Where(c => c.BranchCode == branchCode && c.AccountNumber == accountNumber);
+
+            return await collectionQuery
+                .Where(c => c.Statuses.Any(status =>
+                    status.StatusCode == (int)JdcCollectionStatus.Creation_Failed && status.IsCurrent))
                 .Select(c => c.Id)
                 .SingleOrDefaultAsync();
         }

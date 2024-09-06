@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using KPMG.Pulse.Back.Accounting.Mandate;
 using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
+using Microsoft.Extensions.Logging;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -84,6 +85,18 @@ var host = new HostBuilder()
         services.AddMandateClient(options =>
         {
             options.BaseUri = new Uri(config["MANDATE_API_URL"]!);
+        });
+    })
+    .ConfigureLogging(logging =>
+    {
+        logging.Services.Configure<LoggerFilterOptions>(options =>
+        {
+            LoggerFilterRule? defaultRule = options.Rules
+                .FirstOrDefault(rule => rule.ProviderName == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
+            if (defaultRule is not null)
+            {
+                options.Rules.Remove(defaultRule);
+            }
         });
     })
     .Build();

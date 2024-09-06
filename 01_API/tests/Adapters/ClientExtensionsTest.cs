@@ -91,7 +91,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 collectionBankInfo: collectionBankInfo,
                 creationDate: new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 modificationDate: new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                statusCode: (int)CollectionStatus.ToDo);
+                statusCode: (int)CollectionStatus.ToDo,
+                jdcStatusCode: (int)Mandate.JdcCollectionStatus.Creation_InProgress);
 
             model.Should().BeEquivalentTo(expected);
         }

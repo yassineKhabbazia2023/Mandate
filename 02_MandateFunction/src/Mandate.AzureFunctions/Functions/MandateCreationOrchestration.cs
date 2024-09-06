@@ -76,7 +76,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
             }
             catch (Exception ex)
             {
-                await this.databaseService.CreateStatusAsync(message.CollectionId, (int)JdcCollectionStatus.Incident);
+                await this.databaseService.CreateStatusAsync(message.CollectionId, (int)JdcCollectionStatus.Creation_Failed);
                 throw;
             }
 
@@ -105,7 +105,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
             }
             catch (Exception ex)
             {
-                await this.databaseService.CreateStatusAsync(messageAndCompany.CollectionId, (int)JdcCollectionStatus.Incident);
+                await this.databaseService.CreateStatusAsync(messageAndCompany.CollectionId, (int)JdcCollectionStatus.Creation_Failed);
                 throw;
             }
 
@@ -137,7 +137,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
             }
             catch (Exception ex)
             {
-                await this.databaseService.CreateStatusAsync(mandateCreationMessageAndCompany.CollectionIdAndRib.CollectionId, (int)JdcCollectionStatus.Incident);
+                await this.databaseService.CreateStatusAsync(mandateCreationMessageAndCompany.CollectionIdAndRib.CollectionId, (int)JdcCollectionStatus.Creation_Failed);
                 throw;
             }
 

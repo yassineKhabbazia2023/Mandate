@@ -46,7 +46,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             await this.CheckIfCollectionWithSameBbanAlreadyExistsAsync(mandateCreation);
             Bank bank = await this.GetBankAndVerifyParnershipAsync(mandateCreation);
 
-            var collectionId = await this.databaseService.GetCollectionIfAlreadyExistingInIncidentStatus(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber);
+            var collectionId = await this.databaseService.GetCollectionIfAlreadyExistingInIncidentStatus(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber, mandateCreation.ErpId);
 
             // if the collection has not been found, we can create a new collection normally.
             if (collectionId == Guid.Empty)

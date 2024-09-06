@@ -59,14 +59,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
         public async Task<Company> CreateJdcFolderAsync([ActivityTrigger] MandateCreationMessageAndCollectionId message, FunctionContext executionContext)
         {
             ILogger logger = executionContext.GetLogger(nameof(CreateJdcFolderAsync));
-            var jdcFolder = await this.mandateRepository.GetJdcFolderAsync(message.MandateCreationMessage.Company.Id);
-
-            if (jdcFolder is not null)
-            {
-                logger.LogInformation("JdcFolder already exists for {CompanyId}", message.MandateCreationMessage.Company.Id);
-                message.MandateCreationMessage.Company.SetBankServicesProviderId(jdcFolder.JdcDossierId);
-                return message.MandateCreationMessage.Company;
-            }
 
             Company dossierClient;
 

@@ -72,7 +72,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
 
             try
             {
-                dossierClient = await this.jeDeclareClient.CreateFolderAsync(message.MandateCreationMessage.Company);
+                dossierClient = await this.jeDeclareClient.CreateFolderAsync(message.MandateCreationMessage.Company, message.MandateCreationMessage.Address, message.MandateCreationMessage.Signatory);
             }
             catch (Exception ex)
             {

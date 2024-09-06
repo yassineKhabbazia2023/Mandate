@@ -10,7 +10,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<string> CreateCollecteConfigurationAsync(Company dossier, Bban rib, Signatory signatory, string bankServicesProviderId);
 
-        Task<Company> CreateFolderAsync(Company company);
+        Task<Company> CreateFolderAsync(Company company, Address? address, Signatory? signatory);
 
         Task<byte[]> GetMandatPdfAsync(string jdcFolderId, string jdcRibId);
 

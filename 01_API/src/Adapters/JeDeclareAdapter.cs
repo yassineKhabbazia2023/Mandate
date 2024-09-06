@@ -39,9 +39,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return collectConfigurationCreated.Id!;
         }
 
-        public async Task<Company> CreateFolderAsync(Company company)
+        public async Task<Company> CreateFolderAsync(Company company, Address address, Signatory signatory)
         {
-            var dossierClient = company.ToDossierClient();
+            var dossierClient = company.ToDossierClient(address, signatory);
 
             var createdFolder = await this.jedeclareClient.CreateFolderAsync(dossierClient);
 

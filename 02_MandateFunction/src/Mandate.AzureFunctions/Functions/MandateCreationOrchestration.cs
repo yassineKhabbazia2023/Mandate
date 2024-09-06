@@ -58,8 +58,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
         [Function(nameof(CreateJdcFolderAsync))]
         public async Task<Company> CreateJdcFolderAsync([ActivityTrigger] MandateCreationMessageAndCollectionId message, FunctionContext executionContext)
         {
-            ILogger logger = executionContext.GetLogger(nameof(CreateJdcFolderAsync));
-
             Company dossierClient;
 
             try
@@ -81,8 +79,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
         [Function(nameof(AddRibToJdcFolderAsync))]
         public async Task<CollectionIdAndRib> AddRibToJdcFolderAsync([ActivityTrigger] MandateCreationMessageAndCompanyAndCollectionId messageAndCompany, FunctionContext executionContext)
         {
-            ILogger logger = executionContext.GetLogger(nameof(AddRibToJdcFolderAsync));
-
             var message = messageAndCompany.MandateCreationMessage;
 
             Bban rib;

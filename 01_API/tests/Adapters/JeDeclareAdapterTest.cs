@@ -84,7 +84,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var adapter = new JeDeclareAdapter(jedeclareClient.Object);
 
-            var createdFolder = await adapter.CreateFolderAsync(company);
+            var createdFolder = await adapter.CreateFolderAsync(company, address, signatory);
 
             var expectedSignatory = new Signatory(
                 title: title,

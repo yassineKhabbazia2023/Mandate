@@ -50,7 +50,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 signatory,
                 address);
 
-            var result = entity.ToDossierClient();
+            var result = entity.ToDossierClient(address, signatory);
             result.Should().BeEquivalentTo(new DossierClient
             {
                 Client = new Client()
@@ -95,7 +95,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 signatory,
                 address);
 
-            var result = entity.ToDossierClient();
+            var result = entity.ToDossierClient(address, signatory);
 
             result.Should().NotBeNull();
             result.Should().BeEquivalentTo(new DossierClient

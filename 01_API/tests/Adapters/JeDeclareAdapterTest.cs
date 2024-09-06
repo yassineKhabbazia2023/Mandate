@@ -84,7 +84,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var adapter = new JeDeclareAdapter(jedeclareClient.Object);
 
-            var createdFolder = await adapter.CreateFolderAsync(company);
+            var createdFolder = await adapter.CreateFolderAsync(company, address, signatory);
 
             var expectedSignatory = new Signatory(
                 title: title,
@@ -164,7 +164,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             Bban bban = new Bban("12345", "56789", "12345678901", "88", "6789", bank);
 
             var adapter = new JeDeclareAdapter(jedeclareClient.Object);
-            var result = await adapter.CreateCollecteConfigurationAsync(company, bban, bankServicesProviderId);
+            var result = await adapter.CreateCollecteConfigurationAsync(company, bban, signatory, bankServicesProviderId);
 
             result.Should().Be("releveId");
 

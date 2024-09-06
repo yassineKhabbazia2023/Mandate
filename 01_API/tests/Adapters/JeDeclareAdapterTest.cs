@@ -164,7 +164,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             Bban bban = new Bban("12345", "56789", "12345678901", "88", "6789", bank);
 
             var adapter = new JeDeclareAdapter(jedeclareClient.Object);
-            var result = await adapter.CreateCollecteConfigurationAsync(company, bban, bankServicesProviderId);
+            var result = await adapter.CreateCollecteConfigurationAsync(company, bban, signatory, bankServicesProviderId);
 
             result.Should().Be("releveId");
 

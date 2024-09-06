@@ -26,9 +26,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return ribSaved.ToModel(bank);
         }
 
-        public async Task<string> CreateCollecteConfigurationAsync(Company dossier, Bban rib, string bankServicesProviderId)
+        public async Task<string> CreateCollecteConfigurationAsync(Company dossier, Bban rib, Signatory signatory, string bankServicesProviderId)
         {
-            var releve = rib.ToReleve(dossier?.Signatory!);
+            var releve = rib.ToReleve(signatory);
 
             var collectConfigurationCreated = await this.jedeclareClient.CreateCollecteConfigurationAsync(
                 jdcFolderId: bankServicesProviderId,

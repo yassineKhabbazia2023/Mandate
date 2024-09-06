@@ -133,6 +133,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
                 createdReleveId = await this.jeDeclareClient.CreateCollecteConfigurationAsync(
                 mandateCreationMessageAndCompany.Company,
                 mandateCreationMessageAndCompany.CollectionIdAndRib.Bban,
+                mandateCreationMessageAndCompany.MandateCreationMessage.Signatory,
                 mandateCreationMessageAndCompany.Company.BankServicesProviderId!);
             }
             catch (Exception ex)

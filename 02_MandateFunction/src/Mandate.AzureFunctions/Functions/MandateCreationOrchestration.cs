@@ -8,10 +8,12 @@ using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
 {
+    [ExcludeFromCodeCoverage]
     public class MandateCreationOrchestration
     {
         private readonly IJeDeclareService jeDeclareClient;

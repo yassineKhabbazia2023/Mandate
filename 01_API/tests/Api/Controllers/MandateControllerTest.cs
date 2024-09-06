@@ -135,7 +135,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 collectionBankInfo: collectionBankInfo,
                 creationDate: new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                 modificationDate: new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                statusCode: (int)CollectionStatus.InProgress);
+                statusCode: (int)CollectionStatus.InProgress,
+                jdcStatusCode: (int)JdcCollectionStatus.Creation_InProgress);
 
             var expectedCollections = new List<Client.CollectionSummary>()
             {

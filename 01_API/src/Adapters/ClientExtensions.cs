@@ -30,7 +30,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                     collectionBankInfo: collectionBankInfo,
                     creationDate: source.CreationDate,
                     modificationDate: source.ModificationDate,
-                    statusCode: (int)source.Status.StatusCode!);
+                    statusCode: (int)source.Status.StatusCode!,
+                    jdcStatusCode: (int)source.Status.StatusCodeJdc);
         }
 
         public static Client.TechnicalCollectionSummary ToTechnicalCollectionSummary(this Collection source)

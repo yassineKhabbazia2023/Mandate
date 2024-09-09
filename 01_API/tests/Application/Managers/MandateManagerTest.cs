@@ -788,6 +788,52 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         }
 
         [Fact]
+        public async Task CreateMandateAsync_CompanyHasNoSiretException()
+        {
+            // Arrange
+            var rib = new Bban("CodeB", "54321", "12345678901", "01", "ribId", new Bank("CodeB", "name", "group", "cardId", new BankAgreement(Mandate.JdcPartnership.NonPartner)));
+            var signature = new Signatory("M", "marwen", "elleuch", "maroo@email.com");
+            var adresse = new Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+            int collaboratorId = 2342;
+
+            var mandateCreation = new CollectionCreationCommand(
+                "1234567890",
+                signature,
+                adresse,
+                rib);
+
+            var company = new Company(
+                12,
+                "Test",
+                null, // No SIRET number
+                "123",
+                null,
+                signature,
+                adresse);
+
+            this._mockDatabaseService.Setup(x => x.GetCompanyByErpIdAsync(mandateCreation.ErpId, collaboratorId))
+                .ReturnsAsync(company);
+
+            var mandateManager = new MandateManager(
+                this._mockDatabaseService.Object,
+                this._mockJeDeclareService.Object,
+                this._mockAsposeHelper.Object,
+                null!,
+                this._emailOptions,
+                this._mockLogger.Object,
+                this._mockEventManager.Object);
+
+            // Act
+            Func<Task> action = () => mandateManager.CreateMandateAsync(mandateCreation, collaboratorId);
+
+            // Assert
+            await action.Should().ThrowExactlyAsync<CompanyHasNoSiretException>()
+                .WithMessage($"La Compagnie {company.Name} - {company.ErpId} n'a pas de SIRET");
+
+            this._mockDatabaseService.Verify(x => x.GetCompanyByErpIdAsync(mandateCreation.ErpId, collaboratorId), Times.Once);
+        }
+
+        [Fact]
         public async Task CreateMandate_Given_AMandateIsAlreadyExistingInIncidentStatus_Should_RecreateSuccessfully()
         {
             var bank = new Bank("CodeB", "name", "group", "ebicsCardId", new BankAgreement(Mandate.JdcPartnership.Partner));

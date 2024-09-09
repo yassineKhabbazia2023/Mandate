@@ -105,6 +105,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 this.logger.LogError(ex, "Company is inaccessible - {correlationId} - {contactId} - {functionName}", correlationId, contactId, nameof(this.CreateMandateAsync));
                 return this.StatusCode(StatusCodes.Status400BadRequest, new Error("CompanyInaccessible", correlationId, ex.Message));
             }
+            catch (CompanyHasNoSiretException ex)
+            {
+                this.logger.LogError(ex, "Company has no SIRET - {correlationId} - {functionName}", correlationId, nameof(this.CreateMandateAsync));
+                return this.StatusCode(StatusCodes.Status400BadRequest, new Error("CompanyHasNoSiret", correlationId, ex.Message));
+            }
             catch (CustomBankCodeNotFoundException ex)
             {
                 this.logger.LogError(ex, "Bank was not found - {correlationId} - {functionName}", correlationId, nameof(this.CreateMandateAsync));

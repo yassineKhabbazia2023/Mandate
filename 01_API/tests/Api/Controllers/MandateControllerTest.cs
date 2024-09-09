@@ -1828,7 +1828,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 
             // Assert
             result?.StatusCode.Should().Be(400);
-            result?.Value.Should();
             mandateManager.Verify(x => x.CreateMandateAsync(It.IsAny<CollectionCreationCommand>(), It.IsAny<int>()), Times.Once);
         }
 

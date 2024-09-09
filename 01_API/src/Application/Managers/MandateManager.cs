@@ -44,7 +44,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         {
             var company = await this.databaseService.GetCompanyByErpIdAsync(mandateCreation.ErpId, contactId);
 
-            if (string.IsNullOrEmpty(company.SiretNumber))
+            if (string.IsNullOrWhiteSpace(company.SiretNumber))
             {
                 throw new CompanyHasNoSiretException($"La Compagnie {company.Name} - {company.ErpId} n'a pas de SIRET");
             }

@@ -11,7 +11,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
-  
+
     public class MandateManager : IMandateManager
     {
         private readonly IDatabaseService databaseService;
@@ -43,6 +43,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         public async Task<Guid> CreateMandateAsync(CollectionCreationCommand mandateCreation, int contactId)
         {
             var company = await this.databaseService.GetCompanyByErpIdAsync(mandateCreation.ErpId, contactId);
+
+            if (string.IsNullOrEmpty(company.SiretNumber))
+            {
+                throw new CompanyHasNoSiretException($"La Compagnie {company.Name} - {company.ErpId} n'a pas de SIRET");
+            }
+
             await this.CheckIfCollectionWithSameBbanAlreadyExistsAsync(mandateCreation);
             Bank bank = await this.GetBankAndVerifyParnershipAsync(mandateCreation);
 

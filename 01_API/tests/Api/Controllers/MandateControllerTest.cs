@@ -1800,6 +1800,38 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             mandateManager.Verify(x => x.CreateMandateAsync(It.IsAny<CollectionCreationCommand>(), It.IsAny<int>()), Times.Once);
         }
 
+        [Fact]
+        public async Task CreateMandateAsync_CompanyHasNoSiretException_ReturnsBadRequest()
+        {
+            // Arrange
+            var rib = new Client.Bban("CodeB", "54321", "12345678901", "01");
+            var signature = new Client.Signatory("M", "marwen", "elleuch", "maroo@email.com");
+            var adresse = new Client.Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+            var mandateCreation = new Client.CollectionCreationCommand(
+                "1234567890",
+                signature,
+                adresse,
+                rib);
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Loose);
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(_ => _.CreateMandateAsync(It.IsAny<CollectionCreationCommand>(), It.IsAny<int>()))
+                .ThrowsAsync(new CompanyHasNoSiretException("La Compagnie n'a pas de SIRET"))
+                .Verifiable();
+
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, formIoManager.Object);
+
+            // Act
+            var result = await controller.CreateMandateAsync(mandateCreation, 2) as ObjectResult;
+
+            // Assert
+            result?.StatusCode.Should().Be(400);
+            result?.Value.Should();
+            mandateManager.Verify(x => x.CreateMandateAsync(It.IsAny<CollectionCreationCommand>(), It.IsAny<int>()), Times.Once);
+        }
+
         private static List<Collection> GetTestCollection()
         {
             var company = new Company(

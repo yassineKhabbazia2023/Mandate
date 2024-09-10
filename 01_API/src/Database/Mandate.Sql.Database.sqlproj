@@ -79,6 +79,6 @@
     <Build Include="Tables\CompanyCollaborator.sql" />
     <Build Include="Tables\MandateLog.sql" />
     <PostDeploy Include="PostDeployment\AddCreationInprogressStatus.sql" />
-    <Build Include="Tables\CreationLogMessage.sql" />
+    <Build Include="Tables\MandateCreationLogMessage.sql" />
   </ItemGroup>
 </Project>

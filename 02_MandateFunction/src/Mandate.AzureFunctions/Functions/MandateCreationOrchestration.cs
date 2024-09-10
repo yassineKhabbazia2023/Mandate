@@ -54,7 +54,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
                 throw new CollectionNotFoundException($"The collection with the company id {message.Company.Id} and accountNumber : {message.Bban.AccountNumber} is not found");
             }
 
-            var messageToSave = new MandateCreationLogMessage(collection.Id, message!.ToString());
+            var messageToSave = new MandateCreationLogMessage(collection.Id, JsonConvert.SerializeObject(message));
             await this.databaseService.SaveMandateCreationLogMessageAsync(messageToSave);
 
             return collection.Id;
@@ -177,7 +177,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
         [Function("MandateCreationOrchestration_Start")]
         [ExcludeFromCodeCoverage]
         public async Task Run(
-            [ServiceBusTrigger("%MandateCreationQueue%", Connection = "serviceBusNameSpace")] ServiceBusReceivedMessage message,
+            [ServiceBusTrigger("%MandateCreationQueue%", Connection = "serviceBusNameSpace:fullyQualifiedNamespace")] ServiceBusReceivedMessage message,
             [DurableClient] DurableTaskClient client,
             FunctionContext executionContext)
         {

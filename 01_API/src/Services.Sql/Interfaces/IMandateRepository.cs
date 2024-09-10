@@ -161,5 +161,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         Task<StatusDb> GetStatusAsync(Guid collectionId);
         Task<PersonalDb?> GetCollectionSignatoryAsync(Guid collectionId);
         Task<Guid> GetCollectionIfAlreadyExistingInIncidentStatus(string bankCode, string branchCode, string accountNumber, string erpId);
+        Task SaveMandateCreationLogMessageAsync(MandateCreationLogMessageDb messageDb);
     }
 }

@@ -35,17 +35,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
             ILogger logger = context.CreateReplaySafeLogger(nameof(MandateCreationOrchestration));
             logger.LogInformation("Start orchestration.");
 
-            var collectionId = await context.CallActivityAsync<Guid>(nameof(this.GetCollection), message);
+            var collectionId = await context.CallActivityAsync<Guid>(nameof(this.GetCollectionAndSaveMessage), message);
             var dossierClient = await context.CallActivityAsync<Company>(nameof(this.CreateJdcFolderAsync), new MandateCreationMessageAndCollectionId(message, collectionId));
             var collectionIdAndRib = await context.CallActivityAsync<CollectionIdAndRib>(nameof(this.AddRibToJdcFolderAsync), new MandateCreationMessageAndCompanyAndCollectionId(message, dossierClient, collectionId));
             await context.CallActivityAsync<CollectionIdAndRib>(nameof(this.StartCollectAsync), new MandateCreationMessageAndCompanyAndMore(message, dossierClient, collectionIdAndRib));
             await context.CallActivityAsync<object>(nameof(this.SaveSignatoryAndAddStatusAsync), new MandateCreationMessageAndCompanyAndMore(message, dossierClient, collectionIdAndRib));
         }
 
-        [Function(nameof(GetCollection))]
-        public async Task<Guid> GetCollection([ActivityTrigger] MandateCreationMessage message, FunctionContext executionContext)
+        [Function(nameof(GetCollectionAndSaveMessage))]
+        public async Task<Guid> GetCollectionAndSaveMessage([ActivityTrigger] MandateCreationMessage message, FunctionContext executionContext)
         {
-            ILogger logger = executionContext.GetLogger(nameof(GetCollection));
+            ILogger logger = executionContext.GetLogger(nameof(GetCollectionAndSaveMessage));
             var collection = await mandateRepository.GetCollectionAsync(message.Bban.BankCode, message.Bban.BranchCode, message.Bban.AccountNumber, message.Bban.CheckDigits, message.Company.Id);
 
             if (collection is null)
@@ -53,6 +53,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
                 logger.LogError("collection not found");
                 throw new CollectionNotFoundException($"The collection with the company id {message.Company.Id} and accountNumber : {message.Bban.AccountNumber} is not found");
             }
+
+            var messageToSave = new MandateCreationLogMessage(collection.Id, message!.ToString());
+            await this.databaseService.SaveMandateCreationLogMessageAsync(messageToSave);
 
             return collection.Id;
         }

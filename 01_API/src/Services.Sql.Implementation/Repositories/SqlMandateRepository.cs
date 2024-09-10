@@ -161,11 +161,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
             return await context.Personal.SingleOrDefaultAsync(collection => collection.CollectionId == collectionId);
         }
+
         public async Task SaveSignatoryAsync(PersonalDb personalDb)
         {
             using var context = new MandateContext(this.options);
 
             await context.AddAsync(personalDb);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task SaveMandateCreationLogMessageAsync(MandateCreationLogMessageDb messageDb)
+        {
+            using var context = new MandateContext(this.options);
+
+            await context.AddAsync(messageDb);
             await context.SaveChangesAsync();
         }
 

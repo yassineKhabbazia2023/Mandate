@@ -46,6 +46,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
         public DbSet<MandateLogDb> MandateLog { get; set; } = null!;
 
+        public DbSet<MandateCreationLogMessageDb> MandateCreationLogMessage { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -165,6 +167,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<MandateLogDb>().Property(cp => cp.JdcDossierId).HasMaxLength(50).IsRequired(true);
             modelBuilder.Entity<MandateLogDb>().Property(cp => cp.JdcReleveId).HasMaxLength(50).IsRequired(true);
             modelBuilder.Entity<MandateLogDb>().Property(cp => cp.JdcRibId).HasMaxLength(50).IsRequired(true);
+
+            modelBuilder.Entity<MandateCreationLogMessageDb>().HasKey(m => m.Id);
+            modelBuilder.Entity<MandateCreationLogMessageDb>().Property(m => m.MessageContent).IsRequired().HasColumnType("NVARCHAR(MAX)");
+            modelBuilder.Entity<MandateCreationLogMessageDb>().Property(m => m.CreatedDate).IsRequired().HasDefaultValueSql("GETDATE()");
+
+            modelBuilder.Entity<MandateCreationLogMessageDb>()
+                .HasOne<CollectionDb>()
+                .WithMany()
+                .HasForeignKey(m => m.CollectionId)
+                .IsRequired();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

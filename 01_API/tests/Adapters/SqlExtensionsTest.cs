@@ -703,5 +703,24 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             result.ExceptionType.Should().Be(Sql.ExceptionType.NoAccountNumberMatchDoubleSiret);
             result.CreationDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(10));
         }
+
+        [Fact]
+        public void ToMandateCreationLogMessageDB_Should_Map_Properties_Correctly()
+        {
+            // Arrange
+            var mandateCreationLogMessage = new MandateCreationLogMessage(
+                Guid.NewGuid(),
+                "hey message content"
+            );
+
+            // Act
+            var result = mandateCreationLogMessage.ToMandateCreationLogMessageDB();
+
+            // Assert
+            result.Id.Should().Be(mandateCreationLogMessage.Id);
+            result.CollectionId.Should().Be(mandateCreationLogMessage.CollectionId);
+            result.MessageContent.Should().Be(mandateCreationLogMessage.MessageContent);
+            result.CreatedDate.Should().BeCloseTo(mandateCreationLogMessage.CreatedDate, TimeSpan.FromSeconds(1));
+        }
     }
 }

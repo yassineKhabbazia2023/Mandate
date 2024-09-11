@@ -78,7 +78,11 @@ public class MandateCreationOrchestrationTest
                 CompanyId = _companyId,
             }));
 
-        var result = await _sut.GetCollection(_mandateCreationMessage, new MyFunctionContextStub());
+        _dbService
+      .Setup(d => d.SaveMandateCreationLogMessageAsync(It.IsAny<MandateCreationLogMessage>()))
+      .Returns(Task.CompletedTask);
+
+        var result = await _sut.GetCollectionAndSaveMessage(_mandateCreationMessage, new MyFunctionContextStub());
         result.Should().Be(_collectionDbId);
     }
 
@@ -94,7 +98,7 @@ public class MandateCreationOrchestrationTest
                     It.IsAny<string>(),
                     _companyId))
             .Returns(Task.FromResult<CollectionDb?>(null));
-        var result = () => _sut.GetCollection(_mandateCreationMessage, new MyFunctionContextStub());
+        var result = () => _sut.GetCollectionAndSaveMessage(_mandateCreationMessage, new MyFunctionContextStub());
         await result.Should().ThrowAsync<CollectionNotFoundException>();
     }
 

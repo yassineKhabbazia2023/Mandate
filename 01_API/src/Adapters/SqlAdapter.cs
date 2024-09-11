@@ -233,6 +233,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             await this.mandateRepository.InsertMandateLogAsync(mandateLog);
         }
 
+        public async Task SaveMandateCreationLogMessageAsync(MandateCreationLogMessage mandateCreationLogMessage)
+        {
+            var messageDb = mandateCreationLogMessage.ToMandateCreationLogMessageDB();
+            await this.mandateRepository.SaveMandateCreationLogMessageAsync(messageDb);
+        }
+
         private static Address CreateAddressFromDb(PersonalDb? personal)
         {
             return new Address(personal?.Street, personal?.Complements, personal?.ZipCode, personal?.City, personal?.Country);

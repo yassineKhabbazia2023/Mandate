@@ -10,7 +10,7 @@ public class MandateCreationLogMessageDb
 
     public Guid CollectionId { get; set; }
 
-    public string? MessageContent { get; set; }
+    public string MessageContent { get; set; }
 
-    public DateTime? CreatedDate { get; set; }
+    public DateTime CreatedDate { get; set; }
 }

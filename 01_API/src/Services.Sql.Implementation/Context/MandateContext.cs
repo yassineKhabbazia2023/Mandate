@@ -170,7 +170,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
             modelBuilder.Entity<MandateCreationLogMessageDb>().HasKey(m => m.Id);
             modelBuilder.Entity<MandateCreationLogMessageDb>().Property(m => m.MessageContent).IsRequired().HasColumnType("NVARCHAR(MAX)");
-            modelBuilder.Entity<MandateCreationLogMessageDb>().Property(m => m.CreatedDate).IsRequired().HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<MandateCreationLogMessageDb>().Property(m => m.CreatedDate).IsRequired();
 
             modelBuilder.Entity<MandateCreationLogMessageDb>()
                 .HasOne<CollectionDb>()

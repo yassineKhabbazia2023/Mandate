@@ -22,14 +22,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
         }
 
-        public static DossierClient ToDossierClient(this Company company)
+        public static DossierClient ToDossierClient(this Company company, Address address, Signatory signatory)
         {
             Client client = new Client
             {
                 Id = company.BankServicesProviderId!,
                 RaisonSociale = company.Name!.Sanitize()!,
                 Siret = CreateSiretFromCompany(company),
-                Responsable = CreateResponsableFromCompany(company),
+                Responsable = CreateResponsable(address, signatory),
             };
 
             return new DossierClient { Client = client };
@@ -133,20 +133,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
         }
 
-        private static Responsable CreateResponsableFromCompany(Company company)
+        private static Responsable CreateResponsable(Address address, Signatory signatory)
         {
             return new Responsable
             {
                 Adresse = new Adresse
                 {
-                    CodePostal = company.Address?.ZipCode!,
-                    CplRue = company.Address?.Complements!.Sanitize()!,
-                    Pays = company.Address?.Country?.Sanitize()!,
-                    Rue = company.Address?.Street?.Sanitize()!,
-                    Ville = company.Address?.City?.Sanitize()!,
+                    CodePostal = address?.ZipCode!,
+                    CplRue = address?.Complements!.Sanitize()!,
+                    Pays = address?.Country?.Sanitize()!,
+                    Rue = address?.Street?.Sanitize()!,
+                    Ville = address?.City?.Sanitize()!,
                 },
-                Mail = company.Signatory?.Email,
-                Name = $"{company.Signatory?.Title ?? string.Empty} {company.Signatory?.FirstName?.Sanitize() ?? string.Empty} {company.Signatory?.LastName?.Sanitize() ?? string.Empty}",
+                Mail = signatory.Email,
+                Name = $"{signatory.Title ?? string.Empty} {signatory.FirstName?.Sanitize() ?? string.Empty} {signatory.LastName?.Sanitize() ?? string.Empty}",
             };
         }
     }

@@ -816,5 +816,36 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             result.Should().Be(Guid.Empty);
             repositoryMock.VerifyAll();
         }
+
+        [Fact]
+        public async Task SaveMandateCreationLogMessageAsync_Should_Save_LogMessage()
+        {
+            // Arrange
+            var mandateCreationLogMessage = new MandateCreationLogMessage(
+                Guid.NewGuid(),
+                "hello message content"
+            );
+
+            var mandateLogDb = mandateCreationLogMessage.ToMandateCreationLogMessageDB();
+
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.SaveMandateCreationLogMessageAsync(It.Is<MandateCreationLogMessageDb>(m =>
+                m.CollectionId == mandateLogDb.CollectionId &&
+                m.MessageContent == mandateLogDb.MessageContent
+            ))).Returns(Task.CompletedTask).Verifiable();
+
+            var databaseService = new SqlAdapter(repository.Object);
+
+            // Act
+            await databaseService.SaveMandateCreationLogMessageAsync(mandateCreationLogMessage);
+
+            // Assert
+            repository.Verify(
+                r => r.SaveMandateCreationLogMessageAsync(It.Is<MandateCreationLogMessageDb>(m =>
+                m.CollectionId == mandateLogDb.CollectionId &&
+                m.MessageContent == mandateLogDb.MessageContent
+            )), Times.Once);
+        }
+
     }
 }

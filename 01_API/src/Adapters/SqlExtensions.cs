@@ -248,6 +248,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
         }
 
+        public static Sql.MandateCreationLogMessageDb ToMandateCreationLogMessageDB(this MandateCreationLogMessage mandateCreationLogMessage)
+        {
+            return new Sql.MandateCreationLogMessageDb()
+            {
+                Id = mandateCreationLogMessage.Id,
+                CollectionId = mandateCreationLogMessage.CollectionId,
+                MessageContent = mandateCreationLogMessage.MessageContent,
+                CreatedDate = mandateCreationLogMessage.CreatedDate,
+            };
+        }
+
         public static CollectionDb ToCollectionDb(this Bban source, int companyId)
         {
             return new CollectionDb()

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Azure.Messaging.ServiceBus;
 using KPMG.Pulse.Back.Accounting.Mandate.Application;
 
@@ -26,6 +27,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
         }
 
         [Function(nameof(RunOrchestrator))]
+        [ExcludeFromCodeCoverage]
         public async Task RunOrchestrator(
     [OrchestrationTrigger] TaskOrchestrationContext context,
     MandateCreationMessage message)
@@ -33,17 +35,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
             ILogger logger = context.CreateReplaySafeLogger(nameof(MandateCreationOrchestration));
             logger.LogInformation("Start orchestration.");
 
-            var collectionId = await context.CallActivityAsync<Guid>(nameof(this.GetCollection), message);
+            var collectionId = await context.CallActivityAsync<Guid>(nameof(this.GetCollectionAndSaveMessage), message);
             var dossierClient = await context.CallActivityAsync<Company>(nameof(this.CreateJdcFolderAsync), new MandateCreationMessageAndCollectionId(message, collectionId));
             var collectionIdAndRib = await context.CallActivityAsync<CollectionIdAndRib>(nameof(this.AddRibToJdcFolderAsync), new MandateCreationMessageAndCompanyAndCollectionId(message, dossierClient, collectionId));
             await context.CallActivityAsync<CollectionIdAndRib>(nameof(this.StartCollectAsync), new MandateCreationMessageAndCompanyAndMore(message, dossierClient, collectionIdAndRib));
             await context.CallActivityAsync<object>(nameof(this.SaveSignatoryAndAddStatusAsync), new MandateCreationMessageAndCompanyAndMore(message, dossierClient, collectionIdAndRib));
         }
 
-        [Function(nameof(GetCollection))]
-        public async Task<Guid> GetCollection([ActivityTrigger] MandateCreationMessage message, FunctionContext executionContext)
+        [Function(nameof(GetCollectionAndSaveMessage))]
+        public async Task<Guid> GetCollectionAndSaveMessage([ActivityTrigger] MandateCreationMessage message, FunctionContext executionContext)
         {
-            ILogger logger = executionContext.GetLogger(nameof(GetCollection));
+            ILogger logger = executionContext.GetLogger(nameof(GetCollectionAndSaveMessage));
             var collection = await mandateRepository.GetCollectionAsync(message.Bban.BankCode, message.Bban.BranchCode, message.Bban.AccountNumber, message.Bban.CheckDigits, message.Company.Id);
 
             if (collection is null)
@@ -52,27 +54,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
                 throw new CollectionNotFoundException($"The collection with the company id {message.Company.Id} and accountNumber : {message.Bban.AccountNumber} is not found");
             }
 
+            var messageToSave = new MandateCreationLogMessage(collection.Id, JsonConvert.SerializeObject(message));
+            await this.databaseService.SaveMandateCreationLogMessageAsync(messageToSave);
+
             return collection.Id;
         }
 
         [Function(nameof(CreateJdcFolderAsync))]
         public async Task<Company> CreateJdcFolderAsync([ActivityTrigger] MandateCreationMessageAndCollectionId message, FunctionContext executionContext)
         {
-            ILogger logger = executionContext.GetLogger(nameof(CreateJdcFolderAsync));
-            var jdcFolder = await this.mandateRepository.GetJdcFolderAsync(message.MandateCreationMessage.Company.Id);
-
-            if (jdcFolder is not null)
-            {
-                logger.LogInformation("JdcFolder already exists for {CompanyId}", message.MandateCreationMessage.Company.Id);
-                message.MandateCreationMessage.Company.SetBankServicesProviderId(jdcFolder.JdcDossierId);
-                return message.MandateCreationMessage.Company;
-            }
-
             Company dossierClient;
 
             try
             {
-                dossierClient = await this.jeDeclareClient.CreateFolderAsync(message.MandateCreationMessage.Company);
+                dossierClient = await this.jeDeclareClient.CreateFolderAsync(message.MandateCreationMessage.Company, message.MandateCreationMessage.Address, message.MandateCreationMessage.Signatory);
             }
             catch (Exception ex)
             {
@@ -80,7 +75,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
                 throw;
             }
 
-            // Création du dossier coté SQL
+            // CrÃ©ation du dossier cotÃ© SQL
             await this.mandateRepository.CreateOrUpdateFolderAsync(dossierClient!.BankServicesProviderId!, message.MandateCreationMessage.Company.Id);
 
             return dossierClient;
@@ -89,15 +84,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
         [Function(nameof(AddRibToJdcFolderAsync))]
         public async Task<CollectionIdAndRib> AddRibToJdcFolderAsync([ActivityTrigger] MandateCreationMessageAndCompanyAndCollectionId messageAndCompany, FunctionContext executionContext)
         {
-            ILogger logger = executionContext.GetLogger(nameof(AddRibToJdcFolderAsync));
-
             var message = messageAndCompany.MandateCreationMessage;
 
             Bban rib;
 
             try
             {
-                // Création du rib coté jeDeclare
+                // CrÃ©ation du rib cotÃ© jeDeclare
                 rib = await this.jeDeclareClient.AddRibToFolderAsync(
                     messageAndCompany.Company.BankServicesProviderId,
                     new CollectionCreationCommand(message.ErpId, message.Signatory, message.Address, message.Bban),
@@ -129,10 +122,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
 
             try
             {
-                // création de la collecte coté jeDeclare
+                // CrÃ©ation de la collecte cotÃ© jeDeclare
                 createdReleveId = await this.jeDeclareClient.CreateCollecteConfigurationAsync(
                 mandateCreationMessageAndCompany.Company,
                 mandateCreationMessageAndCompany.CollectionIdAndRib.Bban,
+                mandateCreationMessageAndCompany.MandateCreationMessage.Signatory!,
                 mandateCreationMessageAndCompany.Company.BankServicesProviderId!);
             }
             catch (Exception ex)
@@ -141,7 +135,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
                 throw;
             }
 
-            // crétaion JeDeclareCollection coté sql
+            // CrÃ©ation JeDeclareCollection cotÃ© sql
             await this.mandateRepository.InsertServicesProviderIdsAsync(mandateCreationMessageAndCompany.CollectionIdAndRib.CollectionId, createdReleveId, mandateCreationMessageAndCompany.CollectionIdAndRib.Bban?.BbanServicesProviderId!);
 
             return mandateCreationMessageAndCompany.Company;
@@ -160,7 +154,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
             }
             else
             {
-                // save Signatory
+                // Save Signatory
                 await this.mandateRepository.SaveSignatoryAsync(new PersonalDb
                 {
                     FirstName = mandateCreationMessageAndCompany.MandateCreationMessage.Signatory.FirstName,
@@ -168,6 +162,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
                     Email = mandateCreationMessageAndCompany.MandateCreationMessage.Signatory.Email,
                     Title = mandateCreationMessageAndCompany.MandateCreationMessage.Signatory.Title,
                     CollectionId = mandateCreationMessageAndCompany.CollectionIdAndRib.CollectionId,
+                    Street = mandateCreationMessageAndCompany.MandateCreationMessage.Address!.Street,
+                    Complements = mandateCreationMessageAndCompany.MandateCreationMessage.Address!.Complements,
+                    ZipCode = mandateCreationMessageAndCompany.MandateCreationMessage.Address!.ZipCode,
+                    City = mandateCreationMessageAndCompany.MandateCreationMessage.Address!.City,
+                    Country = mandateCreationMessageAndCompany.MandateCreationMessage.Address!.Country,
                 });
             }
 
@@ -176,8 +175,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
         }
 
         [Function("MandateCreationOrchestration_Start")]
+        [ExcludeFromCodeCoverage]
         public async Task Run(
-            [ServiceBusTrigger("%MandateCreationQueue%", Connection = "serviceBusNameSpace")] ServiceBusReceivedMessage message,
+            [ServiceBusTrigger("%MandateCreationQueue%", Connection = "serviceBusNameSpace:fullyQualifiedNamespace")] ServiceBusReceivedMessage message,
             [DurableClient] DurableTaskClient client,
             FunctionContext executionContext)
         {

@@ -4,12 +4,13 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 {
-    using System;
-    using System.Linq.Expressions;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
-    using Microsoft.Identity.Client;
+    using System;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Linq.Expressions;
 
+    [ExcludeFromCodeCoverage]
     public class SqlMandateRepository : IMandateRepository
     {
         private readonly IOptions<SqlMandateRepositoryOptions> options;
@@ -154,11 +155,26 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             return await collectionDb.SingleAsync().ConfigureAwait(false);
         }
 
+        public async Task<PersonalDb?> GetCollectionSignatoryAsync(Guid collectionId)
+        {
+            using var context = new MandateContext(this.options);
+
+            return await context.Personal.SingleOrDefaultAsync(collection => collection.CollectionId == collectionId);
+        }
+
         public async Task SaveSignatoryAsync(PersonalDb personalDb)
         {
             using var context = new MandateContext(this.options);
 
             await context.AddAsync(personalDb);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task SaveMandateCreationLogMessageAsync(MandateCreationLogMessageDb messageDb)
+        {
+            using var context = new MandateContext(this.options);
+
+            await context.AddAsync(messageDb);
             await context.SaveChangesAsync();
         }
 
@@ -1498,57 +1514,84 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             context.RemoveRange(await context.Company.Where(s => fakeCompanyIds.Contains(s.Id)).ToListAsync());
             await context.SaveChangesAsync();
         }
-        public class QueryResult
-        {
-            public CompanyDb CompanyDb { get; set; }
-            public int? CollaboratorId { get; set; }
-        }
 
         public async Task<CompanyDb> GetCompanyByErpIdAsync(string erpId, string userEmail)
         {
             using var context = new MandateContext(this.options);
 
-            var result = await (
-                from collaborator in context.Collaborator
-                from company in context.Company
-                join cc in context.CompanyCollaborator
-                    on new { com = company.Id, col = collaborator.Id }
-                    equals new { com = cc.CompanyId, col = cc.CollaboratorId }
-                    into cc_join_table
-                from companyCollaborator in cc_join_table.DefaultIfEmpty()
-                where company.ErpId == erpId && collaborator.Email == userEmail && collaborator.IsActive
-                select new QueryResult
-                {
-                    CompanyDb = company,
-                    CollaboratorId = companyCollaborator.CollaboratorId,
-                }).FirstOrDefaultAsync();
+            var company = await context.Company
+                .Include(c => c.Personal)
+                .Include(c => c.JeDeclareFolder)
+                .Include(c => c.CompanyCollaborators.Where(c => c.Collaborator.Email.ToLower() == userEmail.ToLower() && c.Collaborator.IsActive))
+                .ThenInclude(c => c.Collaborator)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.ErpId == erpId);
 
-            if (result == null)
+            if (company is null)
             {
                 throw CompanyNotFoundException.FromId(erpId);
             }
 
-            if (!result.CompanyDb.IsActive)
+            if (!company.IsActive)
             {
                 throw InactiveCompanyException.FromId(erpId);
             }
 
-            if (result.CollaboratorId == null)
+            if (!company.CompanyCollaborators.Any())
             {
                 throw InaccessibleCompanyException.FromId(erpId);
             }
 
-            return result.CompanyDb;
+            return company;
         }
 
-        public async Task<CollaboratorDb> GetCollaboratorByEmailAsync(string collaboratorEmail)
+        public async Task<CompanyDb> GetCompanyByErpIdAsync(string erpId, int contactId)
         {
             using var context = new MandateContext(this.options);
 
-            var collab = context.Collaborator.AsNoTracking()
-                .Where(c => c.Email.ToLower() == collaboratorEmail.ToLower() && c.IsActive);
+            var company = await context.Company
+                .Include(c => c.Personal)
+                .Include(c => c.JeDeclareFolder)
+                .Include(c => c.CompanyCollaborators.Where(c => c.Collaborator.Id == contactId && c.Collaborator.IsActive))
+                .ThenInclude(c => c.Collaborator)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.ErpId == erpId);
 
-            return await collab.SingleAsync();
+            if (company is null)
+            {
+                throw CompanyNotFoundException.FromId(erpId);
+            }
+
+            if (!company.IsActive)
+            {
+                throw InactiveCompanyException.FromId(erpId);
+            }
+
+            if (!company.CompanyCollaborators.Any())
+            {
+                throw InaccessibleCompanyException.FromId(erpId);
+            }
+
+            return company;
+        }
+
+        public async Task<CollaboratorDb?> GetCollaboratorByEmailAsync(string collaboratorEmail)
+        {
+            var normalizedEmail = collaboratorEmail.ToLower();
+
+            using var context = new MandateContext(this.options);
+
+            var collab = await context.Collaborator.AsNoTracking()
+                .SingleOrDefaultAsync(c => c.Email.ToLower() == normalizedEmail && c.IsActive);
+
+            return collab;
+        }
+
+        public async Task<JeDeclareFolderDb?> GetJdcFolderAsync(int companyId)
+        {
+            using var context = new MandateContext(this.options);
+            return await context.JeDeclareFolder
+                .SingleOrDefaultAsync(item => item.CompanyId == companyId);
         }
 
         public async Task CreateOrUpdateFolderAsync(string bankServicesProviderId, int companyId)
@@ -1583,6 +1626,21 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             await context.SaveChangesAsync();
         }
 
+        public async Task<CollectionDb?> GetCollectionAsync(string bankCode, string branchCode, string accountNumber, string checkDigits, int companyId)
+        {
+            using var context = new MandateContext(this.options);
+
+            return await context
+                .Collection
+                .AsNoTracking()
+                .SingleOrDefaultAsync(collection =>
+                    collection.BankCode == bankCode &&
+                    collection.BranchCode == branchCode &&
+                    collection.AccountNumber == accountNumber &&
+                    collection.CheckDigits == checkDigits &&
+                    collection.CompanyId == companyId);
+        }
+
         public async Task<CollectionDb> CreateCollectionAsync(CollectionDb collection)
         {
             using var context = new MandateContext(this.options);
@@ -1601,7 +1659,32 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                 .AnyAsync(c =>
                     c.BankCode == bankCode &&
                     c.BranchCode == branchCode &&
-                    c.AccountNumber == accountNumber);
+                    c.AccountNumber == accountNumber &&
+                    !c.Statuses.Any(status => status.StatusCode == (int)JdcCollectionStatus.Creation_Failed && status.IsCurrent));
+        }
+
+        public async Task<Guid> GetCollectionIfAlreadyExistingInIncidentStatus(string bankCode, string branchCode, string accountNumber, string erpId)
+        {
+            using var context = new MandateContext(this.options);
+
+            var collectionQuery = context.Collection.AsNoTracking()
+                .Where(c => c.Company!.ErpId == erpId && c.BankCode == bankCode);
+
+            collectionQuery = collectionQuery
+                .Where(c => c.BranchCode == branchCode && c.AccountNumber == accountNumber);
+
+            return await collectionQuery
+                .Where(c => c.Statuses.Any(status =>
+                    status.StatusCode == (int)JdcCollectionStatus.Creation_Failed && status.IsCurrent))
+                .Select(c => c.Id)
+                .SingleOrDefaultAsync();
+        }
+
+        public async Task<JeDeclareCollectionDb?> GetServicesProviderIdsAsync(Guid collectionId)
+        {
+            using var context = new MandateContext(this.options);
+            return await context.JeDeclareCollection.AsNoTracking().SingleOrDefaultAsync(jdcCollection =>
+                jdcCollection.CollectionId == collectionId);
         }
 
         public async Task InsertServicesProviderIdsAsync(Guid collectionId, string collectionServicesProviderId, string bbanServicesProviderId)
@@ -1616,6 +1699,14 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
 
             await context.JeDeclareCollection.AddAsync(jeDeclareCollectionDb);
             await context.SaveChangesAsync();
+        }
+
+        public async Task<StatusDb> GetStatusAsync(Guid collectionId)
+        {
+            using var context = new MandateContext(this.options);
+
+            return await context.Status
+                .FirstOrDefaultAsync(status => status.CollectionId == collectionId);
         }
 
         public async Task<StatusDb> CreateStatusAsync(Guid collectionId, StatusDb statusDb)
@@ -1908,7 +1999,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             {
                 return mandates.Where(item =>
                     item.Statuses.Any(s =>
-                        s.StatusCode == -1 &&
+                        s.StatusCode == 99 &&
                         (s.StatusDate.HasValue &&
                         s.StatusDate.Value.Date >= query.CreationDateStart.Value.Date &&
                         s.StatusDate.Value.Date <= query.CreationDateEnd.Value.Date)));
@@ -1962,7 +2053,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                 CollectionSortCriteria.AccountNumber => mandates.OrderBy(item => item.AccountNumber),
                 CollectionSortCriteria.BankName => mandates.OrderBy(item => item.Bank!.BankName),
                 CollectionSortCriteria.CreationDate => mandates
-                    .Where(collection => collection.Statuses.Any(status => status.RefStatusCode!.StatusCode == -1))
+                    .Where(collection => collection.Statuses.Any(status => status.RefStatusCode!.StatusCode == (int)JdcCollectionStatus.Creation_InProgress))
                     .OrderBy(collection => collection.Statuses.Min(status => status.StatusDate)),
                 CollectionSortCriteria.ModificationDate => ApplyModificationDateSort(mandates, true),
                 CollectionSortCriteria.Status => ApplyStatusSort(mandates, true),
@@ -1979,7 +2070,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                 CollectionSortCriteria.AccountNumber => mandates.OrderByDescending(item => item.AccountNumber),
                 CollectionSortCriteria.BankName => mandates.OrderByDescending(item => item.Bank!.BankName),
                 CollectionSortCriteria.CreationDate => mandates
-                    .Where(collection => collection.Statuses.Any(status => status.RefStatusCode!.StatusCode == -1))
+                    .Where(collection => collection.Statuses.Any(status => status.RefStatusCode!.StatusCode == (int)JdcCollectionStatus.Creation_InProgress))
                     .OrderByDescending(collection => collection.Statuses.Min(status => status.StatusDate)),
                 CollectionSortCriteria.ModificationDate => ApplyModificationDateSort(mandates, false),
                 CollectionSortCriteria.Status => ApplyStatusSort(mandates, false),

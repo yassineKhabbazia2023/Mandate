@@ -6,8 +6,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests;
 
 using KPMG.Pulse.Back.Accounting.Mandate.Function;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql;
-using Microsoft.Identity.Client;
-using Notifications.Commons.WebApi;
 
 public class SqlAdapterTest
 {

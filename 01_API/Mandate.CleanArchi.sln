@@ -159,6 +159,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KPMG.Pulse.Back.Accounting.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.AzureFunctions.Tests", "..\02_MandateFunction\tests\Mandate.AzureFunctions.Tests\Mandate.AzureFunctions.Tests.csproj", "{23466861-C907-44A1-856E-C2EACB4BC565}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{1B2826FD-16E8-4B2E-8153-6EEC8B1C574F}"
+	ProjectSection(SolutionItems) = preProject
+		330875-generate-update-requests-for-statuses-of-companies.sql = 330875-generate-update-requests-for-statuses-of-companies.sql
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Messaging", "Messaging", "{B6065814-8671-4FBE-B35F-6FF04AE7B88A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Messaging", "src\Mandate.Messaging\Mandate.Messaging.csproj", "{48A8871A-5CD9-4822-AB57-E47BC4BD84EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mandate.Messaging.Tests", "tests\Mandate.Messaging.Tests\Mandate.Messaging.Tests.csproj", "{32F65D97-3CC6-4F2A-80B0-A75F80242EE0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -311,6 +322,14 @@ Global
 		{23466861-C907-44A1-856E-C2EACB4BC565}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23466861-C907-44A1-856E-C2EACB4BC565}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23466861-C907-44A1-856E-C2EACB4BC565}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48A8871A-5CD9-4822-AB57-E47BC4BD84EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48A8871A-5CD9-4822-AB57-E47BC4BD84EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48A8871A-5CD9-4822-AB57-E47BC4BD84EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48A8871A-5CD9-4822-AB57-E47BC4BD84EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32F65D97-3CC6-4F2A-80B0-A75F80242EE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32F65D97-3CC6-4F2A-80B0-A75F80242EE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32F65D97-3CC6-4F2A-80B0-A75F80242EE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32F65D97-3CC6-4F2A-80B0-A75F80242EE0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -374,6 +393,9 @@ Global
 		{70DEA3CC-C805-451F-9179-759D32973434} = {6C324EF8-0BC6-4FAC-AFD4-929678A03704}
 		{1FF6B771-4325-4F40-8208-F6447CF73FB6} = {BEBE4B63-38E1-4956-93EB-8C28E1737EF3}
 		{23466861-C907-44A1-856E-C2EACB4BC565} = {BEBE4B63-38E1-4956-93EB-8C28E1737EF3}
+		{B6065814-8671-4FBE-B35F-6FF04AE7B88A} = {EE6267B4-407D-41DA-8EF1-F74120752372}
+		{48A8871A-5CD9-4822-AB57-E47BC4BD84EB} = {B6065814-8671-4FBE-B35F-6FF04AE7B88A}
+		{32F65D97-3CC6-4F2A-80B0-A75F80242EE0} = {B6065814-8671-4FBE-B35F-6FF04AE7B88A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {97AB0967-2109-4F52-B629-DEA955BFEF4D}

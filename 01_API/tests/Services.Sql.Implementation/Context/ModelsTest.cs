@@ -4,27 +4,21 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 {
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests.Tools;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
 
-    [Collection("SerialExecutionPublishDb")]
-    public class ModelsTest
+    public class ModelsTest: SqlServerTestBase
     {
-        private readonly IOptions<SqlMandateRepositoryOptions> options;
-
-        public ModelsTest()
+        public ModelsTest(SqlServerFixture sqlServerFixture) 
+            : base(sqlServerFixture)
         {
-            this.options = Options.Create(new SqlMandateRepositoryOptions()
-            {
-                ConnectionString = SqlServerFixture.ConnectionString,
-            });
         }
 
         [Fact]
         public async Task Empty_Success()
         {
-            await using var database = SqlServerFixture.CreateDatabase();
-            using var context = new MandateContext(this.options);
+            using var context = new MandateContext(_options);
             await context.Database.ExecuteSqlRawAsync("SELECT 1", CancellationToken.None);
             Assert.True(true);
         }
@@ -32,14 +26,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task ModelToSql_Success()
         {
-            await using var database = SqlServerFixture.CreateDatabase();
-            using var context = new MandateContext(this.options);
+            using var context = new MandateContext(_options);
             var refBankDb = EntityDbFactory.RefBankDb;
 
             await context.RefBank.AddAsync(refBankDb);
             await context.SaveChangesAsync();
 
-            var dataTable = database.ExecuteQuery("SELECT * FROM [Mandate].[RefBank]");
+            var dataTable = _sqlServerFixture.ExecuteQuery("SELECT * FROM [Mandate].[RefBank]");
             dataTable.Rows.Count.Should().Be(1);
             EntityDbFactory.FromRow<RefBankDb>(dataTable.Rows[0]).Should().BeEquivalentTo(refBankDb);
         }
@@ -47,12 +40,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task SqlToModel_Success()
         {
-            await using var database = SqlServerFixture.CreateDatabase();
-            using var context = new MandateContext(this.options);
+            using var context = new MandateContext(_options);
             var refBankDb = EntityDbFactory.RefBankDb;
 
             var (query, parameters) = EntityDbFactory.PrepareStatement(refBankDb);
-            var insertCount = await database.ExecuteNonQueryAsync(query, parameters);
+            var insertCount = await _sqlServerFixture.ExecuteNonQueryAsync(query, parameters);
             insertCount.Should().Be(1);
 
             var dbContent = await context.RefBank.ToArrayAsync();

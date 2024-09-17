@@ -24,7 +24,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests
                 statusCode: 10);
 
             // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(9);
+            entity.GetType().GetProperties().Length.Should().Be(10);
 
             // Test all properties ; number of tests below should match the number of propeties above
             entity.Id.Should().Be(Guid.Parse("00000001-0000-0000-0000-000000000000"));

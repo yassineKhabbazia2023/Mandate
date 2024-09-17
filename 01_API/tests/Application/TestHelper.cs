@@ -57,7 +57,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
 
         public static Status GetStatus(CollectionStatus collectionStatus = CollectionStatus.ToDo, string? statusName = null)
         {
-            return new Status(collectionStatus, string.IsNullOrEmpty(statusName) ? "En Cours" : statusName);
+            return new Status(collectionStatus, string.IsNullOrEmpty(statusName) ? "En Cours" : statusName, JdcCollectionStatus.Creation_InProgress);
         }
     }
 }

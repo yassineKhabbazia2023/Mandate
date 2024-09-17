@@ -18,7 +18,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         public static Signatory Signatory => new("Mme", "First", "Last", "first.last@outlook.com");
 
-        public static Collection Collection => new(new PredictableGuid().NewGuid(), "21983", Company, Bban, new DateTime(2022, 1, 1), new DateTime(2022, 1, 1), new Status(CollectionStatus.InProgress, "En cours"));
+        public static Collection Collection => new(new PredictableGuid().NewGuid(), "21983", Company, Bban, new DateTime(2022, 1, 1), new DateTime(2022, 1, 1), new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress));
 
         public static Counters Counters => new(1, 1, 0, 0, 0, 0);
 
@@ -30,7 +30,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         public static Status Status(CollectionStatus collectionStatus = CollectionStatus.ToDo, string? statusName = null)
         {
-            return new Status(collectionStatus, string.IsNullOrEmpty(statusName) ? "En Cours" : statusName);
+            return new Status(collectionStatus, string.IsNullOrEmpty(statusName) ? "En Cours" : statusName, JdcCollectionStatus.Creation_InProgress);
         }
     }
 }

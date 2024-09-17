@@ -176,16 +176,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         }
 
         [Fact]
-        public void DefaultStatus()
-        {
-            Sql.StatusDb status = SqlExtensions.DefaultStatus();
-
-            status.IsCurrent.Should().BeTrue();
-            status.StatusCode.Should().Be(-1);
-            status.StatusDate.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
-        }
-
-        [Fact]
         public void Status_ToModel()
         {
             var entity = new Sql.StatusDb()
@@ -193,14 +183,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 RefStatusCode = new Sql.RefStatusCodeDb()
                 {
                     PulseCode = 30,
-                    StatusCode = 1,
+                    StatusCode = -1,
                     StatusNameFr = "statusName",
                 },
             };
 
             var result = entity.ToModel();
 
-            result.Should().BeEquivalentTo(new Status(CollectionStatus.InProgress, "statusName"));
+            result.Should().BeEquivalentTo(new Status(CollectionStatus.InProgress, "statusName", Mandate.JdcCollectionStatus.Incident));
         }
 
         [Fact]
@@ -330,7 +320,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var act = () => entity.ToModel();
 
-            act.Should().Throw<ApplicationException>().WithMessage("SqlExtensions - ToModel : Error while parsing Collection currentStatus is null.");
+            act.Should().Throw<InvalidOperationException>();
         }
 
         [Fact]
@@ -370,8 +360,107 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var act = () => entity.ToModel();
 
-            act.Should().Throw<ApplicationException>().WithMessage("SqlExtensions - ToModel : Error while parsing Collection creationStatus is null.");
+            act.Should().Throw<InvalidOperationException>();
         }
+
+        [Fact]
+        public void ToModelCollection_ThrowInvalidOperationException_WhenNoCreationInProgressStatus()
+        {
+            var entity = new Sql.CollectionDb()
+            {
+                Id = Guid.NewGuid(),
+                BankCode = "30003",
+                BranchCode = "12345",
+                AccountNumber = "12345678901",
+                CheckDigits = "11",
+                JeDeclareCollection = new Sql.JeDeclareCollectionDb()
+                {
+                    JdcReleveId = "6789",
+                    JdcRibId = "6781",
+                },
+                Bank = new Sql.RefBankDb()
+                {
+                    BankCode = "c",
+                    BankName = "n",
+                    BankGroup = "g",
+                    EbicsCardId = "e",
+                    JdcPartnership = (Sql.JdcPartnership)2,
+                },
+                Statuses = new List<Sql.StatusDb>
+        {
+            new Sql.StatusDb()
+            {
+                Id = Guid.NewGuid(),
+                IsCurrent = true,
+                StatusDate = DateTime.Now,
+                RefStatusCode = new Sql.RefStatusCodeDb(),
+                StatusCode = 20,
+            },
+            new Sql.StatusDb()
+            {
+                Id = Guid.NewGuid(),
+                IsCurrent = false,
+                StatusDate = DateTime.Now.AddMinutes(-10),
+                RefStatusCode = new Sql.RefStatusCodeDb(),
+                StatusCode = 30,
+            },
+        },
+            };
+
+            var act = () => entity.ToModel();
+
+            act.Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public void ToModelCollection_ShouldPickLatestCreationInProgressStatus_WhenMultipleStatusesExist()
+        {
+            var entity = new Sql.CollectionDb()
+            {
+                Id = Guid.NewGuid(),
+                BankCode = "30003",
+                BranchCode = "12345",
+                AccountNumber = "12345678901",
+                CheckDigits = "11",
+                JeDeclareCollection = new Sql.JeDeclareCollectionDb()
+                {
+                    JdcReleveId = "6789",
+                    JdcRibId = "6781",
+                },
+                Bank = new Sql.RefBankDb()
+                {
+                    BankCode = "c",
+                    BankName = "n",
+                    BankGroup = "g",
+                    EbicsCardId = "e",
+                    JdcPartnership = (Sql.JdcPartnership)2,
+                },
+                Statuses = new List<Sql.StatusDb>
+        {
+            new Sql.StatusDb()
+            {
+                Id = Guid.NewGuid(),
+                IsCurrent = true,
+                RefStatusCode = new Sql.RefStatusCodeDb(),
+                StatusDate = DateTime.Now,
+                StatusCode = (int)CollectionStatus.Creation_Inprogress,
+            },
+            new Sql.StatusDb()
+            {
+                Id = Guid.NewGuid(),
+                IsCurrent = false,
+                RefStatusCode = new Sql.RefStatusCodeDb(),
+                StatusDate = DateTime.Now.AddMinutes(-10),
+                StatusCode = (int)CollectionStatus.Creation_Inprogress,
+            },
+        },
+            };
+
+            var model = entity.ToModel();
+
+            model.CreationDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
+        }
+
 
         [Fact]
         public void ToStatusesDB()
@@ -381,7 +470,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var address = new Address("12 RUE DES 2 NATIONS", string.Empty, "59250", "HALLUIN", "France");
             var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
             var company = new Company(default, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
-            Status status = new Status(CollectionStatus.ToDo, "En cours");
+            Status status = new Status(CollectionStatus.ToDo, "En cours", Mandate.JdcCollectionStatus.Creation_InProgress);
             var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
 
             var expected = new List<Sql.StatusDb>()
@@ -419,7 +508,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var address = new Address("12 RUE DES 2 NATIONS", string.Empty, "59250", "HALLUIN", "France");
             var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
             var company = new Company(default, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
-            Status status = new Status(CollectionStatus.ToDo, "En cours");
+            Status status = new Status(CollectionStatus.ToDo, "En cours", Mandate.JdcCollectionStatus.Creation_InProgress);
             var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
 
             var expected = new Sql.PersonalDb()
@@ -450,7 +539,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var address = new Address("12 RUE DES 2 NATIONS", string.Empty, "59250", "HALLUIN", "France");
             var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
             var company = new Company(default, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
-            Status status = new Status(CollectionStatus.ToDo, "En cours");
+            Status status = new Status(CollectionStatus.ToDo, "En cours", Mandate.JdcCollectionStatus.Creation_InProgress);
             var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
 
             var expected = new Sql.JeDeclareCollectionDb()
@@ -475,7 +564,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var address = new Address("12 RUE DES 2 NATIONS", string.Empty, "59250", "HALLUIN", "France");
             var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
             var company = new Company(default, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
-            Status status = new Status(CollectionStatus.ToDo, "En cours");
+            Status status = new Status(CollectionStatus.ToDo, "En cours", Mandate.JdcCollectionStatus.Creation_InProgress);
             var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
 
             var expected = new Sql.JeDeclareFolderDb()
@@ -499,7 +588,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var address = new Address("12 RUE DES 2 NATIONS", string.Empty, "59250", "HALLUIN", "France");
             var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
             var company = new Company(default, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
-            Status status = new Status(CollectionStatus.ToDo, "En cours");
+            Status status = new Status(CollectionStatus.ToDo, "En cours", Mandate.JdcCollectionStatus.Creation_InProgress);
             var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
 
             var expected = new Sql.CompanyDb()
@@ -533,7 +622,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var address = new Address("12 RUE DES 2 NATIONS", string.Empty, "59250", "HALLUIN", "France");
             var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
             var company = new Company(default, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
-            Status status = new Status(CollectionStatus.ToDo, "En cours");
+            Status status = new Status(CollectionStatus.ToDo, "En cours", Mandate.JdcCollectionStatus.Creation_InProgress);
             var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
 
             var expected = new Sql.CollectionDb()
@@ -613,6 +702,25 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             result.InnerExceptionMessage.Should().Be("innermessage");
             result.ExceptionType.Should().Be(Sql.ExceptionType.NoAccountNumberMatchDoubleSiret);
             result.CreationDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(10));
+        }
+
+        [Fact]
+        public void ToMandateCreationLogMessageDB_Should_Map_Properties_Correctly()
+        {
+            // Arrange
+            var mandateCreationLogMessage = new MandateCreationLogMessage(
+                Guid.NewGuid(),
+                "hey message content"
+            );
+
+            // Act
+            var result = mandateCreationLogMessage.ToMandateCreationLogMessageDB();
+
+            // Assert
+            result.Id.Should().Be(mandateCreationLogMessage.Id);
+            result.CollectionId.Should().Be(mandateCreationLogMessage.CollectionId);
+            result.MessageContent.Should().Be(mandateCreationLogMessage.MessageContent);
+            result.CreatedDate.Should().BeCloseTo(mandateCreationLogMessage.CreatedDate, TimeSpan.FromSeconds(1));
         }
     }
 }

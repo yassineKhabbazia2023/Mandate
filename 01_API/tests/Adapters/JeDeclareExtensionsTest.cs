@@ -50,7 +50,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 signatory,
                 address);
 
-            var result = entity.ToDossierClient();
+            var result = entity.ToDossierClient(address, signatory);
             result.Should().BeEquivalentTo(new DossierClient
             {
                 Client = new Client()
@@ -95,7 +95,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 signatory,
                 address);
 
-            var result = entity.ToDossierClient();
+            var result = entity.ToDossierClient(address, signatory);
 
             result.Should().NotBeNull();
             result.Should().BeEquivalentTo(new DossierClient
@@ -183,10 +183,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 bban,
                 DateTime.UtcNow,
                 DateTime.UtcNow,
-                new Status(CollectionStatus.ToDo, "ToDo"));
+                new Status(CollectionStatus.ToDo, "ToDo", Mandate.JdcCollectionStatus.Creation_InProgress));
 
             // Act
-            var collection = newReleve.ToModel(company, bban, new Guid("00000001-0000-0000-0000-000000000000"), new Status(CollectionStatus.ToDo, "ToDo"));
+            var collection = newReleve.ToModel(company, bban, new Guid("00000001-0000-0000-0000-000000000000"), new Status(CollectionStatus.ToDo, "ToDo", Mandate.JdcCollectionStatus.Creation_InProgress));
 
             // Assert
             collection.Id.Should().Be(expectedCollection.Id);

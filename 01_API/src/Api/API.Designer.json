@@ -184,6 +184,18 @@
         "summary": "Creates a new mandate",
         "description": "Creates a new mandate",
         "operationId": "PostCollectionAsync",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "contactId",
+            "description": "the contact identifier",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "example": 1
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -359,6 +371,37 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/mandate/{mandateId}/verify-creation": {
+      "get": {
+        "tags": [
+          "Mandate"
+        ],
+        "summary": "Verify the creation of the mandate",
+        "description": "Verify the creation of the mandate",
+        "operationId": "VerifyMandateCreation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mandateId",
+            "description": "The mandate identifier (UUID) given by /mandate",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "example": "e4ec92f2-a375-4574-b6de-235a9fe13028"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The mandate creation is done"
+          },
+          "204": {
+            "description": "The mandate creation is not yet done"
           }
         }
       }

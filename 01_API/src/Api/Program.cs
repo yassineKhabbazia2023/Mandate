@@ -2,28 +2,29 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using System.Diagnostics.CodeAnalysis;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using Kpmg.AspNetCore.Authentication.ConstellationIdentityService;
+using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
+using KPMG.Pulse.Back.Accounting.Mandate.Application;
+using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
+using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
+using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
+using KPMG.Pulse.Back.Accounting.Mandate.Portal;
+using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
+using Mandate.Messaging;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
-    using System.Diagnostics.CodeAnalysis;
-    using Azure.Extensions.AspNetCore.Configuration.Secrets;
-    using Azure.Identity;
-    using Azure.Security.KeyVault.Secrets;
-    using Kpmg.AspNetCore.Authentication.ConstellationIdentityService;
-    using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
-    using KPMG.Pulse.Back.Accounting.Mandate.Application;
-    using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
-    using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
-    using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
-    using KPMG.Pulse.Back.Accounting.Mandate.Portal;
-    using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-    using Microsoft.Data.SqlClient;
-    using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
-    using Microsoft.Extensions.Diagnostics.HealthChecks;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.IdentityModel.Clients.ActiveDirectory;
-
     [ExcludeFromCodeCoverage]
     public static class Program
     {
@@ -132,6 +133,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 options.AddPolicy("TwoSecondsTimeOut", TimeSpan.FromSeconds(120));
             });
 
+            // Configure Azure Service Bus
+            builder.Services.AddServiceBusConfiguration(builder.Configuration);
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -146,6 +150,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             app.UseJsonErrorExceptionHandler(app.Environment);
 
             app.UseHttpsRedirection();
+
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
 
             app.UseCors("CorsPolicy");
 

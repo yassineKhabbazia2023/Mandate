@@ -1,0 +1,58 @@
+POST http://localhost:7071/api/MandateCreationOrchestration_Start
+Content-Type: application/json
+
+{
+  "Id": 34234,
+  "Name": "qsfqsdfqsff",
+  "SiretNumber": "fqsfsdf",
+  "ErpId": "zfqsdfqs",
+  "BankServicesProviderId": null,
+  "Signatory": {
+    "Title": "Machin",
+    "FirstName": "FistName",
+    "LastName": "LastName",
+    "Email": "email"
+  },
+  "Address": {
+    "Street": "Street",
+    "Complements": "",
+    "ZipCode": "",
+    "City": "City",
+    "Country": "DZEAze"
+  },
+  "Bban": {
+    "BankCode": "10807",
+    "BranchCode": "12345",
+    "AccountNumber": "12345678990",
+    "CheckDigits": "85",
+    "BbanServicesProviderId": null,
+    "Bank": null
+  },
+  "Bank": {
+    "Code": "10807",
+    "Name": "bankName",
+    "Group": "bankGroup",
+    "EbicsCardId": "",
+    "JdcAgreement": { "JdcPartnership": 3 }
+  },
+  "Company": {
+    "Id": 2,
+    "Name": "BankName",
+    "SiretNumber": "83311771600013",
+    "ErpId": "ErpId",
+    "BankServicesProviderId": "bankServicesProviderId",
+    "Signatory": {
+      "Title": "Machin",
+      "FirstName": "FistName",
+      "LastName": "LastName",
+      "Email": "email@machin.fr"
+    },
+    "Address": {
+      "Street": "Street",
+      "Complements": "",
+      "ZipCode": "12345",
+      "City": "City",
+      "Country": "DZEAze"
+    }
+  }
+}

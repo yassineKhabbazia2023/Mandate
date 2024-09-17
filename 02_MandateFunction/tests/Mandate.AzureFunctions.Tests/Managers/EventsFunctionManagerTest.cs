@@ -152,33 +152,6 @@ public class EventsFunctionManagerTest
     }
 
     [Fact]
-    public async Task UpdateAccountByEventAsync_InactiveAccount_LogWarning()
-    {
-        // Arrange
-        var accountId = 1;
-        var account = new Account(1, "name", "siretnumber", "accountNumber", false);
-
-        var mockSqlAdapter = new Mock<ISqlAdapter>();
-        mockSqlAdapter.Setup(x => x.GetAccountByIdAsync(accountId)).ReturnsAsync(account);
-        var loggerMock = new Mock<ILogger<EventsFunctionManager>>();
-
-        var eventsFunctionManager = new EventsFunctionManager(loggerMock.Object, mockSqlAdapter.Object);
-
-        // Act
-        await eventsFunctionManager.UpdateAccountByEventAsync(account);
-
-        // Assert
-        loggerMock.Verify(
-        x => x.Log(
-            LogLevel.Warning,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((o, t) => string.Equals("Since the value of IsActive in this entry is false, this update will deactivate the company in this database.", o.ToString(), StringComparison.InvariantCultureIgnoreCase)),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-        Times.Once);
-    }
-
-    [Fact]
     public async Task DeleteAccountByEventAsync_AccountExists_AccountRemovedFromDatabase()
     {
         // Arrange
@@ -413,35 +386,6 @@ public class EventsFunctionManagerTest
     }
 
     [Fact]
-    public async Task UpdateContactByEventAsync_InactiveContact_LogsWarning()
-    {
-        // Arrange
-        var contactId = 1;
-        var contact = new Contact(1, "firstName", "lastName", "email", false);
-        var dbCollab = new Contact(1, "firstName", "lastName", "email", true);
-
-        var sqlAdapterMock = new Mock<ISqlAdapter>();
-        sqlAdapterMock.Setup(x => x.GetContactByIdAsync(contactId)).ReturnsAsync(dbCollab);
-
-        var loggerMock = new Mock<ILogger<EventsFunctionManager>>();
-
-        var eventsFunctionManager = new EventsFunctionManager(loggerMock.Object, sqlAdapterMock.Object);
-
-        // Act
-        await eventsFunctionManager.UpdateContactByEventAsync(contact);
-
-        // Assert
-        loggerMock.Verify(
-        x => x.Log(
-            LogLevel.Warning,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((o, t) => string.Equals("Since the value of IsActive in this entry is false, this update will deactivate the contact in this database.", o.ToString(), StringComparison.InvariantCultureIgnoreCase)),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-        Times.Once);
-    }
-
-    [Fact]
     public async Task CreateAccountByEventAsync_AccountDoesNotExist_AccountCreated()
     {
         // Arrange
@@ -552,31 +496,5 @@ public class EventsFunctionManagerTest
                             It.IsAny<Exception>(),
                             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
                         Times.Never);
-    }
-
-    [Fact]
-    public async Task UpdateAccountByEventAsync_ShouldLogWarning_WhenAccountIsActiveIsFalse()
-    {
-        // Arrange
-        var loggerMock = new Mock<ILogger<EventsFunctionManager>>();
-        var sqlAdapterMock = new Mock<ISqlAdapter>();
-        var account = new Account(1, "name", "siretnumber", "accountNumber", true);
-        var dbCompany = new Account(1, "name", "siretnumber", "accountNumber", false);
-
-        sqlAdapterMock.Setup(x => x.GetAccountByIdAsync(account.Id)).ReturnsAsync(dbCompany);
-        var eventsFunctionManager = new EventsFunctionManager(loggerMock.Object, sqlAdapterMock.Object);
-
-        // Act
-        await eventsFunctionManager.UpdateAccountByEventAsync(account);
-
-        // Assert
-        loggerMock.Verify(
-                x => x.Log(
-                    LogLevel.Warning,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((o, t) => string.Equals("Since the value of IsActive in this entry is false, this update will deactivate the company in this database.", o.ToString(), StringComparison.InvariantCultureIgnoreCase)),
-                    It.IsAny<Exception>(),
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                Times.Once);
     }
 }

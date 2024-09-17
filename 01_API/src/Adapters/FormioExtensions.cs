@@ -71,7 +71,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                bban,
                created,
                modified,
-               new Status(CollectionStatus.ToDo, "En cours"));
+               new Status(CollectionStatus.ToDo, "En cours", Mandate.JdcCollectionStatus.Creation_InProgress));
         }
     }
 }

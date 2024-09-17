@@ -10,6 +10,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<Company> GetCompanyByErpIdAsync(string erpId, string userEmail);
 
+        Task<Company> GetCompanyByErpIdAsync(string erpId, int contactId);
+
         Task<Bank> GetBankByCodeAsync(string bankCode);
 
         Task<Status> GetRefStatusCodeByJdcCodeAsync(string jdcStatusCode);
@@ -36,7 +38,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<Collection> UpdateCollection(Guid id, Collection collection);
 
-        Task<Collaborator> GetCollaboratorByEmail(string collaboratorEmail);
+        Task<Collaborator?> GetCollaboratorByEmail(string collaboratorEmail);
 
         Task SaveSignatoryAsync(int? companyId, Guid? collectionId, Signatory signatory, Address address);
 
@@ -57,5 +59,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         Task<Company> GetCompanyByErpIdSiretAsync(string erpId, string siret);
 
         Task InsertMandateLogAsync(Collection collection, CustomException exception);
+
+        Task<Guid> GetCollectionIfAlreadyExistingInIncidentStatus(string bankCode, string branchCode, string accountNumber, string erpId);
+
+        Task SaveMandateCreationLogMessageAsync(MandateCreationLogMessage mandateCreationLogMessage);
     }
 }

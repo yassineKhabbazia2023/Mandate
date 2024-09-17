@@ -248,10 +248,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             var folderId = collection?.Company?.BankServicesProviderId;
             var ribId = collection?.Bban?.BbanServicesProviderId;
             ValidatePartnerCollection(collection!);
-            var pdfBytes = await this.jeDeclareService.GetMandatPdfAsync(folderId!, ribId!);
-
-            using var stream = new MemoryStream(pdfBytes);
-            return this.asposeHelper.DeleteFirstPageFromPdf(stream);
+            return await this.jeDeclareService.GetMandatPdfAsync(folderId!, ribId!);
         }
 
         private async Task CheckIfCollectionWithSameBbanAlreadyExistsAsync(CollectionCreationCommand mandateCreation)

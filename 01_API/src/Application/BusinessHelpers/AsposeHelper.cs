@@ -77,23 +77,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             return msOut.ToArray();
         }
 
-        public byte[] DeleteFirstPageFromPdf(MemoryStream sourcePdf)
-        {
-            const string origin = $"{nameof(AsposeHelper)}::{nameof(this.DeleteFirstPageFromPdf)}";
-
-            this.logger.LogInformation("{Origin} - Instanciating a new PdfFileEditor to remove the first page for the PDF mandat provided by JeDeclare...", origin);
-
-            var pdfEditor = new PdfFileEditor();
-
-            using var streamOut = new MemoryStream();
-            int[] pagesToDelete = new int[] { 1 };
-
-            // Delete pages
-            pdfEditor.Delete(sourcePdf, pagesToDelete, streamOut);
-
-            return streamOut.ToArray();
-        }
-
         private static void ReplaceInDocument(Aspose.Pdf.Document pdfDocument, string oldValue, string newValue)
         {
             FontRepository.Sources.Add(new FolderFontSource(AppDomain.CurrentDomain.BaseDirectory));

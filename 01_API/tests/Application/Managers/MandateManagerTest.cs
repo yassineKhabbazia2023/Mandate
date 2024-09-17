@@ -101,10 +101,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 .Setup(m => m.GetMandatPdfAsync(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(expectedBytes);
 
-            _mockAsposeHelper
-                .Setup(m => m.DeleteFirstPageFromPdf(It.IsAny<MemoryStream>()))
-                .Returns(expectedBytes);
-
             var mandateManager = new MandateManager(_mockDatabaseService.Object, _mockJeDeclareService.Object, _mockAsposeHelper.Object, null!, _emailOptions, _mockLogger.Object, this._mockEventManager.Object);
 
             // Act
@@ -1428,17 +1424,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
               .Setup(m => m.GetMandatPdfAsync(collection.Company!.BankServicesProviderId!, collection.Bban!.BbanServicesProviderId!))
               .ReturnsAsync(pdfTemplate);
 
-            _mockAsposeHelper
-             .Setup(m => m.DeleteFirstPageFromPdf(It.IsAny<MemoryStream>()))
-             .Returns(pdfTemplate1page);
-
             var mandateManager = new MandateManager(_mockDatabaseService.Object, _mockJeDeclareService.Object, _mockAsposeHelper.Object, null!, _emailOptions, _mockLogger.Object, this._mockEventManager.Object);
 
             var resultBytes = await mandateManager.DownloadPdfForJdcPartner(collection);
             using var expectedResultMemoryStream = new MemoryStream(resultBytes);
             using var expectedAsposeDoc = new Aspose.Pdf.Document(expectedResultMemoryStream);
 
-            expectedAsposeDoc.Pages.Count.Should().Be(1);
+            expectedAsposeDoc.Pages.Count.Should().Be(2);
         }
 
         private static bool CompareAdress(Address address1, Address address2)

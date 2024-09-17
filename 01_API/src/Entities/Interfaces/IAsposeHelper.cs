@@ -7,7 +7,5 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
     public interface IAsposeHelper
     {
         Task<byte[]> GeneratePdfFromTemplateAsync(Collection source);
-
-        byte[] DeleteFirstPageFromPdf(MemoryStream sourcePdf);
     }
 }

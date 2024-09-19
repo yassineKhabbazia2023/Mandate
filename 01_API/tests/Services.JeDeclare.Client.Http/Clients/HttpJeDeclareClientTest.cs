@@ -728,7 +728,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
 
-            var result = await jeDeclareClient.CreateCollecteConfigurationAsync("98765", newReleve, bankCode, ebicsCarteId);
+            var result = await jeDeclareClient.CreateCollecteConfigurationAsync("98765", newReleve, bankCode,1, ebicsCarteId);
 
             result.Id.Should().Be("999945");
             result.Etat.Should().Be("2");
@@ -861,7 +861,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
 
-            Func<Task> act = async () => await jeDeclareClient.CreateCollecteConfigurationAsync("98765", newReleve, bankCode, ebicsCarteId);
+            Func<Task> act = async () => await jeDeclareClient.CreateCollecteConfigurationAsync("98765", newReleve, bankCode, 1, ebicsCarteId);
 
             await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
                 .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message'");

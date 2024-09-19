@@ -366,7 +366,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
                 DateReprise = "2023-01-01",
             };
 
-            var result = await jeDeclareClient.CreateCollecteConfigurationAsync("1670097", newReleve, bankCode, ebicsCarteId);
+            var result = await jeDeclareClient.CreateCollecteConfigurationAsync("1670097", newReleve, bankCode, 1, ebicsCarteId);
             result.Should().NotBeNull();
 
             client.VerifyAll();

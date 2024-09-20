@@ -34,7 +34,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 jdcFolderId: bankServicesProviderId,
                 releve: releve,
                 bankCode: rib.Bank?.Code!,
-                typeLiaison: (int)rib.Bank!.JdcAgreement.JdcPartnership,
+                isPartner: rib.Bank!.JdcAgreement.JdcPartnership == JdcPartnership.Partner,
                 ebicsCardId: rib.Bank?.EbicsCardId!);
 
             return collectConfigurationCreated.Id!;

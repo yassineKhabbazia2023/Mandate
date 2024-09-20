@@ -15,14 +15,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
     public class HttpJeDeclareClient : IJeDeclareClient
     {
-        public enum JdcPartnership : byte
-        {
-            NonScrappable = 0,
-            Scrappable = 1,
-            NonPartner = 2,
-            Partner = 3,
-        }
-
         private readonly ILogger logger;
         private readonly IJeDeclareClientFactory factory;
         private readonly IOptions<JeDeclareOptions> options;
@@ -214,7 +206,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             throw exception;
         }
 
-        public async Task<Releve> CreateCollecteConfigurationAsync(string jdcFolderId, Releve releve, string bankCode, int typeLiaison, string ebicsCardId)
+        public async Task<Releve> CreateCollecteConfigurationAsync(string jdcFolderId, Releve releve, string bankCode, bool isPartner, string ebicsCardId)
         {
             if (releve == null)
             {
@@ -228,9 +220,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                     Id = this.periodicityId,
                 };
 
-                releve.TypeLiaison = typeLiaison.ToString();
+                // Basé sur le code de l'ancienne version
+                // https://kpmgfr.visualstudio.com/Constellation/_git/Constellation?path=/KPMG.Constellation.Bankin.Services/JeDeclare/Models/JeDeclareReleve.cs&version=GBDevelopment&_a=contents
+                releve.TypeLiaison = isPartner ? "1" : "2";
 
-                if (typeLiaison != (int)JdcPartnership.Partner && !string.IsNullOrWhiteSpace(ebicsCardId))
+                if (!isPartner && !string.IsNullOrWhiteSpace(ebicsCardId))
                 {
                     releve.Card = new Carte
                     {

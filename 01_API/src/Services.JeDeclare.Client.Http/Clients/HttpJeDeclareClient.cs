@@ -256,6 +256,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                 if (response.StatusCode == HttpStatusCode.Created)
                 {
                     var releveSaved = responseBody.Deserialize<Releve>();
+                    this.logger.LogInformation("Collect created successfully with jdcFolderId : {JdcFolderId} and TypeLiaison : {TypeLiaison}", jdcFolderId, releve.TypeLiaison);
                     return releveSaved;
                 }
 

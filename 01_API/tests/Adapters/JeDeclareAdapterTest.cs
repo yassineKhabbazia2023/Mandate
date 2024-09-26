@@ -155,6 +155,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 "bankServicesProviderIdT",
                 It.Is<Releve>(item => CompareRib(item.Rib!, rib)),
                 "12345",
+                false,
                 "ebicsCardIdT"))
                 .ReturnsAsync(releve)
                 .Verifiable();
@@ -226,7 +227,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public async Task UploadSignedMandate_WithValidInputs_ThrowJeDeclareApiException()
         {
             var collectionId = new PredictableGuid().NewGuid();
-            var companyId = new PredictableGuid().NewGuid();
 
             var company = EntityFactory.Company;
             Bban bban = EntityFactory.Bban;

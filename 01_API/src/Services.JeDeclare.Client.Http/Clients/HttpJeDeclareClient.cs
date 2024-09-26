@@ -20,7 +20,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
         private readonly IOptions<JeDeclareOptions> options;
         private readonly string state = "2";
         private readonly string periodicityId = "1";
-        private readonly string typeLiaison = "2";
 
         public HttpJeDeclareClient(ILogger<HttpJeDeclareClient> logger, IJeDeclareClientFactory factory, IOptions<JeDeclareOptions> options)
         {
@@ -207,7 +206,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             throw exception;
         }
 
-        public async Task<Releve> CreateCollecteConfigurationAsync(string jdcFolderId, Releve releve, string bankCode, string ebicsCardId)
+        public async Task<Releve> CreateCollecteConfigurationAsync(string jdcFolderId, Releve releve, string bankCode, bool isPartner, string ebicsCardId)
         {
             if (releve == null)
             {
@@ -221,9 +220,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                     Id = this.periodicityId,
                 };
 
-                if (!string.IsNullOrWhiteSpace(ebicsCardId))
+                // Basé sur le code de l'ancienne version
+                // https://kpmgfr.visualstudio.com/Constellation/_git/Constellation?path=/KPMG.Constellation.Bankin.Services/JeDeclare/Models/JeDeclareReleve.cs&version=GBDevelopment&_a=contents
+                releve.TypeLiaison = isPartner ? "1" : "2";
+
+                if (!isPartner && !string.IsNullOrWhiteSpace(ebicsCardId))
                 {
-                    releve.TypeLiaison = this.typeLiaison;
                     releve.Card = new Carte
                     {
                         Id = ebicsCardId,
@@ -254,6 +256,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                 if (response.StatusCode == HttpStatusCode.Created)
                 {
                     var releveSaved = responseBody.Deserialize<Releve>();
+                    this.logger.LogInformation("Collect created successfully with jdcFolderId : {JdcFolderId} and TypeLiaison : {TypeLiaison}", jdcFolderId, releve.TypeLiaison);
                     return releveSaved;
                 }
 

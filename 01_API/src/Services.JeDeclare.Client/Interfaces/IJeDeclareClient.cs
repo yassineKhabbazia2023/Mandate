@@ -16,8 +16,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
 
         Task<Rib> AddRibToFolderAsync(string jdcFolderId, Rib ribClient);
 
-        Task<Releve> CreateCollecteConfigurationAsync(string jdcFolderId, Releve releve, string bankCode, string ebicsCardId);
-
         Task<bool> UpdateCollecteConfigurationAsync(string jdcFolderId, Releve releve);
 
         Task<string> UploadSignedMandat(string jdcFolderId, string jdcRibId, byte[] mandat);
@@ -25,5 +23,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
         Task<bool> CheckSignedMandatExists(string jdcFolderId, string jdcRibId);
 
         Task<bool> DeactivateCollection(string jdcFolderId, string jdcReleveId, bool partnership);
+
+        Task<Releve> CreateCollecteConfigurationAsync(string jdcFolderId, Releve releve, string bankCode, bool isPartner, string ebicsCardId);
     }
 }

@@ -161,7 +161,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.AzureFunctions.Test
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{1B2826FD-16E8-4B2E-8153-6EEC8B1C574F}"
 	ProjectSection(SolutionItems) = preProject
+		..\03_Script\329579-remediation-remove-duplicates.sql = ..\03_Script\329579-remediation-remove-duplicates.sql
 		330875-generate-update-requests-for-statuses-of-companies.sql = 330875-generate-update-requests-for-statuses-of-companies.sql
+		..\03_Script\331935_add_script_to_reactive_collab_in_mandat.sql = ..\03_Script\331935_add_script_to_reactive_collab_in_mandat.sql
+		..\03_Script\334373_delete_client-in_mandat.sql = ..\03_Script\334373_delete_client-in_mandat.sql
+		..\03_Script\338735-update-bank-referential.sql = ..\03_Script\338735-update-bank-referential.sql
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Messaging", "Messaging", "{B6065814-8671-4FBE-B35F-6FF04AE7B88A}"

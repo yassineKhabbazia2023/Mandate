@@ -10,7 +10,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<PagedTechnicalMandate> GetAllTechnicalCollectionsAsync(CollectionQueryDto query);
 
-        Task<Guid> CreateMandate(CollectionCreationCommand mandateCreation);
+        Task<Guid> CreateMandateAsync(CollectionCreationCommand mandateCreation, int contactId);
 
         Task<byte[]> DownloadUnsignedAsync(Guid id);
 
@@ -23,5 +23,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         Task<bool> DeactivateCollectionAsync(Guid collectionId, string userEmail);
 
         Task InsertFormIOCollectionAsync(Collection collection);
+
+        Task<CollectionStatus?> GetMandateStatusAsync(Guid collectionId);
     }
 }

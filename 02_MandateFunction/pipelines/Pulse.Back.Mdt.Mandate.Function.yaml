@@ -36,4 +36,10 @@ extends:
           02_MandateFunction\tests\**\*.csproj
           01_API\tests\Services.Sql.Implementation\Mandate.Sql.Implementation.Tests.csproj
           01_API\tests\Services.Sql\Mandate.Sql.Tests.csproj
+          01_API\tests\Adapters\Mandate.Adapters.Tests.csproj
+          01_API\tests\Application\Mandate.Application.Tests.csproj
+          01_API\tests\Client.Http\Mandate.Client.Http.Tests.csproj
+          01_API\tests\Client\Mandate.Client.Tests.csproj
+          01_API\tests\Services.JeDeclare.Client\Mandate.JeDeclare.Client.Tests.csproj
+          01_API\tests\Services.JeDeclare.Client.Http\Mandate.JeDeclare.Client.Http.Tests.csproj
     dotnetcore: 8.x

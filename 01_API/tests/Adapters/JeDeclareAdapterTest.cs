@@ -84,7 +84,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var adapter = new JeDeclareAdapter(jedeclareClient.Object);
 
-            var createdFolder = await adapter.CreateFolderAsync(company);
+            var createdFolder = await adapter.CreateFolderAsync(company, address, signatory);
 
             var expectedSignatory = new Signatory(
                 title: title,
@@ -155,6 +155,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 "bankServicesProviderIdT",
                 It.Is<Releve>(item => CompareRib(item.Rib!, rib)),
                 "12345",
+                false,
                 "ebicsCardIdT"))
                 .ReturnsAsync(releve)
                 .Verifiable();
@@ -164,7 +165,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             Bban bban = new Bban("12345", "56789", "12345678901", "88", "6789", bank);
 
             var adapter = new JeDeclareAdapter(jedeclareClient.Object);
-            var result = await adapter.CreateCollecteConfigurationAsync(company, bban, bankServicesProviderId);
+            var result = await adapter.CreateCollecteConfigurationAsync(company, bban, signatory, bankServicesProviderId);
 
             result.Should().Be("releveId");
 
@@ -226,7 +227,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public async Task UploadSignedMandate_WithValidInputs_ThrowJeDeclareApiException()
         {
             var collectionId = new PredictableGuid().NewGuid();
-            var companyId = new PredictableGuid().NewGuid();
 
             var company = EntityFactory.Company;
             Bban bban = EntityFactory.Bban;

@@ -13,9 +13,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             this.databaseService = databaseService;
         }
 
-        public async Task<Company> GetCompanyByErpIdAsync(string erpId)
+        public async Task<Company> GetCompanyByErpIdAsync(string erpId, string userEmail)
         {
-           return await this.databaseService.GetCompanyByErpIdAsync(erpId).ConfigureAwait(false);
+           return await this.databaseService.GetCompanyByErpIdAsync(erpId, userEmail);
         }
     }
 }

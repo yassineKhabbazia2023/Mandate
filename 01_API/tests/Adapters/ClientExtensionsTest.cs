@@ -66,7 +66,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             Company company = new Company(101, "mega", "45207964300014", "1999156874", string.Empty, null, null);
             Bank? bank = new Bank("12345", "biap", "biap group", string.Empty, new BankAgreement(JdcPartnership.NonPartner));
             Bban bban = new Bban("12345", "56789", "12345678901", "88", "6789", bank);
-            Status status = new Status(CollectionStatus.ToDo, "todo");
+            Status status = new Status(CollectionStatus.ToDo, "todo", Mandate.JdcCollectionStatus.Creation_InProgress);
 
             Collection collection = new Collection(
                 id,
@@ -91,7 +91,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 collectionBankInfo: collectionBankInfo,
                 creationDate: new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 modificationDate: new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                statusCode: (int)CollectionStatus.ToDo);
+                statusCode: (int)CollectionStatus.ToDo,
+                jdcStatusCode: (int)Mandate.JdcCollectionStatus.Creation_InProgress);
 
             model.Should().BeEquivalentTo(expected);
         }
@@ -103,7 +104,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             Company company = new Company(101, "mega", "45207964300014", "1999156874", "12345", null, null);
             Bank? bank = new Bank("12345", "biap", "biap group", string.Empty, null!);
             Bban bban = new Bban("12345", "56789", "12345678901", "88", "6789", bank);
-            Status status = new Status(CollectionStatus.ToDo, "todo");
+            Status status = new Status(CollectionStatus.ToDo, "todo", Mandate.JdcCollectionStatus.Creation_InProgress);
 
             Collection collection = new Collection(
                 id,
@@ -136,7 +137,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             Guid id = Guid.NewGuid();
             Company company = new Company(101, "mega", "45207964300014", "1999156874", "12345", null, null);
             Bank? bank = new Bank("12345", "biap", "biap group", string.Empty, null!);
-            Status status = new Status(CollectionStatus.ToDo, "todo");
+            Status status = new Status(CollectionStatus.ToDo, "todo", Mandate.JdcCollectionStatus.Creation_InProgress);
 
             Collection collection = new Collection(
                 id,
@@ -299,7 +300,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                     bban,
                     new DateTime(2022, 1, 1),
                     new DateTime(2022, 1, 1),
-                    new Status(default, string.Empty));
+                    new Status(default, string.Empty, default));
 
             List<Collection> collections = new List<Collection>()
             {
@@ -340,7 +341,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                     bban,
                     new DateTime(2022, 1, 1),
                     new DateTime(2022, 1, 1),
-                    new Status(default, string.Empty));
+                    new Status(default, string.Empty, default));
 
             List<Collection> collections = new List<Collection>()
             {

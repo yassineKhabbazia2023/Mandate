@@ -46,6 +46,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
         public DbSet<MandateLogDb> MandateLog { get; set; } = null!;
 
+        public DbSet<MandateCreationLogMessageDb> MandateCreationLogMessage { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -98,8 +100,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<CompanyDb>().HasOne(c => c.JeDeclareFolder)
                 .WithOne(jdf => jdf.Company)
                 .HasForeignKey<JeDeclareFolderDb>(jdf => jdf.CompanyId);
-            modelBuilder.Entity<CompanyDb>().Property(c => c.Name).HasMaxLength(100).IsUnicode(true).IsRequired(false);
-            modelBuilder.Entity<CompanyDb>().Property(c => c.SiretNumber).IsFixedLength(true).HasMaxLength(14).IsRequired(false);
+            modelBuilder.Entity<CompanyDb>().Property(c => c.Name).HasMaxLength(255).IsUnicode(true).IsRequired(false);
+            modelBuilder.Entity<CompanyDb>().Property(c => c.SiretNumber).HasMaxLength(150).IsRequired(false);
             modelBuilder.Entity<CompanyDb>().Property(c => c.ErpId).HasMaxLength(50).IsRequired(false);
 
             modelBuilder.Entity<PersonalDb>().HasKey(cp => cp.Id);
@@ -165,12 +167,24 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<MandateLogDb>().Property(cp => cp.JdcDossierId).HasMaxLength(50).IsRequired(true);
             modelBuilder.Entity<MandateLogDb>().Property(cp => cp.JdcReleveId).HasMaxLength(50).IsRequired(true);
             modelBuilder.Entity<MandateLogDb>().Property(cp => cp.JdcRibId).HasMaxLength(50).IsRequired(true);
+
+            modelBuilder.Entity<MandateCreationLogMessageDb>().HasKey(m => m.Id);
+            modelBuilder.Entity<MandateCreationLogMessageDb>().Property(m => m.MessageContent).IsRequired().HasColumnType("NVARCHAR(MAX)");
+            modelBuilder.Entity<MandateCreationLogMessageDb>().Property(m => m.CreatedDate).IsRequired();
+
+            modelBuilder.Entity<MandateCreationLogMessageDb>()
+                .HasOne<CollectionDb>()
+                .WithMany()
+                .HasForeignKey(m => m.CollectionId)
+                .IsRequired();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseSqlServer(this.options.Value.ConnectionString, sqlOptions => { sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(3), null); });
+            optionsBuilder.LogTo(Console.WriteLine);
+            optionsBuilder.EnableSensitiveDataLogging();
+            optionsBuilder.UseSqlServer(this.options.Value.ConnectionString, sqlOptions => { sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(30), null); });
         }
     }
 }

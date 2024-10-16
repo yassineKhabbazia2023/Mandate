@@ -16,7 +16,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             CollectionBankInfo collectionBankInfo,
             DateTime creationDate,
             DateTime modificationDate,
-            int statusCode)
+            int statusCode,
+            int? jdcStatusCode = null)
         {
             this.Id = id;
             this.ErpId = erpId;
@@ -27,6 +28,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             this.CreationDate = creationDate;
             this.ModificationDate = modificationDate;
             this.StatusCode = statusCode;
+            this.JdcStatusCode = jdcStatusCode;
         }
 
         [JsonProperty("id")]
@@ -55,5 +57,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
 
         [JsonProperty("statusCode")]
         public int StatusCode { get; }
+
+        [JsonProperty("jdcStatusCode")]
+        public int? JdcStatusCode { get; }
     }
 }

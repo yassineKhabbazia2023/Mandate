@@ -95,23 +95,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 RejectReason = "reason1",
             };
 
-            var refStatusCode = new RefStatusCodeDb()
-            {
-                StatusCode = -1,
-                PulseCode = 30,
-                StatusNameFr = "En cours",
-                StatusNameEn = "In progress",
-            };
             var statusdb = new StatusDb()
             {
                 Id = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
                 CollectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
-                StatusCode = -1,
+                StatusCode = (int)JdcCollectionStatus.Creation_InProgress,
                 IsCurrent = true,
                 StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
                 MandateFile = null,
                 CreatedBy = "created1",
-                RefStatusCode = refStatusCode,
+                RefStatusCode = new RefStatusCodeDb()
+                {
+                    StatusCode = (int)JdcCollectionStatus.Creation_InProgress,
+                    PulseCode = 99,
+                    StatusNameFr = "test",
+                },
             };
 
             collection.Company = new CompanyDb()
@@ -129,7 +127,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var bank = new Bank("12345", "bn1", "bg", null, bankAgreement);
             var bban = new Mandate.Bban("12345", "23456", "12345678901", "55", null, bank);
-            var status = new Status(CollectionStatus.InProgress, "En cours");
+            var status = new Status(CollectionStatus.Creation_Inprogress, "test", Mandate.JdcCollectionStatus.Creation_InProgress);
 
             var mandateRepository = new Mock<IMandateRepository>(MockBehavior.Strict);
             mandateRepository.Setup(r => r.GetCollectionById(It.IsAny<Guid>()))
@@ -299,6 +297,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var companyId = 101;
             var collectionId = Guid.Parse("b1111111-1111-1111-1111-111111111111");
             var erpId = "erpId";
+            var userEmail = "user@email.test";
 
             var companydb = new CompanyDb()
             {
@@ -327,7 +326,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             };
 
             var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
-            repository.Setup(r => r.GetCompanyByErpIdAsync(erpId))
+            repository.Setup(r => r.GetCompanyByErpIdAsync(erpId, userEmail))
                 .ReturnsAsync(companydb)
                 .Verifiable();
 
@@ -338,11 +337,65 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var adapter = new SqlAdapter(repository.Object);
 
             // Act
-            var result = await adapter.GetCompanyByErpIdAsync(erpId);
+            var result = await adapter.GetCompanyByErpIdAsync(erpId, userEmail);
 
             // Assert
             result.Should().BeEquivalentTo(expectedResult);
-            repository.Verify(r => r.GetCompanyByErpIdAsync(erpId), Times.Once);
+            repository.Verify(r => r.GetCompanyByErpIdAsync(erpId, userEmail), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetCompanyByErpIdAsync_byId()
+        {
+            // Arrange
+            var companyId = 101;
+            var collectionId = Guid.Parse("b1111111-1111-1111-1111-111111111111");
+            var erpId = "erpId";
+            var contactId = 2;
+
+            var companydb = new CompanyDb()
+            {
+                Id = companyId,
+                Name = "Microsoft",
+                Personal = new PersonalDb
+                {
+                    CollectionId = collectionId,
+                    CompanyId = companyId,
+                    Title = "Mr.",
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Email = "john.doe@example.com",
+                    Street = "123 Main St",
+                    Complements = "Apt 4B",
+                    ZipCode = "12345",
+                    City = "Sample City",
+                    Country = "ExampleLand",
+                },
+                SiretNumber = "40902900600031",
+                ErpId = "1000265308",
+                JeDeclareFolder = new JeDeclareFolderDb()
+                {
+                    JdcDossierId = "bankServicesProviderIdT",
+                },
+            };
+
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.GetCompanyByErpIdAsync(erpId, contactId))
+                .ReturnsAsync(companydb)
+                .Verifiable();
+
+            var expectedAdress = new Address("123 Main St", "Apt 4B", "12345", "Sample City", "ExampleLand");
+            var expectedSignatory = new Signatory("Mr.", "John", "Doe", "john.doe@example.com");
+            var expectedResult = new Company(companyId, "Microsoft", "40902900600031", "1000265308", "bankServicesProviderIdT", expectedSignatory, expectedAdress);
+
+            var adapter = new SqlAdapter(repository.Object);
+
+            // Act
+            var result = await adapter.GetCompanyByErpIdAsync(erpId, contactId);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedResult);
+            repository.Verify(r => r.GetCompanyByErpIdAsync(erpId, contactId), Times.Once);
         }
 
         [Fact]
@@ -543,68 +596,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         }
 
         [Fact]
-        public async Task InsertFormIOCollectionAsync()
-        {
-            // Arrange
-            var collectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111");
-            var companyId = 101;
-
-            var collection = new CollectionDb()
-            {
-                Id = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
-                CompanyId = companyId,
-                BankCode = "12345",
-                BranchCode = "23456",
-                AccountNumber = "12345678901",
-                CheckDigits = "55",
-                LinkType = 7,
-                RejectReason = "reason1",
-            };
-
-            var refStatusCode = new RefStatusCodeDb()
-            {
-                StatusCode = -1,
-                PulseCode = 30,
-                StatusNameFr = "En cours",
-                StatusNameEn = "In progress",
-            };
-            var statusdb = new StatusDb()
-            {
-                Id = Guid.Parse("c1111111-1111-1111-1111-111111111111"),
-                CollectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
-                StatusCode = -1,
-                IsCurrent = true,
-                StatusDate = new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
-                MandateFile = null,
-                CreatedBy = "created1",
-                RefStatusCode = refStatusCode,
-            };
-
-            collection.Company = new CompanyDb()
-            {
-                Id = companyId,
-                Name = "cn1",
-                SiretNumber = "12345678901234",
-                ErpId = "1234567890",
-            };
-            collection.Bank = EntityDbFactory.RefBankDb;
-            collection.Statuses = new List<StatusDb>() { statusdb };
-
-            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
-            repository.Setup(r => r.InsertFormIOCollectionAsync(It.IsAny<CollectionDb>()))
-                .Returns(Task.CompletedTask)
-                .Verifiable();
-            repository.Setup(r => r.CreateOrUpdateFolderAsync(It.IsAny<string>(), 101))
-               .Returns(Task.CompletedTask)
-               .Verifiable();
-            var adapter = new SqlAdapter(repository.Object);
-
-            await adapter.InsertFormIOCollectionAsync(collection.ToModel(), companyId);
-
-            repository.VerifyAll();
-        }
-
-        [Fact]
         public async Task CreateStatus_WhenNotIsCurrentJdcSignedMandateUploadedAndNewJdcPending_ReturnNewStatus()
         {
             // Arrange
@@ -776,5 +767,85 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 mandateLog.JdcRibId == mandateLog2.JdcRibId &&
                 mandateLog.JdcReleveId == mandateLog.JdcReleveId;
         }
+
+        [Fact]
+        public async Task GetCollectionIfAlreadyExistingInIncidentStatus_Service_ShouldReturnCollectionId_WhenIncidentStatusExists()
+        {
+            // Arrange
+            var bankCode = "BANK1";
+            var branchCode = "BRANCH1";
+            var accountNumber = "ACC123";
+            var expectedCollectionId = Guid.NewGuid();
+            var erpId = "123";
+
+            var repositoryMock = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repositoryMock.Setup(r => r.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber, erpId))
+                          .ReturnsAsync(expectedCollectionId)
+                          .Verifiable();
+
+            var adapter = new SqlAdapter(repositoryMock.Object);
+
+            // Act
+            var result = await adapter.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber, erpId);
+
+            // Assert
+            result.Should().Be(expectedCollectionId);
+            repositoryMock.VerifyAll();
+        }
+
+        [Fact]
+        public async Task GetCollectionIfAlreadyExistingInIncidentStatus_Service_ShouldReturnNull_WhenNoCollectionExists()
+        {
+            // Arrange
+            var bankCode = "BANK1";
+            var branchCode = "BRANCH1";
+            var accountNumber = "ACC123";
+            var erpId = "123";
+
+            var repositoryMock = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repositoryMock.Setup(r => r.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber, erpId))
+                          .ReturnsAsync(Guid.Empty)
+                          .Verifiable();
+
+            var adapter = new SqlAdapter(repositoryMock.Object);
+
+            // Act
+            var result = await adapter.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber, erpId);
+
+            // Assert
+            result.Should().Be(Guid.Empty);
+            repositoryMock.VerifyAll();
+        }
+
+        [Fact]
+        public async Task SaveMandateCreationLogMessageAsync_Should_Save_LogMessage()
+        {
+            // Arrange
+            var mandateCreationLogMessage = new MandateCreationLogMessage(
+                Guid.NewGuid(),
+                "hello message content"
+            );
+
+            var mandateLogDb = mandateCreationLogMessage.ToMandateCreationLogMessageDB();
+
+            var repository = new Mock<IMandateRepository>(MockBehavior.Strict);
+            repository.Setup(r => r.SaveMandateCreationLogMessageAsync(It.Is<MandateCreationLogMessageDb>(m =>
+                m.CollectionId == mandateLogDb.CollectionId &&
+                m.MessageContent == mandateLogDb.MessageContent
+            ))).Returns(Task.CompletedTask).Verifiable();
+
+            var databaseService = new SqlAdapter(repository.Object);
+
+            // Act
+            await databaseService.SaveMandateCreationLogMessageAsync(mandateCreationLogMessage);
+
+            // Assert
+            repository.Verify(
+                r => r.SaveMandateCreationLogMessageAsync(It.Is<MandateCreationLogMessageDb>(m =>
+                m.CollectionId == mandateLogDb.CollectionId &&
+                m.MessageContent == mandateLogDb.MessageContent
+            )), Times.Once);
+        }
+
     }
 }

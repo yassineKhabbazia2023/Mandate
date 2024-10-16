@@ -4,36 +4,34 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 {
-    using System.Net;
+    using Aspose.Pdf.Operators;
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests;
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests.Tools;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.Abstractions;
     using Microsoft.Extensions.Options;
+    using System.Net;
 
-    [Collection("SerialExecutionPublishDb")]
     public class MandateControllerTest
+        : SqlServerTestBase
     {
-        private readonly Mock<IJeDeclareService> mockJeDeclareService;
-        private readonly Mock<IAsposeHelper> mockAsposeHelper;
-        private readonly IOptions<MandateEmailOptions> emailOptions;
-        private readonly Mock<ILogger<MandateManager>> mockMandateLogger;
-        private IOptions<SqlMandateRepositoryOptions> options;
+        private readonly Mock<IJeDeclareService> _mockJeDeclareService;
+        private readonly Mock<IAsposeHelper> _mockAsposeHelper;
+        private readonly IOptions<MandateEmailOptions> _emailOptions;
+        private readonly Mock<ILogger<MandateManager>> _mockMandateLogger;
 
-        public MandateControllerTest()
+        public MandateControllerTest(SqlServerFixture sqlServerFixture)
+            : base(sqlServerFixture)
         {
-            this.options = Options.Create(new SqlMandateRepositoryOptions()
-            {
-                ConnectionString = Sql.Implementation.Tests.SqlServerFixture.ConnectionString,
-            });
-            this.mockJeDeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
-            this.mockAsposeHelper = new Mock<IAsposeHelper>(MockBehavior.Strict);
-            this.emailOptions = Options.Create(new MandateEmailOptions
+            _mockJeDeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
+            _mockAsposeHelper = new Mock<IAsposeHelper>(MockBehavior.Strict);
+            _emailOptions = Options.Create(new MandateEmailOptions
             {
                 MandateCancellationSubject = "Your Cancellation Subject",
                 MandateCancellationTemplateName = "CancellationTemplate",
@@ -46,7 +44,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 MandateUploadedToEmail = "upload_to@example.com",
                 MandateUploadedCcEmails = new List<string> { "upload_cc1@example.com", "upload_cc2@example.com" },
             });
-            this.mockMandateLogger = new Mock<ILogger<MandateManager>>(MockBehavior.Loose);
+            _mockMandateLogger = new Mock<ILogger<MandateManager>>(MockBehavior.Loose);
         }
 
         [Fact]
@@ -85,7 +83,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     bban,
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new Status(CollectionStatus.InProgress, "En cours"));
+                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress));
 
             var pm = new PagedMandate(
                 new Counters(1, 1, 0, 0, 0, 0),
@@ -137,7 +135,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 collectionBankInfo: collectionBankInfo,
                 creationDate: new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                 modificationDate: new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                statusCode: (int)CollectionStatus.InProgress);
+                statusCode: (int)CollectionStatus.InProgress,
+                jdcStatusCode: (int)JdcCollectionStatus.Creation_InProgress);
 
             var expectedCollections = new List<Client.CollectionSummary>()
             {
@@ -243,7 +242,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     bban,
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new Status(CollectionStatus.InProgress, "En cours"));
+                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress));
 
             var pm = new PagedTechnicalMandate(
                 new Counters(1, 1, 0, 0, 0, 0),
@@ -1212,7 +1211,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     bban,
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new Status(CollectionStatus.InProgress, "En cours"));
+                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress));
 
             var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
             formIoManager.Setup(item =>
@@ -1326,7 +1325,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     bban,
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new Status(CollectionStatus.InProgress, "En cours"));
+                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress));
 
             var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
             formIoManager.Setup(item =>
@@ -1360,10 +1359,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         public async Task RecoveryFormIOAsync_ShouldCallGetAllCollectionAsyncAndInsertFormIOCollectionAsync_AndReturnOkResult()
         {
             // Arrange
-            await using var database = SqlServerFixture.CreateDatabase();
-
-            this.options = Options.Create(new SqlMandateRepositoryOptions() { ConnectionString = SqlServerFixture.ConnectionString });
-            using var context = new MandateContext(this.options);
+            using var context = new MandateContext(_options);
 
             await context.Company.AddAsync(new Sql.CompanyDb()
             {
@@ -1375,13 +1371,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             });
 
             await context.SaveChangesAsync();
-            var sqlRepo = new SqlMandateRepository(this.options);
+            var sqlRepo = new SqlMandateRepository(_options);
 
             await sqlRepo.CreateFakeRefAsync();
             var adapter = new SqlAdapter(sqlRepo);
-            var companyManager = new CompanyManager(adapter);
 
-            var mandateManager = new MandateManager(adapter, companyManager, this.mockJeDeclareService.Object, this.mockAsposeHelper.Object, null!, this.emailOptions, this.mockMandateLogger.Object);
+            var mandateManager = new MandateManager(adapter, _mockJeDeclareService.Object, _mockAsposeHelper.Object, null!, _emailOptions, _mockMandateLogger.Object, null!);
 
             var newGuid = Guid.Parse("a0000000-0000-0000-0000-000000000000");
             var guidGenerator = new Mock<IGuidGenerator>();
@@ -1474,7 +1469,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             Bban bban2 = new Bban("30027", "00002", "12345678901", "55", "789", bank);
             Bban bban3 = new Bban("30027", "00003", "12345678901", "55", "789", bank);
 
-            Status status = new Status(CollectionStatus.InProgress, "InProgress");
+            Status status = new Status(CollectionStatus.InProgress, "InProgress", JdcCollectionStatus.Creation_InProgress);
 
             List<Collection> collections = new List<Collection>()
             {
@@ -1552,6 +1547,290 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             collectionsResult[0].BankName.Should().Be(bban2.Bank!.Name);
         }
 
+        [InlineData(CollectionStatus.Incident, false)]
+        [InlineData(CollectionStatus.Inactive, true)]
+        [InlineData(CollectionStatus.Active, true)]
+        [InlineData(CollectionStatus.ToDo, true)]
+        [InlineData(CollectionStatus.InProgress, true)]
+        [Theory]
+
+        public async Task VerifyMandateCreation_Given_MandateWithOtherStatusThanCreationInprogress_ShouldReturn200(CollectionStatus status, bool created)
+        {
+            // Arrange
+            var logger = new Mock<ILogger<MandateController>>();
+            var mandateId = Guid.NewGuid();
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(m => m.GetMandateStatusAsync(mandateId))
+                .ReturnsAsync(status);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, null!);
+
+            // Act
+            var result = await controller.CheckMandateCreationStatus(mandateId.ToString());
+
+            // Assert
+            var expected = new OkObjectResult(new { created = created });
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+
+        public async Task VerifyMandateCreation_Given_MandateWithStatusCreationInProgress_ShouldReturn204()
+        {
+            // Arrange
+            var mandateId = Guid.NewGuid();
+            var logger = new Mock<ILogger<MandateController>>();
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(m => m.GetMandateStatusAsync(mandateId))
+                .ReturnsAsync(CollectionStatus.Creation_Inprogress);
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, null!);
+
+            // Act
+            var expected = new NoContentResult();
+            var result = await controller.CheckMandateCreationStatus(mandateId.ToString());
+
+            // Assert
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+
+        public async Task VerifyMandateCreation_Given_NotFoundMandateId_ShouldReturnNotFound()
+        {
+            // Arrange
+            var mandateId = Guid.NewGuid();
+            var expectedError = new Client.Error("CollectionNotFound", mandateId.ToString(), "error");
+            var logger = new Mock<ILogger<MandateController>>();
+
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(m => m.GetMandateStatusAsync(mandateId))
+                .ThrowsAsync(new Sql.CollectionNotFoundException("error"));
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, null!);
+
+            // Act
+            var result = (NotFoundObjectResult)await controller.CheckMandateCreationStatus(mandateId.ToString());
+
+            // Assert
+            result.StatusCode.Should().Be((int)HttpStatusCode.NotFound);
+            result.Value.Should().BeEquivalentTo(expectedError);
+        }
+
+        [Fact]
+        public async Task CreateMandateAsync_ReturnOK()
+        {
+            // Arrange
+            var rib = new Client.Bban("CodeB", "54321", "12345678901", "01");
+            var signature = new Client.Signatory("M", "marwen", "elleuch", "maroo@email.com");
+            var adresse = new Client.Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+            var mandateCreation = new Client.CollectionCreationCommand(
+                "1234567890",
+                signature,
+                adresse,
+                rib);
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Strict);
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+
+            var collectionId = Guid.NewGuid();
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(_ => _.CreateMandateAsync(It.IsAny<CollectionCreationCommand>(), It.IsAny<int>()))
+                .Callback<CollectionCreationCommand, int>((cmd, id) =>
+                {
+                    cmd.Should().BeEquivalentTo(mandateCreation.ToModel());
+                    id.Should().Be(2);
+                })
+                .ReturnsAsync(collectionId)
+                .Verifiable();
+
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, formIoManager.Object);
+
+            // Act
+            var result = await controller.CreateMandateAsync(mandateCreation, 2);
+
+            // Assert
+            result.Should().NotBeNull();
+            Assert.IsType<OkObjectResult>(result);
+            mandateManager.Verify(x => x.CreateMandateAsync(It.IsAny<CollectionCreationCommand>(), It.IsAny<int>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateMandateAsync_CompanyNotFoundException()
+        {
+            // Arrange
+            var rib = new Client.Bban("CodeB", "54321", "12345678901", "01");
+            var signature = new Client.Signatory("M", "marwen", "elleuch", "maroo@email.com");
+            var adresse = new Client.Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+            var mandateCreation = new Client.CollectionCreationCommand(
+                "1234567890",
+                signature,
+                adresse,
+                rib);
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Loose);
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+
+            var collectionId = Guid.NewGuid();
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(_ => _.CreateMandateAsync(It.IsAny<CollectionCreationCommand>(), It.IsAny<int>()))
+                .Callback<CollectionCreationCommand, int>((cmd, id) =>
+                {
+                    cmd.Should().BeEquivalentTo(mandateCreation.ToModel());
+                    id.Should().Be(2);
+                })
+                .ThrowsAsync(new Sql.CompanyNotFoundException())
+                .Verifiable();
+
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, formIoManager.Object);
+
+            // Act
+            var result = await controller.CreateMandateAsync(mandateCreation, 2) as ObjectResult;
+
+            // Assert
+            result?.StatusCode.Should().Be(400);
+            mandateManager.Verify(x => x.CreateMandateAsync(It.IsAny<CollectionCreationCommand>(), It.IsAny<int>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateMandateAsync_InactiveCompanyException()
+        {
+            // Arrange
+            var rib = new Client.Bban("CodeB", "54321", "12345678901", "01");
+            var signature = new Client.Signatory("M", "marwen", "elleuch", "maroo@email.com");
+            var adresse = new Client.Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+            var mandateCreation = new Client.CollectionCreationCommand(
+                "1234567890",
+                signature,
+                adresse,
+                rib);
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Loose);
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+
+            var collectionId = Guid.NewGuid();
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(_ => _.CreateMandateAsync(It.IsAny<CollectionCreationCommand>(), It.IsAny<int>()))
+                .Callback<CollectionCreationCommand, int>((cmd, id) =>
+                {
+                    cmd.Should().BeEquivalentTo(mandateCreation.ToModel());
+                    id.Should().Be(2);
+                })
+                .ThrowsAsync(new Sql.InactiveCompanyException())
+                .Verifiable();
+
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, formIoManager.Object);
+
+            // Act
+            var result = await controller.CreateMandateAsync(mandateCreation, 2) as ObjectResult;
+
+            // Assert
+            result?.StatusCode.Should().Be(400);
+            mandateManager.Verify(x => x.CreateMandateAsync(It.IsAny<CollectionCreationCommand>(), It.IsAny<int>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateMandateAsync_InaccessibleCompanyException()
+        {
+            // Arrange
+            var rib = new Client.Bban("CodeB", "54321", "12345678901", "01");
+            var signature = new Client.Signatory("M", "marwen", "elleuch", "maroo@email.com");
+            var adresse = new Client.Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+            var mandateCreation = new Client.CollectionCreationCommand(
+                "1234567890",
+                signature,
+                adresse,
+                rib);
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Loose);
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+
+            var collectionId = Guid.NewGuid();
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(_ => _.CreateMandateAsync(It.IsAny<CollectionCreationCommand>(), It.IsAny<int>()))
+                .Callback<CollectionCreationCommand, int>((cmd, id) =>
+                {
+                    cmd.Should().BeEquivalentTo(mandateCreation.ToModel());
+                    id.Should().Be(2);
+                })
+                .ThrowsAsync(new Sql.InaccessibleCompanyException())
+                .Verifiable();
+
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, formIoManager.Object);
+
+            // Act
+            var result = await controller.CreateMandateAsync(mandateCreation, 2) as ObjectResult;
+
+            // Assert
+            result?.StatusCode.Should().Be(400);
+            mandateManager.Verify(x => x.CreateMandateAsync(It.IsAny<CollectionCreationCommand>(), It.IsAny<int>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateMandateAsync_CustomBankCodeNotFoundException()
+        {
+            // Arrange
+            var rib = new Client.Bban("CodeB", "54321", "12345678901", "01");
+            var signature = new Client.Signatory("M", "marwen", "elleuch", "maroo@email.com");
+            var adresse = new Client.Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+            var mandateCreation = new Client.CollectionCreationCommand(
+                "1234567890",
+                signature,
+                adresse,
+                rib);
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Loose);
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+
+            var collectionId = Guid.NewGuid();
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(_ => _.CreateMandateAsync(It.IsAny<CollectionCreationCommand>(), It.IsAny<int>()))
+                .Callback<CollectionCreationCommand, int>((cmd, id) =>
+                {
+                    cmd.Should().BeEquivalentTo(mandateCreation.ToModel());
+                    id.Should().Be(2);
+                })
+                .ThrowsAsync(new CustomBankCodeNotFoundException())
+                .Verifiable();
+
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, formIoManager.Object);
+
+            // Act
+            var result = await controller.CreateMandateAsync(mandateCreation, 2) as ObjectResult;
+
+            // Assert
+            result?.StatusCode.Should().Be(400);
+            mandateManager.Verify(x => x.CreateMandateAsync(It.IsAny<CollectionCreationCommand>(), It.IsAny<int>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateMandateAsync_CompanyHasNoSiretException_ReturnsBadRequest()
+        {
+            // Arrange
+            var rib = new Client.Bban("CodeB", "54321", "12345678901", "01");
+            var signature = new Client.Signatory("M", "marwen", "elleuch", "maroo@email.com");
+            var adresse = new Client.Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+            var mandateCreation = new Client.CollectionCreationCommand(
+                "1234567890",
+                signature,
+                adresse,
+                rib);
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Loose);
+            var formIoManager = new Mock<IFormioManager>(MockBehavior.Strict);
+
+            var mandateManager = new Mock<IMandateManager>();
+            mandateManager.Setup(_ => _.CreateMandateAsync(It.IsAny<CollectionCreationCommand>(), It.IsAny<int>()))
+                .ThrowsAsync(new CompanyHasNoSiretException("La Compagnie n'a pas de SIRET"))
+                .Verifiable();
+
+            var controller = new MandateController(logger.Object, mandateManager.Object, null!, null!, formIoManager.Object);
+
+            // Act
+            var result = await controller.CreateMandateAsync(mandateCreation, 2) as ObjectResult;
+
+            // Assert
+            result?.StatusCode.Should().Be(400);
+            mandateManager.Verify(x => x.CreateMandateAsync(It.IsAny<CollectionCreationCommand>(), It.IsAny<int>()), Times.Once);
+        }
+
         private static List<Collection> GetTestCollection()
         {
             var company = new Company(
@@ -1577,7 +1856,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     bban,
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new Status(CollectionStatus.InProgress, "En cours")));
+                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress)));
             }
 
             return collections;

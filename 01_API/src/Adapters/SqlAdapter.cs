@@ -15,6 +15,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             this.mandateRepository = mandateRepository;
         }
 
+        public async Task<Guid> GetCollectionIfAlreadyExistingInIncidentStatus(string bankCode, string branchCode, string accountNumber, string erpId)
+        {
+            var collectionId = await this.mandateRepository.GetCollectionIfAlreadyExistingInIncidentStatus(bankCode, branchCode, accountNumber, erpId);
+            return collectionId;
+        }
+
         public async Task<Company> GetCompanyBySiretAsync(string siret)
         {
             var companyDb = await this.mandateRepository.GetCompanyBySiretAsync(siret).ConfigureAwait(false);
@@ -67,9 +73,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 tuple.Item1.Select(i => i.ToModel()).ToList());
         }
 
-        public async Task<Company> GetCompanyByErpIdAsync(string erpId)
+        public async Task<Company> GetCompanyByErpIdAsync(string erpId, string userEmail)
         {
-            var company = await this.mandateRepository.GetCompanyByErpIdAsync(erpId);
+            var company = await this.mandateRepository.GetCompanyByErpIdAsync(erpId, userEmail);
+            return company.ToModel();
+        }
+
+        public async Task<Company> GetCompanyByErpIdAsync(string erpId, int contactId)
+        {
+            var company = await this.mandateRepository.GetCompanyByErpIdAsync(erpId, contactId);
             return company.ToModel();
         }
 
@@ -123,7 +135,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         public async Task<Guid> CreateCollectionAsync(Bban bban, int companyId)
         {
             CollectionDb collection = bban.ToSql(companyId);
-            collection.Statuses = new List<StatusDb>() { SqlExtensions.DefaultStatus() };
+            collection.Statuses = new List<StatusDb>() { SqlExtensions.CreationInProgress() };
             return (await this.mandateRepository.CreateCollectionAsync(collection)).Id;
         }
 
@@ -132,11 +144,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             throw new NotImplementedException();
         }
 
-        public async Task<Collaborator> GetCollaboratorByEmail(string collaboratorEmail)
+        public async Task<Collaborator?> GetCollaboratorByEmail(string collaboratorEmail)
         {
             var collabDb = await this.mandateRepository.GetCollaboratorByEmailAsync(collaboratorEmail).ConfigureAwait(false);
 
-            return collabDb.ToModel();
+            return collabDb?.ToModel();
         }
 
         public async Task<Collection> GetCollectionById(Guid collectionId)
@@ -219,6 +231,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             MandateLogDb mandateLog = collection.ToMandateLogDB(exception);
             await this.mandateRepository.InsertMandateLogAsync(mandateLog);
+        }
+
+        public async Task SaveMandateCreationLogMessageAsync(MandateCreationLogMessage mandateCreationLogMessage)
+        {
+            var messageDb = mandateCreationLogMessage.ToMandateCreationLogMessageDB();
+            await this.mandateRepository.SaveMandateCreationLogMessageAsync(messageDb);
         }
 
         private static Address CreateAddressFromDb(PersonalDb? personal)

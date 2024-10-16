@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
@@ -10,6 +10,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\src\Mandate.Messaging\Mandate.Messaging.csproj" />
 		<ProjectReference Include="..\Services.Sql.Implementation\Mandate.Sql.Implementation.Tests.csproj" />
 		<ProjectReference Include="..\Tools\Mandate.Tools.Tests.csproj" />
 		<ProjectReference Include="..\..\src\Api\Mandate.AspNetCore.csproj" />

@@ -5,11 +5,11 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions;
 
 using Azure.Messaging.ServiceBus;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using global::Pulse.Back.Events.IntegrationEvents;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 public class ContactEventsFunction
 {
@@ -24,9 +24,9 @@ public class ContactEventsFunction
 
     [Function("ContactCreatedEventFunction")]
     public async Task RunContactCreatedEventAsync(
-[ServiceBusTrigger("contact", "contact-created-mandate", Connection = "serviceBusNameSpace")]
-ServiceBusReceivedMessage message,
-ServiceBusMessageActions messageActions)
+        [ServiceBusTrigger("contact", "contact-created-mandate", Connection = "serviceBusNameSpace")]
+        ServiceBusReceivedMessage message,
+        ServiceBusMessageActions messageActions)
     {
         this.logger.LogInformation("Message ID: {Id}", message.MessageId);
         this.logger.LogInformation("Message Body: {Body}", message.Body);
@@ -36,6 +36,12 @@ ServiceBusMessageActions messageActions)
         if (contactEvent!.Data == null || contactEvent.Data?.ContactId <= 0)
         {
             // Complete the message
+            await messageActions.CompleteMessageAsync(message);
+            return;
+        }
+
+        if (!IsACollaborator(contactEvent!.Data?.Type))
+        {
             await messageActions.CompleteMessageAsync(message);
             return;
         }
@@ -50,9 +56,9 @@ ServiceBusMessageActions messageActions)
 
     [Function("ContactDeletedEventFunction")]
     public async Task RunContactDeletedEventAsync(
-[ServiceBusTrigger("contact", "contact-removed-mandate", Connection = "serviceBusNameSpace")]
-ServiceBusReceivedMessage message,
-ServiceBusMessageActions messageActions)
+        [ServiceBusTrigger("contact", "contact-removed-mandate", Connection = "serviceBusNameSpace")]
+        ServiceBusReceivedMessage message,
+        ServiceBusMessageActions messageActions)
     {
         this.logger.LogInformation("Message ID: {Id}", message.MessageId);
         this.logger.LogInformation("Message Body: {Body}", message.Body);
@@ -74,9 +80,9 @@ ServiceBusMessageActions messageActions)
 
     [Function("ContactUpdatedEventFunction")]
     public async Task RunContactUpdatedEventAsync(
-[ServiceBusTrigger("contact", "contact-updated-mandate", Connection = "serviceBusNameSpace")]
-ServiceBusReceivedMessage message,
-ServiceBusMessageActions messageActions)
+        [ServiceBusTrigger("contact", "contact-updated-mandate", Connection = "serviceBusNameSpace")]
+        ServiceBusReceivedMessage message,
+        ServiceBusMessageActions messageActions)
     {
         this.logger.LogInformation("Message ID: {Id}", message.MessageId);
         this.logger.LogInformation("Message Body: {Body}", message.Body);
@@ -84,9 +90,15 @@ ServiceBusMessageActions messageActions)
 
         var contactEvent = JsonConvert.DeserializeObject<ContactUpdatedEvent>(message.Body.ToString());
 
-        if (contactEvent!.Data == null || contactEvent.Data?.ContactId <= 0)
+        if (contactEvent?.Data?.ContactId <= 0)
         {
             // Complete the message
+            await messageActions.CompleteMessageAsync(message);
+            return;
+        }
+
+        if (!IsACollaborator(contactEvent!.Data?.Type))
+        {
             await messageActions.CompleteMessageAsync(message);
             return;
         }
@@ -97,5 +109,10 @@ ServiceBusMessageActions messageActions)
 
         // Complete the message
         await messageActions.CompleteMessageAsync(message);
+    }
+
+    private static bool IsACollaborator(string? type)
+    {
+        return type?.Equals("Collaborator", StringComparison.InvariantCultureIgnoreCase) == true;
     }
 }

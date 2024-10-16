@@ -4,25 +4,59 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications
 {
-    using Kpmg.Constellation.Notifications.V2.Client;
+    using global::Notifications.Commons.WebApi.QueryParams;
+    using KPMG.Pulse.Back.Accounting.Mandate.Application;
     using KPMG.Pulse.Back.Accounting.Mandate.Portal;
+    using Microsoft.Extensions.Options;
+    using Newtonsoft.Json;
+    using System.Text;
 
     public class NotificationsProvider : INotificationsProvider
     {
-        private readonly INotificationsClientFactory factory;
         private readonly IAuthenticationContext authenticationContext;
+        private readonly IOptions<NotificationOptions> options;
 
-        public NotificationsProvider(INotificationsClientFactory factory, IAuthenticationContext authenticationContext)
+        public NotificationsProvider(IAuthenticationContext authenticationContext, IOptions<NotificationOptions> options)
         {
-            this.factory = factory;
             this.authenticationContext = authenticationContext;
+            this.options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
         public async Task SendEmailAsync(EmailRequest emailRequest)
         {
-            var client = this.factory.Create(this.authenticationContext.BearerToken);
+            if (emailRequest == null) { throw new ArgumentNullException(nameof(emailRequest)); }
+            string token = this.authenticationContext.BearerToken;
+            string url = this.TrailUrl(this.options.Value.BaseUrl, "/notifications/SendEmail");
+            try
+            {
+                using var http = new HttpClient();
+                string body = JsonConvert.SerializeObject(emailRequest);
+                HttpContent content = new StringContent(body, encoding: Encoding.UTF8, "application/json");
+                http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                var response = await http.PostAsync(url, content);
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-            await client.SendEmailAsync(emailRequest);
+        public string TrailUrl(string url, string api)
+        {
+            if (string.IsNullOrEmpty(url)) { throw new ArgumentNullException(nameof(url)); }
+            if (string.IsNullOrEmpty(api)) { throw new ArgumentNullException(nameof(api)); }
+            if (url.EndsWith('/'))
+            {
+                url = url.Substring(0, url.Length - 1);
+            }
+
+            if (api.StartsWith('/'))
+            {
+                api = api.Substring(1, api.Length - 1);
+            }
+
+            return $"{url}/{api}";
         }
     }
 }

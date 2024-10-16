@@ -5,6 +5,7 @@ using KPMG.Pulse.Back.Accounting.Mandate.Client.Http;
 using KPMG.Pulse.Back.Accounting.Mandate.Function;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
+using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
 using Mandate.AzureFunctions.Interfaces;
 using Mandate.AzureFunctions.Managers;
 using Microsoft.Azure.Functions.Worker;
@@ -12,6 +13,9 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using KPMG.Pulse.Back.Accounting.Mandate;
+using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
+using Microsoft.Extensions.Logging;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -54,22 +58,45 @@ var host = new HostBuilder()
 
         services.AddMandateSql(opt => opt.ConnectionString = context.Configuration["DbConnectionString"]);
 
+        services.AddMandateJeDeclare(opt =>
+        {
+            opt.BaseUri = new Uri(context.Configuration["JeDeclareBaseUri"]!);
+            opt.Login = context.Configuration["JeDeclareLogin"]!;
+            opt.Password = context.Configuration["JeDeclarePassword"]!;
+            opt.JdcCompteId = context.Configuration["JeDeclareCompteId"]!;
+            opt.HistoryDateEnabledBanks = context.Configuration["JeDeclareHistoryDateEnabledBanks"]!;
+        });
+        services.AddSingleton<IJeDeclareService, JeDeclareAdapter>();
         services.AddSingleton<IPreloadManager, PreloadManager>();
         services.AddSingleton<IMandateProvider, MandateProvider>();
         services.AddSingleton<IMandateFunctionManager, MandateFunctionManager>();
         services.AddSingleton<IEventsFunctionManager, EventsFunctionManager>();
-        services.AddSingleton<ISqlAdapter, SqlAdapter>();
+        services.AddSingleton<ISqlAdapter, KPMG.Pulse.Back.Accounting.Mandate.Function.SqlAdapter>();
+        services.AddScoped<IDatabaseService, KPMG.Pulse.Back.Accounting.Mandate.Adapters.SqlAdapter>();
+
         services.AddAzureClients(builder =>
         {
-            builder.AddServiceBusClientWithNamespace(config["serviceBusNameSpace__fullyQualifiedNamespace"]).WithCredential(new DefaultAzureCredential(new DefaultAzureCredentialOptions
+            builder.AddServiceBusClientWithNamespace(config["serviceBusNameSpace:fullyQualifiedNamespace"]).WithCredential(new DefaultAzureCredential(new DefaultAzureCredentialOptions
             {
-                ManagedIdentityClientId = config["serviceBusNameSpace__clientId"],
+                ManagedIdentityClientId = config["serviceBusNameSpace:clientId"],
             }));
         });
 
         services.AddMandateClient(options =>
         {
             options.BaseUri = new Uri(config["MANDATE_API_URL"]!);
+        });
+    })
+    .ConfigureLogging(logging =>
+    {
+        logging.Services.Configure<LoggerFilterOptions>(options =>
+        {
+            LoggerFilterRule? defaultRule = options.Rules
+                .FirstOrDefault(rule => rule.ProviderName == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
+            if (defaultRule is not null)
+            {
+                options.Rules.Remove(defaultRule);
+            }
         });
     })
     .Build();

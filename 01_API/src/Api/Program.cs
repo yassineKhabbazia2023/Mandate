@@ -2,28 +2,29 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using System.Diagnostics.CodeAnalysis;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using Kpmg.AspNetCore.Authentication.ConstellationIdentityService;
+using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
+using KPMG.Pulse.Back.Accounting.Mandate.Application;
+using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
+using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
+using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
+using KPMG.Pulse.Back.Accounting.Mandate.Portal;
+using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
+using Mandate.Messaging;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
-    using System.Diagnostics.CodeAnalysis;
-    using Azure.Extensions.AspNetCore.Configuration.Secrets;
-    using Azure.Identity;
-    using Azure.Security.KeyVault.Secrets;
-    using Kpmg.AspNetCore.Authentication.ConstellationIdentityService;
-    using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
-    using KPMG.Pulse.Back.Accounting.Mandate.Application;
-    using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
-    using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
-    using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
-    using KPMG.Pulse.Back.Accounting.Mandate.Portal;
-    using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-    using Microsoft.Data.SqlClient;
-    using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
-    using Microsoft.Extensions.Diagnostics.HealthChecks;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.IdentityModel.Clients.ActiveDirectory;
-
     [ExcludeFromCodeCoverage]
     public static class Program
     {
@@ -109,23 +110,31 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 opt.FormioApiKey = builder.Configuration["FormioApiKey"]!;
                 opt.DemandeMandateFormId = builder.Configuration["DemandeMandateFormId"]!;
             });
-
+            string mandateCancellationCC = builder.Configuration["MandateCancellationCcEmails"] ?? string.Empty;
+            string uploadedCCEmails = builder.Configuration["MandateUploadedCcEmails"] ?? string.Empty;
             builder.Services.AddMandateApplication(opt =>
             {
                 opt.MandateCancellationSubject = builder.Configuration["MandateCancellationSubject"]!;
                 opt.MandateCancellationTemplateName = builder.Configuration["MandateCancellationTemplateName"]!;
                 opt.MandateCancellationFromEmail = builder.Configuration["MandateCancellationFromEmail"]!;
                 opt.MandateCancellationToEmail = builder.Configuration["MandateCancellationToEmail"]!;
-                opt.MandateCancellationCcEmails = new List<string>(builder.Configuration["MandateCancellationCcEmails"]!.Split(";"));
+                opt.MandateCancellationCcEmails = string.IsNullOrEmpty(mandateCancellationCC) ? new List<string>() : mandateCancellationCC.Split(";").ToList();
                 opt.MandateUploadedSubject = builder.Configuration["MandateUploadedSubject"]!;
                 opt.MandateUploadedTemplateName = builder.Configuration["MandateUploadedTemplateName"]!;
                 opt.MandateUploadedFromEmail = builder.Configuration["MandateUploadedFromEmail"]!;
                 opt.MandateUploadedToEmail = builder.Configuration["MandateUploadedToEmail"]!;
-                opt.MandateUploadedCcEmails = new List<string>(builder.Configuration["MandateUploadedCcEmails"]!.Split(";"));
+                opt.MandateUploadedCcEmails = string.IsNullOrEmpty(uploadedCCEmails) ? new List<string>() : uploadedCCEmails.Split(";").ToList();
             });
             builder.Services.AddMandateAdapters();
             builder.Services.AddPortailApi(builder.Configuration);
-            builder.Services.AddNotificationsApi(builder.Configuration);
+            builder.Services.AddNotificationsApi(option => option.BaseUrl = builder.Configuration["MANDATE_NOTIFICATION_V2_API_URL"]);
+            builder.Services.AddRequestTimeouts(options =>
+            {
+                options.AddPolicy("TwoSecondsTimeOut", TimeSpan.FromSeconds(120));
+            });
+
+            // Configure Azure Service Bus
+            builder.Services.AddServiceBusConfiguration(builder.Configuration);
 
             var app = builder.Build();
 
@@ -142,17 +151,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             app.UseHttpsRedirection();
 
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
             app.UseCors("CorsPolicy");
 
             app.UseAuthorization();
 
             app.MapControllers();
 
-            app.MapHealthChecks("/api/health", new HealthCheckOptions()
+            app.MapHealthChecks("/health", new HealthCheckOptions()
             {
                 ResponseWriter = WriteResponse,
             });
 
+            app.UseRequestTimeouts();
             app.Run();
         }
 

@@ -2,6 +2,8 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
     public static class SqlExtensions
@@ -46,10 +48,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
             Bban? bban = source.ToBbanModel();
 
-            var currentStatus = source.Statuses?.SingleOrDefault(i => i.IsCurrent);
-            var creationStatus = source.Statuses?.SingleOrDefault(i => i.StatusCode == -1);
-
-            ValidateStatuses(currentStatus, creationStatus);
+            var currentStatus = source.Statuses?.Single(i => i.IsCurrent);
+            var creationStatus = source.Statuses?
+                .OrderByDescending(i => i.StatusDate)
+                .First(i => i.StatusCode == (int)CollectionStatus.Creation_Inprogress);
 
             Status? status = currentStatus!.ToModel();
 
@@ -86,7 +88,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             return new Status(
                 (CollectionStatus)source?.RefStatusCode?.PulseCode!,
-                source?.RefStatusCode?.StatusNameFr!);
+                source?.RefStatusCode?.StatusNameFr!,
+                (JdcCollectionStatus)source?.RefStatusCode?.StatusCode!);
         }
 
         public static Sql.CollectionQuery ToSql(this CollectionQueryDto source, int collaboratorId)
@@ -149,12 +152,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
         }
 
-        public static Sql.StatusDb DefaultStatus()
+        public static Sql.StatusDb CreationInProgress()
         {
             return new Sql.StatusDb()
             {
                 IsCurrent = true,
-                StatusCode = (int)JdcCollectionStatus.InitialCreate,
+                StatusCode = (int)CollectionStatus.Creation_Inprogress,
                 StatusDate = DateTime.UtcNow,
             };
         }
@@ -245,6 +248,29 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
         }
 
+        public static Sql.MandateCreationLogMessageDb ToMandateCreationLogMessageDB(this MandateCreationLogMessage mandateCreationLogMessage)
+        {
+            return new Sql.MandateCreationLogMessageDb()
+            {
+                Id = mandateCreationLogMessage.Id,
+                CollectionId = mandateCreationLogMessage.CollectionId,
+                MessageContent = mandateCreationLogMessage.MessageContent,
+                CreatedDate = mandateCreationLogMessage.CreatedDate,
+            };
+        }
+
+        public static CollectionDb ToCollectionDb(this Bban source, int companyId)
+        {
+            return new CollectionDb()
+            {
+                AccountNumber = source.AccountNumber,
+                BankCode = source.BankCode,
+                BranchCode = source.BranchCode,
+                CheckDigits = source.CheckDigits,
+                CompanyId = companyId,
+            };
+        }
+
         private static DateTime GetCreationDate(Sql.StatusDb? creationStatus)
         {
             return creationStatus!.StatusDate!.Value;
@@ -259,19 +285,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             else
             {
                 return currentStatus.StatusDate!.Value;
-            }
-        }
-
-        private static void ValidateStatuses(Sql.StatusDb? currentStatus, Sql.StatusDb? creationStatus)
-        {
-            if (currentStatus == null)
-            {
-                throw new ApplicationException($"{nameof(SqlExtensions)} - {nameof(ToModel)} : Error while parsing Collection {nameof(currentStatus)} is null.");
-            }
-
-            if (creationStatus == null)
-            {
-                throw new ApplicationException($"{nameof(SqlExtensions)} - {nameof(ToModel)} : Error while parsing Collection {nameof(creationStatus)} is null.");
             }
         }
     }

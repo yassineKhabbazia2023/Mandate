@@ -19,6 +19,7 @@ public static class SqlExtensions
             Email = contact.Email,
             FirstName = contact.FirstName,
             LastName = contact.LastName,
+            IsActive = contact.IsActive,
         };
     }
 
@@ -41,6 +42,7 @@ public static class SqlExtensions
             Name = account.Name,
             SiretNumber = account.SiretNumber,
             ErpId = account.AccountNumber,
+            IsActive = account.IsActive,
         };
     }
 

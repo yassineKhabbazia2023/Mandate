@@ -184,6 +184,18 @@
         "summary": "Creates a new mandate",
         "description": "Creates a new mandate",
         "operationId": "PostCollectionAsync",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "contactId",
+            "description": "the contact identifier",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "example": 1
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -363,14 +375,14 @@
         }
       }
     },
-    "/mandate/{mandateId}/signed": {
+    "/mandate/{mandateId}/verify-creation": {
       "get": {
         "tags": [
           "Mandate"
         ],
-        "summary": "Downloads a signed mandate",
-        "description": "Downloads a signed mandate",
-        "operationId": "DownloadSignedAsync",
+        "summary": "Verify the creation of the mandate",
+        "description": "Verify the creation of the mandate",
+        "operationId": "VerifyMandateCreation",
         "parameters": [
           {
             "in": "path",
@@ -386,65 +398,21 @@
         ],
         "responses": {
           "200": {
-            "description": "The signed mandate file (PDF format)",
-            "content": {
-              "application/pdf": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
+            "description": "The mandate creation is done"
           },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "CompanyForbidden": {
-                    "value": {
-                      "errorType": "CompanyForbidden",
-                      "logReference": "12345",
-                      "message": "The mandate belongs to a company that must be part of your portfolio and have active engagement"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Mandate not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "MandateNotFound": {
-                    "value": {
-                      "errorType": "MandateNotFound",
-                      "logReference": "12345",
-                      "message": "The mandate with identifier 'mandateId' has not been found"
-                    }
-                  }
-                }
-              }
-            }
+          "204": {
+            "description": "The mandate creation is not yet done"
           }
         }
-      },
+      }
+    },
+    "/mandate/{mandateId}/signed": {
       "post": {
         "tags": [
           "Mandate"
         ],
-        "summary": "Uploads a signed mandate",
-        "description": "Uploads a signed mandate",
+        "summary": "Uploads a signed mandate as form-data",
+        "description": "Uploads a signed mandate PDF file using multipart/form-data",
         "operationId": "UploadSignedMandateAsync",
         "parameters": [
           {
@@ -461,13 +429,20 @@
         ],
         "requestBody": {
           "content": {
-            "application/pdf": {
+            "multipart/form-data": {
               "schema": {
-                "type": "string",
-                "format": "binary"
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The signed mandate PDF file"
+                  }
+                }
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "204": {

@@ -34,7 +34,7 @@ public class CompanyNotFoundExceptionTest
     {
         var ex = CompanyNotFoundException.FromId("12345");
 
-        ex.Message.Should().Be("La company avec l'id '12345' n'a pas été trouvée dans le référentiel");
+        ex.Message.Should().Be("La société avec l'id '12345' n'a pas été trouvée dans le référentiel");
     }
 
     [Fact]
@@ -42,6 +42,6 @@ public class CompanyNotFoundExceptionTest
     {
         var ex = CompanyNotFoundException.FromSiret("12345123456789");
 
-        ex.Message.Should().Be("La company avec le siret '12345123456789' n'a pas été trouvée dans le référentiel");
+        ex.Message.Should().Be("La société avec le siret '12345123456789' n'a pas été trouvée dans le référentiel");
     }
 }

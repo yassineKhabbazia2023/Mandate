@@ -18,7 +18,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Kpmg.Constellation.Net.Http" Version="1.2.1.2" />
+		<PackageReference Include="Kpmg.Constellation.Net.Http" Version="1.62.3-develop" />
 	</ItemGroup>
 	
 	<ItemGroup>

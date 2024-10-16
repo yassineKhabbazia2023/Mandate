@@ -3,10 +3,6 @@
 // </copyright>
 
 using System.Diagnostics.CodeAnalysis;
-using Azure.Extensions.AspNetCore.Configuration.Secrets;
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
-using Kpmg.AspNetCore.Authentication.ConstellationIdentityService;
 using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
 using KPMG.Pulse.Back.Accounting.Mandate.Application;
 using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
@@ -15,12 +11,8 @@ using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
 using KPMG.Pulse.Back.Accounting.Mandate.Portal;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
 using Mandate.Messaging;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Data.SqlClient;
-using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
@@ -66,30 +58,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             {
                 throw new InvalidOperationException($"Database connection string is not definied (Missing setting: DbConnectionString)");
             }
-
-            builder.Services
-                .AddAuthentication()
-                .AddConstellationIdentityService(
-                new ConstellationIdentityServiceAuthenticationOptions
-                {
-                    ServerAddress = new Uri(builder.Configuration["identityserviceApiUrl"]!),
-                    AzureActiveDirectoryClientCredentials =
-                    {
-                        ClientId = builder.Configuration["AuthClientId"],
-                        ClientSecret = builder.Configuration["AuthClientSecret"],
-                        Scope = builder.Configuration["AuthAudience"],
-                        Tenant = builder.Configuration["AuthTenant"],
-                    },
-                },
-                out string[] schemeNames);
-            builder.Services
-                .AddAuthorization(options =>
-                {
-                    options.DefaultPolicy = new AuthorizationPolicyBuilder()
-                        .RequireAuthenticatedUser()
-                        .AddAuthenticationSchemes(schemeNames)
-                        .Build();
-                });
 
             builder.Services.AddConstellationHttpClient();
             builder.Services.AddSingleton<MandateAuthorizationFilterAttribute>();
@@ -146,8 +114,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 c.RoutePrefix = "api";
                 c.EnableTryItOutByDefault();
             });
-
-            app.UseJsonErrorExceptionHandler(app.Environment);
 
             app.UseHttpsRedirection();
 

@@ -20,6 +20,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
         [Fact]
         public async Task GetRecoveryAsync()
         {
+            var statusSummary = new Client.StatusInfo(
+                statusCode: 10,
+                jdcStatusDescription: string.Empty,
+                null);
+
             var collectionSummary = new CollectionSummary(
                 Guid.Empty,
                 "1234567890",
@@ -27,7 +32,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
                 new CollectionBankInfo("bankName", "accountNumber", 1),
                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                10); ;
+                statusSummary,
+                new List<string>());
 
             var rib = new Bban(
                 bankCode: "bankCodeM",
@@ -110,6 +116,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
         [Fact]
         public async Task RecoveryAsync()
         {
+            var statusSummary = new Client.StatusInfo(
+                statusCode: 10,
+                jdcStatusDescription: string.Empty,
+                null);
+
             var collectionSummary = new CollectionSummary(
                 Guid.Empty,
                 "1234567890",
@@ -117,7 +128,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
                 new CollectionBankInfo("bankName", "accountNumber", 1),
                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                10);
+                statusInfo: statusSummary,
+                new List<string>());
 
             IReadOnlyList<CollectionSummary> collectionSummaries = new List<CollectionSummary>() { collectionSummary };
             PagedRecoveryMandate page = new PagedRecoveryMandate(1, collectionSummaries);

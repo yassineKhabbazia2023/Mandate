@@ -64,6 +64,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Tests
                 accountNumber: "98765432101",
                 jdcPartnership: 2);
 
+            var statusSummary = new Client.StatusInfo(
+                statusCode: 20,
+                jdcStatusDescription: "example of JdcStatus description",
+                null);
+
             var collectionSummary = new CollectionSummary(
                 id: Guid.Empty,
                 erpId: "1234567890",
@@ -71,7 +76,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Tests
                 collectionBankInfo: collectionBankInfo,
                 creationDate: new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 modificationDate: new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                statusCode: 20);
+                statusInfo: statusSummary,
+                new List<string>());
 
             var serializedCollectionSummary = JsonNode.Parse(JsonConvert.SerializeObject(collectionSummary))!.ToJsonString();
             var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
@@ -243,6 +249,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Tests
                 accountNumber: "12345678910",
                 jdcPartnership: 2);
 
+            var statusSummary = new Client.StatusInfo(
+                statusCode: 20,
+                jdcStatusDescription: "example of JdcStatus description",
+                null);
+
             var collectionSummary = new CollectionSummary(
                 id: Guid.Empty,
                 erpId: "12345",
@@ -250,7 +261,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Tests
                 collectionBankInfo: collectionBankInfo,
                 creationDate: DateTime.UtcNow,
                 modificationDate: DateTime.UtcNow,
-                statusCode: 20);
+                statusInfo: statusSummary,
+                new List<string>());
 
             PagedRecoveryMandate page = new PagedRecoveryMandate(1, new List<CollectionSummary>() { collectionSummary });
 

@@ -128,6 +128,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 accountNumber: "12345678901",
                 jdcPartnership: 2);
 
+            var statusSummary = new Client.StatusInfo(
+                statusCode: (int)CollectionStatus.InProgress,
+                jdcStatusDescription: "En cours",
+                (int)JdcCollectionStatus.Creation_InProgress);
+
             var expectedCollection = new Client.CollectionSummary(
                 id: new Guid("00000002-0000-0000-0000-000000000000"),
                 erpId: "123456789",
@@ -135,8 +140,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 collectionBankInfo: collectionBankInfo,
                 creationDate: new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                 modificationDate: new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                statusCode: (int)CollectionStatus.InProgress,
-                jdcStatusCode: (int)JdcCollectionStatus.Creation_InProgress);
+                statusSummary,
+                new List<string>());
 
             var expectedCollections = new List<Client.CollectionSummary>()
             {

@@ -14,6 +14,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests.Models
                 accountNumber: "12345678910",
                 jdcPartnership: 2);
 
+            var statusSummary = new Client.StatusInfo(
+                statusCode: 30,
+                jdcStatusDescription: string.Empty,
+                null);
+
             var entity = new PagedRecoveryMandate(
                 1,
                 new List<CollectionSummary>()
@@ -25,7 +30,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests.Models
                         collectionBankInfo: collectionBankInfo,
                         creationDate: DateTime.UtcNow,
                         modificationDate: DateTime.UtcNow,
-                        statusCode: 30),
+                        statusSummary,
+                        new List<string>()),
                 });
 
             // Make sure we don't forget propeties

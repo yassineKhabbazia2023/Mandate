@@ -28,7 +28,7 @@ extends:
     layer: Domain
     domain: mdt
     resource:
-      id: '02'
+      id: '01'
       name: 'mdtFunction'
       path: 02_MandateFunction\src\Mandate.AzureFunctions\KPMG.Pulse.Back.Accounting.Mandate.Function.csproj
       type: 'functionApp' 

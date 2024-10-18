@@ -3,13 +3,9 @@
 // </copyright>
 
 using System.Diagnostics.CodeAnalysis;
-using Azure.Extensions.AspNetCore.Configuration.Secrets;
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
 using Kpmg.AspNetCore.Authentication.ConstellationIdentityService;
 using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
 using KPMG.Pulse.Back.Accounting.Mandate.Application;
-using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
 using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
 using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
 using KPMG.Pulse.Back.Accounting.Mandate.Portal;
@@ -17,10 +13,7 @@ using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
 using Mandate.Messaging;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Data.SqlClient;
-using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
@@ -103,13 +96,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 opt.JdcCompteId = builder.Configuration["JeDeclareCompteId"]!;
                 opt.HistoryDateEnabledBanks = builder.Configuration["JeDeclareHistoryDateEnabledBanks"]!;
             });
-
-            builder.Services.AddMandateFormio(opt =>
-            {
-                opt.BaseUri = new Uri(builder.Configuration["FormioBaseUri"]!);
-                opt.FormioApiKey = builder.Configuration["FormioApiKey"]!;
-                opt.DemandeMandateFormId = builder.Configuration["DemandeMandateFormId"]!;
-            });
+            
             string mandateCancellationCC = builder.Configuration["MandateCancellationCcEmails"] ?? string.Empty;
             string uploadedCCEmails = builder.Configuration["MandateUploadedCcEmails"] ?? string.Empty;
             builder.Services.AddMandateApplication(opt =>

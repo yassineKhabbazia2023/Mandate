@@ -67,7 +67,6 @@ var host = new HostBuilder()
             opt.HistoryDateEnabledBanks = context.Configuration["JeDeclareHistoryDateEnabledBanks"]!;
         });
         services.AddSingleton<IJeDeclareService, JeDeclareAdapter>();
-        services.AddSingleton<IPreloadManager, PreloadManager>();
         services.AddSingleton<IMandateProvider, MandateProvider>();
         services.AddSingleton<IMandateFunctionManager, MandateFunctionManager>();
         services.AddSingleton<IEventsFunctionManager, EventsFunctionManager>();

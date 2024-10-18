@@ -1796,14 +1796,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             await context.AddAsync(mandateLog);
             await context.SaveChangesAsync();
         }
-
-        public async Task InsertFormIOCollectionAsync(CollectionDb collection)
-        {
-            using var context = new MandateContext(this.options);
-            await context.AddAsync(collection);
-            await context.SaveChangesAsync();
-        }
-
+        
         public async Task<StatusDb> GetCurrentJdcStatusCodeAsync(Guid collectionId)
         {
             using var context = new MandateContext(this.options);

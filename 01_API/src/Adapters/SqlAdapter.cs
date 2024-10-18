@@ -219,14 +219,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 throw new Mandate.CustomCompanyNotFoundException((Mandate.ExceptionType)e.Type, e.Message);
             }
         }
-
-        public async Task InsertFormIOCollectionAsync(Collection collection, int companyId)
-        {
-            var collectionDb = collection.ToCollectionDB(companyId);
-            await this.mandateRepository.CreateOrUpdateFolderAsync(collection?.Company?.BankServicesProviderId!, companyId);
-            await this.mandateRepository.InsertFormIOCollectionAsync(collectionDb);
-        }
-
+        
         public async Task InsertMandateLogAsync(Collection collection, CustomException exception)
         {
             MandateLogDb mandateLog = collection.ToMandateLogDB(exception);

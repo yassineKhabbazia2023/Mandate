@@ -1928,46 +1928,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var exception = await func.Should().ThrowExactlyAsync<CustomCompanyNotFoundException>();
             exception.And.Type.Should().Be(ExceptionType.NoAccountNumberNoMatchSiret);
         }
-
-        [Fact]
-        public async Task InsertFormIOCollectionAsync()
-        {
-            // Arrange
-            var collection = EntityDbFactory.CollectionDb;
-            collection.Bank = EntityDbFactory.RefBankDb;
-            collection.Company = EntityDbFactory.CompanyDb;
-            collection.Company.JeDeclareFolder = EntityDbFactory.JeDeclareFolderDb;
-            collection.JeDeclareCollection = EntityDbFactory.JeDeclareCollectionDb;
-            collection.Personal = EntityDbFactory.PersonalDb;
-            collection.Statuses = EntityDbFactory.Statuses;
-
-
-            using var context = new MandateContext(_options);
-
-            var sqlMandateRepository = new SqlMandateRepository(_options);
-
-            // Act
-            await sqlMandateRepository.InsertFormIOCollectionAsync(collection);
-
-            // Assert
-            var dbCollection = await context.Collection
-                                            .Include(_ => _.Bank)
-                                            .Include(_ => _.Company)
-                                            .Include(_ => _.JeDeclareCollection)
-                                            .Include(_ => _.Personal)
-                                            .Include(_ => _.Statuses)
-                                            .FirstOrDefaultAsync(_ => _.Id == collection.Id);
-
-            dbCollection.Should().NotBeNull();
-            dbCollection!.Id.Should().Be(collection.Id);
-            dbCollection!.Bank!.BankCode.Should().Be(collection.Bank!.BankCode);
-            dbCollection!.Company!.Id.Should().Be(collection.Company!.Id);
-            dbCollection!.JeDeclareCollection!.Id.Should().Be(collection.JeDeclareCollection!.Id);
-            dbCollection!.Personal!.Id.Should().Be(collection.Personal!.Id);
-            dbCollection!.Statuses[0].Id!.Should().Be(collection.Statuses[0].Id);
-            dbCollection!.Statuses.Should().HaveCount(1);
-        }
-
+        
         [Fact]
         public async Task GetCompanyBySiretAsync_ShouldReturnCompany_WhenCompanyExists()
         {

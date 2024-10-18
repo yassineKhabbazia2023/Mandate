@@ -13,8 +13,4 @@
 	  <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.2.0" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Services.Formio.Client\Mandate.Formio.Client.csproj" />
-	</ItemGroup>
-
 </Project>

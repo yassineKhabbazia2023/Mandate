@@ -73,22 +73,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
             return JsonConvert.DeserializeObject<PagedTechnicalMandate>(responseBody)!;
         }
 
-        public async Task<PagedRecoveryMandate> RecoveryFormIoAsync(int skip, int limit)
-        {
-            this.EnsuresUserToken();
-            string? requestUri = $"mandate/recovery-form-io?skip={skip}&limit={limit}";
-
-            using var message = new HttpRequestMessage(HttpMethod.Post, requestUri);
-
-            using var client = this.clientFactory.Create(this.baseUri, this.authentication);
-            var response = await client.SendAsync(message);
-
-            response.EnsureSuccessStatusCode();
-
-            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            return DeserializePagedRecoveryMandate(responseBody);
-        }
-
         public async Task<bool> RefreshMandatsStatusesAsync(List<TechnicalCollectionSummary> mandates)
         {
             this.EnsuresUserToken();

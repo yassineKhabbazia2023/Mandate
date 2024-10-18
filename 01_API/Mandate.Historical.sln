@@ -88,14 +88,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 - Web API", "1 - Web API"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 - SQL Database", "4 - SQL Database", "{E3EC086A-36FD-4910-A7D5-61DF3209605B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Formio.Client.Tests", "tests\Services.Formio.Client\Mandate.Formio.Client.Tests.csproj", "{18895B4F-1F5B-4BCA-A443-A535F9E14343}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Formio.Client.Http.Tests", "tests\Services.Formio.Client.Http\Mandate.Formio.Client.Http.Tests.csproj", "{98D8A875-FBC2-44DB-B68B-80E02679883F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Formio.Client", "src\Services.Formio.Client\Mandate.Formio.Client.csproj", "{81A682F8-B58F-43BD-9C77-4B2ACC234B9A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Formio.Client.Http", "src\Services.Formio.Client.Http\Mandate.Formio.Client.Http.csproj", "{F262E17F-2040-484C-8F9E-3C36C85E0D05}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Portal", "src\Services.Portal\Mandate.Portal.csproj", "{5C9CD4F7-E8C8-47FC-9762-BF6743E2D435}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Portal.Tests", "tests\Services.Portal\Mandate.Portal.Tests.csproj", "{4CAB9612-C5AF-4943-B1AA-8805203CE770}"

@@ -128,8 +128,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 
         Task UpdateCurrentStatusAsync(Guid collectionId);
 
-        Task InsertFormIOCollectionAsync(CollectionDb collection);
-
         Task<CompanyDb> GetCompanyByErpIdSiretAsync(string erpId, string siretNumber);
 
         Task InsertMandateLogAsync(MandateLogDb mandateLog);

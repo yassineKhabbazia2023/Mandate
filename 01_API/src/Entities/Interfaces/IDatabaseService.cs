@@ -54,8 +54,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task DeleteFakeDataAsync();
 
-        Task InsertFormIOCollectionAsync(Collection collection, int companyId);
-
         Task<Company> GetCompanyByErpIdSiretAsync(string erpId, string siret);
 
         Task InsertMandateLogAsync(Collection collection, CustomException exception);

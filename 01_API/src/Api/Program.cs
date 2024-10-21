@@ -13,6 +13,7 @@ using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
 using Mandate.Messaging;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
@@ -87,7 +88,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             builder.Services.AddConstellationHttpClient();
             builder.Services.AddSingleton<MandateAuthorizationFilterAttribute>();
 
-            builder.Services.AddMandateSql(opt => opt.ConnectionString = builder.Configuration["DbConnectionString"]);
+            builder.Services.AddMandateSql(builder.Configuration);
             builder.Services.AddMandateJeDeclare(opt =>
             {
                 opt.BaseUri = new Uri(builder.Configuration["JeDeclareBaseUri"]!);

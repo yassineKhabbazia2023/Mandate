@@ -54,7 +54,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 opt.MandateUploadedCcEmails = new List<string>();
             });
             sc.AddMandateAdapters();
-            sc.AddMandateSql(opt => opt.ConnectionString = "a");
+            sc.AddMandateSql(configuration);
             sc.AddMandateJeDeclare(opt =>
             {
                 opt.BaseUri = new Uri("https://recette.jedeclare.com/webservice/gestion/");
@@ -73,7 +73,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var sp = sc.BuildServiceProvider();
 
             // Make sure we don't forget services ; exclude services from Microsoft (IOption, ...)
-            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(21);
+            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(22);
 
             // Test all services ; number of tests below should match the number of services above
             sp.GetService<IBankManager>().Should().NotBeNull();

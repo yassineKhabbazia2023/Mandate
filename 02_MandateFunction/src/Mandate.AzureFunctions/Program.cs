@@ -1,20 +1,24 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿// <copyright file="Program.cs" company="PULSE">
+// Copyright (c) PULSE. All rights reserved.
+// </copyright>
+
+using System.Diagnostics.CodeAnalysis;
 using Azure.Identity;
+using KPMG.Pulse.Back.Accounting.Mandate;
+using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
 using KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions;
 using KPMG.Pulse.Back.Accounting.Mandate.Client.Http;
 using KPMG.Pulse.Back.Accounting.Mandate.Function;
-using KPMG.Pulse.Back.Accounting.Mandate.Sql;
-using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
 using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
+using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
 using Mandate.AzureFunctions.Interfaces;
 using Mandate.AzureFunctions.Managers;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using KPMG.Pulse.Back.Accounting.Mandate;
-using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
 using Microsoft.Extensions.Logging;
 
 var host = new HostBuilder()
@@ -56,7 +60,17 @@ var host = new HostBuilder()
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
 
-        services.AddMandateSql(opt => opt.ConnectionString = context.Configuration["DbConnectionString"]);
+        services.AddDbContext<MandateContext>(
+    options =>
+    {
+#if DEBUG
+        options.LogTo(Console.WriteLine)
+            .EnableSensitiveDataLogging()
+            .EnableDetailedErrors();
+#endif
+        options.UseSqlServer(config["DbConnectionString"]);
+    },
+    ServiceLifetime.Scoped);
 
         services.AddMandateJeDeclare(opt =>
         {

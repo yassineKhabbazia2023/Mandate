@@ -28,12 +28,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetCompanyByErpIdAsync([FromRoute] string erpId, [FromQuery] string contactEmail)
+        public async Task<IActionResult> GetCompanyByErpIdAsync([FromRoute] string erpId, [FromQuery] string contactEmail = null!)
         {
             string correlationId = "0"; // TODO
 
             try
             {
+                contactEmail ??= this.Request.Headers["ContactEmail"].ToString();
                 this.logger.LogInformation("Get company by erpId : {ErpId}", erpId);
                 var company = await this.companyManager.GetCompanyByErpIdAsync(erpId, contactEmail);
                 return this.Ok(company);

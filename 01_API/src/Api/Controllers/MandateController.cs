@@ -14,7 +14,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
     [ApiController]
     [Route("api/mandate")]
-    [Authorize]
     [ServiceFilter(typeof(MandateAuthorizationFilterAttribute))]
     public class MandateController : ControllerBase
 
@@ -37,7 +36,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetCollectionsAsync([FromQuery] string? searchTerm, [FromQuery] DateTime? creationDateStart, [FromQuery] DateTime? creationDateEnd, [FromQuery] DateTime? modificationDateStart, [FromQuery] DateTime? modificationDateEnd, [FromQuery] List<int>? statusCodes, [FromQuery] int? limit, [FromQuery] int? skip, [FromQuery] string? sortOrder, [FromQuery] string? sortCriteria, [FromQuery] string contactEmail)
+        public async Task<IActionResult> GetCollectionsAsync([FromQuery] string? searchTerm, [FromQuery] DateTime? creationDateStart, [FromQuery] DateTime? creationDateEnd, [FromQuery] DateTime? modificationDateStart, [FromQuery] DateTime? modificationDateEnd, [FromQuery] List<int>? statusCodes, [FromQuery] int? limit, [FromQuery] int? skip, [FromQuery] string? sortOrder, [FromQuery] string? sortCriteria, [FromQuery] string contactEmail = null!)
         {
             var correlationId = "0"; // TODO
 
@@ -45,6 +44,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             {
                 sortOrder ??= "Ascending";
                 sortCriteria ??= "Name";
+                contactEmail ??= this.Request.Headers["ContactEmail"].ToString();
 
                 var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria, contactEmail);
                 this.logger.LogInformation("{collectionQuery}", JsonConvert.SerializeObject(collectionQuery));
@@ -265,7 +265,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
         [HttpPost("{mandateId}/signed")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadSignedMandateAsync([FromRoute] string mandateId, [FromForm] IFormFile file, [FromQuery] string contactEmail)
+        public async Task<IActionResult> UploadSignedMandateAsync([FromRoute] string mandateId, [FromForm] IFormFile file, [FromQuery] string contactEmail = null!)
         {
             var correlationId = "0"; // TODO
             if (!Guid.TryParse(mandateId, out var parsedMandateId))
@@ -275,6 +275,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             try
             {
+                contactEmail ??= this.Request.Headers["ContactEmail"].ToString();
                 if (file == null || file.ContentType != "application/pdf")
                 {
                     throw new InvalidFileTypeException("The file must be a PDF.");
@@ -301,7 +302,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         }
 
         [HttpPost("{mandateId}/deactivate")]
-        public async Task<IActionResult> DeactivateAsync([FromRoute] string mandateId, [FromQuery] string contactEmail)
+        public async Task<IActionResult> DeactivateAsync([FromRoute] string mandateId, [FromQuery] string contactEmail = null!)
         {
             var correlationId = "0"; // TODO
             if (!Guid.TryParse(mandateId, out var parsedMandateId))
@@ -309,6 +310,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 return this.BadRequest(new Error("InvalidMandateId", correlationId, "MandateId should be an UUID"));
             }
 
+            contactEmail ??= this.Request.Headers["ContactEmail"].ToString();
             if (await this.mandateManager.DeactivateCollectionAsync(parsedMandateId, contactEmail))
             {
                 return this.NoContent();

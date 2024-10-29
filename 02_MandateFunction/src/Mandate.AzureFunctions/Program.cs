@@ -10,6 +10,7 @@ using KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions;
 using KPMG.Pulse.Back.Accounting.Mandate.Client.Http;
 using KPMG.Pulse.Back.Accounting.Mandate.Function;
 using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
+using KPMG.Pulse.Back.Accounting.Mandate.Sql;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
 using Mandate.AzureFunctions.Interfaces;
 using Mandate.AzureFunctions.Managers;
@@ -72,6 +73,7 @@ var host = new HostBuilder()
     },
     ServiceLifetime.Scoped);
 
+        services.AddScoped<IMandateRepository, SqlMandateRepository>();
         services.AddMandateJeDeclare(opt =>
         {
             opt.BaseUri = new Uri(context.Configuration["JeDeclareBaseUri"]!);

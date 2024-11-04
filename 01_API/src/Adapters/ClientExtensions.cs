@@ -47,11 +47,31 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             List<ActionPermitted> permittedActions = [];
 
-            if (source.Status.StatusCode == CollectionStatus.Active || source.Status.StatusCode == CollectionStatus.Inactive)
+            switch (source.Status.StatusCode)
             {
-                permittedActions.Add(ActionPermitted.CAN_DOWNLOAD_PREFILLED_MANDATE);
-                permittedActions.Add(ActionPermitted.CAN_UPLOAD_SIGNED_MANDATE);
-                permittedActions.Add(ActionPermitted.CAN_DOWNLOAD_SIGNED_MANDATE);
+                case CollectionStatus.Creation_Inprogress:
+                    // Nothing to add for Creation_Inprogress
+                    break;
+                case CollectionStatus.ToDo:
+                    permittedActions.Add(ActionPermitted.CAN_DOWNLOAD_PREFILLED_MANDATE);
+                    permittedActions.Add(ActionPermitted.CAN_UPLOAD_SIGNED_MANDATE);
+                    break;
+                case CollectionStatus.Active:
+                    permittedActions.Add(ActionPermitted.CAN_DOWNLOAD_PREFILLED_MANDATE);
+                    permittedActions.Add(ActionPermitted.CAN_UPLOAD_SIGNED_MANDATE);
+                    permittedActions.Add(ActionPermitted.CAN_DOWNLOAD_SIGNED_MANDATE);
+                    permittedActions.Add(ActionPermitted.CAN_TERMINATE_TELECOLLECT);
+                    break;
+                case CollectionStatus.Incident:
+                case CollectionStatus.Inactive:
+                case CollectionStatus.InProgress:
+                    permittedActions.Add(ActionPermitted.CAN_DOWNLOAD_PREFILLED_MANDATE);
+                    permittedActions.Add(ActionPermitted.CAN_UPLOAD_SIGNED_MANDATE);
+                    permittedActions.Add(ActionPermitted.CAN_DOWNLOAD_SIGNED_MANDATE);
+                    break;
+                default:
+                    // Nothing to add for the default case
+                    break;
             }
 
             return permittedActions;

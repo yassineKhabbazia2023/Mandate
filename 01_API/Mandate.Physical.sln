@@ -110,14 +110,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Azure Functions", "3 - 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 - Tools", "0 - Tools", "{2A259A76-8199-4D4E-B1A4-598F08EDC53B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Formio.Client", "src\Services.Formio.Client\Mandate.Formio.Client.csproj", "{7CF07F51-8CBE-443A-AAC1-BC89B6121FDB}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Formio.Client.Http", "src\Services.Formio.Client.Http\Mandate.Formio.Client.Http.csproj", "{5C40318D-055A-43DB-9521-733C8BA4EF0D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Formio.Client.Tests", "tests\Services.Formio.Client\Mandate.Formio.Client.Tests.csproj", "{8D4256C5-CDAF-4B08-8A55-963497A052FD}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Formio.Client.Http.Tests", "tests\Services.Formio.Client.Http\Mandate.Formio.Client.Http.Tests.csproj", "{44310EA0-7AAF-4D9A-9A46-9D27E608F933}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

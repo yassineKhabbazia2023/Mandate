@@ -21,13 +21,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         private readonly ILogger<MandateController> logger;
         private readonly IMandateManager mandateManager;
         private readonly IGuidGenerator guidGenerator;
-        private readonly IFormioManager formIoManager;
 
-        public MandateController(ILogger<MandateController> logger, IMandateManager mandateManager, IGuidGenerator guidGenerator, IFormioManager formIoManager)
+        public MandateController(ILogger<MandateController> logger, IMandateManager mandateManager, IGuidGenerator guidGenerator)
         {
             this.logger = logger;
             this.mandateManager = mandateManager;
-            this.formIoManager = formIoManager;
             this.guidGenerator = guidGenerator;
         }
 
@@ -320,62 +318,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 return this.NotFound();
             }
         }
-
-        [HttpPost("recovery")]
-        public async Task<IActionResult> Recovery([FromBody] Bban rib)
-        {
-            var correlationId = "0"; // TODO
-            try
-            {
-                Collection? collection = await this.formIoManager.GetCollectionByBban(rib.ToModel());
-                if (collection != null)
-                {
-                    await this.mandateManager.InsertFormIOCollectionAsync(collection);
-                    return this.Ok();
-                }
-
-                return this.NoContent();
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.Recovery));
-                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
-            }
-        }
-
-        [HttpPost("recovery-form-io")]
-        public async Task<IActionResult> RecoveryFormIOAsync([FromQuery] int skip, [FromQuery] int limit)
-        {
-            var correlationId = "0";
-            try
-            {
-                List<Collection> failed = new List<Collection>();
-                List<Collection> collections = await this.formIoManager.GetAllCollectionAsync(skip, limit);
-
-                foreach (var collection in collections)
-                {
-                    try
-                    {
-                        await this.mandateManager.InsertFormIOCollectionAsync(collection);
-                    }
-                    catch (ApplicationException)
-                    {
-                        this.logger.LogWarning("MandateAPI - {correlationId} - {functionName} : mandat trouvé {rib}", correlationId, nameof(this.RecoveryFormIOAsync), collection.Bban?.ToRibString());
-                        failed.Add(collection);
-                    }
-                }
-
-                return this.Ok(new PagedRecoveryMandate(
-                    collections.Count,
-                    failed.Select(i => i.ToCollectionSummary()).ToList()));
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.RecoveryFormIOAsync));
-                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
-            }
-        }
-
+        
         [HttpGet("{mandateId}/check/status")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

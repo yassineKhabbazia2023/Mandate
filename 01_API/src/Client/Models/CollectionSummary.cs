@@ -16,8 +16,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             CollectionBankInfo collectionBankInfo,
             DateTime creationDate,
             DateTime modificationDate,
-            int statusCode,
-            int? jdcStatusCode = null)
+            StatusInfo statusInfo,
+            List<string> permittedActions)
         {
             this.Id = id;
             this.ErpId = erpId;
@@ -27,8 +27,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             this.JdcPartnership = collectionBankInfo!.JdcPartnership;
             this.CreationDate = creationDate;
             this.ModificationDate = modificationDate;
-            this.StatusCode = statusCode;
-            this.JdcStatusCode = jdcStatusCode;
+            this.StatusCode = statusInfo.StatusCode;
+            this.JdcStatusCode = statusInfo.JdcStatusCode;
+            this.JdcStatusDescription = statusInfo.JdcStatusDescription;
+            this.PermittedActions = permittedActions;
         }
 
         [JsonProperty("id")]
@@ -60,5 +62,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
 
         [JsonProperty("jdcStatusCode")]
         public int? JdcStatusCode { get; }
+
+        [JsonProperty("jdcStatusDescription")]
+        public string JdcStatusDescription { get; }
+
+        [JsonProperty("permittedActions")]
+        public List<string> PermittedActions { get; }
     }
 }

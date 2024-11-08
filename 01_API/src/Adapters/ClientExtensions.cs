@@ -2,6 +2,8 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using KPMG.Pulse.Back.Accounting.Mandate.Models.Enums;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
     public static class ClientExtensions
@@ -23,6 +25,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                                 jdcPartnership: (int)source!.Bban?.Bank?.JdcAgreement?.JdcPartnership!);
             }
 
+            List<ActionPermitted> permittedActions = GetPermittedActions(source);
+
+            var statusSummary = new Client.StatusInfo(
+                statusCode: (int)source.Status.StatusCode,
+                jdcStatusDescription: source.Status.StatusName,
+                jdcStatusCode: (int)source.Status.StatusCodeJdc);
+
             return new Client.CollectionSummary(
                     id: source.Id,
                     erpId: source.Company?.ErpId!,
@@ -30,8 +39,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                     collectionBankInfo: collectionBankInfo,
                     creationDate: source.CreationDate,
                     modificationDate: source.ModificationDate,
-                    statusCode: (int)source.Status.StatusCode!,
-                    jdcStatusCode: (int)source.Status.StatusCodeJdc);
+                    permittedActions: permittedActions.Select(action => action.ToString()).ToList(),
+                    statusInfo: statusSummary);
+        }
+
+        private static List<ActionPermitted> GetPermittedActions(Collection source)
+        {
+            List<ActionPermitted> permittedActions = [];
+
+            if (source.Status.StatusCode == CollectionStatus.Active || source.Status.StatusCode == CollectionStatus.Inactive)
+            {
+                permittedActions.Add(ActionPermitted.CAN_DOWNLOAD_PREFILLED_MANDATE);
+                permittedActions.Add(ActionPermitted.CAN_UPLOAD_SIGNED_MANDATE);
+                permittedActions.Add(ActionPermitted.CAN_DOWNLOAD_SIGNED_MANDATE);
+            }
+
+            return permittedActions;
         }
 
         public static Client.TechnicalCollectionSummary ToTechnicalCollectionSummary(this Collection source)

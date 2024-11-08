@@ -37,13 +37,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions
             return await client.GetRecoveryAsync(rib);
         }
 
-        public async Task<PagedRecoveryMandate> RecoveryAsync(int skip, int limit)
-        {
-            string token = await this.systemAccountAuthenticationProvider.GetTokenAsync();
-            var client = this.factory.Create(token);
-            return await client.RecoveryFormIoAsync(skip, limit);
-        }
-
         /// <inheritdoc/>
         public async Task RefreshCollectionsStatuses(List<TechnicalCollectionSummary> payload)
         {

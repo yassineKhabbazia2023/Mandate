@@ -4,21 +4,26 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 {
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     public static class ServiceRegistration
     {
-        public static IServiceCollection AddMandateSql(this IServiceCollection services, Action<SqlMandateRepositoryOptions> options)
+        public static void AddMandateSql(this IServiceCollection services, IConfiguration configuration)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
+            services.AddDbContext<MandateContext>(
+                options =>
+                    options
 
-            services.AddOptions().Configure(options);
+                        .UseSqlServer(configuration["DbConnectionString"], sqlOptions =>
+                        {
+                            sqlOptions.EnableRetryOnFailure(
+                                maxRetryCount: 3,
+                                maxRetryDelay: TimeSpan.FromSeconds(3),
+                                errorNumbersToAdd: null);
+                        }));
             services.AddScoped<IMandateRepository, SqlMandateRepository>();
-
-            return services;
         }
     }
 }

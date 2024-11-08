@@ -5,13 +5,13 @@
 using System.Diagnostics.CodeAnalysis;
 using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
 using KPMG.Pulse.Back.Accounting.Mandate.Application;
-using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
 using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
 using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
 using KPMG.Pulse.Back.Accounting.Mandate.Portal;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
 using Mandate.Messaging;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
@@ -62,7 +62,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             builder.Services.AddConstellationHttpClient();
             builder.Services.AddSingleton<MandateAuthorizationFilterAttribute>();
 
-            builder.Services.AddMandateSql(opt => opt.ConnectionString = builder.Configuration["DbConnectionString"]);
+            builder.Services.AddMandateSql(builder.Configuration);
             builder.Services.AddMandateJeDeclare(opt =>
             {
                 opt.BaseUri = new Uri(builder.Configuration["JeDeclareBaseUri"]!);
@@ -71,13 +71,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 opt.JdcCompteId = builder.Configuration["JeDeclareCompteId"]!;
                 opt.HistoryDateEnabledBanks = builder.Configuration["JeDeclareHistoryDateEnabledBanks"]!;
             });
-
-            builder.Services.AddMandateFormio(opt =>
-            {
-                opt.BaseUri = new Uri(builder.Configuration["FormioBaseUri"]!);
-                opt.FormioApiKey = builder.Configuration["FormioApiKey"]!;
-                opt.DemandeMandateFormId = builder.Configuration["DemandeMandateFormId"]!;
-            });
+            
             string mandateCancellationCC = builder.Configuration["MandateCancellationCcEmails"] ?? string.Empty;
             string uploadedCCEmails = builder.Configuration["MandateUploadedCcEmails"] ?? string.Empty;
             builder.Services.AddMandateApplication(opt =>

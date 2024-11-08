@@ -22,8 +22,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task<bool> DeactivateCollectionAsync(Guid collectionId, string userEmail);
 
-        Task InsertFormIOCollectionAsync(Collection collection);
-
         Task<CollectionStatus?> GetMandateStatusAsync(Guid collectionId);
     }
 }

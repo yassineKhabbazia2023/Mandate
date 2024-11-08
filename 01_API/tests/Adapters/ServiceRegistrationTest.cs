@@ -6,8 +6,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
     using KPMG.Constellation.Portal.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
-    using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client;
-    using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
     using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
@@ -39,7 +37,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var sc = new ServiceCollection();
             sc.AddMandateAdapters();
-            sc.AddMandateSql(opt => opt.ConnectionString = "a");
+            sc.AddMandateSql(configuration);
+
             sc.AddMandateJeDeclare(opt =>
             {
                 opt.BaseUri = new Uri("https://recette.jedeclare.com/webservice/gestion/");
@@ -47,11 +46,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 opt.Password = "passwordT";
                 opt.JdcCompteId = "JdcCompteId";
                 opt.HistoryDateEnabledBanks = "HistoryDateEnabledBanks";
-            });
-            sc.AddMandateFormio(opt =>
-            {
-                opt.BaseUri = new Uri("https://toto.com");
-                opt.FormioApiKey = "test";
             });
 
             sc.AddHttpContextAccessor();
@@ -62,7 +56,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var sp = sc.BuildServiceProvider();
 
             // Make sure we don't forget services ; exclude services from Microsoft (IOption, ...)
-            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(14);
+            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(12);
 
             // Test all services ; number of tests below should match the number of services above
             sp.GetService<IDatabaseService>().Should().NotBeNull();
@@ -70,13 +64,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             sp.GetService<IJeDeclareClientFactory>().Should().NotBeNull();
             sp.GetService<IJeDeclareClient>().Should().NotBeNull();
             sp.GetService<IJeDeclareService>().Should().NotBeNull();
-            sp.GetService<IFormioClientFactory>().Should().NotBeNull();
             sp.GetService<IPortalProvider>().Should().NotBeNull();
             sp.GetService<IPortalClientFactory>().Should().NotBeNull();
             sp.GetService<Portal.IAuthenticationContext>().Should().NotBeNull();
             sp.GetService<IPortalManager>().Should().NotBeNull();
-            sp.GetService<IFormioClient>().Should().NotBeNull();
-            sp.GetService<IFormioService>().Should().NotBeNull();
             sp.GetService<INotificationsService>().Should().NotBeNull();
             sp.GetService<INotificationsProvider>().Should().NotBeNull();
         }

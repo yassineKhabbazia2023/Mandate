@@ -60,7 +60,6 @@ public class ProgramTest
                     settings.Tenant = configuration["AuthTenant"];
                 });
 
-                services.AddSingleton<IPreloadManager, PreloadManager>();
                 services.AddSingleton<IMandateProvider, MandateProvider>();
                 services.AddSingleton<IMandateFunctionManager, MandateFunctionManager>();
 

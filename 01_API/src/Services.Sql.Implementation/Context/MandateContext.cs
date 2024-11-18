@@ -151,6 +151,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<StatusDb>().Property(cp => cp.StatusDate).IsRequired(false);
             modelBuilder.Entity<StatusDb>().Property(cp => cp.MandateFile).IsRequired(false);
             modelBuilder.Entity<StatusDb>().Property(cp => cp.CreatedBy).HasMaxLength(100).IsUnicode(true).IsRequired(false);
+            modelBuilder.Entity<StatusDb>().Property(cp => cp.ErrorMessage).HasColumnType("NVARCHAR(MAX)").IsRequired(false);
 
             modelBuilder.Entity<MandateLogDb>().HasKey(c => c.Id);
             modelBuilder.Entity<MandateLogDb>().Property(c => c.ErpId).HasMaxLength(50).IsRequired(true);

@@ -25,5 +25,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         public byte[]? MandateFile { get; set; } = null!;
 
         public string? CreatedBy { get; set; } = null!;
+
+        public string? ErrorMessage { get; set; } = null!;
     }
 }

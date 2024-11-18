@@ -10,6 +10,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="System.IO.Packaging" Version="8.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\..\src\Mandate.Messaging\Mandate.Messaging.csproj" />
 		<ProjectReference Include="..\Services.Sql.Implementation\Mandate.Sql.Implementation.Tests.csproj" />
 		<ProjectReference Include="..\Tools\Mandate.Tools.Tests.csproj" />

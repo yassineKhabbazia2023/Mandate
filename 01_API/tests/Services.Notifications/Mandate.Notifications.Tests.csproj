@@ -10,6 +10,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
+	  <PackageReference Include="System.Text.Json" Version="8.0.5" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\..\src\Services.Notifications\Mandate.Notifications.csproj" />
 		<ProjectReference Include="..\..\src\Services.Portal\Mandate.Portal.csproj" />
 	</ItemGroup>

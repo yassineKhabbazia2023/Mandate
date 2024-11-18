@@ -196,7 +196,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             Func<Task> act = async () => await jeDeclareClient.GetAllConfigurationFromFolderAsync("21570139");
 
             await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
-                .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message returned by jeDeclareApi'");
+                .WithMessage("error message returned by jeDeclareApi");
 
             client.VerifyAll();
             factory.VerifyAll();
@@ -295,7 +295,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             Func<Task> act = async () => await jeDeclareClient.GetSignedMandatPdfAsync("21570139", "1234");
 
             await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
-                .WithMessage("Exception was thrown : status code : BadRequest - Message : 'Error message'");
+                .WithMessage("error message");
 
             client.VerifyAll();
             factory.VerifyAll();
@@ -475,7 +475,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             Func<Task> act = async () => await jeDeclareClient.CreateFolderAsync(newFolder);
 
             await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
-                .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message returned by jeDeclareApi'");
+                .WithMessage("error message returned by jeDeclareApi");
 
             client.VerifyAll();
             factory.VerifyAll();
@@ -622,7 +622,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             Func<Task> act = async () => await jeDeclareClient.AddRibToFolderAsync("98765", newRib);
 
             await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
-                .WithMessage("Exception was thrown : status code : BadRequest - Message : 'Error Message'");
+                .WithMessage("Error Message");
 
             client.VerifyAll();
             factory.VerifyAll();
@@ -864,7 +864,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             Func<Task> act = async () => await jeDeclareClient.CreateCollecteConfigurationAsync("98765", newReleve, bankCode, true, ebicsCarteId);
 
             await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
-                .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message'");
+                .WithMessage("error message");
 
             client.VerifyAll();
             factory.VerifyAll();
@@ -1075,7 +1075,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             Func<Task> act = async () => await jeDeclareClient.UpdateCollecteConfigurationAsync("98765", newReleve);
 
             await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
-                .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message'");
+                .WithMessage("error message");
 
             client.VerifyAll();
             factory.VerifyAll();
@@ -1190,7 +1190,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             Func<Task> act = async () => await jeDeclareClient.UploadSignedMandat("98765", "999945", mandat);
 
             await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
-                .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message'");
+                .WithMessage("error message");
 
             client.VerifyAll();
             factory.VerifyAll();
@@ -1292,7 +1292,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             Func<Task> act = async () => await jeDeclareClient.CheckSignedMandatExists("98765", "999945");
 
             await act.Should().ThrowExactlyAsync<JeDeclareApiException>()
-                .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message'");
+                .WithMessage("error message");
 
             client.VerifyAll();
             factory.VerifyAll();
@@ -1386,7 +1386,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 
             Func<Task> action = async () => await jeDeclareClient.GetMandatPdfAsync("jdcFolderId", "jdcRibId");
             await action.Should().ThrowExactlyAsync<JeDeclareApiException>()
-                .WithMessage("Exception was thrown : status code : BadRequest - Message : 'error message'");
+                .WithMessage("error message");
 
             client.VerifyAll();
             factory.VerifyAll();

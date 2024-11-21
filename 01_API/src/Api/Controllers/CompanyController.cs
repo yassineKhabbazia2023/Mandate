@@ -7,23 +7,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using System.Net;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
-    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
     [ApiController]
     [Route("api/company")]
-    [Authorize]
     public class CompanyController : ControllerBase
     {
         private readonly ILogger<CompanyController> logger;
         private readonly ICompanyManager companyManager;
-        private readonly IAuthenticationServices authenticationServices;
 
-        public CompanyController(ILogger<CompanyController> logger, ICompanyManager companyManager, IAuthenticationServices authenticationServices)
+        public CompanyController(ILogger<CompanyController> logger, ICompanyManager companyManager)
         {
             this.logger = logger;
             this.companyManager = companyManager;
-            this.authenticationServices = authenticationServices;
         }
 
         [HttpGet("{erpId}")]
@@ -31,15 +27,25 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetCompanyByErpIdAsync([FromRoute] string erpId)
+        public async Task<IActionResult> GetCompanyByErpIdAsync(
+        [FromRoute] string erpId,
+        [FromQuery] string? contactEmail)
         {
             string correlationId = "0"; // TODO
 
             try
             {
-                var email = this.authenticationServices.Email;
-                this.logger.LogInformation("Get company by erpId : {erpId}", erpId);
-                var company = await this.companyManager.GetCompanyByErpIdAsync(erpId, email);
+                contactEmail ??= this.Request.Headers["ContactEmail"].ToString();
+
+                if (string.IsNullOrWhiteSpace(contactEmail))
+                {
+                    this.logger.LogError("Forbidden access due to missing contactEmail. ErpId: {ErpId}, CorrelationId: {CorrelationId}, FunctionName : {FunctionName}", erpId, correlationId, nameof(this.GetCompanyByErpIdAsync));
+                    return this.StatusCode(StatusCodes.Status403Forbidden, new Error("Forbidden", correlationId.ToString(), "Forbidden access due to missing contactEmail."));
+                }
+
+                this.logger.LogInformation("Get company by erpId : {ErpId} and contactEmail: {ContactEmail}", erpId, contactEmail);
+
+                var company = await this.companyManager.GetCompanyByErpIdAsync(erpId, contactEmail!);
                 return this.Ok(company);
             }
             catch (CompanyNotFoundException ex)
@@ -59,7 +65,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.GetCompanyByErpIdAsync));
+                this.logger.LogError(ex, "MandateAPI - {CorrelationId} - {FunctionName}", correlationId, nameof(this.GetCompanyByErpIdAsync));
                 return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
             }
         }

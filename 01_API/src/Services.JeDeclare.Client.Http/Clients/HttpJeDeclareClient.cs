@@ -7,7 +7,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
     using System;
     using System.Net;
     using System.Net.Http;
-    using System.Net.Http.Headers;
     using System.Text;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
@@ -47,7 +46,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                 return listeReleves!;
             }
 
-            var exception = new JeDeclareApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
+            var exception = new JeDeclareApiException(responseBody, response.StatusCode);
 
             this.logger.LogError(
                 exception,
@@ -78,7 +77,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                 return Convert.FromBase64String(result);
             }
 
-            var exception = new JeDeclareApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{result}'");
+            var exception = new JeDeclareApiException(result, response.StatusCode);
 
             this.logger.LogError(
                 exception,
@@ -113,7 +112,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                 return pdfBytes;
             }
 
-            var exception = new JeDeclareApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
+            var exception = new JeDeclareApiException(responseBody, response.StatusCode);
 
             this.logger.LogError(
                 exception,
@@ -152,7 +151,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                 return folder;
             }
 
-            var exception = new JeDeclareApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
+            var exception = new JeDeclareApiException(responseBody, response.StatusCode);
 
             this.logger.LogError(
             exception,
@@ -190,7 +189,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                 return ribSaved;
             }
 
-            var exception = new JeDeclareApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
+            var exception = new JeDeclareApiException(responseBody, response.StatusCode);
 
             this.logger.LogError(
             exception,
@@ -260,7 +259,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                     return releveSaved;
                 }
 
-                var exception = new JeDeclareApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
+                var exception = new JeDeclareApiException(responseBody, response.StatusCode);
 
                 this.logger.LogError(
                 exception,
@@ -300,7 +299,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-            var exception = new JeDeclareApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
+            var exception = new JeDeclareApiException(responseBody, response.StatusCode);
 
             this.logger.LogError(
             exception,
@@ -337,7 +336,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                 return responseBody;
             }
 
-            var exception = new JeDeclareApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
+            var exception = new JeDeclareApiException(responseBody, response.StatusCode);
 
             this.logger.LogError(
             exception,
@@ -375,7 +374,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-            var exception = new JeDeclareApiException($"Exception was thrown : status code : {response.StatusCode} - Message : '{responseBody}'");
+            var exception = new JeDeclareApiException(responseBody, response.StatusCode);
 
             this.logger.LogError(
             exception,

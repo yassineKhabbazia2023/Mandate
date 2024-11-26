@@ -1,18 +1,19 @@
-using System.Diagnostics.CodeAnalysis;
-using Azure.Messaging.ServiceBus;
-using KPMG.Pulse.Back.Accounting.Mandate.Application;
-
-using KPMG.Pulse.Back.Accounting.Mandate.Function.Models;
-using KPMG.Pulse.Back.Accounting.Mandate.Sql;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.DurableTask;
-using Microsoft.DurableTask.Client;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System.Text;
-
 namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
 {
+    using System.Diagnostics.CodeAnalysis;
+    using System.Net;
+    using System.Text;
+    using Azure.Messaging.ServiceBus;
+    using KPMG.Pulse.Back.Accounting.Mandate.Application;
+    using KPMG.Pulse.Back.Accounting.Mandate.Function.Models;
+    using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
+    using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+    using Microsoft.Azure.Functions.Worker;
+    using Microsoft.DurableTask;
+    using Microsoft.DurableTask.Client;
+    using Microsoft.Extensions.Logging;
+    using Newtonsoft.Json;
+
     public class MandateCreationOrchestration
     {
         private readonly IJeDeclareService jeDeclareClient;
@@ -37,6 +38,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
 
             var collectionId = await context.CallActivityAsync<Guid>(nameof(this.GetCollectionAndSaveMessage), message);
             var dossierClient = await context.CallActivityAsync<Company>(nameof(this.CreateJdcFolderAsync), new MandateCreationMessageAndCollectionId(message, collectionId));
+            if (dossierClient == null)
+            {
+                return;
+            }
+
             var collectionIdAndRib = await context.CallActivityAsync<CollectionIdAndRib>(nameof(this.AddRibToJdcFolderAsync), new MandateCreationMessageAndCompanyAndCollectionId(message, dossierClient, collectionId));
             await context.CallActivityAsync<CollectionIdAndRib>(nameof(this.StartCollectAsync), new MandateCreationMessageAndCompanyAndMore(message, dossierClient, collectionIdAndRib));
             await context.CallActivityAsync<object>(nameof(this.SaveSignatoryAndAddStatusAsync), new MandateCreationMessageAndCompanyAndMore(message, dossierClient, collectionIdAndRib));
@@ -61,7 +67,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
         }
 
         [Function(nameof(CreateJdcFolderAsync))]
-        public async Task<Company> CreateJdcFolderAsync([ActivityTrigger] MandateCreationMessageAndCollectionId message, FunctionContext executionContext)
+        public async Task<Company?> CreateJdcFolderAsync([ActivityTrigger] MandateCreationMessageAndCollectionId message, FunctionContext executionContext)
         {
             Company dossierClient;
 
@@ -69,7 +75,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
             {
                 dossierClient = await this.jeDeclareClient.CreateFolderAsync(message.MandateCreationMessage.Company, message.MandateCreationMessage.Address, message.MandateCreationMessage.Signatory);
             }
-            catch (Exception ex)
+            catch (JeDeclareApiException ex) when (ex.HttpStatusCode.HasValue && new[] { HttpStatusCode.BadRequest, HttpStatusCode.PreconditionFailed }.Contains(ex.HttpStatusCode.Value))
+            {
+                await this.databaseService.CreateStatusWithMessageAsync(message.CollectionId, (int)JdcCollectionStatus.Creation_Failed, ex.Message);
+                return null;
+            }
+            catch
             {
                 await this.databaseService.CreateStatusAsync(message.CollectionId, (int)JdcCollectionStatus.Creation_Failed);
                 throw;
@@ -96,7 +107,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
                     new CollectionCreationCommand(message.ErpId, message.Signatory, message.Address, message.Bban),
                     message.Bank);
             }
-            catch (Exception ex)
+            catch (JeDeclareApiException ex) when (ex.HttpStatusCode == HttpStatusCode.BadRequest)
+            {
+                await this.databaseService.CreateStatusWithMessageAsync(messageAndCompany.CollectionId, (int)JdcCollectionStatus.Creation_Failed, ex.Message);
+                throw;
+            }
+            catch
             {
                 await this.databaseService.CreateStatusAsync(messageAndCompany.CollectionId, (int)JdcCollectionStatus.Creation_Failed);
                 throw;
@@ -129,7 +145,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
                 mandateCreationMessageAndCompany.MandateCreationMessage.Signatory!,
                 mandateCreationMessageAndCompany.Company.BankServicesProviderId!);
             }
-            catch (Exception ex)
+            catch (JeDeclareApiException ex) when (ex.HttpStatusCode == HttpStatusCode.BadRequest)
+            {
+                await this.databaseService.CreateStatusWithMessageAsync(mandateCreationMessageAndCompany.CollectionIdAndRib.CollectionId, (int)JdcCollectionStatus.Creation_Failed, ex.Message);
+                throw;
+            }
+            catch
             {
                 await this.databaseService.CreateStatusAsync(mandateCreationMessageAndCompany.CollectionIdAndRib.CollectionId, (int)JdcCollectionStatus.Creation_Failed);
                 throw;

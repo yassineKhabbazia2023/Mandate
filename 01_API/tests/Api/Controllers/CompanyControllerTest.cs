@@ -5,6 +5,7 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
 
@@ -86,6 +87,31 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             // Assert
             var internalServerErrorResult = result.Should().BeOfType<ObjectResult>().Subject;
             internalServerErrorResult.StatusCode.Should().Be(500);
+        }
+
+        [Fact]
+        public async Task GetCompanyByErpIdAsync_ReturnsForbidden_WhenContactEmailIsMissing()
+        {
+            // Arrange
+            string testErpId = "testErpId";
+            string? contactEmail = null;
+
+            var context = new DefaultHttpContext();
+            this.controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = context,
+            };
+
+            // Act
+            var result = await this.controller.GetCompanyByErpIdAsync(testErpId, contactEmail);
+
+            // Assert
+            var forbiddenResult = result.Should().BeOfType<ObjectResult>().Subject;
+            forbiddenResult.StatusCode.Should().Be(403);
+
+            var error = forbiddenResult.Value.Should().BeOfType<KPMG.Pulse.Back.Accounting.Mandate.Client.Error>().Subject;
+
+            error.Message.Should().Be("Forbidden access due to missing contactEmail.");
         }
     }
 }

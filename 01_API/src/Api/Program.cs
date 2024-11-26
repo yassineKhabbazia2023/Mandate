@@ -11,7 +11,6 @@ using KPMG.Pulse.Back.Accounting.Mandate.Portal;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
 using Mandate.Messaging;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
@@ -71,7 +70,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 opt.JdcCompteId = builder.Configuration["JeDeclareCompteId"]!;
                 opt.HistoryDateEnabledBanks = builder.Configuration["JeDeclareHistoryDateEnabledBanks"]!;
             });
-            
             string mandateCancellationCC = builder.Configuration["MandateCancellationCcEmails"] ?? string.Empty;
             string uploadedCCEmails = builder.Configuration["MandateUploadedCcEmails"] ?? string.Empty;
             builder.Services.AddMandateApplication(opt =>
@@ -115,8 +113,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             app.UseStaticFiles();
 
             app.UseCors("CorsPolicy");
-
-            app.UseAuthorization();
 
             app.MapControllers();
 

@@ -137,7 +137,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 creationDate: new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                 modificationDate: new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                 statusSummary,
-                new List<string>());
+                ["CAN_DOWNLOAD_PREFILLED_MANDATE", "CAN_UPLOAD_SIGNED_MANDATE", "CAN_DOWNLOAD_SIGNED_MANDATE"]);
 
             var expectedCollections = new List<Client.CollectionSummary>()
             {
@@ -177,7 +177,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 
             var guidGenerator = new Mock<IGuidGenerator>();
 
-            var controller = new MandateController(logger.Object, manager.Object,guidGenerator.Object);
+            var controller = new MandateController(logger.Object, manager.Object, guidGenerator.Object);
 
             var result = await controller.GetCollectionsAsync(
                 string.Empty,
@@ -296,6 +296,59 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         }
 
         [Fact]
+        public async Task GetCollectionsAsync_ReturnsForbidden_WhenContactEmailIsMissing()
+        {
+            // Arrange
+            var query = new CollectionQueryDto(
+                string.Empty,
+                null,
+                null,
+                null,
+                null,
+                null,
+                10,
+                0,
+                SortOrder.Ascending,
+                CollectionSortCriteria.Name,
+                null!);
+
+            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Loose);
+            var manager = new Mock<IMandateManager>(MockBehavior.Strict);
+            var guidGenerator = new Mock<IGuidGenerator>();
+
+            var controller = new MandateController(logger.Object, manager.Object, guidGenerator.Object);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext(),
+            };
+
+            // Act
+            var result = await controller.GetCollectionsAsync(
+                string.Empty,
+                null,
+                null,
+                null,
+                null,
+                null,
+                10,
+                0,
+                "Ascending",
+                "Name",
+                null) as ObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+
+            var error = result.Value as Client.Error;
+            error.Should().NotBeNull();
+            error!.Message.Should().Be("Forbidden access due to missing contactEmail.");
+
+            logger.VerifyAll();
+            manager.VerifyAll();
+        }
+
+        [Fact]
         public async Task GetTechnicalCollectionsAsync_CaseThrowException()
         {
             var query = new CollectionQueryDto(
@@ -321,7 +374,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 
             var guidGenerator = new Mock<IGuidGenerator>();
 
-            var controller = new MandateController(logger.Object, manager.Object,guidGenerator.Object);
+            var controller = new MandateController(logger.Object, manager.Object, guidGenerator.Object);
 
             var result = await controller.GetTechnicalCollectionsAsync(
                 string.Empty,
@@ -863,6 +916,30 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         }
 
         [Fact]
+        public async Task UploadSignedMandateAsync_ReturnsForbidden_WhenContactEmailIsMissing()
+        {
+            // Arrange
+            var mandateId = Guid.NewGuid().ToString();
+            var mockMandateManager = new Mock<IMandateManager>();
+            var controller = new MandateController((new NullLoggerFactory() as ILoggerFactory).CreateLogger<MandateController>(), mockMandateManager.Object, null!);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            // Act
+            var result = await controller.UploadSignedMandateAsync(mandateId, null, null);
+
+            // Assert
+            var forbiddenResult = result.Should().BeOfType<ObjectResult>().Subject;
+            forbiddenResult.StatusCode.Should().Be(403);
+            
+            var error = forbiddenResult.Value.Should().BeOfType<KPMG.Pulse.Back.Accounting.Mandate.Client.Error>().Subject;
+
+            error.Message.Should().Be("Forbidden access due to missing contactEmail.");
+        }
+
+        [Fact]
         public async Task DownloadSignedAsync_WithValidMandateId_ReturnsOkResult()
         {
             var guidGenerator = new Mock<IGuidGenerator>();
@@ -1144,6 +1221,30 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 
             result.Should().NotBeNull();
             result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Fact]
+        public async Task DeactivateAsync_ReturnsForbidden_WhenContactEmailIsMissing()
+        {
+            // Arrange
+            var mandateId = Guid.NewGuid().ToString();
+            var mockMandateManager = new Mock<IMandateManager>();
+            var controller = new MandateController((new NullLoggerFactory() as ILoggerFactory).CreateLogger<MandateController>(), mockMandateManager.Object, null!);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            // Act
+            var result = await controller.DeactivateAsync(mandateId, null);
+
+            // Assert
+            var forbiddenResult = result.Should().BeOfType<ObjectResult>().Subject;
+            forbiddenResult.StatusCode.Should().Be(403);
+
+            var error = forbiddenResult.Value.Should().BeOfType<KPMG.Pulse.Back.Accounting.Mandate.Client.Error>().Subject;
+
+            error.Message.Should().Be("Forbidden access due to missing contactEmail.");
         }
 
         [InlineData(CollectionStatus.Incident, false)]

@@ -28,6 +28,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task CreateOrUpdateFolderAsync(string bankServicesProviderId, int companyId);
 
+        Task<Status?> CreateStatusWithMessageAsync(Guid collectionId, int statusCode, string errorMessage);
+
         Task<Status?> CreateStatusAsync(Guid collectionId, int statusCode);
 
         Task<bool> CheckJdcStatusCodeIsPendingAsync(Guid collectionId);

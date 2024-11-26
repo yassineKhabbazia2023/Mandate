@@ -7,7 +7,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
-    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
     using CollectionQuery = KPMG.Pulse.Back.Accounting.Mandate.Client.CollectionQuery;
@@ -16,7 +15,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     [Route("api/mandate")]
     [ServiceFilter(typeof(MandateAuthorizationFilterAttribute))]
     public class MandateController : ControllerBase
-
     {
         private readonly ILogger<MandateController> logger;
         private readonly IMandateManager mandateManager;
@@ -34,7 +32,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetCollectionsAsync([FromQuery] string? searchTerm, [FromQuery] DateTime? creationDateStart, [FromQuery] DateTime? creationDateEnd, [FromQuery] DateTime? modificationDateStart, [FromQuery] DateTime? modificationDateEnd, [FromQuery] List<int>? statusCodes, [FromQuery] int? limit, [FromQuery] int? skip, [FromQuery] string? sortOrder, [FromQuery] string? sortCriteria, [FromQuery] string contactEmail = null!)
+        public async Task<IActionResult> GetCollectionsAsync([FromQuery] string? searchTerm, [FromQuery] DateTime? creationDateStart, [FromQuery] DateTime? creationDateEnd, [FromQuery] DateTime? modificationDateStart, [FromQuery] DateTime? modificationDateEnd, [FromQuery] List<int>? statusCodes, [FromQuery] int? limit, [FromQuery] int? skip, [FromQuery] string? sortOrder, [FromQuery] string? sortCriteria, [FromQuery] string? contactEmail)
         {
             var correlationId = "0"; // TODO
 
@@ -44,7 +42,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 sortCriteria ??= "Name";
                 contactEmail ??= this.Request.Headers["ContactEmail"].ToString();
 
-                var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria, contactEmail);
+                if (string.IsNullOrWhiteSpace(contactEmail))
+                {
+                    this.logger.LogError("Forbidden access due to missing contactEmail. CorrelationId: {CorrelationId}, FunctionName : {FunctionName}", correlationId, nameof(this.GetCollectionsAsync));
+                    return this.StatusCode(StatusCodes.Status403Forbidden, new Error("Forbidden", correlationId.ToString(), "Forbidden access due to missing contactEmail."));
+                }
+
+                var collectionQuery = new CollectionQuery(searchTerm, creationDateStart, creationDateEnd, modificationDateStart, modificationDateEnd, statusCodes, limit, skip, sortOrder, sortCriteria, contactEmail!);
                 this.logger.LogInformation("{collectionQuery}", JsonConvert.SerializeObject(collectionQuery));
                 var result = await this.mandateManager.GetAllCollectionsAsync(collectionQuery.ToModel());
                 return this.Ok(result.ToPageMandateDetails());
@@ -263,7 +267,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
         [HttpPost("{mandateId}/signed")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadSignedMandateAsync([FromRoute] string mandateId, [FromForm] IFormFile file, [FromQuery] string contactEmail = null!)
+        public async Task<IActionResult> UploadSignedMandateAsync([FromRoute] string mandateId, [FromForm] IFormFile file, [FromQuery] string? contactEmail)
         {
             var correlationId = "0"; // TODO
             if (!Guid.TryParse(mandateId, out var parsedMandateId))
@@ -274,12 +278,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             try
             {
                 contactEmail ??= this.Request.Headers["ContactEmail"].ToString();
+                if (string.IsNullOrWhiteSpace(contactEmail))
+                {
+                    this.logger.LogError("Forbidden access due to missing contactEmail. mandateId : {mandateId}, CorrelationId: {CorrelationId}, FunctionName : {FunctionName}", mandateId, correlationId, nameof(this.UploadSignedMandateAsync));
+                    return this.StatusCode(StatusCodes.Status403Forbidden, new Error("Forbidden", correlationId.ToString(), "Forbidden access due to missing contactEmail."));
+                }
+
                 if (file == null || file.ContentType != "application/pdf")
                 {
                     throw new InvalidFileTypeException("The file must be a PDF.");
                 }
 
-                var result = await this.mandateManager.UploadSignedMandateAsync(parsedMandateId, file.OpenReadStream(), contactEmail);
+                var result = await this.mandateManager.UploadSignedMandateAsync(parsedMandateId, file.OpenReadStream(), contactEmail!);
                 return this.Ok(result);
             }
             catch (InvalidFileTypeException ex)
@@ -300,7 +310,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         }
 
         [HttpPost("{mandateId}/deactivate")]
-        public async Task<IActionResult> DeactivateAsync([FromRoute] string mandateId, [FromQuery] string contactEmail = null!)
+        public async Task<IActionResult> DeactivateAsync([FromRoute] string mandateId, [FromQuery] string? contactEmail)
         {
             var correlationId = "0"; // TODO
             if (!Guid.TryParse(mandateId, out var parsedMandateId))
@@ -309,7 +319,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             }
 
             contactEmail ??= this.Request.Headers["ContactEmail"].ToString();
-            if (await this.mandateManager.DeactivateCollectionAsync(parsedMandateId, contactEmail))
+            if (string.IsNullOrWhiteSpace(contactEmail))
+            {
+                this.logger.LogError("Forbidden access due to missing contactEmail. mandateId : {mandateId}, CorrelationId: {CorrelationId}, FunctionName : {FunctionName}", mandateId, correlationId, nameof(this.DeactivateAsync));
+                return this.StatusCode(StatusCodes.Status403Forbidden, new Error("Forbidden", correlationId.ToString(), "Forbidden access due to missing contactEmail."));
+            }
+
+            if (await this.mandateManager.DeactivateCollectionAsync(parsedMandateId, contactEmail!))
             {
                 return this.NoContent();
             }
@@ -318,7 +334,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 return this.NotFound();
             }
         }
-        
+
         [HttpGet("{mandateId}/check/status")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

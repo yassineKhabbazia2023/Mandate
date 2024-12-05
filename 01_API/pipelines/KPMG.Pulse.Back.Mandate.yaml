@@ -11,7 +11,7 @@ pool:
 resources:
   repositories:
     - repository: CICD
-      name: 'Plateforme Technologique/CICD'
+      name: 'Industrialisation/Industrialisation'
       type: git
       ref: 'refs/heads/Release/v6.0'
 
@@ -21,7 +21,7 @@ parameters:
   default: 'dev55'
 
 extends:
-  template: PipelineTemplate.yaml@CICD
+  template: CICD/PipelineTemplate.yaml@CICD
   parameters:
     versioning:
       mode: legacy

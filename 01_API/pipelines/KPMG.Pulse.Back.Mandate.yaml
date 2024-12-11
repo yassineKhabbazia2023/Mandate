@@ -39,6 +39,6 @@ extends:
         projectName: "(KPMG Pulse)[Package] Mandate.Client - mdt"
       steps:
       - type: nuget
-        name: DocumentServices.Client
+        name: Mandate.Client.Http
         netcoreProjects: \01_API\src\Client.Http\Mandate.Client.Http.csproj
         nugetFeed: '$(FeedPackageName)' 

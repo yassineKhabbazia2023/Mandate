@@ -1,4 +1,8 @@
-trigger: none
+trigger:
+  branches:
+    include:
+    - develop
+    - release/*
 pool:
   vmImage: windows-latest
 

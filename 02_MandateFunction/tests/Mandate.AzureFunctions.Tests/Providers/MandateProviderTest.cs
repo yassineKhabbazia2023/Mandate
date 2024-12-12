@@ -4,7 +4,6 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
 {
-    using Kpmg.Constellation.IdentityService.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using Moq;
 
@@ -13,7 +12,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
         [Fact]
         public void Constructor()
         {
-            var provider = new MandateProvider(Mock.Of<IMandateClientFactory>(), Mock.Of<ISystemAccountAuthenticationProvider>());
+            var provider = new MandateProvider(Mock.Of<IMandateClientFactory>());
             provider.Should().NotBeNull();
         }
 
@@ -54,21 +53,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
                 .Verifiable();
 
             var factory = new Mock<IMandateClientFactory>(MockBehavior.Strict);
-            factory.Setup(f => f.Create("token3"))
+            factory.Setup(f => f.Create())
                 .Returns(mandateClient.Object)
                 .Verifiable();
 
-            var authenticationContext = new Mock<ISystemAccountAuthenticationProvider>(MockBehavior.Strict);
-            authenticationContext.Setup(a => a.GetTokenAsync())
-                    .Returns(Task.FromResult("token3"))
-                    .Verifiable();
 
-            var provider = new MandateProvider(factory.Object, authenticationContext.Object);
+            var provider = new MandateProvider(factory.Object);
             var res = await provider.GetRecoveryAsync(rib);
 
             res.Should().BeEquivalentTo(collectionSummary);
 
-            authenticationContext.Verify();
             factory.Verify();
             mandateClient.Verify();
         }
@@ -94,21 +88,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
                 .Verifiable();
 
             var factory = new Mock<IMandateClientFactory>(MockBehavior.Strict);
-            factory.Setup(f => f.Create("token3"))
+            factory.Setup(f => f.Create())
                 .Returns(mandateClient.Object)
                 .Verifiable();
 
-            var authenticationContext = new Mock<ISystemAccountAuthenticationProvider>(MockBehavior.Strict);
-            authenticationContext.Setup(a => a.GetTokenAsync())
-                    .Returns(Task.FromResult("token3"))
-                    .Verifiable();
+         
 
-            var provider = new MandateProvider(factory.Object, authenticationContext.Object);
+            var provider = new MandateProvider(factory.Object);
             var res = await provider.GetCollectionsAsync(0, 100, new List<int> { 10 });
 
             res.Should().BeEquivalentTo(page);
 
-            authenticationContext.VerifyAll();
             factory.VerifyAll();
             mandateClient.VerifyAll();
         }
@@ -131,19 +121,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
                 .Verifiable();
 
             var factory = new Mock<IMandateClientFactory>(MockBehavior.Strict);
-            factory.Setup(f => f.Create("token3"))
+            factory.Setup(f => f.Create())
                 .Returns(mandateClient.Object)
                 .Verifiable();
 
-            var authenticationContext = new Mock<ISystemAccountAuthenticationProvider>(MockBehavior.Strict);
-            authenticationContext.Setup(a => a.GetTokenAsync())
-                    .Returns(Task.FromResult("token3"))
-                    .Verifiable();
-
-            var provider = new MandateProvider(factory.Object, authenticationContext.Object);
+            var provider = new MandateProvider(factory.Object);
             await provider.RefreshCollectionsStatuses(list);
 
-            authenticationContext.Verify();
             factory.Verify();
             mandateClient.Verify();
         }

@@ -4,7 +4,7 @@ pool:
 
 parameters:
 - name: devIndex
-  displayName: 'Index de l environnement cible (seulement pour un déploiement sur env de DEV)'
+  displayName: 'Index de l environnement cible (seulement pour un d�ploiement sur env de DEV)'
   type: number
   default: 0
 - name: deployType
@@ -17,7 +17,7 @@ resources:
   - repository: Pulse
     name: 'Pulse.Operations.Pipelines'
     type: git
-    ref: 'refs/heads/features/change-naming'
+    ref: 'refs/heads/Release/v2.0'
 
 extends:
   template: pipelines/templates/platform.back.sql.yaml@Pulse
@@ -28,5 +28,5 @@ extends:
     resource:
       id: '01'
       name: 'Global'
-      path: 01_API/src/Database/Mandate.Sql.Database.sqlproj
+      path: 01_API\src\Database\Mandate.Sql.Database.sqlproj
     dotnetcore: 8.x

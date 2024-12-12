@@ -1,4 +1,4 @@
-﻿// <copyright file="MandateController.cs" company="KPMG">
+// <copyright file="MandateController.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 

@@ -1,9 +1,13 @@
 name: $(TeamProject)_$(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 
 trigger:
-- main
-- develop
-- release/*
+  branches:
+    include:
+    - develop
+    - release/*
+  paths:
+    include:
+    - 01_API/src/Client.Http
 
 pool:
   vmImage: windows-latest
@@ -40,5 +44,5 @@ extends:
       steps:
       - type: nuget
         name: Mandate.Client.Http
-        netcoreProjects: \01_API\src\Client.Http\Mandate.Client.Http.csproj
+        netcoreProjects: 01_API\src\Client.Http\Mandate.Client.Http.csproj
         nugetFeed: '$(FeedPackageName)' 

@@ -1,4 +1,3 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33723.286
@@ -99,6 +98,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Adapters.Tests", "tests\Adapters\Mandate.Adapters.Tests.csproj", "{20121667-ED03-428B-AAE7-489F228770AA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Adapters", "src\Adapters\Mandate.Adapters.csproj", "{3621DC83-C516-43EF-90BB-E31FBAD37DF1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notifications", "Notifications", "{32A10F25-6B6C-4537-AB05-5896E33DAA08}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Notifications", "src\Services.Notifications\Mandate.Notifications.csproj", "{AE3C5C9B-00E9-4681-9C8B-7B500BA9F2D1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mandate.Notifications.Tests", "tests\Services.Notifications\Mandate.Notifications.Tests.csproj", "{18E18E7F-DBE6-43F2-AB70-EE13B082417E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pipelines", "pipelines", "{6C324EF8-0BC6-4FAC-AFD4-929678A03704}"
 EndProject
@@ -231,6 +236,14 @@ Global
 		{3621DC83-C516-43EF-90BB-E31FBAD37DF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3621DC83-C516-43EF-90BB-E31FBAD37DF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3621DC83-C516-43EF-90BB-E31FBAD37DF1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE3C5C9B-00E9-4681-9C8B-7B500BA9F2D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE3C5C9B-00E9-4681-9C8B-7B500BA9F2D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE3C5C9B-00E9-4681-9C8B-7B500BA9F2D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE3C5C9B-00E9-4681-9C8B-7B500BA9F2D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18E18E7F-DBE6-43F2-AB70-EE13B082417E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18E18E7F-DBE6-43F2-AB70-EE13B082417E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18E18E7F-DBE6-43F2-AB70-EE13B082417E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18E18E7F-DBE6-43F2-AB70-EE13B082417E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1FF6B771-4325-4F40-8208-F6447CF73FB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1FF6B771-4325-4F40-8208-F6447CF73FB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1FF6B771-4325-4F40-8208-F6447CF73FB6}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -1,4 +1,12 @@
-trigger: none
+trigger:
+  branches:
+    include:
+    - develop
+    - release/*
+  paths:
+    include:
+    - 01_API
+
 pool:
   vmImage: windows-latest
 
@@ -6,7 +14,7 @@ parameters:
 - name: devIndex
   displayName: 'Index de l environnement cible (seulement pour un déploiement sur env de DEV)'
   type: number
-  default: 3
+  default: 0
 - name: deployType
   displayName: "Technical parameter : don t modify it !"
   type: string
@@ -17,7 +25,7 @@ resources:
   - repository: Pulse
     name: 'Pulse.Operations.Pipelines'
     type: git
-    ref: 'refs/heads/features/change-naming'
+    ref: 'refs/heads/Release/v2.0'
 
 extends:
   template: pipelines/templates/platform.back.api.yaml@Pulse

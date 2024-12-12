@@ -1,11 +1,5 @@
 trigger:
-  branches:
-    include:
-    - develop
-    - release/*
-  paths:
-    include:
-    - 02_MandateFunction
+- develop
 
 pool:
   vmImage: windows-latest
@@ -26,20 +20,18 @@ resources:
     name: 'Pulse.Operations.Pipelines'
     type: git
     ref: 'refs/heads/Release/v2.0'
-    
+
 extends:
   template: pipelines/templates/platform.back.api.yaml@Pulse
   parameters:
     devIndex: ${{ parameters.devIndex }}
     deployType: ${{ parameters.deployType }}
-    sonarExclusions: '**/Program.cs'
+    sonarExclusions: '**/Program.cs, **/Migrations/**'
     layer: Domain
     domain: mdt
     resource:
-      id: '02'
-      name: 'mdtFunction'
-      path: 02_MandateFunction\src\Mandate.AzureFunctions\KPMG.Pulse.Back.Accounting.Mandate.Function.csproj
-      type: 'functionApp' 
-      tests: |
-          02_MandateFunction\tests\**\*.csproj
+      id: '01'
+      name: 'mandate'
+      path: 01_API\src\Api\Mandate.AspNetCore.csproj
+      type: 'webApp' 
     dotnetcore: 8.x

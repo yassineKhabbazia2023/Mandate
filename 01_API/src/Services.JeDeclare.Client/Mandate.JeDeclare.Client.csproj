@@ -10,7 +10,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Kpmg.Constellation.Net.Http" Version="1.62.3-develop" />
+	  <PackageReference Include="Kpmg.Constellation.Net.Http" Version="1.73.1" />
 	  <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	  <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />

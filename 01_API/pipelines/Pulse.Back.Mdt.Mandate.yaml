@@ -3,6 +3,10 @@ trigger:
     include:
     - develop
     - release/*
+  paths:
+    include:
+    - 01_API
+
 pool:
   vmImage: windows-latest
 

@@ -7,7 +7,7 @@ trigger:
     - release/*
   paths:
     include:
-    - 01_API/src/Client.Http
+    - 01_API/src/Client.Http/*
 
 pool:
   vmImage: windows-latest

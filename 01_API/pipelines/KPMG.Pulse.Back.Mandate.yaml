@@ -40,5 +40,5 @@ extends:
       steps:
       - type: nuget
         name: Mandate.Client.Http
-        netcoreProjects: \01_API\src\Client.Http\Mandate.Client.Http.csproj
+        netcoreProjects: 01_API/src/Client.Http/Mandate.Client.Http.csproj
         nugetFeed: '$(FeedPackageName)' 

@@ -11,8 +11,8 @@
 		<None Include="local.settings.json" />
 		<PackageReference Include="Azure.Identity" Version="1.12.0" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.21.0" />
-		<PackageReference Include="Kpmg.Constellation.Net.Http" Version="1.73.1" />
-		<PackageReference Include="KPMG.Pulse.Back.Accounting.Mandate.Client.Http" Version="0.1.1.33" />
+		<PackageReference Include="Kpmg.Constellation.Net.Http" Version="1.73.4-develop" />
+		<PackageReference Include="KPMG.Pulse.Back.Accounting.Mandate.Client.Http" Version="1.73.6-develop" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.1.2" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.1.0" />
@@ -33,6 +33,7 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\..\01_API\src\Adapters\Mandate.Adapters.csproj" />
+	  <ProjectReference Include="..\..\..\01_API\src\Application\Mandate.Application.csproj" />
 	  <ProjectReference Include="..\..\..\01_API\src\Entities\Mandate.csproj" />
 	  <ProjectReference Include="..\..\..\01_API\src\Services.JeDeclare.Client.Http\Mandate.JeDeclare.Client.Http.csproj" />
 	  <ProjectReference Include="..\..\..\01_API\src\Services.Sql.Implementation\Mandate.Sql.Implementation.csproj" />

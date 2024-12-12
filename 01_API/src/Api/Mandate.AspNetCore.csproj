@@ -35,6 +35,7 @@
 		<ProjectReference Include="..\Client\Mandate.Client.csproj" />
 		<ProjectReference Include="..\Mandate.Messaging\Mandate.Messaging.csproj" />
 		<ProjectReference Include="..\Services.JeDeclare.Client.Http\Mandate.JeDeclare.Client.Http.csproj" />
+		<ProjectReference Include="..\Services.Notifications\Mandate.Notifications.csproj" />
 		<ProjectReference Include="..\Services.Sql.Implementation\Mandate.Sql.Implementation.csproj" />
 	</ItemGroup>
 

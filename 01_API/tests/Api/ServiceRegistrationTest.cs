@@ -6,6 +6,7 @@ using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
 using KPMG.Pulse.Back.Accounting.Mandate.Application;
 using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
 using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
+using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
 using Mandate.Messaging;
@@ -63,12 +64,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 
             sc.AddHttpContextAccessor();
             sc.AddSingleton<IConfiguration>(configuration);
+            sc.AddNotificationsApi(new Action<NotificationOptions>(options => options.BaseUrl = "https://notifications"));
             sc.AddServiceBusConfiguration(configuration);
 
             var sp = sc.BuildServiceProvider();
 
             // Make sure we don't forget services ; exclude services from Microsoft (IOption, ...)
-            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(21);
+            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(17);
 
             // Test all services ; number of tests below should match the number of services above
             sp.GetService<IBankManager>().Should().NotBeNull();
@@ -80,13 +82,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             sp.GetService<IFakeDataManager>().Should().NotBeNull();
             sp.GetService<IDatabaseService>().Should().NotBeNull();
             sp.GetService<IJeDeclareService>().Should().NotBeNull();
-            sp.GetService<IPortalManager>().Should().NotBeNull();
             sp.GetService<IMandateRepository>().Should().NotBeNull();
             sp.GetService<IJeDeclareClientFactory>().Should().NotBeNull();
             sp.GetService<IJeDeclareClient>().Should().NotBeNull();
             sp.GetService<INotificationsService>().Should().NotBeNull();
+            sp.GetService<INotificationsProvider>().Should().NotBeNull();
         }
-
 
         [Fact]
         public void AddMandateJeDeclare_NullService_ThrowsArgumentNullException()

@@ -5,7 +5,7 @@ trigger:
     - release/*
   paths:
     include:
-    - Core
+    - 02_MandateFunction
 
 pool:
   vmImage: windows-latest

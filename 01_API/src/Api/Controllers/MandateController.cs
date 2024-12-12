@@ -1,4 +1,4 @@
-﻿// <copyright file="MandateController.cs" company="KPMG">
+// <copyright file="MandateController.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -13,7 +13,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
     [ApiController]
     [Route("api/mandate")]
-    [ServiceFilter(typeof(MandateAuthorizationFilterAttribute))]
     public class MandateController : ControllerBase
     {
         private readonly ILogger<MandateController> logger;

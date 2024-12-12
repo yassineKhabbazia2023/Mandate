@@ -9,7 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="Kpmg.AspNetCore.Authentication.ConstellationIdentityService" Version="1.1.0.10" />
 	<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
 	<PackageReference Include="Pulse.Back.Notifications.Commons" Version="1.0.0.4" />
 	<PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
@@ -18,6 +17,5 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Application\Mandate.Application.csproj" />
-    <ProjectReference Include="..\Services.Portal\Mandate.Portal.csproj" />
   </ItemGroup>
 </Project>

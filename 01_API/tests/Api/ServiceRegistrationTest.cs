@@ -2,13 +2,10 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
-using KPMG.Constellation.Portal.Client;
 using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
 using KPMG.Pulse.Back.Accounting.Mandate.Application;
 using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
 using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
-using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
-using KPMG.Pulse.Back.Accounting.Mandate.Portal;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
 using Mandate.Messaging;
@@ -66,8 +63,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 
             sc.AddHttpContextAccessor();
             sc.AddSingleton<IConfiguration>(configuration);
-            sc.AddPortailApi((ConfigurationManager)configuration);
-            sc.AddNotificationsApi(new Action<NotificationOptions>(options => options.BaseUrl = "https://notifications"));
             sc.AddServiceBusConfiguration(configuration);
 
             var sp = sc.BuildServiceProvider();
@@ -89,21 +84,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             sp.GetService<IMandateRepository>().Should().NotBeNull();
             sp.GetService<IJeDeclareClientFactory>().Should().NotBeNull();
             sp.GetService<IJeDeclareClient>().Should().NotBeNull();
-            sp.GetService<IPortalClientFactory>().Should().NotBeNull();
-            sp.GetService<Portal.IAuthenticationContext>().Should().NotBeNull();
-            sp.GetService<IPortalProvider>().Should().NotBeNull();
             sp.GetService<INotificationsService>().Should().NotBeNull();
-            sp.GetService<INotificationsProvider>().Should().NotBeNull();
         }
 
-        [Fact]
-        public void AddNotificationsApi_NullService_ThrowsArgumentNullException()
-        {
-            IServiceCollection services = null!;
-            ConfigurationManager configuration = new ConfigurationManager();
-            Action act = () => services.AddNotificationsApi(new Action<NotificationOptions>(options => options.BaseUrl = "https://notifications"));
-            act.Should().Throw<ArgumentNullException>();
-        }
 
         [Fact]
         public void AddMandateJeDeclare_NullService_ThrowsArgumentNullException()
@@ -151,15 +134,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 opt.MandateUploadedCcEmails = new List<string>();
             });
 
-            act.Should().Throw<ArgumentNullException>();
-        }
-
-        [Fact]
-        public void AddPortailApi_NullService_ThrowsArgumentNullException()
-        {
-            IServiceCollection services = null!;
-            ConfigurationManager configuration = new ConfigurationManager();
-            Action act = () => services.AddPortailApi(configuration);
             act.Should().Throw<ArgumentNullException>();
         }
     }

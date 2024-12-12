@@ -13,7 +13,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
     [ApiController]
     [Route("api/mandate")]
-    [ServiceFilter(typeof(MandateAuthorizationFilterAttribute))]
     public class MandateController : ControllerBase
     {
         private readonly ILogger<MandateController> logger;

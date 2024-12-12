@@ -6,21 +6,16 @@ using System.Diagnostics.CodeAnalysis;
 using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
 using KPMG.Pulse.Back.Accounting.Mandate.Application;
 using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
-using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
-using KPMG.Pulse.Back.Accounting.Mandate.Portal;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
 using Mandate.Messaging;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
     [ExcludeFromCodeCoverage]
     public static class Program
     {
-        private static ClientCredential? clientCredential;
-
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -59,7 +54,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             }
 
             builder.Services.AddConstellationHttpClient();
-            builder.Services.AddSingleton<MandateAuthorizationFilterAttribute>();
 
             builder.Services.AddMandateSql(builder.Configuration);
             builder.Services.AddMandateJeDeclare(opt =>
@@ -86,8 +80,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 opt.MandateUploadedCcEmails = string.IsNullOrEmpty(uploadedCCEmails) ? new List<string>() : uploadedCCEmails.Split(";").ToList();
             });
             builder.Services.AddMandateAdapters();
-            builder.Services.AddPortailApi(builder.Configuration);
-            builder.Services.AddNotificationsApi(option => option.BaseUrl = builder.Configuration["MANDATE_NOTIFICATION_V2_API_URL"]);
             builder.Services.AddRequestTimeouts(options =>
             {
                 options.AddPolicy("TwoSecondsTimeOut", TimeSpan.FromSeconds(120));

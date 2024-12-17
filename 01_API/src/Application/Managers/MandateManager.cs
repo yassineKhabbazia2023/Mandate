@@ -162,7 +162,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             {
                 string fileName = $@"uploaded-signed-mandate-{collection.Id}.pdf";
                 string fileContent = Convert.ToBase64String(fileBytes);
-                var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(collection, this.options.Value, fileContent, fileName, userEmail);
+                var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(collection, this.options.Value, fileContent, fileName);
                 await this.notificationsService.SendEmailAsync(emailCommand);
                 await this.databaseService.CreateStatusAsync(collection.Id, (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded);
                 return null;
@@ -199,7 +199,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         {
             var collection = await this.databaseService.GetCollectionById(collectionId);
 
-            var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collection, this.options.Value, userEmail);
+            var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collection, this.options.Value);
             await this.notificationsService.SendEmailAsync(emailCommand);
 
             return collection.Id != Guid.Empty;

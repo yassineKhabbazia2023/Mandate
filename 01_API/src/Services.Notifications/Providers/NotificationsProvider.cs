@@ -16,13 +16,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<NotificationsProvider> _logger;
-        private readonly IOptions<NotificationOptions> options;
+        private readonly IOptions<NotificationOptions> _options;
 
-        public NotificationsProvider(IHttpClientFactory httpClientFactory, ILogger<NotificationsProvider> logger, IOptions<NotificationOptions> _options)
+        public NotificationsProvider(IHttpClientFactory httpClientFactory, ILogger<NotificationsProvider> logger, IOptions<NotificationOptions> options)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;
-            _options = _options ?? throw new ArgumentNullException(nameof(_options));
+            _options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
         public async Task SendEmailAsync(EmailRequest emailRequest)
@@ -30,7 +30,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications
             if (emailRequest == null) { throw new ArgumentNullException(nameof(emailRequest)); }
 
             using var http = _httpClientFactory.CreateClient();
-            http.BaseAddress = new Uri(options.Value.BaseUrl);
+            http.BaseAddress = new Uri(_options.Value.BaseUrl);
             string body = JsonConvert.SerializeObject(emailRequest);
             _logger.LogInformation(body);
 

@@ -32,10 +32,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
                 MandateCancellationToEmail = "cancel_to@example.com",
                 MandateCancellationCcEmails = new List<string> { "cancel_cc1@example.com", "cancel_cc2@example.com" },
             };
-            var userEmail = "user@mail.com";
 
             // Act
-            var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collection, options, userEmail);
+            var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collection, options);
 
             // Assert
             emailCommand.Should().NotBeNull();
@@ -45,7 +44,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
             emailCommand.To.Should().Be("cancel_to@example.com");
             emailCommand.Cc.Should().BeEquivalentTo(options.MandateCancellationCcEmails);
             emailCommand.Attachements.Should().BeEmpty();
-            emailCommand.Variables.Should().ContainKey("body");
+            emailCommand.Variables.Should().ContainKeys("collaboratorEmail", "siretNumber", "accountHolder", "bankName", "bankCode", "accountNumber", "branchCode", "checkDigits", "companyName");
         }
 
         [Fact]
@@ -76,10 +75,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
             };
             string fileContent = "file content";
             string fileName = "file.pdf";
-            var userEmail = "user@mail.com";
 
             // Act
-            var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(collection, options, fileContent, fileName, userEmail);
+            var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(collection, options, fileContent, fileName);
 
             // Assert
             emailCommand.Should().NotBeNull();
@@ -90,7 +88,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
             emailCommand.Cc.Should().BeEquivalentTo(options.MandateUploadedCcEmails);
             emailCommand.Attachements.Should().HaveCount(1);
             emailCommand.Attachements[0].FileName.Should().Be(fileName);
-            emailCommand.Variables.Should().ContainKey("body");
+            emailCommand.Variables.Should().ContainKeys("collaboratorEmail", "siretNumber", "accountHolder", "bankName", "bankCode", "accountNumber", "branchCode", "checkDigits", "companyName");
         }
     }
 }

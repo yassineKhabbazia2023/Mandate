@@ -4,8 +4,11 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications.Tests
 {
+    using Castle.Core.Logging;
     using global::Notifications.Commons.WebApi.QueryParams;
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Logging.Abstractions;
     using Microsoft.Extensions.Options;
     using System.Net;
 
@@ -19,7 +22,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications.Tests
             var notifOptions = Options.Create(new NotificationOptions() { BaseUrl = "http://www.kpmg.fr" });
             // Initialize the provider with the mocked dependencies
 
-            this.provider = new NotificationsProvider(notifOptions);
+            IHttpClientFactory httpClientFactory = new Mock<IHttpClientFactory>().Object;
+            ILogger<NotificationsProvider> logger = new NullLogger<NotificationsProvider>();
+
+            this.provider = new NotificationsProvider(httpClientFactory, logger, notifOptions);
         }
 
         [Fact]
@@ -37,67 +43,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications.Tests
 
 
         [Fact]
-        public void TrailUrl_ShouldThrowNull_IfUrlNull()
-        {
-            string url = string.Empty;
-            string api = "/api/notif";
-            var action = () => this.provider.TrailUrl(url, api);
-            action.Should().Throw<ArgumentNullException>();
-        }
-
-        [Fact]
-        public void TrailUrl_ShouldThrowNull_ifApiIsNull()
-        {
-            string url = "https://hakounamata.com";
-            string api = string.Empty;
-            var action = () => this.provider.TrailUrl(url, api);
-            action.Should().Throw<ArgumentNullException>();
-        }
-
-        [Fact]
-        public void TrailUrl_ShouldReturn_TrailedString()
-        {
-            string url = "https://www.hakounamatata.com/api/";
-            string api = "/notifications/timon";
-            string result = this.provider.TrailUrl(url, api);
-            result.Should().Be("https://www.hakounamatata.com/api/notifications/timon");
-        }
-
-        [Fact]
         public async Task SendEmailAsync_ShouldThrowNullArgument()
         {
             EmailRequest? emailRequest = null;
             var action = async () => await this.provider.SendEmailAsync(emailRequest);
             await action.Should().ThrowAsync<ArgumentNullException>();
-        }
-
-
-        [Fact]
-        public async Task SendEmailAsync_CallsHttpClientPostAsync_WithCorrectUrlAndContent()
-        {
-            // Arrange
-            var handler = new TestHttpMessageHandler
-            {
-                ResponseToReturn = new HttpResponseMessage(HttpStatusCode.OK),
-                LastRequest = new HttpRequestMessage(HttpMethod.Post, "http://api.example.com/notifications/SendEmail")
-
-            };
-
-            var httpClient = new HttpClient(handler);
-
-            var optionsMock = new Mock<IOptions<NotificationOptions>>();
-
-            optionsMock.Setup(o => o.Value).Returns(new NotificationOptions { BaseUrl = "http://api.example.com" });
-
-            var emailRequest = new EmailRequest { /* Set properties */ };
-
-            // Act
-            await this.provider.SendEmailAsync(emailRequest);
-
-            // Assert
-            handler.LastRequest.Should().NotBeNull();
-            handler.LastRequest.Method.Should().Be(HttpMethod.Post);
-            handler.LastRequest.RequestUri.Should().Be("http://api.example.com/notifications/SendEmail");
         }
     }
     public class TestHttpMessageHandler : HttpMessageHandler

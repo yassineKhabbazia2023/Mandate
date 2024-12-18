@@ -4,43 +4,34 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
-    public class EmailData
+    public class EmailData : Dictionary<string, string>
     {
-        public EmailData(SignatoryDetails signatoryDetails, Bban bban, string? ibs, string? companyName, string userEmail)
+        private EmailData(Collection collection)
         {
-            this.CollaboratorEmail = signatoryDetails?.CollaboratorEmail;
-            this.SignatoryName = signatoryDetails?.SignatoryName;
-            this.SiretNumber = signatoryDetails?.SiretNumber;
-            this.BankName = bban?.Bank?.Name;
-            this.BankCode = bban?.BankCode;
-            this.BranchCode = bban?.BranchCode;
-            this.AccountNumber = bban?.AccountNumber;
-            this.CheckDigits = bban?.CheckDigits;
-            this.Ibs = ibs;
-            this.CompanyName = companyName;
-            this.UserEmail = userEmail;
+            AccountNumber = collection.GetAccountNumber();
+            BranchCode = collection.GetBranchCode();
+            CheckDigits = collection.GetCheckDigits();
+            CompanyName = collection.GetCompanyName();
+            this["collaboratorEmail"] = collection.GetSignatoryEmail();
+            this["siretNumber"] = collection.GetSiretNumber();
+            this["accountHolder"] = collection.GetSignatoryFullName();
+            this["bankName"] = collection.GetBankName();
+            this["bankCode"] = collection.GetBankCode();
+            this["accountNumber"] = AccountNumber;
+            this["branchCode"] = BranchCode;
+            this["checkDigits"] = CheckDigits;
+            this["companyName"] = CompanyName;
         }
 
-        public string? CollaboratorEmail { get; }
+        public string BranchCode { get; }
 
-        public string? SignatoryName { get; }
+        public string AccountNumber { get; }
 
-        public string? SiretNumber { get; }
+        public string CheckDigits { get; }
 
-        public string? BankName { get; }
+        public string CompanyName { get; }
 
-        public string? BankCode { get; }
-
-        public string? BranchCode { get; }
-
-        public string? AccountNumber { get; }
-
-        public string? CheckDigits { get; }
-
-        public string? Ibs { get; set; }
-
-        public string? CompanyName { get; }
-
-        public string UserEmail { get; set; }
+        public static EmailData FromCollection(Collection collection) =>
+            new(collection);
     }
 }

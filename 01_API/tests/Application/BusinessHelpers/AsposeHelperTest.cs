@@ -13,7 +13,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
         [Fact]
         public async Task GeneratePdfFromTemplateAsync_Exception()
         {
-            var asposeHelper = new AsposeHelper((new NullLoggerFactory() as ILoggerFactory).CreateLogger<AsposeHelper>(), null!);
+            var asposeHelper = new AsposeHelper(null!);
 
             var collectionSource = new Collection(
                 Guid.Empty,
@@ -43,7 +43,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
                 .ReturnsAsync(pdfTemplate)
                 .Verifiable();
 
-            var asposeHelper = new AsposeHelper((new NullLoggerFactory() as ILoggerFactory).CreateLogger<AsposeHelper>(), databaseService.Object);
+            var asposeHelper = new AsposeHelper(databaseService.Object);
 
             var collectionSource = new Collection(
                 Guid.Empty,

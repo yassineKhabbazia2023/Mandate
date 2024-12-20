@@ -4,19 +4,17 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
-    using System.Text;
-    using Aspose.Pdf.Facades;
     using Aspose.Pdf.Text;
     using Microsoft.Extensions.Logging;
 
+    public record Replacement(string WildCard, string ValueToWrite);
+
     public class AsposeHelper : IAsposeHelper
     {
-        private readonly ILogger<AsposeHelper> logger;
         private readonly IDatabaseService databaseService;
 
-        public AsposeHelper(ILogger<AsposeHelper> logger, IDatabaseService databaseService)
+        public AsposeHelper(IDatabaseService databaseService)
         {
-            this.logger = logger;
             this.databaseService = databaseService;
             new Aspose.Pdf.License().SetLicense("Aspose.Total.lic");
         }
@@ -29,65 +27,45 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             }
 
             var bankCode = source.Bban.BankCode;
-            var template = await this.databaseService.GetPdfTemplateByBankCodeAsync(bankCode).ConfigureAwait(false);
-            using var ms = new MemoryStream(template);
+            var template = await this.databaseService.GetPdfTemplateByBankCodeAsync(bankCode);
+            await using var ms = new MemoryStream(template);
             using var pdfDocument = new Aspose.Pdf.Document(ms);
 
-            ReplaceInDocument(pdfDocument, "{bankCode}", source.Bban.BankCode);
-            ReplaceInDocument(pdfDocument, "{branchCode}", source.Bban.BranchCode);
-            ReplaceInDocument(pdfDocument, "{accountNumber}", source.Bban.AccountNumber);
-            ReplaceInDocument(pdfDocument, "{checkDigits}", source.Bban.CheckDigits);
-            if (source.Bban.Bank != null)
-            {
-                ReplaceInDocument(pdfDocument, "{bankName}", source.Bban.Bank.Name ?? string.Empty);
-            }
+            var replacements = new[] {
+                new Replacement("{bankCode}", source.Bban.BankCode),
+                new Replacement("{branchCode}", source.Bban.BranchCode),
+                new Replacement("{accountNumber}", source.Bban.AccountNumber),
+                new Replacement("{checkDigits}", source.Bban.CheckDigits),
+                new Replacement("{bankName}", source.Bban.Bank?.Name ?? string.Empty),
+                new Replacement("{companyName}", source.Company?.Name ?? string.Empty),
+                new Replacement("{siren}", source.Company?.SiretNumber ?? string.Empty),
+                new Replacement("{companyAddressStreet}", source.Company?.Address?.Street ?? string.Empty),
+                new Replacement("{companyAddressZipCode}", source.Company?.Address?.ZipCode ?? string.Empty),
+                new Replacement("{companyAddressCountry}", source.Company?.Address ?.Country ?? string.Empty),
+                new Replacement("{companyAddressComplements}", source.Company?.Address?.Complements ?? string.Empty),
+                new Replacement("{signatory}", source.Company?.Signatory?.FullName ?? string.Empty),
+                new Replacement("{companyAddress}", source.Company?.Address?.FullAddress ?? string.Empty)
+            };
 
-            if (source.Company != null)
-            {
-                ReplaceInDocument(pdfDocument, "{companyName}", source.Company.Name ?? string.Empty);
-                ReplaceInDocument(pdfDocument, "{siren}", source.Company.SiretNumber ?? string.Empty);
-                if (source.Company.Signatory != null)
-                {
-                    var sbSignatory = new StringBuilder();
-                    sbSignatory.Append(source.Company.Signatory.Title ?? string.Empty).Append(' ');
-                    sbSignatory.Append(source.Company.Signatory.FirstName ?? string.Empty).Append(' ');
-                    sbSignatory.Append(source.Company.Signatory.LastName ?? string.Empty);
-                    ReplaceInDocument(pdfDocument, "{signatory}", sbSignatory.ToString());
-                }
-
-                if (source.Company.Address != null)
-                {
-                    var sbAddress = new StringBuilder();
-                    sbAddress.Append(source.Company.Address.Street ?? string.Empty);
-                    if (!string.IsNullOrWhiteSpace(source.Company.Address.Complements))
-                    {
-                        sbAddress.Append("  -  ").Append(source.Company.Address.Complements ?? string.Empty);
-                    }
-
-                    sbAddress.Append("  -  ");
-                    sbAddress.Append(source.Company.Address.ZipCode ?? string.Empty).Append(' ');
-                    sbAddress.Append(source.Company.Address.City ?? string.Empty).Append("  -  ");
-                    sbAddress.Append(source.Company.Address.Country ?? string.Empty);
-                    ReplaceInDocument(pdfDocument, "{companyAddress}", sbAddress.ToString());
-                }
-            }
-
-            using var msOut = new MemoryStream();
+            ReplaceInDocument(pdfDocument, replacements);
+            await using var msOut = new MemoryStream();
             pdfDocument.Save(msOut);
             return msOut.ToArray();
         }
 
-        private static void ReplaceInDocument(Aspose.Pdf.Document pdfDocument, string oldValue, string newValue)
+        private static void ReplaceInDocument(Aspose.Pdf.Document pdfDocument, Replacement[] replacements)
         {
             FontRepository.Sources.Add(new FolderFontSource(AppDomain.CurrentDomain.BaseDirectory));
-            var tfa = new TextFragmentAbsorber(oldValue);
-            pdfDocument.Pages.Accept(tfa);
-            var tfc = tfa.TextFragments;
 
-            foreach (TextFragment tf in tfc)
+            foreach (var (wildCard, valueToWrite) in replacements)
             {
-                tf.TextState.Font = FontRepository.FindFont("Arial");
-                tf.Text = tf.Text.Replace(oldValue, newValue);
+                var tfa = new TextFragmentAbsorber(wildCard);
+                pdfDocument.Pages.Accept(tfa);
+                foreach (TextFragment tf in tfa.TextFragments)
+                {
+                    tf.TextState.Font = FontRepository.FindFont("Arial");
+                    tf.Text = tf.Text.Replace(wildCard, valueToWrite);
+                }
             }
         }
     }

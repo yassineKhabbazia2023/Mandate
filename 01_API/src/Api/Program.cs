@@ -93,13 +93,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            app.UseSwaggerUI(c =>
+            var enableSwagger = builder.Configuration.GetValue<bool>("EnableSwagger");
+            if (enableSwagger)
             {
-                c.SwaggerEndpoint("api.json", "KPMG Pulse Mandate API");
-                c.DocumentTitle = "KPMG Pulse Mandate API";
-                c.RoutePrefix = "api";
-                c.EnableTryItOutByDefault();
-            });
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("api.json", "KPMG Pulse Mandate API");
+                    c.DocumentTitle = "KPMG Pulse Mandate API";
+                    c.RoutePrefix = "api";
+                    c.EnableTryItOutByDefault();
+                });
+            }
 
             app.UseHttpsRedirection();
 

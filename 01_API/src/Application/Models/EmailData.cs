@@ -6,13 +6,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
     public class EmailData : Dictionary<string, string>
     {
-        private EmailData(Collection collection)
+        private EmailData(string userEmail, Collection collection)
         {
             AccountNumber = collection.GetAccountNumber();
             BranchCode = collection.GetBranchCode();
             CheckDigits = collection.GetCheckDigits();
             CompanyName = collection.GetCompanyName();
-            this["collaboratorEmail"] = collection.GetSignatoryEmail();
+            this["collaboratorEmail"] = userEmail;
             this["siretNumber"] = collection.GetSiretNumber();
             this["accountHolder"] = collection.GetSignatoryFullName();
             this["bankName"] = collection.GetBankName();
@@ -31,7 +31,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
         public string CompanyName { get; }
 
-        public static EmailData FromCollection(Collection collection) =>
-            new(collection);
+        public static EmailData FromCollection(string userEmail, Collection collection) =>
+            new(userEmail, collection);
     }
 }

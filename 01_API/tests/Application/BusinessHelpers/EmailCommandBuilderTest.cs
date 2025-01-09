@@ -2,6 +2,8 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using System.ComponentModel.DataAnnotations;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
 {
     public class EmailCommandBuilderTest
@@ -10,6 +12,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
         public void CreateMandateCancellationEmail_ShouldReturnCorrectEmailCommand()
         {
             // Arrange
+            var userEmail = "toto@toto.com";
             var collectionId = new PredictableGuid().NewGuid();
             var companyId = 1;
 
@@ -34,7 +37,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
             };
 
             // Act
-            var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collection, options);
+            var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(userEmail, collection, options);
 
             // Assert
             emailCommand.Should().NotBeNull();
@@ -53,6 +56,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
             // Arrange
             var collectionId = new PredictableGuid().NewGuid();
             var companyId = 1;
+            var userEmail = "toto@toto.com";
 
             var company = TestHelper.GetCompany(companyId, "bankServicesProviderId");
             Bban bban = TestHelper.GetBban("ebicsCardId", false);
@@ -77,7 +81,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
             string fileName = "file.pdf";
 
             // Act
-            var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(collection, options, fileContent, fileName);
+            var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(userEmail, collection, options, fileContent, fileName);
 
             // Assert
             emailCommand.Should().NotBeNull();

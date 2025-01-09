@@ -6,15 +6,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
     public static class EmailCommandBuilder
     {
-        public static EmailCommand CreateMandateCancellationEmail(Collection collection, MandateEmailOptions options)
+        public static EmailCommand CreateMandateCancellationEmail(string userEmail, Collection collection, MandateEmailOptions options)
         {
-            var emailData = EmailData.FromCollection(collection);
+            var emailData = EmailData.FromCollection(userEmail, collection);
             return GenerateEmailCommand(emailData, options.MandateCancellationSubject, options, new List<AttachmentFileCommand>(), EmailType.MandateCancellation);
         }
 
-        public static EmailCommand CreateSignedMandateUploadedEmail(Collection collection, MandateEmailOptions options, string fileContent, string fileName)
+        public static EmailCommand CreateSignedMandateUploadedEmail(string userEmail, Collection collection, MandateEmailOptions options, string fileContent, string fileName)
         {
-            var emailData = EmailData.FromCollection(collection);
+            var emailData = EmailData.FromCollection(userEmail, collection);
             List<AttachmentFileCommand> attachments =
             [
                 new(fileName, fileContent)

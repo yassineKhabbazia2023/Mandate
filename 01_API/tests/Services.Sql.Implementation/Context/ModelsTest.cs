@@ -15,10 +15,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         {
         }
 
+        private DbContextOptions<MandateContext> CreateContextOptions()
+        {
+            return new DbContextOptionsBuilder<MandateContext>()
+                .UseSqlServer(_sqlServerFixture.ConnectionString)
+                .Options;
+        }
+
         [Fact]
         public async Task Empty_Success()
         {
-            using var context = new MandateContext(_options);
+            var options = CreateContextOptions();
+            using var context = new MandateContext(options);
+
             await context.Database.ExecuteSqlRawAsync("SELECT 1", CancellationToken.None);
             Assert.True(true);
         }
@@ -26,7 +35,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task ModelToSql_Success()
         {
-            using var context = new MandateContext(_options);
+            var options = CreateContextOptions();
+            using var context = new MandateContext(options);
+
             var refBankDb = EntityDbFactory.RefBankDb;
 
             await context.RefBank.AddAsync(refBankDb);
@@ -40,7 +51,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task SqlToModel_Success()
         {
-            using var context = new MandateContext(_options);
+            var options = CreateContextOptions();
+            using var context = new MandateContext(options);
+
             var refBankDb = EntityDbFactory.RefBankDb;
 
             var (query, parameters) = EntityDbFactory.PrepareStatement(refBankDb);

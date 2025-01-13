@@ -89,31 +89,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             await this.mandateRepository.CreateOrUpdateFolderAsync(bankServicesProviderId, companyId);
         }
+      
+        public async Task<Status?> CreateStatusWithMessageAsync(Guid collectionId, int statusCode, string errorMessage)
+        {
+            return await InnerCreateStatusAsync(collectionId, statusCode, errorMessage);
+        }
 
         public async Task<Status?> CreateStatusAsync(Guid collectionId, int statusCode)
         {
-            var currentJdcStatusCode = await this.mandateRepository.GetCurrentJdcStatusCodeAsync(collectionId);
-
-            if (IsCurrentJdcSignedMandateUploadedAndNewJdcPending(currentJdcStatusCode!.StatusCode, statusCode))
-            {
-                return null;
-            }
-
-            // update current Status to false
-            await this.mandateRepository.UpdateCurrentStatusAsync(collectionId);
-
-            // select de la ref pour avoir
-            StatusDb statusDb = new Sql.StatusDb()
-            {
-                CollectionId = collectionId,
-                IsCurrent = true,
-                StatusCode = statusCode,
-                StatusDate = DateTime.UtcNow,
-                CreatedBy = string.Empty,
-            };
-
-            // Création d'un status relié a une collecte
-            return (await this.mandateRepository.CreateStatusAsync(collectionId, statusDb)).ToModel();
+            return await InnerCreateStatusAsync(collectionId, statusCode);
         }
 
         public async Task<bool> CheckJdcStatusCodeIsPendingAsync(Guid collectionId)
@@ -220,13 +204,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             }
         }
 
-        public async Task InsertFormIOCollectionAsync(Collection collection, int companyId)
-        {
-            var collectionDb = collection.ToCollectionDB(companyId);
-            await this.mandateRepository.CreateOrUpdateFolderAsync(collection?.Company?.BankServicesProviderId!, companyId);
-            await this.mandateRepository.InsertFormIOCollectionAsync(collectionDb);
-        }
-
         public async Task InsertMandateLogAsync(Collection collection, CustomException exception)
         {
             MandateLogDb mandateLog = collection.ToMandateLogDB(exception);
@@ -237,6 +214,33 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             var messageDb = mandateCreationLogMessage.ToMandateCreationLogMessageDB();
             await this.mandateRepository.SaveMandateCreationLogMessageAsync(messageDb);
+        }
+
+        private async Task<Status?> InnerCreateStatusAsync(Guid collectionId, int statusCode, string? errorMessage = null)
+        {
+            var currentJdcStatusCode = await this.mandateRepository.GetCurrentJdcStatusCodeAsync(collectionId);
+
+            if (IsCurrentJdcSignedMandateUploadedAndNewJdcPending(currentJdcStatusCode!.StatusCode, statusCode))
+            {
+                return null;
+            }
+
+            // update current Status to false
+            await this.mandateRepository.UpdateCurrentStatusAsync(collectionId);
+
+            // select de la ref pour avoir
+            StatusDb statusDb = new Sql.StatusDb()
+            {
+                CollectionId = collectionId,
+                IsCurrent = true,
+                StatusCode = statusCode,
+                StatusDate = DateTime.UtcNow,
+                CreatedBy = string.Empty,
+                ErrorMessage = errorMessage,
+            };
+
+            // Création d'un status relié a une collecte
+            return (await this.mandateRepository.CreateStatusAsync(collectionId, statusDb)).ToModel();
         }
 
         private static Address CreateAddressFromDb(PersonalDb? personal)

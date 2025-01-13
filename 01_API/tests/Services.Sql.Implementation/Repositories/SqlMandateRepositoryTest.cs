@@ -14,10 +14,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         {
         }
 
+        private DbContextOptions<MandateContext> CreateContextOptions()
+        {
+            return new DbContextOptionsBuilder<MandateContext>()
+                .UseSqlServer(this._sqlServerFixture.ConnectionString + ";MultipleActiveResultSets=True")
+                .Options;
+        }
+
+
         [Fact]
         public async Task SearchCollectionsAsync()
         {
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             // Fill database with referencial data
             var refBank1 = EntityDbFactory.RefBankDb;
@@ -40,7 +49,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             refStatusCode2.StatusNameFr = "Actif";
             refStatusCode3.StatusCode = 4;
             refStatusCode3.CollectionStatusCode = 2;
-            refStatusCode3.PulseCode = 40; 
+            refStatusCode3.PulseCode = 40;
             refStatusCode3.StatusNameFr = "Attente mandat signé";
             await context.RefStatusCode.AddAsync(refStatusCode1);
             await context.RefStatusCode.AddAsync(refStatusCode2);
@@ -129,7 +138,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.SaveChangesAsync();
 
             // Instanciate
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             // Tests
             // Sort ascending
@@ -592,8 +601,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         public async Task GetAllCompaniesByCollaboratorAsync()
         {
             // Arrange
-            using var context = new MandateContext(_options);
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             PredictableGuid generator = new PredictableGuid();
             int comapnyId1 = 1;
@@ -743,8 +753,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         {
             // Arrange
 
-            using var context = new MandateContext(_options);
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             PredictableGuid generator = new PredictableGuid();
             int comapnyId1 = 1;
@@ -889,8 +900,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task SearchCollectionsAsync_Should_Filter_By_Collaborator()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             var refBank1 = EntityDbFactory.RefBankDb;
             await context.RefBank.AddAsync(refBank1);
@@ -1005,7 +1016,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.SaveChangesAsync();
 
             // Instanciate
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             var query1 = new CollectionQuery()
             {
@@ -1035,8 +1046,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetCollectionById()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             // GetCollectionById
             var collectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111");
@@ -1113,7 +1124,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             var result = await sqlMandateRepository.GetCollectionById(collectionId);
 
@@ -1124,12 +1135,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetCollectionById_WhenCollectionNotFound_ShouldThrowException()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             // GetCollectionById
             var collectionId = Guid.Parse("a1111111-1111-1111-1111-111111111111");
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             Func<Task> act = async () => await sqlMandateRepository.GetCollectionById(collectionId);
             await act.Should().ThrowExactlyAsync<CollectionNotFoundException>()
@@ -1139,8 +1150,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task SaveSignatoryAsync_CaseNewEntity()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             var companyId = 1;
             var collectionId = Guid.Parse("b1111111-1111-1111-1111-111111111111");
@@ -1187,7 +1198,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Company.AddAsync(company1);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             var personal = new PersonalDb
             {
@@ -1223,13 +1234,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task FakeData()
         {
-
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             await sqlMandateRepository.CreateFakeRefAsync();
             await sqlMandateRepository.AddFakeDataAsync();
             await sqlMandateRepository.CreateFakeAuthAsync();
 
-            using var context = new MandateContext(_options);
             context.RefPdfTemplate.Count().Should().Be(1);
             context.RefBank.Count().Should().Be(10 + 194);
             context.RefBank.Count(b => b.JdcPartnership == JdcPartnership.NonPartner).Should().Be(1 + 4);
@@ -1294,7 +1305,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         {
             // Arrange
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             PredictableGuid generator = new PredictableGuid();
 
@@ -1360,7 +1372,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Collection.AddAsync(collectionDb);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             // Act
             var result = await sqlMandateRepository.GetCompanyByErpIdAsync(erpId, userEmail);
@@ -1378,9 +1390,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         {
             // Arrange
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             var nonExistingErpId = "nonExistingErpId";
             var userEmail = "user@email.test";
 
@@ -1393,8 +1406,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetCollaboratorByEmail()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             var collab = EntityDbFactory.CollaboratorDb;
             var collab2 = EntityDbFactory.CollaboratorDb;
@@ -1405,7 +1418,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Collaborator.AddAsync(collab2);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             var res = await sqlMandateRepository.GetCollaboratorByEmailAsync("collab@email.com");
 
             res.Id.Should().Be(104);
@@ -1417,8 +1430,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetCollaboratorByEmail_ShouldNotRetunWhenIsNotActive()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             var collab = EntityDbFactory.CollaboratorDb;
             collab.IsActive = false;
@@ -1430,7 +1443,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Collaborator.AddAsync(collab2);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             var res = await sqlMandateRepository.GetCollaboratorByEmailAsync("collab@email.com");
 
@@ -1440,8 +1453,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetActiveContactByIdAsync_ShouldNotRetunWhenIsNotActive()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             var collab = EntityDbFactory.CollaboratorDb;
             var collab2 = EntityDbFactory.CollaboratorDb;
@@ -1452,7 +1465,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Collaborator.AddAsync(collab2);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             var res = await sqlMandateRepository.GetActiveContactByIdAsync(105);
 
             res.Should().BeNull();
@@ -1461,8 +1474,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetContactByIdAsync_ShouldRetunWhenIsNotActive()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             var collab = EntityDbFactory.CollaboratorDb;
             var collab2 = EntityDbFactory.CollaboratorDb;
@@ -1473,7 +1486,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Collaborator.AddAsync(collab2);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             var res = await sqlMandateRepository.GetContactByIdAsync(105);
 
             res.Should().NotBeNull();
@@ -1484,7 +1497,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         {
             // Arrange
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             PredictableGuid generator = new PredictableGuid();
 
@@ -1550,7 +1564,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Collection.AddAsync(collectionDb);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             // Act
             var result = await sqlMandateRepository.GetCompanyByErpIdAsync(erpId, collaboratorId);
@@ -1568,9 +1582,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         {
             // Arrange
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             var nonExistingErpId = "nonExistingErpId";
 
             // Act & Assert
@@ -1584,7 +1599,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         {
             // Arrange
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             PredictableGuid generator = new PredictableGuid();
             int companyId = 1;  // Ensure this is the same ID used for the foreign key in CollectionDb
@@ -1640,7 +1656,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Collection.AddAsync(collectionDb);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             // Act & Assert
             Func<Task> act = async () => await sqlMandateRepository.GetCompanyByErpIdAsync(erpId, collaboratorId);
@@ -1653,7 +1669,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         {
             // Arrange
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             PredictableGuid generator = new PredictableGuid();
             int companyId = 1;
@@ -1721,7 +1738,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Collection.AddAsync(collectionDb);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             // Act & Assert
             Func<Task> act = async () => await sqlMandateRepository.GetCompanyByErpIdAsync(erpId, collaboratorId);
@@ -1734,8 +1751,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [InlineData(false)]
         public async Task GetCollaboratorByEmail_WhenNoCollab(bool persistCollab)
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             if (persistCollab)
             {
@@ -1744,7 +1761,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 await context.SaveChangesAsync();
             }
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             var res = await sqlMandateRepository.GetCollaboratorByEmailAsync("collaborator@email.com");
 
             res.Should().BeNull();
@@ -1753,14 +1770,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task CreateOrUpdateFolderAsync_Case_Create()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             var company1 = EntityDbFactory.CompanyDb;
             await context.Company.AddAsync(company1);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             await sqlMandateRepository.CreateOrUpdateFolderAsync("folderId2", 102);
 
@@ -1776,8 +1793,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task CreateOrUpdateFolderAsync_Case_Update()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             var company1 = EntityDbFactory.CompanyDb;
             await context.Company.AddAsync(company1);
@@ -1787,7 +1804,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.JeDeclareFolder.AddAsync(jdcFolder);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             await sqlMandateRepository.CreateOrUpdateFolderAsync("folderId", 102);
             var all = await context.JeDeclareFolder.ToListAsync();
@@ -1803,8 +1820,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetCompanyByErpIdSiretAsync_WhenErpIdSiretMatchOnes_ShouldReturnCompany()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
             CompanyDb company = EntityDbFactory.CompanyDb;
             CompanyDb company2 = EntityDbFactory.CompanyDb;
             company2.Id = 103;
@@ -1813,7 +1830,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.AddRangeAsync(new List<CompanyDb> { company, company2 });
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             var dbCompany = await sqlMandateRepository.GetCompanyByErpIdSiretAsync("1234567890", "12345678901234");
 
@@ -1824,8 +1841,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetCompanyByErpIdSiretAsync_WhenErpIdSiretMatchTwice_ShouldThrowException()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
             CompanyDb company = EntityDbFactory.CompanyDb;
             CompanyDb company2 = EntityDbFactory.CompanyDb;
             CompanyDb company3 = EntityDbFactory.CompanyDb;
@@ -1836,7 +1853,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.AddRangeAsync(new List<CompanyDb> { company, company2, company3 });
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             Func<Task> func = async () => await sqlMandateRepository.GetCompanyByErpIdSiretAsync("1234567890", "12345678901234");
             var exception = await func.Should().ThrowExactlyAsync<CustomCompanyNotFoundException>();
@@ -1846,8 +1863,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetCompanyByErpIdSiretAsync_WhenErpIdNoSiretMatch_ShouldThrowException()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
             CompanyDb company = EntityDbFactory.CompanyDb;
             CompanyDb company2 = EntityDbFactory.CompanyDb;
             CompanyDb company3 = EntityDbFactory.CompanyDb;
@@ -1858,7 +1875,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.AddRangeAsync(new List<CompanyDb> { company, company2, company3 });
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             Func<Task> func = async () => await sqlMandateRepository.GetCompanyByErpIdSiretAsync("1234567890", "12345678901230");
             var exception = await func.Should().ThrowExactlyAsync<CustomCompanyNotFoundException>();
@@ -1868,13 +1885,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetCompanyByErpIdSiretAsync_WhenNonExistingErpIdSiretMatch()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             await context.AddRangeAsync(GenerateCompanies());
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             var dbCompany = await sqlMandateRepository.GetCompanyByErpIdSiretAsync("1234567800", "12345678901220");
 
@@ -1885,13 +1902,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetCompanyByErpIdSiretAsync_WhenNonExistingErpIdNoSiretMatch_shouldThrowException()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             await context.AddRangeAsync(GenerateCompanies());
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             Func<Task> func = async () => await sqlMandateRepository.GetCompanyByErpIdSiretAsync("1234567800", "12345678901240");
             var exception = await func.Should().ThrowExactlyAsync<CustomCompanyNotFoundException>();
             exception.And.Type.Should().Be(ExceptionType.NoAccountNumberNoMatchSiret);
@@ -1900,13 +1917,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetCompanyByErpIdSiretAsync_WhenNonExistingErpIdSiretMatchMoreThenOnce_shouldThrowException()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             await context.AddRangeAsync(GenerateCompanies());
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             Func<Task> func = async () => await sqlMandateRepository.GetCompanyByErpIdSiretAsync("1234567800", "12345678901234");
             var exception = await func.Should().ThrowExactlyAsync<CustomCompanyNotFoundException>();
             exception.And.Type.Should().Be(ExceptionType.NoAccountNumberMatchDoubleSiret);
@@ -1915,13 +1932,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetCompanyByErpIdSiretAsync_ShouldThrowWhenNoCompanyFound()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             await context.AddRangeAsync(GenerateCompanies());
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             Func<Task> func = async () => await sqlMandateRepository.GetCompanyByErpIdSiretAsync("1234567800", "98765432101240");
 
@@ -1930,50 +1947,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         }
 
         [Fact]
-        public async Task InsertFormIOCollectionAsync()
-        {
-            // Arrange
-            var collection = EntityDbFactory.CollectionDb;
-            collection.Bank = EntityDbFactory.RefBankDb;
-            collection.Company = EntityDbFactory.CompanyDb;
-            collection.Company.JeDeclareFolder = EntityDbFactory.JeDeclareFolderDb;
-            collection.JeDeclareCollection = EntityDbFactory.JeDeclareCollectionDb;
-            collection.Personal = EntityDbFactory.PersonalDb;
-            collection.Statuses = EntityDbFactory.Statuses;
-
-
-            using var context = new MandateContext(_options);
-
-            var sqlMandateRepository = new SqlMandateRepository(_options);
-
-            // Act
-            await sqlMandateRepository.InsertFormIOCollectionAsync(collection);
-
-            // Assert
-            var dbCollection = await context.Collection
-                                            .Include(_ => _.Bank)
-                                            .Include(_ => _.Company)
-                                            .Include(_ => _.JeDeclareCollection)
-                                            .Include(_ => _.Personal)
-                                            .Include(_ => _.Statuses)
-                                            .FirstOrDefaultAsync(_ => _.Id == collection.Id);
-
-            dbCollection.Should().NotBeNull();
-            dbCollection!.Id.Should().Be(collection.Id);
-            dbCollection!.Bank!.BankCode.Should().Be(collection.Bank!.BankCode);
-            dbCollection!.Company!.Id.Should().Be(collection.Company!.Id);
-            dbCollection!.JeDeclareCollection!.Id.Should().Be(collection.JeDeclareCollection!.Id);
-            dbCollection!.Personal!.Id.Should().Be(collection.Personal!.Id);
-            dbCollection!.Statuses[0].Id!.Should().Be(collection.Statuses[0].Id);
-            dbCollection!.Statuses.Should().HaveCount(1);
-        }
-
-        [Fact]
         public async Task GetCompanyBySiretAsync_ShouldReturnCompany_WhenCompanyExists()
         {
             // Arrange
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             PredictableGuid generator = new PredictableGuid();
             int companyId = 1;  // Ensure this is the same ID used for the foreign key in CollectionDb
@@ -2026,7 +2005,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Collection.AddAsync(collectionDb);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             // Act
             var result = await sqlMandateRepository.GetCompanyBySiretAsync(siretNumber);
@@ -2043,8 +2022,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         public async Task GetCompanyBySiretAsync_ShouldNotReturnCompany_WhenCompanyExistsAndIsNotActive()
         {
             // Arrange
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             PredictableGuid generator = new PredictableGuid();
             int companyId = 1;  // Ensure this is the same ID used for the foreign key in CollectionDb
@@ -2097,7 +2076,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Collection.AddAsync(collectionDb);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             // Act
             Func<Task> act = async () => await sqlMandateRepository.GetCompanyBySiretAsync(siretNumber);
@@ -2111,7 +2090,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         {
             // Arrange
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             PredictableGuid generator = new PredictableGuid();
             int companyId = 1;  // Ensure this is the same ID used for the foreign key in CollectionDb
@@ -2164,7 +2144,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Collection.AddAsync(collectionDb);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             // Act
             Func<Task> act = async () => await sqlMandateRepository.GetCompanyByErpIdSiretAsync(erpId, siretNumber);
@@ -2178,7 +2158,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         {
             // Arrange
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             PredictableGuid generator = new PredictableGuid();
             int companyId = 1;
@@ -2246,7 +2227,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Collection.AddAsync(collectionDb);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             // Act & Assert
             Func<Task> act = async () => await sqlMandateRepository.GetCompanyByErpIdAsync(erpId, userEmail);
@@ -2259,7 +2240,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         {
             // Arrange
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             PredictableGuid generator = new PredictableGuid();
             int companyId = 1;  // Ensure this is the same ID used for the foreign key in CollectionDb
@@ -2315,7 +2297,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Collection.AddAsync(collectionDb);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             // Act & Assert
             Func<Task> act = async () => await sqlMandateRepository.GetCompanyByErpIdAsync(erpId, userEmail);
@@ -2328,7 +2310,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         {
             // Arrange
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             PredictableGuid generator = new PredictableGuid();
             int companyId = 1;  // Ensure this is the same ID used for the foreign key in CollectionDb
@@ -2384,7 +2367,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Collection.AddAsync(collectionDb);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             // Act & Assert
             Func<Task> act = async () => await sqlMandateRepository.GetCompanyByErpIdAsync(erpId, userEmail);
@@ -2397,7 +2380,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         {
             // Arrange
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             PredictableGuid generator = new PredictableGuid();
             int companyId = 1;  // Ensure this is the same ID used for the foreign key in CollectionDb
@@ -2450,7 +2434,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Collection.AddAsync(collectionDb);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             // Act
             var result = await sqlMandateRepository.GetAccountByIdAsync(companyId);
@@ -2464,7 +2448,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         {
             // Arrange
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             PredictableGuid generator = new PredictableGuid();
             int companyId = 1;  // Ensure this is the same ID used for the foreign key in CollectionDb
@@ -2517,7 +2502,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Collection.AddAsync(collectionDb);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             // Act
             var result = await sqlMandateRepository.GetActiveAccountByIdAsync(companyId);
@@ -2531,9 +2516,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         {
             // Arrange
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             // Act
             Func<Task> act = async () => await sqlMandateRepository.GetCompanyBySiretAsync("12345");
@@ -2545,8 +2531,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetPdfTemplateByCodeAsync()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             var bank = EntityDbFactory.RefBankDb;
             await context.RefBank.AddAsync(bank);
@@ -2556,7 +2542,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.RefPdfTemplate.AddAsync(template);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             var res = await sqlMandateRepository.GetPdfTemplateByCodeAsync("12345");
             res.Should().BeEquivalentTo(Convert.FromBase64String("dGVzdA=="));
@@ -2565,8 +2551,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetPdfTemplateByCodeAsync_WhenBankNotFound_ShouldThrowException()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             var bank = EntityDbFactory.RefBankDb;
             await context.RefBank.AddAsync(bank);
@@ -2576,7 +2562,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.RefPdfTemplate.AddAsync(template);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             Func<Task> act = async () => await sqlMandateRepository.GetPdfTemplateByCodeAsync("67890");
             await act.Should().ThrowExactlyAsync<BankCodeNotFoundException>()
@@ -2586,9 +2572,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task UpdateCurrentStatusAsync_WhenStatusNotFound_ShouldThrowException()
         {
-
-            using var context = new MandateContext(_options);
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             Func<Task> act = async () => await sqlMandateRepository.UpdateCurrentStatusAsync(Guid.Parse("a1111111-1111-1111-1111-111111111111"));
             await act.Should().ThrowExactlyAsync<StatusNotFoundException>()
@@ -2598,9 +2584,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetRefBankByCodeAsync_WhenBankNotFound_ShouldThrowException()
         {
-
-            using var context = new MandateContext(_options);
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             Func<Task> act = async () => await sqlMandateRepository.GetRefBankByCodeAsync("11111");
             await act.Should().ThrowExactlyAsync<BankCodeNotFoundException>()
@@ -2610,8 +2596,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetRefStatusCodeByJdcCodeAsync_CaseOk()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             var refStatusCode = EntityDbFactory.RefStatusCodeDb;
             await context.RefStatusCode.AddAsync(refStatusCode);
@@ -2633,7 +2619,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Status.AddAsync(status);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             var statusResult = await sqlMandateRepository.GetRefStatusCodeByJdcCodeAsync("99");
 
@@ -2644,8 +2630,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
         [Fact]
         public async Task GetRefStatusCodeByJdcCodeAsync_ThrowStatusNotFound_CaseStatusCodeNotFound()
         {
-
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             var refStatusCode = EntityDbFactory.RefStatusCodeDb;
             await context.RefStatusCode.AddAsync(refStatusCode);
@@ -2667,7 +2653,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             await context.Status.AddAsync(status);
             await context.SaveChangesAsync();
 
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
 
             Func<Task> act = async () => await sqlMandateRepository.GetRefStatusCodeByJdcCodeAsync("-11");
 
@@ -2695,10 +2681,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             // Arrange
             var validEvent = EntityDbFactory.CollaboratorDb;
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             // Act
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             await sqlMandateRepository.CreateContactByEventAsync(validEvent);
 
             // Assert
@@ -2712,10 +2699,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             // Arrange
             CollaboratorDb nullContact = null!;
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             // Act
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             Func<Task> act = async () => await sqlMandateRepository.CreateContactByEventAsync(nullContact);
 
             // Assert
@@ -2728,7 +2716,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             // Arrange
             var validEvent = EntityDbFactory.CollaboratorDb;
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             // Add with IsActive at true
             await context.Collaborator.AddAsync(validEvent);
@@ -2736,7 +2725,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             // Act
             validEvent.IsActive = false;
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             await sqlMandateRepository.UpdateContactByEventAsync(validEvent);
 
             // Assert
@@ -2750,10 +2739,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             // Arrange
             CollaboratorDb nullContact = null!;
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             // Act
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             Func<Task> act = async () => await sqlMandateRepository.UpdateContactByEventAsync(nullContact);
 
             // Assert
@@ -2766,10 +2756,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             // Arrange
             var validEvent = EntityDbFactory.CompanyDb;
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             // Act
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             await sqlMandateRepository.CreateCompanyAsync(validEvent);
 
             // Assert
@@ -2783,7 +2774,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             // Arrange
             var validEvent = EntityDbFactory.CompanyDb;
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             // Add with IsActive at true
             await context.Company.AddAsync(validEvent);
@@ -2791,7 +2783,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
 
             // Act
             validEvent.IsActive = false;
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             await sqlMandateRepository.UpdateCompanyAsync(validEvent);
 
             // Assert
@@ -2806,7 +2798,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var validEvent = EntityDbFactory.CompanyDb;
             var validContact = EntityDbFactory.CollaboratorDb;
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             await context.Company.AddAsync(validEvent);
             await context.Collaborator.AddAsync(validContact);
@@ -2819,7 +2812,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             };
 
             // Act
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             await sqlMandateRepository.CreateRoleAsync(cc);
 
             // Assert
@@ -2835,7 +2828,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var validEvent = EntityDbFactory.CompanyDb;
             var validContact = EntityDbFactory.CollaboratorDb;
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             await context.Company.AddAsync(validEvent);
             await context.Collaborator.AddAsync(validContact);
@@ -2843,7 +2837,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             CompanyCollaboratorDb cc = null!;
 
             // Act
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             Func<Task> act = async () => await sqlMandateRepository.CreateRoleAsync(cc);
 
             // Assert
@@ -2857,7 +2851,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
             var validEvent = EntityDbFactory.CompanyDb;
             var validContact = EntityDbFactory.CollaboratorDb;
 
-            using var context = new MandateContext(_options);
+            var options = this.CreateContextOptions();
+            using var context = new MandateContext(options);
 
             await context.Company.AddAsync(validEvent);
             await context.Collaborator.AddAsync(validContact);
@@ -2868,7 +2863,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests
                 CollaboratorId = validContact.Id,
                 CompanyId = validEvent.Id,
             };
-            var sqlMandateRepository = new SqlMandateRepository(_options);
+            var sqlMandateRepository = new SqlMandateRepository(context);
             await sqlMandateRepository.CreateRoleAsync(cc);
 
             // Act

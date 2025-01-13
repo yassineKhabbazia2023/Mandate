@@ -4,12 +4,10 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
-    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
     [ApiController]
     [Route("api/fake")]
-    [Authorize]
     public class FakeDataController : ControllerBase
     {
         private readonly ILogger<FakeDataController> logger;

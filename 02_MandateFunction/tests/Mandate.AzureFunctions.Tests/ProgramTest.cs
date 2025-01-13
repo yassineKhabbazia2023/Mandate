@@ -52,15 +52,7 @@ public class ProgramTest
                 services.AddApplicationInsightsTelemetryWorkerService();
                 services.ConfigureFunctionsApplicationInsights();
                 services.AddConstellationHttpClient();
-                services.AddSystemAccountAuthenticationProvider<IConfiguration>((settings, configuration) =>
-                {
-                    settings.Audience = configuration["AuthAudience"];
-                    settings.ClientId = configuration["AuthClientId"];
-                    settings.ClientSecret = configuration["AuthClientSecret"];
-                    settings.Tenant = configuration["AuthTenant"];
-                });
 
-                services.AddSingleton<IPreloadManager, PreloadManager>();
                 services.AddSingleton<IMandateProvider, MandateProvider>();
                 services.AddSingleton<IMandateFunctionManager, MandateFunctionManager>();
 

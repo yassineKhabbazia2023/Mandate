@@ -66,7 +66,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             Company company = new Company(101, "mega", "45207964300014", "1999156874", string.Empty, null, null);
             Bank? bank = new Bank("12345", "biap", "biap group", string.Empty, new BankAgreement(JdcPartnership.NonPartner));
             Bban bban = new Bban("12345", "56789", "12345678901", "88", "6789", bank);
-            Status status = new Status(CollectionStatus.ToDo, "todo", Mandate.JdcCollectionStatus.Creation_InProgress);
+            Status status = new Status(CollectionStatus.ToDo, "An example of Jdctatus Description", Mandate.JdcCollectionStatus.Creation_InProgress);
 
             Collection collection = new Collection(
                 id,
@@ -84,6 +84,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 accountNumber: "12345678901",
                 jdcPartnership: 2);
 
+            var statusSummary = new Client.StatusInfo(
+                statusCode: (int)CollectionStatus.ToDo,
+                jdcStatusDescription: "An example of Jdctatus Description",
+                jdcStatusCode: (int)Mandate.JdcCollectionStatus.Creation_InProgress);
+
             var expected = new Client.CollectionSummary(
                 id: id,
                 erpId: "1999156874",
@@ -91,8 +96,51 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 collectionBankInfo: collectionBankInfo,
                 creationDate: new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 modificationDate: new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                statusCode: (int)CollectionStatus.ToDo,
+                statusInfo: statusSummary,
+                ["CAN_DOWNLOAD_PREFILLED_MANDATE", "CAN_UPLOAD_SIGNED_MANDATE"]);
+
+            model.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void ToCollectionSummaryForActiveStatus()
+        {
+            Guid id = Guid.NewGuid();
+            Company company = new Company(101, "mega", "45207964300014", "1999156874", string.Empty, null, null);
+            Bank? bank = new Bank("12345", "biap", "biap group", string.Empty, new BankAgreement(JdcPartnership.NonPartner));
+            Bban bban = new Bban("12345", "56789", "12345678901", "88", "6789", bank);
+            Status status = new Status(CollectionStatus.Active, "An example of Jdctatus Description", Mandate.JdcCollectionStatus.Creation_InProgress);
+
+            Collection collection = new Collection(
+                id,
+                "12346",
+                company,
+                bban,
+                new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                status);
+
+            var model = collection.ToCollectionSummary();
+
+            var collectionBankInfo = new Client.CollectionBankInfo(
+                bankName: "biap",
+                accountNumber: "12345678901",
+                jdcPartnership: 2);
+
+            var statusSummary = new Client.StatusInfo(
+                statusCode: (int)CollectionStatus.Active,
+                jdcStatusDescription: "An example of Jdctatus Description",
                 jdcStatusCode: (int)Mandate.JdcCollectionStatus.Creation_InProgress);
+
+            var expected = new Client.CollectionSummary(
+                id: id,
+                erpId: "1999156874",
+                companyName: "mega",
+                collectionBankInfo: collectionBankInfo,
+                creationDate: new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
+                modificationDate: new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
+                statusInfo: statusSummary,
+                ["CAN_DOWNLOAD_PREFILLED_MANDATE", "CAN_UPLOAD_SIGNED_MANDATE", "CAN_DOWNLOAD_SIGNED_MANDATE", "CAN_TERMINATE_TELECOLLECT"]);
 
             model.Should().BeEquivalentTo(expected);
         }

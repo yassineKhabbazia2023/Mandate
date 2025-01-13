@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
@@ -11,16 +11,15 @@
 
 	<ItemGroup>
 	  <PackageReference Include="Pulse.Back.Notifications.Commons" Version="1.0.0.4" />
+	  <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
+	  <PackageReference Include="System.Text.Json" Version="9.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Client\Mandate.Client.csproj" />
 		<ProjectReference Include="..\Entities\Mandate.csproj" />
-		<ProjectReference Include="..\Services.Formio.Client\Mandate.Formio.Client.csproj" />
 		<ProjectReference Include="..\Services.JeDeclare.Client\Mandate.JeDeclare.Client.csproj" />
-		<ProjectReference Include="..\Services.Mongo\Mandate.Mongo.csproj" />
 		<ProjectReference Include="..\Services.Notifications\Mandate.Notifications.csproj" />
-		<ProjectReference Include="..\Services.Portal\Mandate.Portal.csproj" />
 		<ProjectReference Include="..\Services.Sql\Mandate.Sql.csproj" />
 	</ItemGroup>
 

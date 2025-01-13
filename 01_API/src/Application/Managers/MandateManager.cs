@@ -162,7 +162,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             {
                 string fileName = $@"uploaded-signed-mandate-{collection.Id}.pdf";
                 string fileContent = Convert.ToBase64String(fileBytes);
-                var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(collection, this.options.Value, fileContent, fileName, userEmail);
+                var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(userEmail, collection, this.options.Value, fileContent, fileName);
                 await this.notificationsService.SendEmailAsync(emailCommand);
                 await this.databaseService.CreateStatusAsync(collection.Id, (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded);
                 return null;
@@ -199,44 +199,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         {
             var collection = await this.databaseService.GetCollectionById(collectionId);
 
-            var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collection, this.options.Value, userEmail);
+            var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(userEmail, collection, this.options.Value);
             await this.notificationsService.SendEmailAsync(emailCommand);
 
             return collection.Id != Guid.Empty;
         }
-
-        public async Task InsertFormIOCollectionAsync(Collection collection)
-        {
-            try
-            {
-                Bank bank = await this.databaseService.GetBankByCodeAsync(collection.Bban?.BankCode!);
-                collection.Bban?.SetBank(bank);
-
-                var company = await this.databaseService.GetCompanyByErpIdSiretAsync(
-                        collection.Company?.ErpId!,
-                        collection.Company?.SiretNumber!);
-
-                if (await this.databaseService.CheckCollecteConfigExistAsync(collection.Bban!))
-                {
-                    throw new ApplicationException($"Il existe une configuration de collecte pour ce RIB {StringExtensions.Concat(collection.Bban!.BankCode, collection.Bban!.BranchCode, collection.Bban!.AccountNumber, collection.Bban!.CheckDigits)}.");
-                }
-                else
-                {
-                    await this.databaseService.InsertFormIOCollectionAsync(collection, company.Id);
-                }
-            }
-            catch (CustomBankCodeNotFoundException e)
-            {
-                await this.databaseService.InsertMandateLogAsync(collection, e);
-                return;
-            }
-            catch (CustomCompanyNotFoundException e)
-            {
-                await this.databaseService.InsertMandateLogAsync(collection, e);
-                return;
-            }
-        }
-
+        
         public async Task<CollectionStatus?> GetMandateStatusAsync(Guid collectionId)
         {
             var collection = await this.databaseService.GetCollectionById(collectionId);

@@ -5,21 +5,16 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 {
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Options;
 
     public class MandateContext : DbContext
     {
-        private readonly IOptions<SqlMandateRepositoryOptions> options;
 
-        public MandateContext(IOptions<SqlMandateRepositoryOptions> options)
+        public MandateContext(DbContextOptions<MandateContext> options) : base(options)
         {
             if (options is null)
             {
                 throw new ArgumentNullException(nameof(options));
             }
-
-            options.Value.Validate();
-            this.options = options;
         }
 
         public DbSet<CollaboratorDb> Collaborator { get; set; } = null!;
@@ -156,6 +151,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<StatusDb>().Property(cp => cp.StatusDate).IsRequired(false);
             modelBuilder.Entity<StatusDb>().Property(cp => cp.MandateFile).IsRequired(false);
             modelBuilder.Entity<StatusDb>().Property(cp => cp.CreatedBy).HasMaxLength(100).IsUnicode(true).IsRequired(false);
+            modelBuilder.Entity<StatusDb>().Property(cp => cp.ErrorMessage).HasColumnType("NVARCHAR(MAX)").IsRequired(false);
 
             modelBuilder.Entity<MandateLogDb>().HasKey(c => c.Id);
             modelBuilder.Entity<MandateLogDb>().Property(c => c.ErpId).HasMaxLength(50).IsRequired(true);
@@ -181,10 +177,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            base.OnConfiguring(optionsBuilder);
-            optionsBuilder.LogTo(Console.WriteLine);
-            optionsBuilder.EnableSensitiveDataLogging();
-            optionsBuilder.UseSqlServer(this.options.Value.ConnectionString, sqlOptions => { sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(30), null); });
+            if (!optionsBuilder.IsConfigured)
+            {
+                base.OnConfiguring(optionsBuilder);
+#if DEBUG
+                optionsBuilder.LogTo(Console.WriteLine);
+#endif
+            }
         }
     }
 }

@@ -1,35 +1,22 @@
-﻿// <copyright file="Program.cs" company="KPMG">
+// <copyright file="Program.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
 using System.Diagnostics.CodeAnalysis;
-using Azure.Extensions.AspNetCore.Configuration.Secrets;
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
-using Kpmg.AspNetCore.Authentication.ConstellationIdentityService;
 using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
 using KPMG.Pulse.Back.Accounting.Mandate.Application;
-using KPMG.Pulse.Back.Accounting.Mandate.Formio.Client.Http;
 using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
 using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
-using KPMG.Pulse.Back.Accounting.Mandate.Portal;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
 using Mandate.Messaging;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Data.SqlClient;
-using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
     [ExcludeFromCodeCoverage]
     public static class Program
     {
-        private static ClientCredential? clientCredential;
-
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -67,34 +54,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 throw new InvalidOperationException($"Database connection string is not definied (Missing setting: DbConnectionString)");
             }
 
-            builder.Services
-                .AddAuthentication()
-                .AddConstellationIdentityService(
-                new ConstellationIdentityServiceAuthenticationOptions
-                {
-                    ServerAddress = new Uri(builder.Configuration["identityserviceApiUrl"]!),
-                    AzureActiveDirectoryClientCredentials =
-                    {
-                        ClientId = builder.Configuration["AuthClientId"],
-                        ClientSecret = builder.Configuration["AuthClientSecret"],
-                        Scope = builder.Configuration["AuthAudience"],
-                        Tenant = builder.Configuration["AuthTenant"],
-                    },
-                },
-                out string[] schemeNames);
-            builder.Services
-                .AddAuthorization(options =>
-                {
-                    options.DefaultPolicy = new AuthorizationPolicyBuilder()
-                        .RequireAuthenticatedUser()
-                        .AddAuthenticationSchemes(schemeNames)
-                        .Build();
-                });
-
             builder.Services.AddConstellationHttpClient();
-            builder.Services.AddSingleton<MandateAuthorizationFilterAttribute>();
 
-            builder.Services.AddMandateSql(opt => opt.ConnectionString = builder.Configuration["DbConnectionString"]);
+            builder.Services.AddMandateSql(builder.Configuration);
             builder.Services.AddMandateJeDeclare(opt =>
             {
                 opt.BaseUri = new Uri(builder.Configuration["JeDeclareBaseUri"]!);
@@ -102,13 +64,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 opt.Password = builder.Configuration["JeDeclarePassword"]!;
                 opt.JdcCompteId = builder.Configuration["JeDeclareCompteId"]!;
                 opt.HistoryDateEnabledBanks = builder.Configuration["JeDeclareHistoryDateEnabledBanks"]!;
-            });
-
-            builder.Services.AddMandateFormio(opt =>
-            {
-                opt.BaseUri = new Uri(builder.Configuration["FormioBaseUri"]!);
-                opt.FormioApiKey = builder.Configuration["FormioApiKey"]!;
-                opt.DemandeMandateFormId = builder.Configuration["DemandeMandateFormId"]!;
             });
             string mandateCancellationCC = builder.Configuration["MandateCancellationCcEmails"] ?? string.Empty;
             string uploadedCCEmails = builder.Configuration["MandateUploadedCcEmails"] ?? string.Empty;
@@ -126,7 +81,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 opt.MandateUploadedCcEmails = string.IsNullOrEmpty(uploadedCCEmails) ? new List<string>() : uploadedCCEmails.Split(";").ToList();
             });
             builder.Services.AddMandateAdapters();
-            builder.Services.AddPortailApi(builder.Configuration);
             builder.Services.AddNotificationsApi(option => option.BaseUrl = builder.Configuration["MANDATE_NOTIFICATION_V2_API_URL"]);
             builder.Services.AddRequestTimeouts(options =>
             {
@@ -139,15 +93,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            app.UseSwaggerUI(c =>
+            var enableSwagger = builder.Configuration.GetValue<bool>("EnableSwagger");
+            if (enableSwagger)
             {
-                c.SwaggerEndpoint("api.json", "KPMG Pulse Mandate API");
-                c.DocumentTitle = "KPMG Pulse Mandate API";
-                c.RoutePrefix = "api";
-                c.EnableTryItOutByDefault();
-            });
-
-            app.UseJsonErrorExceptionHandler(app.Environment);
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("api.json", "KPMG Pulse Mandate API");
+                    c.DocumentTitle = "KPMG Pulse Mandate API";
+                    c.RoutePrefix = "api";
+                    c.EnableTryItOutByDefault();
+                });
+            }
 
             app.UseHttpsRedirection();
 
@@ -155,8 +111,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             app.UseStaticFiles();
 
             app.UseCors("CorsPolicy");
-
-            app.UseAuthorization();
 
             app.MapControllers();
 

@@ -1,4 +1,12 @@
-trigger: none
+trigger:
+  branches:
+    include:
+    - develop
+    - release/*
+  paths:
+    include:
+    - 02_MandateFunction
+
 pool:
   vmImage: windows-latest
 
@@ -8,7 +16,7 @@ parameters:
   type: number
   default: 0
 - name: deployType
-  displayName: "Technical parameter : don t modify it !"
+  displayName: "Technical parameter : don t modify it ! onlyDev/standard"
   type: string
   default: 'standard'
 
@@ -17,8 +25,8 @@ resources:
   - repository: Pulse
     name: 'Pulse.Operations.Pipelines'
     type: git
-    ref: 'refs/heads/Release/v2.0'
-
+    ref: 'refs/heads/features/change-naming'
+    
 extends:
   template: pipelines/templates/platform.back.api.yaml@Pulse
   parameters:
@@ -34,12 +42,4 @@ extends:
       type: 'functionApp' 
       tests: |
           02_MandateFunction\tests\**\*.csproj
-          01_API\tests\Services.Sql.Implementation\Mandate.Sql.Implementation.Tests.csproj
-          01_API\tests\Services.Sql\Mandate.Sql.Tests.csproj
-          01_API\tests\Adapters\Mandate.Adapters.Tests.csproj
-          01_API\tests\Application\Mandate.Application.Tests.csproj
-          01_API\tests\Client.Http\Mandate.Client.Http.Tests.csproj
-          01_API\tests\Client\Mandate.Client.Tests.csproj
-          01_API\tests\Services.JeDeclare.Client\Mandate.JeDeclare.Client.Tests.csproj
-          01_API\tests\Services.JeDeclare.Client.Http\Mandate.JeDeclare.Client.Http.Tests.csproj
     dotnetcore: 8.x

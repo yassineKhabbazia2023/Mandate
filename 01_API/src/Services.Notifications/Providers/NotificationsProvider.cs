@@ -6,57 +6,37 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Notifications
 {
     using global::Notifications.Commons.WebApi.QueryParams;
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
-    using KPMG.Pulse.Back.Accounting.Mandate.Portal;
+    using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using Newtonsoft.Json;
+    using System.Net.Http;
     using System.Text;
 
     public class NotificationsProvider : INotificationsProvider
     {
-        private readonly IAuthenticationContext authenticationContext;
-        private readonly IOptions<NotificationOptions> options;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger<NotificationsProvider> _logger;
+        private readonly IOptions<NotificationOptions> _options;
 
-        public NotificationsProvider(IAuthenticationContext authenticationContext, IOptions<NotificationOptions> options)
+        public NotificationsProvider(IHttpClientFactory httpClientFactory, ILogger<NotificationsProvider> logger, IOptions<NotificationOptions> options)
         {
-            this.authenticationContext = authenticationContext;
-            this.options = options ?? throw new ArgumentNullException(nameof(options));
+            _httpClientFactory = httpClientFactory;
+            _logger = logger;
+            _options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
         public async Task SendEmailAsync(EmailRequest emailRequest)
         {
             if (emailRequest == null) { throw new ArgumentNullException(nameof(emailRequest)); }
-            string token = this.authenticationContext.BearerToken;
-            string url = this.TrailUrl(this.options.Value.BaseUrl, "/notifications/SendEmail");
-            try
-            {
-                using var http = new HttpClient();
-                string body = JsonConvert.SerializeObject(emailRequest);
-                HttpContent content = new StringContent(body, encoding: Encoding.UTF8, "application/json");
-                http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-                var response = await http.PostAsync(url, content);
-                response.EnsureSuccessStatusCode();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
 
-        public string TrailUrl(string url, string api)
-        {
-            if (string.IsNullOrEmpty(url)) { throw new ArgumentNullException(nameof(url)); }
-            if (string.IsNullOrEmpty(api)) { throw new ArgumentNullException(nameof(api)); }
-            if (url.EndsWith('/'))
-            {
-                url = url.Substring(0, url.Length - 1);
-            }
+            using var http = _httpClientFactory.CreateClient();
+            http.BaseAddress = new Uri(_options.Value.BaseUrl);
+            string body = JsonConvert.SerializeObject(emailRequest);
+            _logger.LogInformation(body);
 
-            if (api.StartsWith('/'))
-            {
-                api = api.Substring(1, api.Length - 1);
-            }
-
-            return $"{url}/{api}";
+            HttpContent content = new StringContent(body, encoding: Encoding.UTF8, "application/json");
+            var response = await http.PostAsync("notifications/SendEmail", content);
+            response.EnsureSuccessStatusCode();
         }
     }
 }

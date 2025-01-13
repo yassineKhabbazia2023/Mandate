@@ -10,6 +10,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
+	  <PackageReference Include="System.IO.Packaging" Version="8.0.1" />
+	  <PackageReference Include="System.Text.Json" Version="9.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\..\src\Adapters\Mandate.Adapters.csproj" />
 		<ProjectReference Include="..\..\src\Services.Sql.Implementation\Mandate.Sql.Implementation.csproj" />
 		<ProjectReference Include="..\Services.Sql.Implementation\Mandate.Sql.Implementation.Tests.csproj" />

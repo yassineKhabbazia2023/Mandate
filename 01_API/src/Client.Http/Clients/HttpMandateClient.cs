@@ -73,22 +73,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
             return JsonConvert.DeserializeObject<PagedTechnicalMandate>(responseBody)!;
         }
 
-        public async Task<PagedRecoveryMandate> RecoveryFormIoAsync(int skip, int limit)
-        {
-            this.EnsuresUserToken();
-            string? requestUri = $"mandate/recovery-form-io?skip={skip}&limit={limit}";
-
-            using var message = new HttpRequestMessage(HttpMethod.Post, requestUri);
-
-            using var client = this.clientFactory.Create(this.baseUri, this.authentication);
-            var response = await client.SendAsync(message);
-
-            response.EnsureSuccessStatusCode();
-
-            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            return DeserializePagedRecoveryMandate(responseBody);
-        }
-
         public async Task<bool> RefreshMandatsStatusesAsync(List<TechnicalCollectionSummary> mandates)
         {
             this.EnsuresUserToken();
@@ -121,6 +105,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
                     accountNumber: (string)failJson["accountNumber"]!,
                     jdcPartnership: (int)failJson["jdcPartnership"]!);
 
+                var statusSummary = new Client.StatusInfo(
+                    statusCode: (int)failJson["statusCode"]!,
+                    jdcStatusDescription: (string)failJson["jdcStatusDescription"]!,
+                    null);
+                
                 return new CollectionSummary(
                     id: (Guid)failJson["id"]!,
                     erpId: (string)failJson["erpId"]!,
@@ -128,9 +117,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
                     collectionBankInfo: bankInfo,
                     creationDate: (DateTime)failJson["creationDate"]!,
                     modificationDate: (DateTime)failJson["modificationDate"]!,
-                    statusCode: (int)failJson["statusCode"]!);
+                    statusInfo: statusSummary,
+                    new List<string>());
             }).ToList().AsReadOnly();
-            return new PagedRecoveryMandate(imported, failed) !;
+            return new PagedRecoveryMandate(imported, failed)!;
         }
 
         private static CollectionSummary DeserializeCollectionSummary(string json)
@@ -142,6 +132,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
                 accountNumber: (string)jsonObject["accountNumber"]!,
                 jdcPartnership: (int)jsonObject["jdcPartnership"]!);
 
+            var statusSummary = new Client.StatusInfo(
+                statusCode: (int)jsonObject["statusCode"]!,
+                jdcStatusDescription: (string)jsonObject["jdcStatusDescription"]!,
+                null);
+
             var collectionSummary = new CollectionSummary(
                 id: (Guid)jsonObject["id"]!,
                 erpId: (string)jsonObject["erpId"]!,
@@ -149,7 +144,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
                 collectionBankInfo: collectionBankInfo,
                 creationDate: (DateTime)jsonObject["creationDate"]!,
                 modificationDate: (DateTime)jsonObject["modificationDate"]!,
-                statusCode: (int)jsonObject["statusCode"]!);
+                statusInfo: statusSummary,
+                new List<string>());
 
             return collectionSummary;
         }

@@ -2,6 +2,8 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using System.ComponentModel.DataAnnotations;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
 {
     public class EmailCommandBuilderTest
@@ -10,6 +12,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
         public void CreateMandateCancellationEmail_ShouldReturnCorrectEmailCommand()
         {
             // Arrange
+            var userEmail = "toto@toto.com";
             var collectionId = new PredictableGuid().NewGuid();
             var companyId = 1;
 
@@ -32,10 +35,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
                 MandateCancellationToEmail = "cancel_to@example.com",
                 MandateCancellationCcEmails = new List<string> { "cancel_cc1@example.com", "cancel_cc2@example.com" },
             };
-            var userEmail = "user@mail.com";
 
             // Act
-            var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(collection, options, userEmail);
+            var emailCommand = EmailCommandBuilder.CreateMandateCancellationEmail(userEmail, collection, options);
 
             // Assert
             emailCommand.Should().NotBeNull();
@@ -45,7 +47,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
             emailCommand.To.Should().Be("cancel_to@example.com");
             emailCommand.Cc.Should().BeEquivalentTo(options.MandateCancellationCcEmails);
             emailCommand.Attachements.Should().BeEmpty();
-            emailCommand.Variables.Should().ContainKey("body");
+            emailCommand.Variables.Should().ContainKeys("collaboratorEmail", "siretNumber", "accountHolder", "bankName", "bankCode", "accountNumber", "branchCode", "checkDigits", "companyName");
         }
 
         [Fact]
@@ -54,6 +56,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
             // Arrange
             var collectionId = new PredictableGuid().NewGuid();
             var companyId = 1;
+            var userEmail = "toto@toto.com";
 
             var company = TestHelper.GetCompany(companyId, "bankServicesProviderId");
             Bban bban = TestHelper.GetBban("ebicsCardId", false);
@@ -76,10 +79,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
             };
             string fileContent = "file content";
             string fileName = "file.pdf";
-            var userEmail = "user@mail.com";
 
             // Act
-            var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(collection, options, fileContent, fileName, userEmail);
+            var emailCommand = EmailCommandBuilder.CreateSignedMandateUploadedEmail(userEmail, collection, options, fileContent, fileName);
 
             // Assert
             emailCommand.Should().NotBeNull();
@@ -90,7 +92,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
             emailCommand.Cc.Should().BeEquivalentTo(options.MandateUploadedCcEmails);
             emailCommand.Attachements.Should().HaveCount(1);
             emailCommand.Attachements[0].FileName.Should().Be(fileName);
-            emailCommand.Variables.Should().ContainKey("body");
+            emailCommand.Variables.Should().ContainKeys("collaboratorEmail", "siretNumber", "accountHolder", "bankName", "bankCode", "accountNumber", "branchCode", "checkDigits", "companyName");
         }
     }
 }

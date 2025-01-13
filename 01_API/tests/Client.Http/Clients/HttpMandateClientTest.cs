@@ -64,6 +64,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Tests
                 accountNumber: "98765432101",
                 jdcPartnership: 2);
 
+            var statusSummary = new Client.StatusInfo(
+                statusCode: 20,
+                jdcStatusDescription: "example of JdcStatus description",
+                null);
+
             var collectionSummary = new CollectionSummary(
                 id: Guid.Empty,
                 erpId: "1234567890",
@@ -71,7 +76,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Tests
                 collectionBankInfo: collectionBankInfo,
                 creationDate: new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 modificationDate: new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                statusCode: 20);
+                statusInfo: statusSummary,
+                new List<string>());
 
             var serializedCollectionSummary = JsonNode.Parse(JsonConvert.SerializeObject(collectionSummary))!.ToJsonString();
             var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
@@ -231,65 +237,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Tests
             var result = await httpMandateClient.RefreshMandatsStatusesAsync(technicalCollectionSummaryList);
 
             result.Should().Be(true);
-        }
-
-        [Fact]
-        public async Task RecoveryFormIoAsync()
-        {
-            var authentication = new BearerHttpClientAuthentication("tTest");
-
-            var collectionBankInfo = new CollectionBankInfo(
-                bankName: "bank",
-                accountNumber: "12345678910",
-                jdcPartnership: 2);
-
-            var collectionSummary = new CollectionSummary(
-                id: Guid.Empty,
-                erpId: "12345",
-                companyName: "Name",
-                collectionBankInfo: collectionBankInfo,
-                creationDate: DateTime.UtcNow,
-                modificationDate: DateTime.UtcNow,
-                statusCode: 20);
-
-            PagedRecoveryMandate page = new PagedRecoveryMandate(1, new List<CollectionSummary>() { collectionSummary });
-
-            var serialized = JsonNode.Parse(JsonConvert.SerializeObject(page))!.ToJsonString();
-            var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(serialized, Encoding.UTF8, "application/json"),
-            };
-            var client = new Mock<IHttpClient>(MockBehavior.Strict);
-            client.Setup(c => c.SendAsync(It.IsAny<HttpRequestMessage>()))
-                .Callback<HttpRequestMessage>(message =>
-                {
-                    message.Method.Should().Be(HttpMethod.Post);
-                    message.RequestUri!.ToString().Should().StartWith("mandate/recovery-form-io");
-                    message.RequestUri!.ToString().Should().Be("mandate/recovery-form-io?skip=0&limit=1");
-                })
-                .ReturnsAsync(httpResponse)
-                .Verifiable();
-            client.Setup(c => c.Dispose())
-                .Verifiable();
-
-            var httpFactory = new Mock<Kpmg.Constellation.Net.Http.IHttpClientFactory>(MockBehavior.Strict);
-            httpFactory.Setup(h => h.Create(It.IsAny<Uri>(), It.IsAny<Kpmg.Constellation.Net.Http.HttpClientAuthentication>()))
-                .Callback<Uri, HttpClientAuthentication>((uri, auth) =>
-                {
-                    uri.Should().BeEquivalentTo(new Uri("http://test.test"));
-                    auth.Should().BeEquivalentTo(authentication);
-                })
-                .Returns(client.Object)
-                .Verifiable();
-
-            var httpMandateClient = new HttpMandateClient(
-                baseUri: new Uri("http://test.test"),
-                authentication: authentication,
-                clientFactory: httpFactory.Object);
-
-            var result = await httpMandateClient.RecoveryFormIoAsync(0, 1);
-
-            result.Should().BeEquivalentTo(page);
         }
     }
 }

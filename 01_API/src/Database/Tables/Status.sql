@@ -7,7 +7,8 @@
 	[IsCurrent] BIT NOT NULL DEFAULT 0, 
 	[StatusDate] DATETIME2 NULL, 
 	[MandateFile] VARBINARY(MAX) NULL, 
-	[CreatedBy] NVARCHAR(100) NULL, 
+	[CreatedBy] NVARCHAR(100) NULL,
+	[ErrorMessage] NVARCHAR(MAX) NULL,
 
     CONSTRAINT [PK_Status] PRIMARY KEY ([Id]),
 	CONSTRAINT [FK_Status_Collection] FOREIGN KEY ([CollectionId]) REFERENCES [Mandate].[Collection]([Id]),

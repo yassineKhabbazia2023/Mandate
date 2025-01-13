@@ -1,9 +1,13 @@
 name: $(TeamProject)_$(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 
 trigger:
-- main
-- develop
-- release/*
+  branches:
+    include:
+    - develop
+    - release/*
+  paths:
+    include:
+    - 01_API/src/Client.Http/*
 
 pool:
   vmImage: windows-latest
@@ -13,12 +17,14 @@ resources:
     - repository: CICD
       name: 'Industrialisation/Industrialisation'
       type: git
-      ref: 'refs/heads/Release/v6.0'
+      ref: 'refs/heads/features/cicd_as_conf'
+    - repository: Pulse
+      name: 'Pulse.Operations.Pipelines'
+      type: git
+      ref: 'refs/heads/Release/v2.0' 
 
-parameters:
-- name: devenv
-  type: string
-  default: 'dev55'
+variables:
+  - template: pipelines/variables/common.yaml@Pulse
 
 extends:
   template: CICD/PipelineTemplate.yaml@CICD
@@ -27,68 +33,20 @@ extends:
       mode: legacy
       major: 1
     build:
-      sonarQube:
-        projectKey: MyPulseV2_Api_Mandate
-        projectName: "(MyPulseV2)[API] Mandate"
-        sonarExclusions: "Program.cs"
-        qualityGateName: "[Pulse] Default"
       tooling:
         dotnetCore:
-        - 6.x
+        - 8.x
         nuget:
-          feed: Constellation/Constellation
+          feed: '$(FeedPackageName)'
+      sonarCloud:
+        projectKey: Pulse_Package_Mandate.Client
+        projectName: "(KPMG Pulse)[Package] Mandate.Client - mdt"
       steps:
-      - type: dotnetcore
-        name: MandateApi
-        netcoreProjects: src\Api\Mandate.AspNetCore.csproj
-        test:
-        - name: KPMG.Pulse.Back.Accounting.Mandate_tests
-          netcoreProjects: |
-            '**/*.Tests.csproj'
-       # publishFeed:
-       #   feedName: Constellation/KPMGPulse
-       #   packageName: KPMG.Pulse.Back.Accounting.Mandate
-       #   description: |
-       #     KPMG.Pulse.Back.Accounting.Mandate v$(GitVersion.number)
-      - type: dotnetcore
-        name: PreloadFunction
-        netcoreProjects: src/Mandate.AzureFunctions/Mandate.AzureFunctions.csproj
-        test: 
-        - name: PreloadFunction_tests
-          netcoreProjects: |
-            '**/*.Tests.csproj'
-        # publishFeed:
-          # feedName: Constellation/KPMGPulse
-          # packageName: function-preload
-          # description: |
-            # Preload Function v$(GitVersion.number)
-
-    deploy:
-      environments:
-      - name: DEV
-        displayName: Developpement
-        condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
-        poolAgent: Pulse-${{ parameters.devenv }}
-        variables:
-        - name: azureSC
-          value: PULSE-DEV
-        - name: webapp
-          value: fr${{ parameters.devenv }}mandateapp01mandateapi
-        - name : resourceGroup
-          value: fr${{ parameters.devenv }}mandate
-        - name: appConfiguration
-          value: frdevcommonapp01config
-        - name: envName
-          value: ${{ parameters.devenv }}
-      steps:
-      - type: az-app
-        name: MandateApi
-        artifact: MandateApi
-        azureServiceConnection: $(azureSC)
-        appName: $(webapp)
-        appType: webApp
-        resourceGroup: $(resourceGroup)
-        appConfiguration:
-          name: $(appConfiguration)
-          keyPrefix: MandateApi_
-          label: $(envName)
+      - type: nuget
+        name: Mandate.Client
+        netcoreProjects: 01_API\src\Client\Mandate.Client.csproj
+        nugetFeed: '$(FeedPackageName)' 
+      - type: nuget
+        name: Mandate.Client.Http
+        netcoreProjects: 01_API\src\Client.Http\Mandate.Client.Http.csproj
+        nugetFeed: '$(FeedPackageName)' 

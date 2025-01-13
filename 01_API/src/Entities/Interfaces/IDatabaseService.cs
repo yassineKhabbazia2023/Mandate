@@ -28,6 +28,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Task CreateOrUpdateFolderAsync(string bankServicesProviderId, int companyId);
 
+        Task<Status?> CreateStatusWithMessageAsync(Guid collectionId, int statusCode, string errorMessage);
+
         Task<Status?> CreateStatusAsync(Guid collectionId, int statusCode);
 
         Task<bool> CheckJdcStatusCodeIsPendingAsync(Guid collectionId);
@@ -53,8 +55,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         Task AddFakeDataAsync();
 
         Task DeleteFakeDataAsync();
-
-        Task InsertFormIOCollectionAsync(Collection collection, int companyId);
 
         Task<Company> GetCompanyByErpIdSiretAsync(string erpId, string siret);
 

@@ -22,10 +22,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions
         /// <returns>returns List of collections.</returns>
         Task<PagedTechnicalMandate> GetCollectionsAsync(int skip, int limit, List<int> statusCodes);
 
-        Task<CollectionSummary> GetRecoveryAsync(Bban rib);
-
-        Task<PagedRecoveryMandate> RecoveryAsync(int skip, int limit);
-
         Task RefreshCollectionsStatuses(List<TechnicalCollectionSummary> payload);
     }
 }

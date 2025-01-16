@@ -1,4 +1,14 @@
-trigger: none
+trigger:
+  branches:
+    include:
+     - main
+     - feature/*
+     - bugfix/*
+     - hotfix/*
+  paths:
+    include:
+    - 01_API
+
 pool:
   vmImage: windows-latest
 
@@ -17,7 +27,7 @@ resources:
   - repository: Pulse
     name: 'Pulse.Operations.Pipelines'
     type: git
-    ref: 'refs/heads/features/change-naming'
+    ref: 'refs/heads/Release/v3.0'
 
 extends:
   template: pipelines/templates/platform.back.sql.yaml@Pulse

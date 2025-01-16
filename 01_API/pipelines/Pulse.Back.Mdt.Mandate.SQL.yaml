@@ -4,7 +4,7 @@ pool:
 
 parameters:
 - name: devIndex
-  displayName: 'Index de l environnement cible (seulement pour un d�ploiement sur env de DEV)'
+  displayName: 'Index de l environnement cible (seulement pour un déploiement sur env de DEV)'
   type: number
   default: 0
 - name: deployType

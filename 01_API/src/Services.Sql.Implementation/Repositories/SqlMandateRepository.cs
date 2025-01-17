@@ -1,4 +1,4 @@
-﻿// <copyright file="SqlMandateRepository.cs" company="KPMG">
+// <copyright file="SqlMandateRepository.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -156,6 +156,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
         {
             await _context.AddAsync(messageDb);
             await _context.SaveChangesAsync();
+        }
+        public async Task<List<MandateIdsAndStatus>> GetCollectionByStatus(List<int> statusCodes)
+        {
+            return await _context.Collection
+                .Where(m =>
+                    m.Company!.JeDeclareFolder!.JdcDossierId != null &&
+                    m.JeDeclareCollection!.JdcRibId != null &&
+                    m.Statuses.Where(s => s.IsCurrent).Select(status => status.RefStatusCode!.PulseCode)
+                        .Intersect(statusCodes).Any())
+                .AsNoTracking()
+                .Select(c => new MandateIdsAndStatus(c.Id, c.Company!.JeDeclareFolder!.JdcDossierId!,
+                    c.JeDeclareCollection!.JdcRibId!, c.Statuses.Single(s => s.IsCurrent).StatusCode))
+                .ToListAsync();
         }
 
         public async Task CreateFakeRefAsync()
@@ -2061,6 +2074,26 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
             }
 
             return statusCode;
+        }
+
+        public Task<List<RefStatusCodeDb>> GetRefStatusesAsync()
+        {
+            return _context.RefStatusCode.AsNoTracking().ToListAsync();
+        }
+
+        public async Task UpdateMandatesStatusAsync(IEnumerable<StatusDb> statuses)
+        {
+            foreach (var statusToAdd in statuses)
+            {
+                await using var transaction = await _context.Database.BeginTransactionAsync();
+                await _context.Status
+                    .Where(s => s.CollectionId == statusToAdd.CollectionId)
+                    .ExecuteUpdateAsync(setter => setter.SetProperty(status => status.IsCurrent, false));
+
+                await _context.Status.AddAsync(statusToAdd);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
         }
     }
 }

@@ -102,28 +102,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             return await this.databaseService.GetAllTechnicalCollectionsAsync(query).ConfigureAwait(false);
         }
 
-        public async Task RefreshMandatsStatusesAsync(List<TechnicalCollection> mandats)
-        {
-            foreach (var mandat in mandats!)
-            {
-                var jdcCollection = await this.GetJdcCollectionAsync(mandat);
-                if (jdcCollection == null)
-                {
-                    continue;
-                }
-
-                var status = await this.databaseService.GetRefStatusCodeByJdcCodeAsync(jdcCollection.StatusCode);
-                var collection = await this.databaseService.GetCollectionById(mandat.Id);
-
-                if (!HasStatusChanged((int)status.StatusCode, (int)collection.Status.StatusCode))
-                {
-                    continue;
-                }
-
-                await this.UpdateCollectionStatusAsync(collection, jdcCollection.StatusCode);
-            }
-        }
-
         public async Task<string?> UploadSignedMandateAsync(Guid collectionId, Stream mandateFileStream, string userEmail)
         {
             using var memoryStream = new MemoryStream();
@@ -261,74 +239,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 throw new RibIdEmptyOrNullException();
             }
         }
-
-        private static bool MatchesMandat(TechnicalCollection jdcCollection, TechnicalCollection mandat)
-        {
-            bool ribIdMatches = jdcCollection.RibId == mandat.RibId;
-            bool bankAndBranchMatches = jdcCollection.BankDetails.BankCode == mandat.BankDetails.BankCode && jdcCollection.BankDetails.BranchCode == mandat.BankDetails.BranchCode;
-            bool accountDetailsMatches = jdcCollection.BankDetails.AccountNumber == mandat.BankDetails.AccountNumber && jdcCollection.BankDetails.CheckDigits == mandat.BankDetails.CheckDigits;
-
-            return ribIdMatches && bankAndBranchMatches && accountDetailsMatches;
-        }
-
-        private static bool HasStatusChanged(int currentStatusCode, int previousStatusCode)
-        {
-            return currentStatusCode != previousStatusCode;
-        }
-
-        private async Task<TechnicalCollection?> GetJdcCollectionAsync(TechnicalCollection mandat)
-        {
-            var jdcCollections = await this.jeDeclareService.GetAllConfigurationFromFolderAsync(mandat.FolderId);
-            var jdcCollection = jdcCollections?.SingleOrDefault(c => MatchesMandat(c, mandat));
-
-            if (jdcCollection == null)
-            {
-                this.logger.LogError("The collection with Id={CollectionId} is not found in jedeclare", mandat.Id);
-            }
-
-            return jdcCollection;
-        }
-
-        private async Task UpdateCollectionStatusAsync(Collection collection, string jdcStatusCodeStr)
-        {
-            if (!int.TryParse(jdcStatusCodeStr, out int jdcStatusCode))
-            {
-                // Handle the parse failure. For example, log an error and return from the method.
-                this.logger.LogError("Failed to parse JDC status code '{JdcStatusCodeStr}' for collection ID {CollectionId}.", jdcStatusCodeStr, collection.Id);
-                return;
-            }
-
-            var newStatus = await this.databaseService.CreateStatusAsync(collection.Id, statusCode: jdcStatusCode!);
-            var jdcStatusCodePending = await this.databaseService.CheckJdcStatusCodeIsPendingAsync(collection.Id);
-
-            if (newStatus != null && jdcStatusCodePending)
-            {
-                await this.UpdateStatusOnSignedMandateUploadAsync(collection);
-            }
-        }
-
-        private async Task UpdateStatusOnSignedMandateUploadAsync(Collection collection)
-        {
-            var folderId = collection.Company?.BankServicesProviderId;
-            var ribId = collection.Bban?.BbanServicesProviderId;
-            var isUploaded = await this.jeDeclareService.CheckSignedMandatExists(folderId!, ribId!);
-
-            if (isUploaded)
-            {
-                await this.databaseService.CreateStatusAsync(collection.Id, (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded);
-            }
-            else
-            {
-                this.logger.LogInformation(
-                    "{MethodName}, the upload of the signed mandate = {CollectionId} / folderId = {FolderId} and ribId = {RibId} failed / isUploaded = {IsUploaded}",
-                    nameof(this.UpdateStatusOnSignedMandateUploadAsync),
-                    collection.Id,
-                    folderId,
-                    ribId,
-                    isUploaded);
-            }
-        }
-
+        
         private async Task<byte[]> GeneratePdfForNonPartner(Collection collection)
         {
             return await this.asposeHelper.GeneratePdfFromTemplateAsync(collection);

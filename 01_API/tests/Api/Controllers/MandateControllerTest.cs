@@ -1,4 +1,4 @@
-﻿// <copyright file="MandateControllerTest.cs" company="KPMG">
+// <copyright file="MandateControllerTest.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -398,111 +398,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             logger.VerifyAll();
             manager.VerifyAll();
         }
-
-        [Fact]
-        public async Task RefreshMandatsStatusesAsync_ShouldReturnOk_WhenSuccessful()
-        {
-            // Arrange
-            var technicalCollectionSummaries = new List<Client.TechnicalCollectionSummary>
-            {
-                new Client.TechnicalCollectionSummary(
-                    Guid.NewGuid(),
-                    "folderId1",
-                    "ribId1",
-                    new Client.BankDetails(
-                        "bankCode1",
-                        "branchCode1",
-                        "accountNumber1",
-                        "checkDigits1"),
-                    30),
-                new Client.TechnicalCollectionSummary(
-                    Guid.NewGuid(),
-                    "folderId2",
-                    "ribId2",
-                    new Client.BankDetails(
-                        "bankCode2",
-                        "branchCode2",
-                        "accountNumber2",
-                        "checkDigits2"),
-                    20),
-            };
-
-            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Loose);
-            var manager = new Mock<IMandateManager>(MockBehavior.Strict);
-            var guidGenerator = new Mock<IGuidGenerator>();
-
-            manager.Setup(m => m.RefreshMandatsStatusesAsync(It.IsAny<List<TechnicalCollection>>()))
-                               .Returns(Task.CompletedTask)
-                               .Verifiable();
-
-            var controller = new MandateController(logger.Object, manager.Object, guidGenerator.Object);
-
-            // Act
-            var result = await controller.RefreshMandatsStatusesAsync(technicalCollectionSummaries);
-
-            // Assert
-            result.Should().BeOfType<OkResult>();
-            manager.VerifyAll();
-            logger.VerifyAll();
-            guidGenerator.VerifyAll();
-        }
-
-        [Fact]
-        public async Task RefreshMandatsStatusesAsync_ShouldReturnInternalServerError_WhenExceptionIsThrown()
-        {
-            // Arrange
-            var technicalCollectionSummaries = new List<Client.TechnicalCollectionSummary>
-            {
-                new Client.TechnicalCollectionSummary(
-                    Guid.NewGuid(),
-                    "folderId1",
-                    "ribId1",
-                    new Client.BankDetails(
-                        "bankCode1",
-                        "branchCode1",
-                        "accountNumber1",
-                        "checkDigits1"),
-                    30),
-                new Client.TechnicalCollectionSummary(
-                    Guid.NewGuid(),
-                    "folderId2",
-                    "ribId2",
-                    new Client.BankDetails(
-                        "bankCode2",
-                        "branchCode2",
-                        "accountNumber2",
-                        "checkDigits2"),
-                    20),
-            };
-
-            var logger = new Mock<ILogger<MandateController>>(MockBehavior.Loose);
-            var manager = new Mock<IMandateManager>(MockBehavior.Strict);
-            var guidGenerator = new Mock<IGuidGenerator>();
-
-            manager.Setup(m => m.RefreshMandatsStatusesAsync(It.IsAny<List<TechnicalCollection>>()))
-                               .ThrowsAsync(new Exception())
-                               .Verifiable();
-
-            var controller = new MandateController(logger.Object, manager.Object, guidGenerator.Object);
-
-            // Act
-            var result = await controller.RefreshMandatsStatusesAsync(technicalCollectionSummaries) as ObjectResult;
-
-            // Assert
-            result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
-            result.Should().NotBeNull();
-            result!.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
-
-            var errorType = result!.Value as Client.Error;
-            errorType.Should().NotBeNull();
-            errorType!.ErrorType.Should()
-                               .Be("TechnicalError");
-
-            manager.VerifyAll();
-            logger.VerifyAll();
-            guidGenerator.VerifyAll();
-        }
-
+        
         [Fact]
         public async Task DownloadUnsignedAsync_CaseOK()
         {

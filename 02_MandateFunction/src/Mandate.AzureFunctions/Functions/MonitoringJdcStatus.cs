@@ -1,20 +1,26 @@
-// <copyright file="MonitoringJdcStatus.cs" company="KPMG">
-// Copyright (c) KPMG. All rights reserved.
-// </copyright>
-
 namespace Mandate.AzureFunctions.Functions
 {
-    using System;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Threading.Tasks;
     using Microsoft.Azure.Functions.Worker;
     using Microsoft.Azure.Functions.Worker.Http;
     using Microsoft.DurableTask.Client;
-    using Microsoft.DurableTask.Internal;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Threading.Tasks;
 
-    public static class MonitoringJdcStatus
+    public class MonitoringJdcStatus
     {
+        private readonly List<int> _dailyStatusCodes;
+        private readonly List<int> _hourlyStatusCodes;
+
+        public MonitoringJdcStatus(IOptions<UpdateStatusesConfiguration> options)
+        {
+            _dailyStatusCodes = options.Value.DailyStatusCodes ?? throw new ArgumentNullException(nameof(options));
+            _hourlyStatusCodes = options.Value.HourlyStatusCodes ?? throw new ArgumentNullException(nameof(options));
+        }
+
         /// <summary>
         /// Triggered by a timer to start the daily statuses monitoring process.
         /// </summary>
@@ -26,21 +32,17 @@ namespace Mandate.AzureFunctions.Functions
         /// <param name="starter">Durable orchestration client to start orchestrations.</param>
         /// <param name="executionContext">Logger instance for logging purpose.</param>
         [Function("StatusesMonitoringDailyRunSchedule_Start")]
-        public static async Task StatusesMonitoringDailyRunScheduleStart(
+        public async Task StatusesMonitoringDailyRunScheduleStart(
             [TimerTrigger("%StatusesMonitoringDailyRunSchedule%")] TimerInfo myTimer,
             [DurableClient] DurableTaskClient starter,
             FunctionContext executionContext)
         {
             ILogger logger = executionContext.GetLogger("StatusesMonitoringDailyRunSchedule_Start");
-            logger.LogInformation($"Started statuses monitoring daily run : {myTimer}");
+            logger.LogInformation("Started statuses monitoring daily run : {MyTimer}", myTimer);
 
-            var limitConfig = Environment.GetEnvironmentVariable("LimitDaily");
-            var statusCodesConfig = Environment.GetEnvironmentVariable("StatusCodesDaily");
+            string instanceId = await starter!.ScheduleNewOrchestrationInstanceAsync("MappingStatus", _dailyStatusCodes);
 
-            // Function input comes from the request content.
-            string instanceId = await starter!.ScheduleNewOrchestrationInstanceAsync("MappingStatus", new OrchestratorInput { LimitConfig = limitConfig, StatusCodesConfig = statusCodesConfig });
-
-            logger.LogInformation($"Started daily orchestration with ID = '{instanceId}'.");
+            logger.LogInformation("Started daily orchestration with ID = '{InstanceId}'.", instanceId);
         }
 
         /// <summary>
@@ -54,21 +56,17 @@ namespace Mandate.AzureFunctions.Functions
         /// <param name="starter">Durable orchestration client to start orchestrations.</param>
         /// <param name="executionContext">Logger instance for logging purpose.</param>
         [Function("StatusesMonitoringHourlyRunSchedule_Start")]
-        public static async Task StatusesMonitoringHourlyRunSchedulStart(
+        public async Task StatusesMonitoringHourlyRunSchedulStart(
             [TimerTrigger("%StatusesMonitoringHourlyRunSchedule%")] TimerInfo myTimer,
             [DurableClient] DurableTaskClient starter,
             FunctionContext executionContext)
         {
             ILogger logger = executionContext.GetLogger("StatusesMonitoringHourlyRunSchedule_Start");
-            logger.LogInformation($"Started statuses monitoring hourly run : {myTimer}");
+            logger.LogInformation("Started statuses monitoring hourly run : {MyTimer}", myTimer);
 
-            var limitConfig = Environment.GetEnvironmentVariable("LimitHourly");
-            var statusCodesConfig = Environment.GetEnvironmentVariable("StatusCodesHourly");
+            string instanceId = await starter.ScheduleNewOrchestrationInstanceAsync("MappingStatus", _hourlyStatusCodes);
 
-            // Function input comes from the request content.
-            string instanceId = await starter!.ScheduleNewOrchestrationInstanceAsync("MappingStatus", new OrchestratorInput { LimitConfig = limitConfig, StatusCodesConfig = statusCodesConfig });
-
-            logger.LogInformation($"Started hourly orchestration with ID = '{instanceId}'.");
+            logger.LogInformation("Started hourly orchestration with ID = '{InstanceId}'.", instanceId);
         }
 
         /// <summary>
@@ -84,7 +82,7 @@ namespace Mandate.AzureFunctions.Functions
         /// <returns>The HTTP response including the status of the request.</returns>
         [ExcludeFromCodeCoverage]
         [Function("ActivationFonction_HttpStart")]
-        public static async Task<HttpResponseData> HttpStart(
+        public async Task<HttpResponseData> HttpStart(
            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req,
            [DurableClient] DurableTaskClient starter,
            FunctionContext executionContext)
@@ -92,15 +90,11 @@ namespace Mandate.AzureFunctions.Functions
             ILogger logger = executionContext.GetLogger("ActivationFonction_HttpStart");
             logger.LogInformation($"Started http functions '.");
 
-            var limitConfig = Environment.GetEnvironmentVariable("LimitHttp");
-            var statusCodesConfig = Environment.GetEnvironmentVariable("StatusCodesHttp");
+            string instanceId = await starter!.ScheduleNewOrchestrationInstanceAsync("MappingStatus", _hourlyStatusCodes);
 
-            // Function input comes from the request content.
-            string instanceId = await starter!.ScheduleNewOrchestrationInstanceAsync("MappingStatus", new OrchestratorInput { LimitConfig = limitConfig!, StatusCodesConfig = statusCodesConfig! });
+            logger.LogInformation("Started http orchestration with ID = '{InstanceId}'.", instanceId);
 
-            logger.LogInformation($"Started http orchestration with ID = '{instanceId}'.");
-
-            return starter.CreateCheckStatusResponse(req, instanceId);
+            return await starter.CreateCheckStatusResponseAsync(req, instanceId);
         }
     }
 }

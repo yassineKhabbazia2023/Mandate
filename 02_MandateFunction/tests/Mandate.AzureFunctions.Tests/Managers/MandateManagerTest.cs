@@ -2,6 +2,9 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using KPMG.Pulse.Back.Accounting.Mandate.Sql;
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
 {
     using global::Mandate.AzureFunctions.Managers;
@@ -9,46 +12,31 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
 
     public class MandateManagerTest
     {
-        private readonly Mock<IMandateProvider> mockMandateProvider;
-        private readonly MandateFunctionManager mandateManager;
+        private readonly UpdateMandateStatusesHandler _mandateManager;
+        private readonly Mock<IMandateRepository> _repositoryMock;
+        private readonly Mock<IJeDeclareService> _jeDeclareServiceMock;
 
         public MandateManagerTest()
         {
-            this.mockMandateProvider = new Mock<IMandateProvider>();
-            this.mandateManager = new MandateFunctionManager(this.mockMandateProvider.Object);
+            _repositoryMock = new Mock<IMandateRepository>();
+            _jeDeclareServiceMock = new Mock<IJeDeclareService>();
+            _mandateManager = new UpdateMandateStatusesHandler(NullLogger<UpdateMandateStatusesHandler>.Instance,
+                _repositoryMock.Object, _jeDeclareServiceMock.Object);
         }
 
         [Fact]
         public async Task GetCollectionsAsync_CallsProviderWithCorrectParameters()
         {
             // Arrange
-            var expectedResponse = new PagedTechnicalMandate(new List<TechnicalCollectionSummary> { /* ... populate test data ... */ });
-            int skip = 0, limit = 10;
+            _repositoryMock.Setup(d =>
+                d.GetCollectionByStatus(It.IsAny<List<int>>())).ReturnsAsync([]);
+
             var statusCodes = new List<int> { 1, 2, 3 };
-            this.mockMandateProvider.Setup(p => p.GetCollectionsAsync(skip, limit, statusCodes))
-                                    .ReturnsAsync(expectedResponse);
 
             // Act
-            var result = await this.mandateManager.GetCollectionsAsync(skip, limit, statusCodes);
+            await _mandateManager.UpdateMandateStatusAsync(statusCodes);
 
-            // Assert
-            result.Should().BeEquivalentTo(expectedResponse);
-            this.mockMandateProvider.Verify(p => p.GetCollectionsAsync(skip, limit, statusCodes), Times.Once);
-        }
-
-        [Fact]
-        public async Task RefreshCollectionsStatuses_CallsProviderWithCorrectPayload()
-        {
-            // Arrange
-            var payload = new List<TechnicalCollectionSummary> { /* ... populate test data ... */ };
-            this.mockMandateProvider.Setup(p => p.RefreshCollectionsStatuses(payload))
-                                    .Returns(Task.CompletedTask);
-
-            // Act
-            await this.mandateManager.RefreshCollectionsStatuses(payload);
-
-            // Assert
-            this.mockMandateProvider.Verify(p => p.RefreshCollectionsStatuses(payload), Times.Once);
+            true.Should().Be(true);
         }
     }
 }

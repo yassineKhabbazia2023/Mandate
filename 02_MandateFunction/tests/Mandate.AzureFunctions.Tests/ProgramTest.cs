@@ -54,7 +54,7 @@ public class ProgramTest
                 services.AddConstellationHttpClient();
 
                 services.AddSingleton<IMandateProvider, MandateProvider>();
-                services.AddSingleton<IMandateFunctionManager, MandateFunctionManager>();
+                services.AddSingleton<IUpdateMandateStatusesHandler, UpdateMandateStatusesHandler>();
 
                 services.AddMandateClient(options =>
                 {

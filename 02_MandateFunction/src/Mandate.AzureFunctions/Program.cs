@@ -11,6 +11,8 @@ using KPMG.Pulse.Back.Accounting.Mandate.Function;
 using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
+using Mandate.AzureFunctions;
+using Mandate.AzureFunctions.Functions;
 using Mandate.AzureFunctions.Interfaces;
 using Mandate.AzureFunctions.Managers;
 using Microsoft.Azure.Functions.Worker;
@@ -41,7 +43,7 @@ var host = new HostBuilder()
         options.UseSqlServer(config["DbConnectionString"]);
     },
     ServiceLifetime.Scoped);
-
+        services.AddOptions<UpdateStatusesConfiguration>().BindConfiguration(UpdateStatusesConfiguration.SectionName);
         services.AddScoped<IMandateRepository, SqlMandateRepository>();
         services.AddMandateJeDeclare(opt =>
         {
@@ -53,7 +55,7 @@ var host = new HostBuilder()
         });
         services.AddSingleton<IJeDeclareService, JeDeclareAdapter>();
         services.AddSingleton<IMandateProvider, MandateProvider>();
-        services.AddSingleton<IMandateFunctionManager, MandateFunctionManager>();
+        services.AddSingleton<IUpdateMandateStatusesHandler, UpdateMandateStatusesHandler>();
         services.AddSingleton<IEventsFunctionManager, EventsFunctionManager>();
         services.AddSingleton<ISqlAdapter, KPMG.Pulse.Back.Accounting.Mandate.Function.SqlAdapter>();
         services.AddScoped<IDatabaseService, KPMG.Pulse.Back.Accounting.Mandate.Adapters.SqlAdapter>();
@@ -64,11 +66,6 @@ var host = new HostBuilder()
             {
                 ManagedIdentityClientId = config["serviceBusNameSpace:clientId"],
             }));
-        });
-
-        services.AddMandateClient(options =>
-        {
-            options.BaseUri = new Uri(config["MANDATE_API_URL"]!);
         });
     })
     .ConfigureLogging(logging =>

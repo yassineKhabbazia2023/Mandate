@@ -8,18 +8,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
     public class JeDeclareAdapter : IJeDeclareService
     {
-        private readonly IJeDeclareClient jedeclareClient;
+        private readonly IJeDeclareClient _jedeclareClient;
 
         public JeDeclareAdapter(IJeDeclareClient jedeclareClient)
         {
-            this.jedeclareClient = jedeclareClient;
+            _jedeclareClient = jedeclareClient;
         }
 
         public async Task<Bban> AddRibToFolderAsync(string? bankServicesProviderId, CollectionCreationCommand mandateCreation, Bank bank)
         {
             var rib = mandateCreation.ToRibClient();
 
-            var ribSaved = await this.jedeclareClient.AddRibToFolderAsync(
+            var ribSaved = await _jedeclareClient.AddRibToFolderAsync(
                 jdcFolderId: bankServicesProviderId!,
                 ribClient: rib);
 
@@ -30,7 +30,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             var releve = rib.ToReleve(signatory);
 
-            var collectConfigurationCreated = await this.jedeclareClient.CreateCollecteConfigurationAsync(
+            var collectConfigurationCreated = await _jedeclareClient.CreateCollecteConfigurationAsync(
                 jdcFolderId: bankServicesProviderId,
                 releve: releve,
                 bankCode: rib.Bank?.Code!,
@@ -44,7 +44,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             var dossierClient = company.ToDossierClient(address, signatory);
 
-            var createdFolder = await this.jedeclareClient.CreateFolderAsync(dossierClient);
+            var createdFolder = await _jedeclareClient.CreateFolderAsync(dossierClient);
 
             return createdFolder.ToCompany();
         }
@@ -53,7 +53,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             try
             {
-                return await this.jedeclareClient.GetMandatPdfAsync(jdcFolderId, jdcRibId);
+                return await _jedeclareClient.GetMandatPdfAsync(jdcFolderId, jdcRibId);
             }
             catch (JeDeclareApiException ex)
             {
@@ -67,7 +67,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             {
                 var folderId = collection?.Company?.BankServicesProviderId;
                 var ribId = collection?.Bban?.BbanServicesProviderId;
-                return await this.jedeclareClient.UploadSignedMandat(folderId!, ribId!, mandateFile);
+                return await _jedeclareClient.UploadSignedMandat(folderId!, ribId!, mandateFile);
             }
             catch (JeDeclareApiException ex)
             {
@@ -83,7 +83,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 var releveId = collection.CollectionServicesProviderId ?? throw new ServicesProviderException($"CollectionServicesProviderId is null for {collection.Id}");
                 var partnership = collection.Bban?.Bank?.JdcAgreement?.JdcPartnership;
 
-                return await this.jedeclareClient.DeactivateCollection(
+                return await _jedeclareClient.DeactivateCollection(
                     folderId!,
                     releveId!,
                     partnership.HasValue && partnership.Value != JdcPartnership.NonPartner);
@@ -98,7 +98,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             try
             {
-                return await this.jedeclareClient.GetSignedMandatPdfAsync(jdcFolderId, jdcRibId);
+                return await _jedeclareClient.GetSignedMandatPdfAsync(jdcFolderId, jdcRibId);
             }
             catch (JeDeclareApiException ex)
             {
@@ -106,12 +106,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             }
         }
 
-        public async Task<List<TechnicalCollection>?> GetAllConfigurationFromFolderAsync(string jdcFolderId)
+        public async Task<List<TechnicalCollection>> GetAllConfigurationFromFolderAsync(string jdcFolderId)
         {
             try
             {
-                var releves = await this.jedeclareClient.GetAllConfigurationFromFolderAsync(jdcFolderId);
-                return releves.Releve?.Select(r => r.ToModel()).ToList();
+                var releves = await _jedeclareClient.GetAllConfigurationFromFolderAsync(jdcFolderId);
+                return releves.Releve.Select(r => r.ToModel()).ToList();
             }
             catch (JeDeclareApiException)
             {
@@ -127,7 +127,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             try
             {
-                return await this.jedeclareClient.CheckSignedMandatExists(jdcFolderId, jdcRibId);
+                return await _jedeclareClient.CheckSignedMandatExists(jdcFolderId, jdcRibId);
             }
             catch (JeDeclareApiException)
             {

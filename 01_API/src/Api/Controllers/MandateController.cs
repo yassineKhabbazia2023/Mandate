@@ -150,26 +150,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             }
         }
 
-        [HttpPost("refresh-mandates-statuses")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> RefreshMandatsStatusesAsync([FromBody] List<TechnicalCollectionSummary> mandates)
-        {
-            string correlationId = Guid.NewGuid().ToString();
-
-            try
-            {
-                await this.mandateManager.RefreshMandatsStatusesAsync(mandates.Select(m => m.ToModel()).ToList());
-                return this.Ok();
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.GetCollectionsAsync));
-                return this.StatusCode(StatusCodes.Status500InternalServerError, new Error("TechnicalError", correlationId, ex.Message));
-            }
-        }
-
         [HttpGet("{mandateId}/unsigned")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FileContentResult))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -13,4 +13,6 @@ public class MandateCreationLogMessageDb
     public string MessageContent { get; set; }
 
     public DateTime CreatedDate { get; set; }
+    
+    public int? CreatedById { get; set; }
 }

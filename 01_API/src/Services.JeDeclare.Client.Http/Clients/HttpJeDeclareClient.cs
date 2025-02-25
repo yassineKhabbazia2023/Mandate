@@ -4,13 +4,13 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
 {
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
     using System;
     using System.Net;
     using System.Net.Http;
     using System.Text;
     using System.Threading.Tasks;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
 
     public class HttpJeDeclareClient : IJeDeclareClient
     {
@@ -38,6 +38,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             var response = await client.GetAsync(requestUri).ConfigureAwait(false);
 
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            if (response.StatusCode == HttpStatusCode.NoContent)
+            {
+                return new ListeReleves { Releve = [] };
+            }
 
             if (response.StatusCode == HttpStatusCode.OK)
             {

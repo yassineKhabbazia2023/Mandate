@@ -46,6 +46,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 .Include(c => c.JeDeclareCollection)
                 .Include(item => item.Company).ThenInclude(c => c!.JeDeclareFolder)
                 .Include(item => item.Statuses).ThenInclude(item => item.RefStatusCode)
+                 .Include(item => item.CreatedBy)
                 .AsQueryable();
 
             if (query?.CollaboratorId != 0)
@@ -166,8 +167,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                     m.Statuses.Where(s => s.IsCurrent).Select(status => status.RefStatusCode!.PulseCode)
                         .Intersect(statusCodes).Any())
                 .AsNoTracking()
-                .Select(c => new MandateIdsAndStatus(c.Id, c.Company!.JeDeclareFolder!.JdcDossierId!,
-                    c.JeDeclareCollection!.JdcRibId!, c.Statuses.Single(s => s.IsCurrent).StatusCode))
+                .Select(c => new MandateIdsAndStatus(c.Id, 
+                    c.AccountNumber,
+                    c.Company!.JeDeclareFolder!.JdcDossierId!,
+                    c.JeDeclareCollection!.JdcRibId!, c.Statuses.Single(s => s.IsCurrent).StatusCode,
+                    c.CreatedById,
+                    c.CompanyId))
                 .ToListAsync();
         }
 
@@ -2035,6 +2040,8 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                     RejectReason = collection.RejectReason,
                     AccountNumber = collection.AccountNumber,
                     Statuses = collection.Statuses.ToList(),
+                    CreatedBy = collection.CreatedBy,
+                    CreatedById = collection.CreatedById,
                 });
         }
 

@@ -62,7 +62,7 @@ public class MandateCreationOrchestrationTest
     }
 
     [Fact]
-    public async Task GetCollection_Should_Return_ExitingCollection()
+    public async Task GetCollection_Should_Return_ExistingCollection()
     {
         _mandateRepository
             .Setup(t => t
@@ -75,7 +75,7 @@ public class MandateCreationOrchestrationTest
             .Returns(Task.FromResult<CollectionDb?>(new CollectionDb
             {
                 Id = _collectionDbId,
-                CompanyId = _companyId,
+                CompanyId = _companyId
             }));
 
         _dbService

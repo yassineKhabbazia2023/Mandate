@@ -57,7 +57,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             // if the collection has not been found, we can create a new collection normally.
             if (collectionId == Guid.Empty)
             {
-                collectionId = await this.databaseService.CreateCollectionAsync(mandateCreation.Bban, company.Id);
+                collectionId = await this.databaseService.CreateCollectionAsync(mandateCreation.Bban, company.Id, contactId);
             }
             // If the collection has been found with the status Incident, then we can update the status to Creation_InProgress.
             else
@@ -65,6 +65,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 await this.databaseService.CreateStatusAsync(collectionId, (int)JdcCollectionStatus.Creation_InProgress);
 
             }
+
+            var collaborator = await this.databaseService.GetCollaboratorById(contactId);
 
             var message = new MandateCreationMessage
             {
@@ -78,6 +80,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 Bank = bank,
                 Bban = mandateCreation.Bban,
                 Company = company,
+                Collaborator = collaborator,
             };
 
             await this.eventManager.PublishCreateMandateAsync(message);

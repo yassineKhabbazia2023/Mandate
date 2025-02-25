@@ -17,5 +17,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
         public bool IsActive { get; set; }
 
         public List<CompanyCollaboratorDb> CompanyCollaborators { get; set; } = null!;
+
+        public List<CollectionDb> Collections { get; set; } = null!;
     }
 }

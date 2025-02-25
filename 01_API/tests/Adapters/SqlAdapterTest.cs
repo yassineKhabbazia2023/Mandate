@@ -148,7 +148,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 bban,
                 new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 9, 28, 22, 0, 0, DateTimeKind.Utc),
-                status);
+                status,
+                null);
 
             result.Should().BeEquivalentTo(expectedCollection);
         }
@@ -499,7 +500,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 bban,
                 It.IsAny<DateTime>(),
                 It.IsAny<DateTime>(),
-                It.IsAny<Status>());
+                It.IsAny<Status>(),
+                It.IsAny<Collaborator?>());
 
             MandateLogDb mandateLog = new MandateLogDb()
             {
@@ -560,7 +562,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 bban,
                 It.IsAny<DateTime>(),
                 It.IsAny<DateTime>(),
-                It.IsAny<Status>());
+                It.IsAny<Status>(),
+                It.IsAny<Collaborator?>());
 
             MandateLogDb mandateLog = new MandateLogDb()
             {
@@ -823,7 +826,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             // Arrange
             var mandateCreationLogMessage = new MandateCreationLogMessage(
                 Guid.NewGuid(),
-                "hello message content"
+                "hello message content",
+                1234
             );
 
             var mandateLogDb = mandateCreationLogMessage.ToMandateCreationLogMessageDB();
@@ -843,7 +847,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             repository.Verify(
                 r => r.SaveMandateCreationLogMessageAsync(It.Is<MandateCreationLogMessageDb>(m =>
                 m.CollectionId == mandateLogDb.CollectionId &&
-                m.MessageContent == mandateLogDb.MessageContent
+                m.MessageContent == mandateLogDb.MessageContent &&
+                m.CreatedById == 1234
             )), Times.Once);
         }
 

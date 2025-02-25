@@ -54,7 +54,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 .First(i => i.StatusCode == (int)CollectionStatus.Creation_Inprogress);
 
             Status? status = currentStatus!.ToModel();
-
+            Collaborator? collaborator = null;
+            if(source.CreatedBy != null)
+            {
+                collaborator = new Collaborator(source.CreatedBy.Id,
+                    source.CreatedBy.Email,
+                    source.CreatedBy.FirstName,
+                    source.CreatedBy.LastName);
+            }
             return new Collection(
                 id: source.Id,
                 collectionServicesProviderId: source.JeDeclareCollection?.JdcReleveId,
@@ -62,7 +69,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 bban: bban,
                 creationDate: GetCreationDate(creationStatus),
                 modificationDate: GetModificationDate(currentStatus!, creationStatus!),
-                status: status!);
+                status: status!,
+                createdBy: collaborator);
         }
 
         public static Company ToModel(this Sql.CompanyDb source)
@@ -110,7 +118,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
         }
 
-        public static Sql.CollectionDb ToSql(this Bban source, int companyId)
+        public static Sql.CollectionDb ToSql(this Bban source, int companyId, int? createdById)
         {
             return new Sql.CollectionDb()
             {
@@ -120,6 +128,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 CheckDigits = source.CheckDigits,
                 CompanyId = companyId,
                 RejectReason = null,
+                CreatedById = createdById
             };
         }
 
@@ -212,7 +221,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             };
         }
 
-        public static Sql.CollectionDb ToCollectionDB(this Collection collection, int companyId)
+        public static Sql.CollectionDb ToCollectionDB(this Collection collection, int companyId, int? createdById)
         {
             return new Sql.CollectionDb()
             {
@@ -225,6 +234,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 Personal = collection.Company!.ToPersonalDb(),
                 CompanyId = companyId,
                 Statuses = collection.ToStatusesDB(),
+                CreatedById = createdById,
+
             };
         }
 
@@ -256,6 +267,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 CollectionId = mandateCreationLogMessage.CollectionId,
                 MessageContent = mandateCreationLogMessage.MessageContent,
                 CreatedDate = mandateCreationLogMessage.CreatedDate,
+                CreatedById = mandateCreationLogMessage.CreatorContactId,
             };
         }
 

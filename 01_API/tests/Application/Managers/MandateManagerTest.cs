@@ -56,7 +56,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             // Arrange
             var awaitedStatus = CollectionStatus.Creation_Inprogress;
             Guid collectionId = Guid.NewGuid();
-            var collection = new Collection(collectionId, null, null, null, DateTime.UtcNow, DateTime.UtcNow, new Status(awaitedStatus, nameof(CollectionStatus.Creation_Inprogress), Mandate.JdcCollectionStatus.Creation_InProgress));
+            var collection = new Collection(collectionId, null, null, null, DateTime.UtcNow, DateTime.UtcNow, new Status(awaitedStatus, nameof(CollectionStatus.Creation_Inprogress), Mandate.JdcCollectionStatus.Creation_InProgress), null);
 
             this._mockDatabaseService
                 .Setup(m => m.GetCollectionById(collectionId))
@@ -89,7 +89,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 bban,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status, null);
 
             var expectedBytes = Array.Empty<byte>();
 
@@ -128,7 +128,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 bban,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status, null);
 
             _mockDatabaseService
                 .Setup(m => m.GetCollectionById(id))
@@ -156,7 +156,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 bban,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status, null);
 
             var expectedBytes = Array.Empty<byte>();
 
@@ -190,7 +190,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 bban,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status, null);
 
             var expectedBytes = Array.Empty<byte>();
 
@@ -429,7 +429,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 bban,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status, null);
 
             var fileContent = Encoding.UTF8.GetBytes("This is a test file content");
             var fileStream = new MemoryStream(fileContent);
@@ -484,7 +484,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 bban,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status, null);
 
             var fileContent = Encoding.UTF8.GetBytes("This is a test file content");
             var fileStream = new MemoryStream(fileContent);
@@ -540,7 +540,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 bban,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status, null);
 
             var fileContent = Encoding.UTF8.GetBytes("This is a test file content");
             var fileStream = new MemoryStream(fileContent);
@@ -633,11 +633,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             var collectionId = Guid.NewGuid();
 
-            this._mockDatabaseService.Setup(x => x.CreateCollectionAsync(mandateCreation.Bban, company.Id))
+            this._mockDatabaseService.Setup(x => x.CreateCollectionAsync(mandateCreation.Bban, company.Id, 2342))
                 .ReturnsAsync(collectionId);
 
             this._mockDatabaseService.Setup(x => x.GetCollectionIfAlreadyExistingInIncidentStatus(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber, mandateCreation.ErpId))
                 .ReturnsAsync(Guid.Empty);
+
+            this._mockDatabaseService.Setup(x => x.GetCollaboratorById(collaboratorId))
+               .ReturnsAsync(new Collaborator(collaboratorId, "test@yopmail.com", "lili", "lolo"));
 
             var mandateMessage = new MandateCreationMessage
             {
@@ -650,7 +653,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 BankServicesProviderId = null,
                 Bank = bank,
                 Bban = rib,
-                Company = company
+                Company = company,
+                Collaborator = new Collaborator(collaboratorId, "test@yopmail.com", "lili", "lolo"),
             };
 
             this._mockEventManager.Setup(x => x.PublishCreateMandateAsync(It.IsAny<MandateCreationMessage>(), It.IsAny<string?>()))
@@ -669,7 +673,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             this._mockDatabaseService.Verify(x => x.CheckCollecteConfigExistAsync(mandateCreation.Bban), Times.Once);
             this._mockDatabaseService.Verify(x => x.GetCompanyByErpIdAsync(mandateCreation.ErpId, collaboratorId), Times.Once);
             this._mockDatabaseService.Verify(x => x.GetBankByCodeAsync(mandateCreation.Bban.BankCode), Times.Once);
-            this._mockDatabaseService.Verify(x => x.CreateCollectionAsync(mandateCreation.Bban, company.Id), Times.Once);
+            this._mockDatabaseService.Verify(x => x.CreateCollectionAsync(mandateCreation.Bban, company.Id, collaboratorId), Times.Once);
             this._mockEventManager.Verify(x => x.PublishCreateMandateAsync(It.IsAny<MandateCreationMessage>(), It.IsAny<string?>()), Times.Once);
         }
 
@@ -756,6 +760,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             var collectionId = Guid.NewGuid();
 
+            this._mockDatabaseService.Setup(x => x.GetCollaboratorById(collaboratorId))
+               .ReturnsAsync(new Collaborator(collaboratorId, "test@yopmail.com", "lili", "lolo"));
 
             this._mockDatabaseService.Setup(x => x.CreateStatusAsync(collectionId, (int)JdcCollectionStatus.Creation_InProgress))
                 .ReturnsAsync(new Status(CollectionStatus.Creation_Inprogress, "creation in progress", Mandate.JdcCollectionStatus.Creation_InProgress));
@@ -774,7 +780,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 BankServicesProviderId = null,
                 Bank = bank,
                 Bban = rib,
-                Company = company
+                Company = company,
+                Collaborator = new Collaborator(collaboratorId, "test@yopmail.com", "lili", "lolo"),
             };
 
             this._mockEventManager.Setup(x => x.PublishCreateMandateAsync(It.IsAny<MandateCreationMessage>(), It.IsAny<string?>()))
@@ -794,7 +801,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             this._mockDatabaseService.Verify(x => x.GetCompanyByErpIdAsync(mandateCreation.ErpId, collaboratorId), Times.Once);
             this._mockDatabaseService.Verify(x => x.GetBankByCodeAsync(mandateCreation.Bban.BankCode), Times.Once);
             this._mockEventManager.Verify(x => x.PublishCreateMandateAsync(It.IsAny<MandateCreationMessage>(), It.IsAny<string?>()), Times.Once);
-            this._mockDatabaseService.Verify(x => x.CreateCollectionAsync(mandateCreation.Bban, company.Id), Times.Never);
+            this._mockDatabaseService.Verify(x => x.CreateCollectionAsync(mandateCreation.Bban, company.Id, collaboratorId), Times.Never);
         }
 
         [Fact]
@@ -890,7 +897,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 bban,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status, null);
             var expectedBytes = Array.Empty<byte>();
 
             _mockDatabaseService
@@ -928,7 +935,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 bban,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status, null);
 
             _mockDatabaseService
                 .Setup(m => m.GetCollectionById(id))
@@ -955,7 +962,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 bban,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status, null);
 
             _mockDatabaseService
                 .Setup(m => m.GetCollectionById(id))
@@ -983,7 +990,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 bban,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status, null);
             var expectedBytes = Array.Empty<byte>();
 
             _mockDatabaseService
@@ -1015,7 +1022,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 null,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status, null);
             var expectedBytes = Array.Empty<byte>();
 
             _mockDatabaseService
@@ -1050,7 +1057,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 bban,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status, null);
 
             var userEmail = "user@mail.com";
 
@@ -1079,7 +1086,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         {
             // Arrange
             var mandateId = new PredictableGuid().NewGuid();
-            var collection = new Collection(mandateId, null!, null!, null!, DateTime.MinValue, DateTime.MinValue, null!);
+            var collection = new Collection(mandateId, null!, null!, null!, DateTime.MinValue, DateTime.MinValue, null!, null);
 
             var userEmail = "user@mail.com";
 
@@ -1122,7 +1129,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                 bban,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status, null);
 
             _mockJeDeclareService
               .Setup(m => m.GetMandatPdfAsync(collection.Company!.BankServicesProviderId!, collection.Bban!.BbanServicesProviderId!))

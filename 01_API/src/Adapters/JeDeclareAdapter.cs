@@ -1,4 +1,4 @@
-﻿// <copyright file="JeDeclareAdapter.cs" company="KPMG">
+// <copyright file="JeDeclareAdapter.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
@@ -120,7 +120,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             }
 
             // You might want to return a default value or null if the exception is caught
-            return null;
+            return [];
         }
 
         public async Task<bool> CheckSignedMandatExists(string jdcFolderId, string jdcRibId)

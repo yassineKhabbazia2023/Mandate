@@ -52,7 +52,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
                 GetBban(),
                 new DateTime(2023, 10, 18, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 10, 18, 0, 0, 0, DateTimeKind.Utc),
-                GetStatus());
+                GetStatus(),
+                null);
         }
 
         public static Status GetStatus(CollectionStatus collectionStatus = CollectionStatus.ToDo, string? statusName = null)

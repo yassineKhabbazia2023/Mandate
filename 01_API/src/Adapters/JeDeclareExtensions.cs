@@ -93,7 +93,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 bank: bank);
         }
 
-        public static Collection ToModel(this Releve source, Company company, Bban rib, Guid collectionId, Status initStatus)
+        public static Collection ToModel(this Releve source, Company company, Bban rib, Guid collectionId, Status initStatus, Collaborator? collaborator)
         {
             Collection collection = new Collection(
                 collectionId,
@@ -102,7 +102,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 rib,
                 DateTime.UtcNow,
                 DateTime.UtcNow,
-                initStatus);
+                initStatus,
+                collaborator);
 
             return collection;
         }

@@ -183,10 +183,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 bban,
                 DateTime.UtcNow,
                 DateTime.UtcNow,
-                new Status(CollectionStatus.ToDo, "ToDo", Mandate.JdcCollectionStatus.Creation_InProgress));
+                new Status(CollectionStatus.ToDo, "ToDo", Mandate.JdcCollectionStatus.Creation_InProgress),
+                null);
 
             // Act
-            var collection = newReleve.ToModel(company, bban, new Guid("00000001-0000-0000-0000-000000000000"), new Status(CollectionStatus.ToDo, "ToDo", Mandate.JdcCollectionStatus.Creation_InProgress));
+            var collection = newReleve.ToModel(company, bban, new Guid("00000001-0000-0000-0000-000000000000"), new Status(CollectionStatus.ToDo, "ToDo", Mandate.JdcCollectionStatus.Creation_InProgress), null);
 
             // Assert
             collection.Id.Should().Be(expectedCollection.Id);

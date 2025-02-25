@@ -2,26 +2,23 @@
 // Copyright (c) PULSE. All rights reserved.
 // </copyright>
 
-using Azure.Identity;
 using KPMG.Pulse.Back.Accounting.Mandate;
 using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
 using KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions;
-using KPMG.Pulse.Back.Accounting.Mandate.Client.Http;
 using KPMG.Pulse.Back.Accounting.Mandate.Function;
 using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
 using Mandate.AzureFunctions;
-using Mandate.AzureFunctions.Functions;
 using Mandate.AzureFunctions.Interfaces;
 using Mandate.AzureFunctions.Managers;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics.CodeAnalysis;
+using KPMG.Pulse.Back.Accounting.Mandate.Function.Extensions;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -60,13 +57,7 @@ var host = new HostBuilder()
         services.AddSingleton<ISqlAdapter, KPMG.Pulse.Back.Accounting.Mandate.Function.SqlAdapter>();
         services.AddScoped<IDatabaseService, KPMG.Pulse.Back.Accounting.Mandate.Adapters.SqlAdapter>();
 
-        services.AddAzureClients(builder =>
-        {
-            builder.AddServiceBusClientWithNamespace(config["serviceBusNameSpace:fullyQualifiedNamespace"]).WithCredential(new DefaultAzureCredential(new DefaultAzureCredentialOptions
-            {
-                ManagedIdentityClientId = config["serviceBusNameSpace:clientId"],
-            }));
-        });
+        services.AddServiceBus(context.Configuration);
     })
     .ConfigureLogging(logging =>
     {
@@ -80,6 +71,7 @@ var host = new HostBuilder()
             }
         });
     })
+    
     .Build();
 
 host.Run();

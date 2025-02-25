@@ -26,5 +26,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         public Bank Bank { get; init; }
 
         public Company Company { get; set; }
+
+        public Collaborator? Collaborator { get; init; }
     }
 }

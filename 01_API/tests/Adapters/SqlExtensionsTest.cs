@@ -135,7 +135,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         {
             Bban entity = EntityFactory.Bban;
 
-            var res = entity.ToSql(101);
+            var res = entity.ToSql(101, null);
 
             var expected = new Sql.CollectionDb()
             {
@@ -471,7 +471,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
             var company = new Company(default, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
             Status status = new Status(CollectionStatus.ToDo, "En cours", Mandate.JdcCollectionStatus.Creation_InProgress);
-            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
+            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status, null);
 
             var expected = new List<Sql.StatusDb>()
             {
@@ -509,7 +509,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
             var company = new Company(default, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
             Status status = new Status(CollectionStatus.ToDo, "En cours", Mandate.JdcCollectionStatus.Creation_InProgress);
-            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
+            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status, null);
 
             var expected = new Sql.PersonalDb()
             {
@@ -540,7 +540,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
             var company = new Company(default, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
             Status status = new Status(CollectionStatus.ToDo, "En cours", Mandate.JdcCollectionStatus.Creation_InProgress);
-            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
+            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status, null);
 
             var expected = new Sql.JeDeclareCollectionDb()
             {
@@ -565,7 +565,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
             var company = new Company(default, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
             Status status = new Status(CollectionStatus.ToDo, "En cours", Mandate.JdcCollectionStatus.Creation_InProgress);
-            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
+            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status, null);
 
             var expected = new Sql.JeDeclareFolderDb()
             {
@@ -589,7 +589,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
             var company = new Company(default, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
             Status status = new Status(CollectionStatus.ToDo, "En cours", Mandate.JdcCollectionStatus.Creation_InProgress);
-            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
+            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status, null);
 
             var expected = new Sql.CompanyDb()
             {
@@ -623,7 +623,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var signatory = new Signatory("m", "OLIVIER", "BRUNELAT", "toto@gmail.com");
             var company = new Company(default, "SPORT FIT SAS", "83455379400019", "1000326214", "19820673", signatory, address);
             Status status = new Status(CollectionStatus.ToDo, "En cours", Mandate.JdcCollectionStatus.Creation_InProgress);
-            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status);
+            var collection = new Collection(Guid.Empty, "8909440", company, bban1, new DateTime(2019, 10, 10, 8, 54, 3), new DateTime(2019, 10, 10, 8, 54, 3), status, null);
 
             var expected = new Sql.CollectionDb()
             {
@@ -642,7 +642,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             };
 
             // Act
-            var result = collection.ToCollectionDB(101);
+            var result = collection.ToCollectionDB(101, null);
 
             // Assert
             result.Id.Should().Be(collection.Id);
@@ -686,7 +686,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 bban,
                 It.IsAny<DateTime>(),
                 It.IsAny<DateTime>(),
-                It.IsAny<Status>());
+                It.IsAny<Status>(),
+                It.IsAny<Collaborator?>());
 
             var result = collection.ToMandateLogDB(exception);
             result.SiretNumber.Should().Be("12345678901234");
@@ -710,7 +711,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             // Arrange
             var mandateCreationLogMessage = new MandateCreationLogMessage(
                 Guid.NewGuid(),
-                "hey message content"
+                "hey message content",
+                897
             );
 
             // Act
@@ -720,6 +722,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             result.Id.Should().Be(mandateCreationLogMessage.Id);
             result.CollectionId.Should().Be(mandateCreationLogMessage.CollectionId);
             result.MessageContent.Should().Be(mandateCreationLogMessage.MessageContent);
+            result.CreatedById.Should().Be(897);
             result.CreatedDate.Should().BeCloseTo(mandateCreationLogMessage.CreatedDate, TimeSpan.FromSeconds(1));
         }
     }

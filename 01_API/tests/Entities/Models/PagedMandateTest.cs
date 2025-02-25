@@ -31,7 +31,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Tests
                     bban,
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress));
+                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress), null);
 
             var counters = new Counters(1, 1, 0, 0, 0, 0);
             var entity = new PagedMandate(counters, new List<Collection> { collection });

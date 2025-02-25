@@ -75,7 +75,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 bban,
                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                status);
+                status, null);
 
             var model = collection.ToCollectionSummary();
 
@@ -118,7 +118,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 bban,
                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                status);
+                status, null);
 
             var model = collection.ToCollectionSummary();
 
@@ -161,7 +161,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 bban,
                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                status);
+                status,
+                null);
 
             var model = collection.ToTechnicalCollectionSummary();
 
@@ -194,7 +195,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 null,
                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                status);
+                status, null);
 
             var model = collection.ToTechnicalCollectionSummary();
 
@@ -348,7 +349,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                     bban,
                     new DateTime(2022, 1, 1),
                     new DateTime(2022, 1, 1),
-                    new Status(default, string.Empty, default));
+                    new Status(default, string.Empty, default),
+                    null);
 
             List<Collection> collections = new List<Collection>()
             {
@@ -389,7 +391,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                     bban,
                     new DateTime(2022, 1, 1),
                     new DateTime(2022, 1, 1),
-                    new Status(default, string.Empty, default));
+                    new Status(default, string.Empty, default),
+                    null);
 
             List<Collection> collections = new List<Collection>()
             {

@@ -205,7 +205,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 bban,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status,
+                null);
             var mandateFile = new byte[] { 1, 2, 3, 4, 5 };
             var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
 
@@ -239,7 +240,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 bban,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status,
+                null);
             var mandateFile = new byte[] { 1, 2, 3, 4, 5 };
             var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
 
@@ -447,7 +449,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             var result = await adapter.GetAllConfigurationFromFolderAsync("jdcFolderId");
 
             // Assert
-            result.Should().BeNull();
+            result.Should().BeEmpty();
         }
 
         [Fact]
@@ -494,7 +496,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 .ReturnsAsync(true);
 
             var adapter = new JeDeclareAdapter(jedeclareClient.Object);
-            var result = await adapter.DeactivateCollection(new Collection(Guid.Empty, "r", new Company(default, null!, null!, null!, "f", null!, null!), null!, DateTime.MinValue, DateTime.MinValue, null!));
+            var result = await adapter.DeactivateCollection(new Collection(Guid.Empty, "r", new Company(default, null!, null!, null!, "f", null!, null!), null!, DateTime.MinValue, DateTime.MinValue, null!, null));
 
             result.Should().BeTrue();
             jedeclareClient.VerifyAll();
@@ -517,7 +519,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 bban,
                 DateTime.MinValue,
                 DateTime.MinValue,
-                null!);
+                null!,
+                null);
 
             var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
             jedeclareClient.Setup(client => client.DeactivateCollection("f", "r", partnership))
@@ -538,7 +541,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 .ThrowsAsync(new JeDeclareApiException("Error message"));
 
             var adapter = new JeDeclareAdapter(jedeclareClient.Object);
-            Func<Task> action = async () => await adapter.DeactivateCollection(new Collection(Guid.Empty, "r", new Company(default, null!, null!, null!, "f", null!, null!), null!, DateTime.MinValue, DateTime.MinValue, null!));
+            Func<Task> action = async () => await adapter.DeactivateCollection(new Collection(Guid.Empty, "r", new Company(default, null!, null!, null!, "f", null!, null!), null!, DateTime.MinValue, DateTime.MinValue, null!, null));
             await action.Should().ThrowAsync<ServicesProviderException>();
         }
 

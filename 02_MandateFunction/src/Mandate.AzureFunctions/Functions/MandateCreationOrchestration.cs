@@ -60,7 +60,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
                 throw new CollectionNotFoundException($"The collection with the company id {message.Company.Id} and accountNumber : {message.Bban.AccountNumber} is not found");
             }
 
-            var messageToSave = new MandateCreationLogMessage(collection.Id, JsonConvert.SerializeObject(message));
+            var messageToSave = new MandateCreationLogMessage(collection.Id, JsonConvert.SerializeObject(message), message.Collaborator?.Id);
             await this.databaseService.SaveMandateCreationLogMessageAsync(messageToSave);
 
             return collection.Id;

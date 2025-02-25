@@ -55,6 +55,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
             modelBuilder.Entity<CollectionDb>().HasKey(c => c.Id);
             modelBuilder.Entity<CollectionDb>().HasOne(s => s.Company).WithMany(c => c.Collections).HasForeignKey(s => s.CompanyId);
+            modelBuilder.Entity<CollectionDb>().HasOne(s => s.CreatedBy).WithMany(c => c.Collections).HasForeignKey(s => s.CreatedById).IsRequired(false);
+
             modelBuilder.Entity<CollectionDb>().HasOne(c => c.Personal)
                 .WithOne(p => p.Collection)
                 .HasForeignKey<PersonalDb>(p => p.CollectionId)
@@ -167,12 +169,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<MandateCreationLogMessageDb>().HasKey(m => m.Id);
             modelBuilder.Entity<MandateCreationLogMessageDb>().Property(m => m.MessageContent).IsRequired().HasColumnType("NVARCHAR(MAX)");
             modelBuilder.Entity<MandateCreationLogMessageDb>().Property(m => m.CreatedDate).IsRequired();
+            modelBuilder.Entity<MandateCreationLogMessageDb>().Property(m => m.CreatedById).IsRequired(false);
 
             modelBuilder.Entity<MandateCreationLogMessageDb>()
                 .HasOne<CollectionDb>()
                 .WithMany()
                 .HasForeignKey(m => m.CollectionId)
                 .IsRequired();
+            modelBuilder.Entity<MandateCreationLogMessageDb>()
+                .HasOne<CollaboratorDb>()
+                .WithMany()
+                .HasForeignKey(m => m.CreatedById);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

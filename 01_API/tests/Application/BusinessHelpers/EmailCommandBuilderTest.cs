@@ -26,7 +26,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
                 bban,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status,
+                null);
             var options = new MandateEmailOptions
             {
                 MandateCancellationSubject = "Cancellation Subject",
@@ -68,7 +69,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
                 bban,
                 DateTime.Now,
                 DateTime.Now,
-                status);
+                status,
+                null);
             var options = new MandateEmailOptions
             {
                 MandateUploadedSubject = "Uploaded Subject",

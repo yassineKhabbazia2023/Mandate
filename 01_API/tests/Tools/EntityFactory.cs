@@ -17,12 +17,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         public static Company Company => new(0, "Raison Sociale", "siret", "ibsAccountNumber", "jdcDossierId", Signatory, Address);
 
         public static Signatory Signatory => new("Mme", "First", "Last", "first.last@outlook.com");
+        public static Collaborator Collaborator => new(0, "collab@email.com", "fname", "lname");
 
-        public static Collection Collection => new(new PredictableGuid().NewGuid(), "21983", Company, Bban, new DateTime(2022, 1, 1), new DateTime(2022, 1, 1), new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress));
+
+        public static Collection Collection => new(new PredictableGuid().NewGuid(), "21983", Company, Bban, new DateTime(2022, 1, 1), new DateTime(2022, 1, 1), new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress), Collaborator);
 
         public static Counters Counters => new(1, 1, 0, 0, 0, 0);
 
-        public static Collaborator Collaborator => new(0, "collab@email.com", "fname", "lname");
 
         public static PagedMandate PagedMandate(List<Collection> collections) => new(Counters, collections);
 

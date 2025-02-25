@@ -83,7 +83,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     bban,
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress));
+                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress),
+                    null);
 
             var pm = new PagedMandate(
                 new Counters(1, 1, 0, 0, 0, 0),
@@ -239,7 +240,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     bban,
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress));
+                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress),
+                    null);
 
             var pm = new PagedTechnicalMandate(
                 new Counters(1, 1, 0, 0, 0, 0),
@@ -1437,7 +1439,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     bban,
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress)));
+                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress),
+                    null));
             }
 
             return collections;

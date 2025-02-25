@@ -116,9 +116,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return await this.mandateRepository.CheckCollecteConfigExistAsync(bban!.BankCode, bban!.BranchCode, bban!.AccountNumber);
         }
 
-        public async Task<Guid> CreateCollectionAsync(Bban bban, int companyId)
+        public async Task<Guid> CreateCollectionAsync(Bban bban, int companyId, int? createdBy)
         {
-            CollectionDb collection = bban.ToSql(companyId);
+            CollectionDb collection = bban.ToSql(companyId, createdBy);
             collection.Statuses = new List<StatusDb>() { SqlExtensions.CreationInProgress() };
             return (await this.mandateRepository.CreateCollectionAsync(collection)).Id;
         }
@@ -131,6 +131,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         public async Task<Collaborator?> GetCollaboratorByEmail(string collaboratorEmail)
         {
             var collabDb = await this.mandateRepository.GetCollaboratorByEmailAsync(collaboratorEmail).ConfigureAwait(false);
+
+            return collabDb?.ToModel();
+        }
+
+        public async Task<Collaborator?> GetCollaboratorById(int contactId)
+        {
+            var collabDb = await this.mandateRepository.GetContactByIdAsync(contactId).ConfigureAwait(false);
 
             return collabDb?.ToModel();
         }

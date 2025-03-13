@@ -5,20 +5,30 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 {
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
+    using Microsoft.Extensions.Logging.Abstractions;
 
     public class JeDeclareAdapterTest
     {
+        readonly JeDeclareAdapter adapter;
+        readonly Mock<IJeDeclareClient> jedeclareClient;
+
+        public JeDeclareAdapterTest()
+        {
+            jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            adapter = new JeDeclareAdapter(NullLogger<JeDeclareAdapter>.Instance, jedeclareClient.Object);
+        }
+
+
         [Fact]
         public async Task GetMandatPdfAsync()
         {
             byte[] data = { 0, 16, 104, 213 };
 
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            
             jedeclareClient.Setup(c => c.GetMandatPdfAsync("jdcFolderIdT", "jdcRibIdT"))
                 .ReturnsAsync(data)
                 .Verifiable();
 
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
             var result = await adapter.GetMandatPdfAsync("jdcFolderIdT", "jdcRibIdT");
 
             result.Should().BeEquivalentTo(data);
@@ -63,7 +73,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 },
             };
 
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            
             jedeclareClient.Setup(c => c.CreateFolderAsync(It.IsAny<DossierClient>()))
                 .Callback<DossierClient>(dc =>
                 {
@@ -81,8 +91,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 })
                 .ReturnsAsync(dossierClient)
                 .Verifiable();
-
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
 
             var createdFolder = await adapter.CreateFolderAsync(company, address, signatory);
 
@@ -114,12 +122,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         [Fact]
         public async Task GetMandatPdfAsync_when_GetMandatPdfAsync_Throw_JeDeclareApiException()
         {
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            
             jedeclareClient.Setup(c => c.GetMandatPdfAsync("jdcFolderIdT", "jdcRibIdT"))
                 .ThrowsAsync(new JeDeclareApiException("message"))
                 .Verifiable();
 
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            
             Func<Task> action = async () => await adapter.GetMandatPdfAsync("jdcFolderIdT", "jdcRibIdT");
             await action.Should().ThrowAsync<ServicesProviderException>().WithMessage("message");
 
@@ -150,7 +158,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 Rib = rib,
             };
 
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            
             jedeclareClient.Setup(dc => dc.CreateCollecteConfigurationAsync(
                 "bankServicesProviderIdT",
                 It.Is<Releve>(item => CompareRib(item.Rib!, rib)),
@@ -164,7 +172,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             Bank? bank = new Bank("12345", "biap", "biap group", "ebicsCardIdT", new BankAgreement(JdcPartnership.NonPartner));
             Bban bban = new Bban("12345", "56789", "12345678901", "88", "6789", bank);
 
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            
             var result = await adapter.CreateCollecteConfigurationAsync(company, bban, signatory, bankServicesProviderId);
 
             result.Should().Be("releveId");
@@ -175,12 +183,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         [Fact]
         public async Task GetMandatPdfAsync_when_GetMandatPdfAsync_Throw_Exception()
         {
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            
             jedeclareClient.Setup(c => c.GetMandatPdfAsync("jdcFolderIdT", "jdcRibIdT"))
                 .ThrowsAsync(new Exception("message"))
                 .Verifiable();
 
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            
             Func<Task> action = async () => await adapter.GetMandatPdfAsync("jdcFolderIdT", "jdcRibIdT");
             await action.Should().NotThrowAsync<ServicesProviderException>();
             await action.Should().ThrowAsync<Exception>().WithMessage("message");
@@ -208,7 +216,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 status,
                 null);
             var mandateFile = new byte[] { 1, 2, 3, 4, 5 };
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            
 
             var bankServicesProviderId = collection.Company?.BankServicesProviderId;
             var bbanServicesProviderId = collection.Bban?.BbanServicesProviderId;
@@ -217,7 +225,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 .ReturnsAsync("signedMandateId")
                 .Verifiable();
 
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            
             var result = await adapter.UploadSignedMandate(collection, mandateFile);
 
             result.Should().BeEquivalentTo("signedMandateId");
@@ -243,7 +251,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 status,
                 null);
             var mandateFile = new byte[] { 1, 2, 3, 4, 5 };
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            
 
             var bankServicesProviderId = collection.Company?.BankServicesProviderId;
             var bbanServicesProviderId = collection.Bban?.BbanServicesProviderId;
@@ -252,7 +260,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                   .ThrowsAsync(new JeDeclareApiException("message"))
                   .Verifiable();
 
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            
             Func<Task> action = async () => await adapter.UploadSignedMandate(collection, mandateFile);
             await action.Should().ThrowAsync<ServicesProviderException>().WithMessage("message");
 
@@ -284,7 +292,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 NomTitulaire = "Elleuch",
             };
 
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            
             jedeclareClient.Setup(dc => dc.AddRibToFolderAsync(It.IsAny<string>(), It.IsAny<Rib>()))
                 .Callback<string, Rib>((s, r) =>
                 {
@@ -308,7 +316,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 bbanServicesProviderId: "idT",
                 bank: bank);
 
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            
             var result = await adapter.AddRibToFolderAsync(bankServicesProviderId, mandateCreation, bank);
 
             result.Should().BeEquivalentTo(expextedBban);
@@ -321,11 +329,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
             // Arrange
             var expectedPdf = new byte[] { 1, 2, 3, 4, 5 };
 
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            
             jedeclareClient.Setup(client => client.GetSignedMandatPdfAsync(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(expectedPdf);
 
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            
 
             // Act
             var result = await adapter.GetSignedMandatPdfAsync("jdcFolderId", "jdcRibId");
@@ -338,11 +346,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public async Task GetSignedMandatPdfAsync_ThrowsServicesProviderException_WhenJeDeclareApiExceptionThrown()
         {
             // Arrange
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            
             jedeclareClient.Setup(client => client.GetSignedMandatPdfAsync(It.IsAny<string>(), It.IsAny<string>()))
                 .ThrowsAsync(new JeDeclareApiException("Error message"));
 
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            
 
             // Act & Assert
             await Assert.ThrowsAsync<ServicesProviderException>(() => adapter.GetSignedMandatPdfAsync("jdcFolderId", "jdcRibId"));
@@ -406,12 +414,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 Releve = new Releve[] { releve },
             };
 
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            
             jedeclareClient.Setup(client => client.GetAllConfigurationFromFolderAsync(It.IsAny<string>()))
                 .ReturnsAsync(listeReleves)
                 .Verifiable();
 
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            
 
             var expectedTechnicalCollection = new List<TechnicalCollection>()
             {
@@ -438,12 +446,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public async Task GetAllConfigurationFromFolderAsync_ReturnNull_WhenNoReleve()
         {
             // Arrange
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            
             jedeclareClient.Setup(client => client.GetAllConfigurationFromFolderAsync(It.IsAny<string>()))
                 .ThrowsAsync(new JeDeclareApiException("Error message"))
                 .Verifiable();
 
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            
 
             // Act
             var result = await adapter.GetAllConfigurationFromFolderAsync("jdcFolderId");
@@ -456,12 +464,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public async Task CheckSignedMandatExists_ReturnTrue_WhenSignedMandateExists()
         {
             // Arrange
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            
             jedeclareClient.Setup(client => client.CheckSignedMandatExists(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(true)
                 .Verifiable();
 
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            
 
             // Act
             var result = await adapter.CheckSignedMandatExists("jdcFolderId", "jdcRibId");
@@ -474,12 +482,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         public async Task CheckSignedMandatExists_ReturnFalse_WhenThereIsAJeDeclareApiException()
         {
             // Arrange
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            
             jedeclareClient.Setup(client => client.CheckSignedMandatExists(It.IsAny<string>(), It.IsAny<string>()))
                 .ThrowsAsync(new JeDeclareApiException())
                 .Verifiable();
 
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            
 
             // Act
             var result = await adapter.CheckSignedMandatExists("jdcFolderId", "jdcRibId");
@@ -491,11 +499,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         [Fact]
         public async Task DeactivateCollection_Ok()
         {
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            
             jedeclareClient.Setup(client => client.DeactivateCollection("f", "r", It.IsAny<bool>()))
                 .ReturnsAsync(true);
 
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            
             var result = await adapter.DeactivateCollection(new Collection(Guid.Empty, "r", new Company(default, null!, null!, null!, "f", null!, null!), null!, DateTime.MinValue, DateTime.MinValue, null!, null));
 
             result.Should().BeTrue();
@@ -522,11 +530,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 null!,
                 null);
 
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            
             jedeclareClient.Setup(client => client.DeactivateCollection("f", "r", partnership))
                 .ReturnsAsync(true);
 
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            
             var result = await adapter.DeactivateCollection(collection);
 
             result.Should().BeTrue();
@@ -536,11 +544,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
         [Fact]
         public async Task DeactivateCollection_Throws()
         {
-            var jedeclareClient = new Mock<IJeDeclareClient>(MockBehavior.Strict);
+            
             jedeclareClient.Setup(client => client.DeactivateCollection("f", "r", It.IsAny<bool>()))
                 .ThrowsAsync(new JeDeclareApiException("Error message"));
 
-            var adapter = new JeDeclareAdapter(jedeclareClient.Object);
+            
             Func<Task> action = async () => await adapter.DeactivateCollection(new Collection(Guid.Empty, "r", new Company(default, null!, null!, null!, "f", null!, null!), null!, DateTime.MinValue, DateTime.MinValue, null!, null));
             await action.Should().ThrowAsync<ServicesProviderException>();
         }

@@ -5,14 +5,17 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
     using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
+    using Microsoft.Extensions.Logging;
 
     public class JeDeclareAdapter : IJeDeclareService
     {
         private readonly IJeDeclareClient _jedeclareClient;
+        private readonly ILogger<JeDeclareAdapter> _logger;
 
-        public JeDeclareAdapter(IJeDeclareClient jedeclareClient)
+        public JeDeclareAdapter(ILogger<JeDeclareAdapter> logger, IJeDeclareClient jedeclareClient)
         {
             _jedeclareClient = jedeclareClient;
+            _logger = logger;
         }
 
         public async Task<Bban> AddRibToFolderAsync(string? bankServicesProviderId, CollectionCreationCommand mandateCreation, Bank bank)
@@ -111,12 +114,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             try
             {
                 var releves = await _jedeclareClient.GetAllConfigurationFromFolderAsync(jdcFolderId);
+
+                if (releves.Releve is null)
+                {
+                    return [];
+                }
+
                 return releves.Releve.Select(r => r.ToModel()).ToList();
             }
-            catch (JeDeclareApiException)
+            catch(Exception ex)
             {
-                // Optionally log the exception or take other actions
-                // Ignoring the exception
+                _logger.LogError(ex, "");
             }
 
             // You might want to return a default value or null if the exception is caught

@@ -1,13 +1,13 @@
 trigger:
   branches:
     include:
-     - main
-     - feature/*
-     - bugfix/*
-     - hotfix/*
+    - main
+    - feature/*
+    - bugfix/*
+    - hotfix/*
   paths:
     include:
-    - 01_API
+    - 01_API/src/Database
 
 pool:
   vmImage: windows-latest

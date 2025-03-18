@@ -50,11 +50,11 @@ var host = new HostBuilder()
             opt.JdcCompteId = context.Configuration["JeDeclareCompteId"]!;
             opt.HistoryDateEnabledBanks = context.Configuration["JeDeclareHistoryDateEnabledBanks"]!;
         });
-        services.AddSingleton<IJeDeclareService, JeDeclareAdapter>();
-        services.AddSingleton<IMandateProvider, MandateProvider>();
-        services.AddSingleton<IUpdateMandateStatusesHandler, UpdateMandateStatusesHandler>();
-        services.AddSingleton<IEventsFunctionManager, EventsFunctionManager>();
-        services.AddSingleton<ISqlAdapter, KPMG.Pulse.Back.Accounting.Mandate.Function.SqlAdapter>();
+        services.AddScoped<IJeDeclareService, JeDeclareAdapter>();
+        services.AddScoped<IMandateProvider, MandateProvider>();
+        services.AddScoped<IUpdateMandateStatusesHandler, UpdateMandateStatusesHandler>();
+        services.AddScoped<IEventsFunctionManager, EventsFunctionManager>();
+        services.AddScoped<ISqlAdapter, KPMG.Pulse.Back.Accounting.Mandate.Function.SqlAdapter>();
         services.AddScoped<IDatabaseService, KPMG.Pulse.Back.Accounting.Mandate.Adapters.SqlAdapter>();
 
         services.AddServiceBus(context.Configuration);

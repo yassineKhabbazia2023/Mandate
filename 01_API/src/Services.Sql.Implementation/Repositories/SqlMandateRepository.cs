@@ -5,6 +5,7 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 {
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Logging;
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq.Expressions;
@@ -13,10 +14,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
     public class SqlMandateRepository : IMandateRepository
     {
         private readonly MandateContext _context;
+        private readonly ILogger<SqlMandateRepository> _logger;
 
-        public SqlMandateRepository(MandateContext mandateContext)
+        public SqlMandateRepository(MandateContext mandateContext, ILogger<SqlMandateRepository> logger)
         {
             _context = mandateContext;
+            _logger = logger;
         }
 
         public async Task<CompanyDb> GetCompanyBySiretAsync(string siret)
@@ -2092,6 +2095,14 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
         {
             foreach (var statusToAdd in statuses)
             {
+                await UpdateMandateStatusAsync(statusToAdd);
+            }
+        }
+
+        private async Task UpdateMandateStatusAsync(StatusDb statusToAdd)
+        {
+            try
+            {
                 await using var transaction = await _context.Database.BeginTransactionAsync();
                 await _context.Status
                     .Where(s => s.CollectionId == statusToAdd.CollectionId)
@@ -2100,6 +2111,10 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
                 await _context.Status.AddAsync(statusToAdd);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed with message: {Message}", ex.Message);
             }
         }
     }

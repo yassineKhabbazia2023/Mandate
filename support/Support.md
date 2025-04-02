@@ -29,3 +29,29 @@ exceptions
     and customDimensions.Method == "GetAllConfigurationFromFolderAsync"
 | project timestamp, method = customDimensions.Method, severityLevel
 ```
+
+# Requêtes à utiliser sur AppInsight pour retrouver les erreurs liées aux appels de l'azure fonction StatusesMonitoringDailyRunSchedule_Starts.
+## Liste des appels de la fonction (StatusesMonitoringDailyRunSchedule_Start)
+```
+requests
+| project
+    timestamp,
+    id,
+    operation_Name,
+    success,
+    resultCode,
+    duration,
+    operation_Id,
+    cloud_RoleName,
+    invocationId=customDimensions['InvocationId']
+| where timestamp > ago(30d)
+| where cloud_RoleName =~ 'appcegpulsemdtprd0102' and operation_Name =~ 'StatusesMonitoringDailyRunSchedule_Start'
+| order by timestamp desc
+| take 20
+```
+
+## Détail des logs d'une execution de la fonction (StatusesMonitoringDailyRunSchedule_Start)
+### Avant d'éxectuer, il faut mettre à jour l'operationId et l'invocationId.
+```
+union traces| union exceptions| where timestamp > ago(30d)| where operation_Id == 'e074cdcf214ec537f7704e3861e3d9ce'| where customDimensions['InvocationId'] == 'cb4452b6-da01-4710-b396-debcc3ceeb6f'| order by timestamp asc| project timestamp, message = iff(message != '', message, iff(innermostMessage != '', innermostMessage, customDimensions.['prop__{OriginalFormat}'])), logLevel = customDimensions.['LogLevel'], severityLevel
+```

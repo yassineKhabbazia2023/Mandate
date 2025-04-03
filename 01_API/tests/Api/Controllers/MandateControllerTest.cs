@@ -7,6 +7,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
     using Aspose.Pdf.Operators;
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
+    using KPMG.Pulse.Back.Accounting.Mandate.Models;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests.Tools;
@@ -83,7 +84,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     bban,
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress),
+                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress, null),
                     null);
 
             var pm = new PagedMandate(
@@ -240,7 +241,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     bban,
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress),
+                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress, null),
                     null);
 
             var pm = new PagedTechnicalMandate(
@@ -1144,30 +1145,35 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 
             error.Message.Should().Be("Forbidden access due to missing contactEmail.");
         }
-
-        [InlineData(CollectionStatus.Incident, false)]
-        [InlineData(CollectionStatus.Inactive, true)]
-        [InlineData(CollectionStatus.Active, true)]
-        [InlineData(CollectionStatus.ToDo, true)]
-        [InlineData(CollectionStatus.InProgress, true)]
+        [InlineData(CollectionStatus.Creation_Failed, false, "Something went wrong")]
+        [InlineData(CollectionStatus.Inactive, true, null)]
+        [InlineData(CollectionStatus.Active, true, null)]
+        [InlineData(CollectionStatus.ToDo, true, null)]
+        [InlineData(CollectionStatus.InProgress, true, null)]
         [Theory]
-
-        public async Task VerifyMandateCreation_Given_MandateWithOtherStatusThanCreationInprogress_ShouldReturn200(CollectionStatus status, bool created)
+        public async Task VerifyMandateCreation_Given_MandateWithOtherStatusThanCreationInprogress_ShouldReturn200(
+            CollectionStatus status, bool created, string? errorMessage)
         {
             // Arrange
             var logger = new Mock<ILogger<MandateController>>();
             var mandateId = Guid.NewGuid();
             var mandateManager = new Mock<IMandateManager>();
+
+            // Le mock doit retourner un StatusResponse avec le StatusCode et le ErrorMessage
             mandateManager.Setup(m => m.GetMandateStatusAsync(mandateId))
-                .ReturnsAsync(status);
+                .ReturnsAsync(new StatusResponse(status, errorMessage));
+
             var controller = new MandateController(logger.Object, mandateManager.Object, null!);
 
             // Act
             var result = await controller.CheckMandateCreationStatus(mandateId.ToString());
 
             // Assert
-            var expected = new OkObjectResult(new { created = created });
-            result.Should().BeEquivalentTo(expected);
+            var expectedResponse = status == CollectionStatus.Creation_Failed
+                ? new OkObjectResult(new { created = false, errorMessage = errorMessage })
+                : new OkObjectResult(new { created = true });
+
+            result.Should().BeEquivalentTo(expectedResponse);
         }
 
         [Fact]
@@ -1179,7 +1185,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var logger = new Mock<ILogger<MandateController>>();
             var mandateManager = new Mock<IMandateManager>();
             mandateManager.Setup(m => m.GetMandateStatusAsync(mandateId))
-                .ReturnsAsync(CollectionStatus.Creation_Inprogress);
+                .ReturnsAsync(new StatusResponse(CollectionStatus.Creation_Inprogress, null));
             var controller = new MandateController(logger.Object, mandateManager.Object, null!);
 
             // Act
@@ -1439,7 +1445,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     bban,
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress),
+                    new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress, null),
                     null));
             }
 

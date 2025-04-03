@@ -127,7 +127,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
 
             var bank = new Bank("12345", "bn1", "bg", null, bankAgreement);
             var bban = new Mandate.Bban("12345", "23456", "12345678901", "55", null, bank);
-            var status = new Status(CollectionStatus.Creation_Inprogress, "test", Mandate.JdcCollectionStatus.Creation_InProgress);
+            var status = new Status(CollectionStatus.Creation_Inprogress, "test", Mandate.JdcCollectionStatus.Creation_InProgress, null);
 
             var mandateRepository = new Mock<IMandateRepository>(MockBehavior.Strict);
             mandateRepository.Setup(r => r.GetCollectionById(It.IsAny<Guid>()))

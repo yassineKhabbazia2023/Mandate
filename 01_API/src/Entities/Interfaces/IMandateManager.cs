@@ -2,6 +2,8 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using KPMG.Pulse.Back.Accounting.Mandate.Models;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public interface IMandateManager
@@ -20,6 +22,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         
         Task<bool> DeactivateCollectionAsync(Guid collectionId, string userEmail);
 
-        Task<CollectionStatus?> GetMandateStatusAsync(Guid collectionId);
+        Task<StatusResponse?> GetMandateStatusAsync(Guid collectionId);
     }
 }

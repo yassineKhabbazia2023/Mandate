@@ -97,7 +97,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return new Status(
                 (CollectionStatus)source?.RefStatusCode?.PulseCode!,
                 source?.RefStatusCode?.StatusNameFr!,
-                (JdcCollectionStatus)source?.RefStatusCode?.StatusCode!);
+                (JdcCollectionStatus)source?.RefStatusCode?.StatusCode!,
+                source?.ErrorMessage);
         }
 
         public static Sql.CollectionQuery ToSql(this CollectionQueryDto source, int collaboratorId)

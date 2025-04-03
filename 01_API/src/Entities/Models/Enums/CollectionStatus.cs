@@ -16,6 +16,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 
         Inactive = 50,
 
+        Creation_Failed = 98,
+
         Creation_Inprogress = 99,
     }
 }

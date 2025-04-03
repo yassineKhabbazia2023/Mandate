@@ -322,11 +322,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             try
             {
                 var mandateStatus = await this.mandateManager.GetMandateStatusAsync(Guid.Parse(mandateId));
-                return mandateStatus switch
+                this.logger.LogInformation("mandateStatus: ", mandateStatus.ToString());
+
+                return mandateStatus.StatusCode switch
                 {
-                    CollectionStatus.Creation_Inprogress => this.NoContent(),
-                    CollectionStatus.Incident => this.Ok(new { created = false }),
-                    _ => this.Ok(new { created = true }),
+                    CollectionStatus.Creation_Inprogress => NoContent(),
+                    CollectionStatus.Creation_Failed => Ok(new { created = false, errorMessage = mandateStatus.ErrorMessage }),
+                    _ => Ok(new { created = true })
                 };
             }
             catch (CollectionNotFoundException ex)

@@ -37,7 +37,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
         {
             return new Address("1 Rue du Capitaine Floch", string.Empty, "72000", "Le Mans", "FRANCE");
         }
-
+        
         public static Bban GetBban(string? bbanServicesProviderId = null, bool isJdcPartner = false)
         {
             return new Bban("code", "02408", "00011269900", "58", bbanServicesProviderId, GetBank("ebicsCardId", isJdcPartner));
@@ -58,7 +58,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests
 
         public static Status GetStatus(CollectionStatus collectionStatus = CollectionStatus.ToDo, string? statusName = null)
         {
-            return new Status(collectionStatus, string.IsNullOrEmpty(statusName) ? "En Cours" : statusName, JdcCollectionStatus.Creation_InProgress);
+            return new Status(collectionStatus, string.IsNullOrEmpty(statusName) ? "En Cours" : statusName, JdcCollectionStatus.Creation_InProgress, null);
         }
     }
 }

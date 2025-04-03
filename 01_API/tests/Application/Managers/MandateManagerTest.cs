@@ -5,6 +5,7 @@
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Application.Interfaces;
+    using KPMG.Pulse.Back.Accounting.Mandate.Models;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation.Tests;
@@ -54,22 +55,22 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
         public async Task GetMandateStatusAsync_WithExistingCollection_ReturnsCorrectStats()
         {
             // Arrange
-            var awaitedStatus = CollectionStatus.Creation_Inprogress;
+            var awaitedStatus = new StatusResponse(CollectionStatus.Creation_Inprogress, null);
             Guid collectionId = Guid.NewGuid();
-            var collection = new Collection(collectionId, null, null, null, DateTime.UtcNow, DateTime.UtcNow, new Status(awaitedStatus, nameof(CollectionStatus.Creation_Inprogress), Mandate.JdcCollectionStatus.Creation_InProgress), null);
+            var collection = new Collection(collectionId, null, null, null, DateTime.UtcNow, DateTime.UtcNow, new Status(awaitedStatus.StatusCode.Value, nameof(CollectionStatus.Creation_Inprogress), Mandate.JdcCollectionStatus.Creation_InProgress, null), null);
 
             this._mockDatabaseService
                 .Setup(m => m.GetCollectionById(collectionId))
                 .ReturnsAsync(collection);
 
             IOptions<MandateEmailOptions> options = Options.Create(new MandateEmailOptions());
-            var mandateManager = new MandateManager(this._mockDatabaseService.Object, null!, null!, null!, options, null!, null!);
+            var mandateManager = new MandateManager(this._mockDatabaseService.Object, null!, null!, null!, options, _mockLogger.Object, null!);
 
             // Act
             var result = await mandateManager.GetMandateStatusAsync(collectionId);
 
             // Assert
-            result.Should().Be(awaitedStatus);
+            result.Should().BeEquivalentTo(awaitedStatus);
         }
 
         [Fact]
@@ -450,7 +451,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             _mockDatabaseService
                 .Setup(m => m.CreateStatusAsync(collectionId, It.Is<int>(sc => sc == (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded)))
-                .ReturnsAsync(new Status(CollectionStatus.InProgress, "InProgress", Mandate.JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded));
+                .ReturnsAsync(new Status(CollectionStatus.InProgress, "InProgress", Mandate.JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded, null));
 
             var mandateManager = new MandateManager(_mockDatabaseService.Object, _mockJeDeclareService.Object, _mockAsposeHelper.Object, null!, _emailOptions, _mockLogger.Object, this._mockEventManager.Object);
 
@@ -562,7 +563,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 
             _mockDatabaseService
                 .Setup(m => m.CreateStatusAsync(collectionId, It.Is<int>(sc => sc == (int)JdcCollectionStatus.Activation_Requested_Signed_Mandate_Uploaded)))
-                .ReturnsAsync(new Status(CollectionStatus.InProgress, "InProgress", Mandate.JdcCollectionStatus.Creation_InProgress));
+                .ReturnsAsync(new Status(CollectionStatus.InProgress, "InProgress", Mandate.JdcCollectionStatus.Creation_InProgress, null));
 
             var mandateManager = new MandateManager(_mockDatabaseService.Object, _mockJeDeclareService.Object, _mockAsposeHelper.Object, _mockNotificationsService.Object, _emailOptions, _mockLogger.Object, this._mockEventManager.Object);
 
@@ -764,7 +765,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
                .ReturnsAsync(new Collaborator(collaboratorId, "test@yopmail.com", "lili", "lolo"));
 
             this._mockDatabaseService.Setup(x => x.CreateStatusAsync(collectionId, (int)JdcCollectionStatus.Creation_InProgress))
-                .ReturnsAsync(new Status(CollectionStatus.Creation_Inprogress, "creation in progress", Mandate.JdcCollectionStatus.Creation_InProgress));
+                .ReturnsAsync(new Status(CollectionStatus.Creation_Inprogress, "creation in progress", Mandate.JdcCollectionStatus.Creation_InProgress, null));
 
             this._mockDatabaseService.Setup(x => x.GetCollectionIfAlreadyExistingInIncidentStatus(mandateCreation.Bban.BankCode, mandateCreation.Bban.BranchCode, mandateCreation.Bban.AccountNumber, mandateCreation.ErpId))
                 .ReturnsAsync(collectionId);

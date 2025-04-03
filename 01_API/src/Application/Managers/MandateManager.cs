@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Application.Interfaces;
+    using KPMG.Pulse.Back.Accounting.Mandate.Models;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
@@ -186,10 +187,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             return collection.Id != Guid.Empty;
         }
         
-        public async Task<CollectionStatus?> GetMandateStatusAsync(Guid collectionId)
+        public async Task<StatusResponse?> GetMandateStatusAsync(Guid collectionId)
         {
             var collection = await this.databaseService.GetCollectionById(collectionId);
-            return collection.Status.StatusCode;
+            this.logger.LogInformation(
+                      "collectionId :{CollectionId} , collectionStatusCode: {CollectionStatusCode}, errormessage: {ErrorMessage}",
+                       collection.Id,
+                       collection.Status.StatusCode,
+                        collection.Status.ErrorMessage);
+            return new StatusResponse(collection.Status.StatusCode, collection.Status.ErrorMessage);
         }
 
         internal async Task<byte[]> DownloadPdfForJdcPartner(Collection collection)

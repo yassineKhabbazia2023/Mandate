@@ -7,5 +7,5 @@
 	[IsActive] BIT NOT NULL DEFAULT 1,
 
 	CONSTRAINT [PK_Collaborator] PRIMARY KEY ([Id]),
-	CONSTRAINT [UQ_Collaborator_Email] UNIQUE ([Email])
+	CONSTRAINT [UQ_Collaborator_Email_IsActive] UNIQUE ([Email], [IsActive])
 )

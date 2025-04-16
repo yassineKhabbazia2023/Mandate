@@ -1819,7 +1819,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
 
         public async Task<CompanyDb?> GetAccountByIdAsync(int accountId)
         {
-            return await _context.Company.SingleOrDefaultAsync(_ => _.Id == accountId);
+            return await _context.Company.AsNoTracking().SingleOrDefaultAsync(_ => _.Id == accountId);
         }
 
         public async Task CreateRoleAsync(CompanyCollaboratorDb accountContactDb)

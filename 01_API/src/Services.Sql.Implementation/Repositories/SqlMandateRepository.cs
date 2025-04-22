@@ -1834,16 +1834,7 @@ new RefBankDb() { BankCode = "15673", BankName = "Yomoni", BankCommercialName = 
         {
             ArgumentNullException.ThrowIfNull(nameof(accountContactDb));
 
-            var existingEntity = await _context.CompanyCollaborator
-                .FirstOrDefaultAsync(cc => cc.CompanyId == accountContactDb.CompanyId && cc.CollaboratorId == accountContactDb.CollaboratorId);
-
-            if (existingEntity == null)
-            {
-                _logger.LogWarning("Entity not found in the database.");
-                return;
-            }
-
-            _context.Remove(existingEntity);
+            _context.Remove(accountContactDb);
             await _context.SaveChangesAsync();
         }
 

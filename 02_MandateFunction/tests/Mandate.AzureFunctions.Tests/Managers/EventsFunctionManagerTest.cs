@@ -76,7 +76,25 @@ public class EventsFunctionManagerTest
         // Assert
         mockSqlAdapter.Verify(x => x.DeleteRoleByEventAsync(accountContact), Times.Once);
     }
-    
+
+    [Fact]
+    public async Task DeleteRoleByEventAsync_WhenRoleDoesNotExist_ShouldNotDeleteRole()
+    {
+        // Arrange
+        var accountContact = new AccountContact(1, 1);
+        var mockSqlAdapter = new Mock<ISqlAdapter>();
+        mockSqlAdapter.Setup(x => x.GetAccountContactByAccountIdAndContactIdAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync((AccountContact?)null);
+
+        var loggerMock = Mock.Of<ILogger<EventsFunctionManager>>();
+        var eventsFunctionManager = new EventsFunctionManager(loggerMock, mockSqlAdapter.Object);
+
+        // Act
+        await eventsFunctionManager.DeleteRoleByEventAsync(accountContact);
+
+        // Assert
+        mockSqlAdapter.Verify(x => x.DeleteRoleByEventAsync(accountContact), Times.Never);
+    }
+
     [Fact]
     public async Task UpdateAccountByEventAsync_ValidAccount_AccountUpdated()
     {

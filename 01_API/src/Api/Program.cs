@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
 using KPMG.Pulse.Back.Accounting.Mandate.Application;
 using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
@@ -47,7 +48,20 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.AddServer(new Microsoft.OpenApi.Models.OpenApiServer()
+                {
+                    Url = "/",
+                });
+                c.AddServer(new Microsoft.OpenApi.Models.OpenApiServer()
+                {
+                    Url = "/Mandate",
+                });
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+                c.UseInlineDefinitionsForEnums();
+            });
             // Options
             if (string.IsNullOrWhiteSpace(builder.Configuration["DbConnectionString"]))
             {
@@ -94,12 +108,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             // Configure the HTTP request pipeline.
             var enableSwagger = builder.Configuration.GetValue<bool>("EnableSwagger");
+
             if (enableSwagger)
             {
+                app.UseSwagger(option =>
+                {
+                    option.RouteTemplate = "/mandate/api/{documentName}/api.json";
+                });
                 app.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("api.json", "KPMG Pulse Mandate API");
-                    c.DocumentTitle = "KPMG Pulse Mandate API";
+                    c.SwaggerEndpoint("/mandate/api/v1/api.json", $"{typeof(Program).Assembly.GetName().Name} v1");
+                    c.DocumentTitle = "Pulse Mandate API";
                     c.RoutePrefix = "api";
                     c.EnableTryItOutByDefault();
                 });

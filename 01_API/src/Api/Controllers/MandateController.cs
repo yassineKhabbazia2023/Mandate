@@ -246,7 +246,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
         [HttpPost("{mandateId}/signed")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadSignedMandateAsync([FromRoute] string mandateId, [FromForm] IFormFile file, [FromQuery] string? contactEmail)
+        public async Task<IActionResult> UploadSignedMandateAsync([FromRoute] string mandateId, IFormFile file, [FromQuery] string? contactEmail)
         {
             var correlationId = "0"; // TODO
             if (!Guid.TryParse(mandateId, out var parsedMandateId))

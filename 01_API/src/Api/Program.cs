@@ -12,6 +12,7 @@ using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
 using Mandate.Messaging;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.OpenApi.Models;
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
@@ -48,15 +49,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
+
             builder.Services.AddSwaggerGen(c =>
             {
-                c.AddServer(new Microsoft.OpenApi.Models.OpenApiServer()
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Url = "/",
+                    Version = "v1",
+                    Title = "Mandate API",
+                    Description = "An Web API for Mandate",
                 });
                 c.AddServer(new Microsoft.OpenApi.Models.OpenApiServer()
                 {
-                    Url = "/Mandate",
+                    Url = "/",
                 });
                 var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
@@ -107,22 +111,19 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            var enableSwagger = builder.Configuration.GetValue<bool>("EnableSwagger");
-
-            if (enableSwagger)
+            app.UseSwagger(option =>
             {
-                app.UseSwagger(option =>
-                {
-                    option.RouteTemplate = "/mandate/api/{documentName}/api.json";
-                });
-                app.UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint("/mandate/api/v1/api.json", $"{typeof(Program).Assembly.GetName().Name} v1");
-                    c.DocumentTitle = "Pulse Mandate API";
-                    c.RoutePrefix = "api";
-                    c.EnableTryItOutByDefault();
-                });
-            }
+                option.RouteTemplate = "/api/{documentName}/api.json";
+            });
+            var assemblyName = typeof(Program).Assembly.GetName().Name;
+
+            app.UseSwaggerUI(c =>
+            {
+                c.EnableTryItOutByDefault();
+                c.SwaggerEndpoint("/api/v1/api.json", $"{assemblyName} v1");
+                c.RoutePrefix = "api";
+            });
+            app.MapFallbackToFile("index.html");
 
             app.UseHttpsRedirection();
 

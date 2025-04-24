@@ -91,17 +91,9 @@ public class EventsFunctionManager : IEventsFunctionManager
     }
 
     public async Task DeleteRoleByEventAsync(AccountContact accountContact)
-    {
-        var dbAccountContact = await this.sqlAdapter.GetAccountContactByAccountIdAndContactIdAsync(accountContact.AccountId, accountContact.ContactId);
-        if (dbAccountContact == null)
-        {
-            this.logger.LogError("Relation with AccountID({AccountId}) and ContactId({ContactId}) does not exists in database.", accountContact.AccountId, accountContact.ContactId);
-            return;
-        }
-
+    {   
         await this.sqlAdapter.DeleteRoleByEventAsync(accountContact);
         this.logger.LogInformation("Relation with AccountID({AccountId}) and ContactId({ContactId}) successfully removed from database.", accountContact.AccountId, accountContact.ContactId);
-
     }
 
     public async Task DeleteContactByEventAsync(int contactId)

@@ -1,0 +1,19 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+resources:
+  repositories:
+  - repository: Pulse
+    name: 'Pulse.Operations.Pipelines'
+    type: git
+    ref: 'refs/heads/Release/v4.0'
+
+extends:
+  template: pipelines/pull-request/back.yaml@Pulse
+  parameters:
+    srcPath: 02_MandateFunction/src/Mandate.AzureFunctions/KPMG.Pulse.Back.Accounting.Mandate.Function.csproj
+    testsPath: 02_MandateFunction/tests/**/*.csproj
+    name: 'mdtFunction'
+    sonarExclusions: '**/Program.cs'

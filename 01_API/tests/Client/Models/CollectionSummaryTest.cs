@@ -27,10 +27,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests
                 creationDate: new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 modificationDate: new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
                 statusInfo: statusSummary,
-                new List<string>());
+                new List<string>(),
+                destinationTool: "testdestination");
 
             // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(12);
+            entity.GetType().GetProperties().Length.Should().Be(13);
 
             // Test all properties ; number of tests below should match the number of propeties above
             entity.Id.Should().Be(Guid.Parse("00000001-0000-0000-0000-000000000000"));

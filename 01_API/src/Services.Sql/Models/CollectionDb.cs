@@ -34,6 +34,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql
 
         public int? CreatedById { get; set; } = null!;
 
+        public string? DestinationTool { get; set; }
+
         public CollaboratorDb? CreatedBy { get; set; } = null!;
     }
 }

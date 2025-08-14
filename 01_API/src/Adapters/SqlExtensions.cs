@@ -55,7 +55,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
             Status? status = currentStatus!.ToModel();
             Collaborator? collaborator = null;
-            if(source.CreatedBy != null)
+            if (source.CreatedBy != null)
             {
                 collaborator = new Collaborator(source.CreatedBy.Id,
                     source.CreatedBy.Email,
@@ -70,7 +70,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 creationDate: GetCreationDate(creationStatus),
                 modificationDate: GetModificationDate(currentStatus!, creationStatus!),
                 status: status!,
-                createdBy: collaborator);
+                createdBy: collaborator,
+                destinationTool: source.DestinationTool);
         }
 
         public static Company ToModel(this Sql.CompanyDb source)

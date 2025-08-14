@@ -7,11 +7,13 @@ using System.Runtime.CompilerServices;
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
+    using KPMG.Pulse.Back.Accounting.Mandate.Application.BusinessHelpers;
     using KPMG.Pulse.Back.Accounting.Mandate.Application.Interfaces;
     using KPMG.Pulse.Back.Accounting.Mandate.Models;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
+    using System.ComponentModel;
 
     public class MandateManager : IMandateManager
     {
@@ -22,6 +24,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         private readonly IOptions<MandateEmailOptions> options;
         private readonly ILogger<MandateManager> logger;
         private readonly IEventManager eventManager;
+        private readonly MandateCreationOptions mandateCreationOptions;
 
         public MandateManager(
             IDatabaseService databaseService,
@@ -30,7 +33,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             INotificationsService notificationsService,
             IOptions<MandateEmailOptions> options,
             ILogger<MandateManager> logger,
-            IEventManager eventManager)
+            IEventManager eventManager,
+            IOptions<MandateCreationOptions> mandateCreationOptions)
         {
             this.databaseService = databaseService;
             this.jeDeclareService = jeDeclareService;
@@ -39,11 +43,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             this.options = options ?? throw new ArgumentNullException(nameof(options));
             this.logger = logger;
             this.eventManager = eventManager;
+            this.mandateCreationOptions = mandateCreationOptions.Value;
         }
 
         public async Task<Guid> CreateMandateAsync(CollectionCreationCommand mandateCreation, int contactId)
         {
             var company = await this.databaseService.GetCompanyByErpIdAsync(mandateCreation.ErpId, contactId);
+            string destinationToolId = string.Empty;
 
             if (string.IsNullOrWhiteSpace(company.SiretNumber))
             {
@@ -58,7 +64,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             // if the collection has not been found, we can create a new collection normally.
             if (collectionId == Guid.Empty)
             {
-                collectionId = await this.databaseService.CreateCollectionAsync(mandateCreation.Bban, company.Id, contactId);
+                destinationToolId = ShouldIncludeDestinationTool(mandateCreation.DestinationTool, mandateCreationOptions.ConfiguredDestinationTools) ?
+                    GetDestinationToolId(mandateCreation.DestinationTool!, mandateCreationOptions.ConfiguredDestinationTools) : string.Empty;
+
+                collectionId = await this.databaseService.CreateCollectionAsync(mandateCreation.Bban, company.Id, contactId, destinationToolId);
             }
             // If the collection has been found with the status Incident, then we can update the status to Creation_InProgress.
             else
@@ -82,6 +91,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 Bban = mandateCreation.Bban,
                 Company = company,
                 Collaborator = collaborator,
+                DestinationToolId = destinationToolId,
             };
 
             await this.eventManager.PublishCreateMandateAsync(message);
@@ -186,7 +196,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
             return collection.Id != Guid.Empty;
         }
-        
+
         public async Task<StatusResponse?> GetMandateStatusAsync(Guid collectionId)
         {
             var collection = await this.databaseService.GetCollectionById(collectionId);
@@ -248,10 +258,23 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
                 throw new RibIdEmptyOrNullException();
             }
         }
-        
+
         private async Task<byte[]> GeneratePdfForNonPartner(Collection collection)
         {
             return await this.asposeHelper.GeneratePdfFromTemplateAsync(collection);
+        }
+
+        private static bool ShouldIncludeDestinationTool(string? destinationToolName, List<DestinationTool> configuredDestinationTools)
+        {
+            return !string.IsNullOrWhiteSpace(destinationToolName) &&
+                   !configuredDestinationTools.Count.Equals(0) &&
+                    configuredDestinationTools.Exists(tool => tool.ToolName.Equals(destinationToolName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static string GetDestinationToolId(string destinationToolName, List<DestinationTool> configuredDestinationTools)
+        {
+            return configuredDestinationTools
+                .First(tool => tool.ToolName.Equals(destinationToolName, StringComparison.OrdinalIgnoreCase)).ToolId;
         }
     }
 }

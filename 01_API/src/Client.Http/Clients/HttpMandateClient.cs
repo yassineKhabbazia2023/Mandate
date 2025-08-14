@@ -118,7 +118,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
                     creationDate: (DateTime)failJson["creationDate"]!,
                     modificationDate: (DateTime)failJson["modificationDate"]!,
                     statusInfo: statusSummary,
-                    new List<string>());
+                    new List<string>(),
+                    destinationTool: (string)jsonObject["destinationTool"]!);
             }).ToList().AsReadOnly();
             return new PagedRecoveryMandate(imported, failed)!;
         }
@@ -145,7 +146,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http
                 creationDate: (DateTime)jsonObject["creationDate"]!,
                 modificationDate: (DateTime)jsonObject["modificationDate"]!,
                 statusInfo: statusSummary,
-                new List<string>());
+                new List<string>(),
+                destinationTool: (string)jsonObject["destinationTool"]!);
 
             return collectionSummary;
         }

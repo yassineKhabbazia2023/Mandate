@@ -75,7 +75,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 bban,
                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                status, null);
+                status, null, destinationTool: "testdestination");
 
             var model = collection.ToCollectionSummary();
 
@@ -97,7 +97,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 creationDate: new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 modificationDate: new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
                 statusInfo: statusSummary,
-                ["CAN_DOWNLOAD_PREFILLED_MANDATE", "CAN_UPLOAD_SIGNED_MANDATE"]);
+                ["CAN_DOWNLOAD_PREFILLED_MANDATE", "CAN_UPLOAD_SIGNED_MANDATE"], destinationTool: "testdestination");
 
             model.Should().BeEquivalentTo(expected);
         }
@@ -118,7 +118,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 bban,
                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
-                status, null);
+                status, null, destinationTool: "testdestination");
 
             var model = collection.ToCollectionSummary();
 
@@ -140,7 +140,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 creationDate: new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 modificationDate: new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
                 statusInfo: statusSummary,
-                ["CAN_DOWNLOAD_PREFILLED_MANDATE", "CAN_UPLOAD_SIGNED_MANDATE", "CAN_DOWNLOAD_SIGNED_MANDATE", "CAN_TERMINATE_TELECOLLECT"]);
+                ["CAN_DOWNLOAD_PREFILLED_MANDATE", "CAN_UPLOAD_SIGNED_MANDATE", "CAN_DOWNLOAD_SIGNED_MANDATE", "CAN_TERMINATE_TELECOLLECT"], destinationTool: "testdestination");
 
             model.Should().BeEquivalentTo(expected);
         }

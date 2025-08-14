@@ -116,10 +116,11 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return await this.mandateRepository.CheckCollecteConfigExistAsync(bban!.BankCode, bban!.BranchCode, bban!.AccountNumber);
         }
 
-        public async Task<Guid> CreateCollectionAsync(Bban bban, int companyId, int? createdBy)
+        public async Task<Guid> CreateCollectionAsync(Bban bban, int companyId, int? createdBy, string? destinationTool)
         {
             CollectionDb collection = bban.ToSql(companyId, createdBy);
             collection.Statuses = new List<StatusDb>() { SqlExtensions.CreationInProgress() };
+            collection.DestinationTool = destinationTool;
             return (await this.mandateRepository.CreateCollectionAsync(collection)).Id;
         }
 

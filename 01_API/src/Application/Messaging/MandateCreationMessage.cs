@@ -28,5 +28,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         public Company Company { get; set; }
 
         public Collaborator? Collaborator { get; init; }
+        
+        public string? DestinationToolId { get; init;}
     }
 }

@@ -85,7 +85,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     new Status(CollectionStatus.InProgress, "En cours", JdcCollectionStatus.Creation_InProgress, null),
-                    null);
+                    null, destinationTool: "testdestination");
 
             var pm = new PagedMandate(
                 new Counters(1, 1, 0, 0, 0, 0),
@@ -139,7 +139,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 creationDate: new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                 modificationDate: new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                 statusSummary,
-                ["CAN_DOWNLOAD_PREFILLED_MANDATE", "CAN_UPLOAD_SIGNED_MANDATE", "CAN_DOWNLOAD_SIGNED_MANDATE"]);
+                ["CAN_DOWNLOAD_PREFILLED_MANDATE", "CAN_UPLOAD_SIGNED_MANDATE", "CAN_DOWNLOAD_SIGNED_MANDATE"], destinationTool: "testdestination");
 
             var expectedCollections = new List<Client.CollectionSummary>()
             {
@@ -401,7 +401,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             logger.VerifyAll();
             manager.VerifyAll();
         }
-        
+
         [Fact]
         public async Task DownloadUnsignedAsync_CaseOK()
         {
@@ -832,7 +832,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             // Assert
             var forbiddenResult = result.Should().BeOfType<ObjectResult>().Subject;
             forbiddenResult.StatusCode.Should().Be(403);
-            
+
             var error = forbiddenResult.Value.Should().BeOfType<KPMG.Pulse.Back.Accounting.Mandate.Client.Error>().Subject;
 
             error.Message.Should().Be("Forbidden access due to missing contactEmail.");

@@ -45,7 +45,7 @@ extends:
     deployToPrd: ${{ parameters.deployToPrd }}
     srcPath: 02_MandateFunction/src/Mandate.AzureFunctions/KPMG.Pulse.Back.Accounting.Mandate.Function.csproj
     testsPath: 02_MandateFunction/tests/**/*.csproj
-    sonarExclusions: '**/Program.cs'
+    sonarExclusions: '**/Program.cs , 01_API/**'
     domain: mdt
     name: mdtFunction
     appType: functionApp

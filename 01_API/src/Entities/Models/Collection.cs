@@ -6,7 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
 {
     public class Collection
     {
-        public Collection(Guid id, string? collectionServicesProviderId, Company? company, Bban? bban, DateTime creationDate, DateTime modificationDate, Status status, Collaborator? createdBy)
+        public Collection(Guid id, string? collectionServicesProviderId, Company? company, Bban? bban, DateTime creationDate, DateTime modificationDate, Status status, Collaborator? createdBy, string? destinationTool = null)
         {
             this.Id = id;
             this.CollectionServicesProviderId = collectionServicesProviderId;
@@ -16,6 +16,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
             this.Status = status;
             this.ModificationDate = modificationDate;
             this.CreatedBy = createdBy;
+            this.DestinationTool = destinationTool ?? string.Empty;
         }
 
         public Guid Id { get; }
@@ -34,6 +35,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         public Status Status { get; }
 
         public Collaborator? CreatedBy { get; }
+
+        public string DestinationTool { get; }
 
         public string GetSignatoryEmail() => this.Company?.Signatory?.Email ?? string.Empty;
 
@@ -54,5 +57,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         public string GetAccountNumber() => this.Bban?.AccountNumber ?? string.Empty;
 
         public string GetCheckDigits() => this.Bban?.CheckDigits ?? string.Empty;
+
+        public string GetDestinationTool() => this.DestinationTool ?? string.Empty;
+
     }
+
 }

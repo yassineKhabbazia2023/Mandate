@@ -31,7 +31,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests
                         creationDate: new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                         modificationDate: new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
                         statusSummary,
-                        new List<string>()),
+                        new List<string>(),
+                        destinationTool: "testdestination"),
                 });
 
             // Make sure we don't forget propeties

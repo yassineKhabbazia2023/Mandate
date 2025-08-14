@@ -25,16 +25,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests
                 "54321",
                 "12345678901",
                 "01");
-            var entity = new CollectionCreationCommand("e", signatory, address, bban);
+            var entity = new CollectionCreationCommand("e", signatory, address, bban, "destination");
 
             // Make sure we don't forget propeties
-            entity.GetType().GetProperties().Length.Should().Be(4);
+            entity.GetType().GetProperties().Length.Should().Be(5);
 
             // Test all properties ; number of tests below should match the number of propeties above
             entity.ErpId.Should().Be("e");
             entity.Signatory.Should().Be(signatory);
             entity.Address.Should().Be(address);
             entity.Bban.Should().Be(bban);
+            entity.DestinationTool.Should().Be("destination");
         }
 
         [Fact]
@@ -56,7 +57,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests
                 "54321",
                 "12345678901",
                 "01");
-            var entity = new CollectionCreationCommand("e", signatory, address, bban);
+            var entity = new CollectionCreationCommand("e", signatory, address, bban, "destination");
 
             entity.Should().BeJsonSerializableTo(new
             {
@@ -83,6 +84,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests
                     accountNumber = "12345678901",
                     checkDigits = "01",
                 },
+                destinationTool = "destination",
             });
         }
     }

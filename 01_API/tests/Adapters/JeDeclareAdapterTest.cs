@@ -164,7 +164,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters.Tests
                 It.Is<Releve>(item => CompareRib(item.Rib!, rib)),
                 "12345",
                 false,
-                "ebicsCardIdT"))
+                "ebicsCardIdT",
+                null))
                 .ReturnsAsync(releve)
                 .Verifiable();
 

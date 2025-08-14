@@ -17,7 +17,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             DateTime creationDate,
             DateTime modificationDate,
             StatusInfo statusInfo,
-            List<string> permittedActions)
+            List<string> permittedActions,
+            string destinationTool)
         {
             this.Id = id;
             this.ErpId = erpId;
@@ -31,6 +32,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
             this.JdcStatusCode = statusInfo.JdcStatusCode;
             this.JdcStatusDescription = statusInfo.JdcStatusDescription;
             this.PermittedActions = permittedActions;
+            this.DestinationTool = destinationTool;
         }
 
         [JsonProperty("id")]
@@ -68,5 +70,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client
 
         [JsonProperty("permittedActions")]
         public List<string> PermittedActions { get; }
+
+        [JsonProperty("destinationTool")]
+        public string DestinationTool { get; }
     }
 }

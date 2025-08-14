@@ -40,7 +40,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                     creationDate: source.CreationDate,
                     modificationDate: source.ModificationDate,
                     permittedActions: permittedActions.Select(action => action.ToString()).ToList(),
-                    statusInfo: statusSummary);
+                    statusInfo: statusSummary,
+                    destinationTool: source.DestinationTool ?? string.Empty
+                    );
         }
 
         private static List<ActionPermitted> GetPermittedActions(Collection source)
@@ -132,7 +134,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
         public static CollectionCreationCommand ToModel(this Client.CollectionCreationCommand source)
         {
-            return new CollectionCreationCommand(source.ErpId, source.Signatory.ToModel(), source.Address.ToModel(), source.Bban.ToModel());
+            return new CollectionCreationCommand(source.ErpId, source.Signatory.ToModel(), source.Address.ToModel(), source.Bban.ToModel(), source.DestinationTool);
         }
 
         public static CollectionQueryDto ToModel(this Client.CollectionQuery source)

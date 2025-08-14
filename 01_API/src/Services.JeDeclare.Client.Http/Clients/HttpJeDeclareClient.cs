@@ -210,7 +210,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
             throw exception;
         }
 
-        public async Task<Releve> CreateCollecteConfigurationAsync(string jdcFolderId, Releve releve, string bankCode, bool isPartner, string ebicsCardId)
+        public async Task<Releve> CreateCollecteConfigurationAsync(string jdcFolderId, Releve releve, string bankCode, bool isPartner, string ebicsCardId, string? destinationToolId = null)
         {
             if (releve == null)
             {
@@ -239,6 +239,14 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http
                 if (this.options.Value.HistoryDateEnabledBanks.Split(';').Contains(bankCode))
                 {
                     releve.DateReprise = $"{DateTime.Now.Year}-01-01";
+                }
+                
+                if (!string.IsNullOrWhiteSpace(destinationToolId))
+                {
+                    releve.Destinataire = new Destinataire()
+                    {
+                        Id = destinationToolId,
+                    };
                 }
 
                 using var client = this.factory.Create();

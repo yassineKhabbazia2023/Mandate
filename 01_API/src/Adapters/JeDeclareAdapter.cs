@@ -29,7 +29,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             return ribSaved.ToModel(bank);
         }
 
-        public async Task<string> CreateCollecteConfigurationAsync(Company dossier, Bban rib, Signatory signatory, string bankServicesProviderId)
+        public async Task<string> CreateCollecteConfigurationAsync(Company dossier, Bban rib, Signatory signatory, string bankServicesProviderId, string? destinationToolId = null)
         {
             var releve = rib.ToReleve(signatory);
 
@@ -38,7 +38,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                 releve: releve,
                 bankCode: rib.Bank?.Code!,
                 isPartner: rib.Bank!.JdcAgreement.JdcPartnership == JdcPartnership.Partner,
-                ebicsCardId: rib.Bank?.EbicsCardId!);
+                ebicsCardId: rib.Bank?.EbicsCardId!,
+                destinationToolId: destinationToolId);
 
             return collectConfigurationCreated.Id!;
         }
@@ -122,7 +123,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 
                 return releves.Releve.Select(r => r.ToModel()).ToList();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "");
             }

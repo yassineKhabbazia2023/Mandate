@@ -143,7 +143,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Function.Functions
                 mandateCreationMessageAndCompany.Company,
                 mandateCreationMessageAndCompany.CollectionIdAndRib.Bban,
                 mandateCreationMessageAndCompany.MandateCreationMessage.Signatory!,
-                mandateCreationMessageAndCompany.Company.BankServicesProviderId!);
+                mandateCreationMessageAndCompany.Company.BankServicesProviderId!,
+                mandateCreationMessageAndCompany.MandateCreationMessage.DestinationToolId);
             }
             catch (JeDeclareApiException ex) when (ex.HttpStatusCode == HttpStatusCode.BadRequest)
             {

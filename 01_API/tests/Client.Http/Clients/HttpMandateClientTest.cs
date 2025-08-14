@@ -77,7 +77,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Http.Tests
                 creationDate: new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 modificationDate: new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
                 statusInfo: statusSummary,
-                new List<string>());
+                new List<string>(),
+                destinationTool: "testdestination");
 
             var serializedCollectionSummary = JsonNode.Parse(JsonConvert.SerializeObject(collectionSummary))!.ToJsonString();
             var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)

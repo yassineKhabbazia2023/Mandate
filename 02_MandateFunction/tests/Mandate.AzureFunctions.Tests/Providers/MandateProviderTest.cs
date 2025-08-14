@@ -32,7 +32,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AzureFunctions.Tests
                 new DateTime(2023, 10, 1, 0, 0, 0, DateTimeKind.Utc),
                 new DateTime(2023, 10, 2, 0, 0, 0, DateTimeKind.Utc),
                 statusSummary,
-                new List<string>());
+                new List<string>(), destinationTool: "testdestination");
 
             var rib = new Bban(
                 bankCode: "bankCodeM",

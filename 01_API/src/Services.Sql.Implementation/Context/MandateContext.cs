@@ -72,6 +72,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 .HasForeignKey<JeDeclareCollectionDb>(jdc => jdc.CollectionId)
                 .IsRequired(false);
             modelBuilder.Entity<CollectionDb>().HasOne(c => c.Bank).WithMany().HasForeignKey(c => c.BankCode);
+            modelBuilder.Entity<CollectionDb>().Property(cp => cp.DestinationTool).HasMaxLength(100).IsUnicode(true).IsRequired(false);
+
 
             // Configure the composite primary key for the CompanyCollaborator table
             modelBuilder.Entity<CompanyCollaboratorDb>().Property(cc => cc.CompanyId).IsRequired(true);

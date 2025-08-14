@@ -31,7 +31,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Client.Tests.Models
                         creationDate: DateTime.UtcNow,
                         modificationDate: DateTime.UtcNow,
                         statusSummary,
-                        new List<string>()),
+                        new List<string>(),
+                        destinationTool: "testdestination"),
                 });
 
             // Make sure we don't forget propeties

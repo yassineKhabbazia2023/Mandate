@@ -200,7 +200,7 @@ public class MandateCreationOrchestrationTest
         var bankServiceProviderId = string.Empty;
         _jeDeclareClient.Setup(c =>
                 c.CreateCollecteConfigurationAsync(It.IsAny<Company>(), It.IsAny<Bban>(), It.IsAny<Signatory>(),
-                    It.IsAny<string>()))
+                    It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync("yolo");
         _mandateRepository.Setup(c =>
                 c.InsertServicesProviderIdsAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -230,7 +230,7 @@ public class MandateCreationOrchestrationTest
                     It.IsAny<Company>(),
                     It.IsAny<Bban>(),
                     It.IsAny<Signatory>(),
-                    It.IsAny<string>()))
+                    It.IsAny<string>(),It.IsAny<string>()))
             .ThrowsAsync(new Exception("That should not happens !"));
 
         var result = await _sut.StartCollectAsync(message, new MyFunctionContextStub());
@@ -250,7 +250,7 @@ public class MandateCreationOrchestrationTest
                     It.IsAny<Company>(),
                     It.IsAny<Bban>(),
                     It.IsAny<Signatory>(),
-                    It.IsAny<string>()))
+                    It.IsAny<string>(), It.IsAny<string>()))
             .ThrowsAsync(new Exception("Boum !"));
 
         var action = () =>

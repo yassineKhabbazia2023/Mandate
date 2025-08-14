@@ -24,6 +24,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client
 
         Task<bool> DeactivateCollection(string jdcFolderId, string jdcReleveId, bool partnership);
 
-        Task<Releve> CreateCollecteConfigurationAsync(string jdcFolderId, Releve releve, string bankCode, bool isPartner, string ebicsCardId);
+        Task<Releve> CreateCollecteConfigurationAsync(string jdcFolderId, Releve releve, string bankCode, bool isPartner, string ebicsCardId, string? destinationToolId = null);
     }
 }

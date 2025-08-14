@@ -2,12 +2,15 @@
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
+using Moq.Protected;
+
 namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
 {
     using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Text;
+    using System.Xml.Linq;
     using Kpmg.Constellation.Net.Http;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
@@ -736,6 +739,148 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             result.CauseRejet.Should().Be("causeRejetT");
 
             result.Destinataire!.Id.Should().Be("829566");
+
+            result.Card!.Id.Should().Be("123456");
+            result.Card!.Statut.Should().Be("2");
+            result.Card!.CodeBanque.Should().Be("codeBanqueT");
+            result.Card!.NomConfig.Should().Be("nomconfigT");
+            result.Card!.UserId.Should().Be("userIdT");
+            result.Card!.PartnerId.Should().Be("partnerIdT");
+            result.Card!.EmailResponsable.Should().Be("email.toto@gmail.com");
+            result.Card!.FileFormat.Should().Be("pdf");
+            result.Card!.CarteEBICs.Should().Be("carteT");
+
+            result.Rib!.Id.Should().Be("999945");
+            result.Rib!.Libelle.Should().Be("libelleM");
+            result.Rib!.CiviliteTitulaire.Should().Be("Mme");
+            result.Rib.NomTitulaire.Should().Be("nomTitulaireT");
+            result.Rib!.PrenomTitulaire.Should().Be("prenomTitulaireM");
+            result.Rib!.Etablissement.Should().Be("30003");
+            result.Rib!.Guichet.Should().Be("03558");
+            result.Rib!.NumCompte.Should().Be("00020006536");
+            result.Rib!.Cle.Should().Be("41");
+
+            client.VerifyAll();
+            factory.VerifyAll();
+        }
+
+        [Fact]
+        public async Task CreateCollecteConfigurationAsync_When_DestinationToolId_IsProvided_Should_IncludeIt_InPayload()
+        {
+            var bankCode = "bankCodeT";
+            var ebicsCarteId = "ebicsCarteIdT";
+            string destinationToolId = "12345";
+
+            var destinationaire = new Destinataire()
+            {
+                Id = destinationToolId,
+            };
+            var rib = new Rib()
+            {
+                Id = "999945",
+                Libelle = "libelleM",
+                CiviliteTitulaire = "Mme",
+                NomTitulaire = "nomTitulaireT",
+                PrenomTitulaire = "prenomTitulaireM",
+                Etablissement = "30003",
+                Guichet = "03558",
+                NumCompte = "00020006536",
+                Cle = "41",
+            };
+
+            var card = new Carte()
+            {
+                Id = "123456",
+                Statut = "2",
+                CodeBanque = "codeBanqueT",
+                NomConfig = "nomconfigT",
+                UserId = "userIdT",
+                PartnerId = "partnerIdT",
+                EmailResponsable = "email.toto@gmail.com",
+                FileFormat = "pdf",
+                CarteEBICs = "carteT",
+            };
+
+            var periodicite = new Periodicite()
+            {
+                Id = "1",
+            };
+
+            var newReleve = new Releve()
+            {
+                Id = "999945",
+                Etat = "2",
+                TypeLiaison = "1",
+                CauseRejet = "causeRejetT",
+                Destinataire = destinationaire,
+                Rib = rib,
+                Card = card,
+                Periodicite = periodicite,
+                DateReprise = "2023-01-01",
+            };
+
+            var serializedReleve = newReleve.Serialize();
+
+            var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.Created)
+            {
+                Content = new StringContent(serializedReleve, Encoding.UTF8, "text/xml"),
+            };
+
+            var httpContent = new StringContent(serializedReleve, Encoding.UTF8, "text/xml");
+
+            var client = new Mock<IHttpClient>(MockBehavior.Strict);
+            client.Setup(c => c.PostAsync(It.IsAny<string>(), It.IsAny<HttpContent>()))
+                .Callback<string, HttpContent>(async (url, content) =>
+                {
+                    url.Should().Be($"compte/19581575/dossierClient/98765/releve");
+                    
+                    var xmlContent = await content.ReadAsStringAsync();
+                    var xml = XDocument.Parse(xmlContent);
+                    XNamespace ns = "http://jedeclare.com/gestion";
+                    string? destinataireId = xml.Root?
+                    .Element(ns + "destinataire")?
+                    .Element(ns + "id")?
+                    .Value;
+                    destinataireId.Should().Be(destinationToolId);
+                    content.Should().BeEquivalentTo(httpContent);
+                })
+                .ReturnsAsync(httpResponseMessage)
+                .Verifiable();
+            client.Setup(c => c.Dispose())
+                .Verifiable();
+
+            var factory = new Mock<IJeDeclareClientFactory>(MockBehavior.Strict);
+            factory.Setup(f => f.Create(true))
+                .Returns(client.Object)
+                .Verifiable();
+
+            var logger = new Mock<ILogger<HttpJeDeclareClient>>(MockBehavior.Strict);
+            logger.Setup(x => x.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsValueType, Exception?, string>)It.IsAny<object>()));
+
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+                HistoryDateEnabledBanks = "bankCodeT;",
+            });
+
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+
+            var result = await jeDeclareClient.CreateCollecteConfigurationAsync("98765", newReleve, bankCode, true, ebicsCarteId, destinationToolId);
+
+            result.Id.Should().Be("999945");
+            result.Etat.Should().Be("2");
+            result.TypeLiaison.Should().Be("1");
+            result.CauseRejet.Should().Be("causeRejetT");
+
+            result.Destinataire!.Id.Should().Be(destinationToolId);
 
             result.Card!.Id.Should().Be("123456");
             result.Card!.Statut.Should().Be("2");
@@ -1725,6 +1870,286 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http.Tests
             client.VerifyAll();
             factory.VerifyAll();
         }
+        [Fact]
+        public async Task CreateCollecteConfigurationAsync_WithDestinationTool_SendsCorrectValue()
+        {
+            // Arrange
+            var destinataire = new Destinataire()
+            {
+                Id = "destinataireIdT",
+            };
+            var rib = new Rib()
+            {
+                Id = "1234",
+                Libelle = "libelleM",
+                CiviliteTitulaire = "Mme",
+                NomTitulaire = "nomTitulaireT",
+                PrenomTitulaire = "prenomTitulaireM",
+                Etablissement = "30003",
+                Guichet = "03558",
+                NumCompte = "00020006536",
+                Cle = "41",
+            };
+            var card = new Carte()
+            {
+                Id = "carteIdT",
+                Statut = "statutT",
+                CodeBanque = "codeBanqueT",
+                NomConfig = "nomConfigT",
+                UserId = "userIdT",
+                PartnerId = "partnerIdT",
+                EmailResponsable = "emailResponsableT",
+                FileFormat = "formatT",
+                CarteEBICs = "carteEbicsT",
+            };
+            var periodicite = new Periodicite()
+            {
+                Id = "periodiciteIdT",
+            };
+            var releve = new Releve()
+            {
+                Id = "67890",
+                Etat = "etatT",
+                TypeLiaison = "typeLiaisonT",
+                CauseRejet = "causeRejetT",
+                Destinataire = destinataire,
+                Rib = rib,
+                Card = card,
+                Periodicite = periodicite,
+                DateReprise = "dateT",
+            };
+            var jdcFolderId = "12345";
+            var bankCode = "BANK123";
+            var isPartner = true;
+            var ebicsCardId = "EBICS123";
+            var destinationTool = "TOOL123";
+            var expectedResponse = new Releve()
+            {
+                Id = "67890",
+                Etat = "etatT",
+                TypeLiaison = "typeLiaisonT",
+                CauseRejet = "causeRejetT",
+                Destinataire = destinataire,
+                Rib = rib,
+                Card = card,
+                Periodicite = periodicite,
+                DateReprise = "dateT",
+            };
+            var httpResponse = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.Created,
+                Content = new StringContent(expectedResponse.Serialize()),
+            };
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpResponse);
+            var httpClient = new Mock<IHttpClient>();
+            httpClient.Setup(c => c.PostAsync(It.IsAny<string>(), It.IsAny<HttpContent>()))
+                .ReturnsAsync(httpResponse);
+            var factory = new Mock<IJeDeclareClientFactory>();
+            factory.Setup(f => f.Create(true)).Returns(httpClient.Object);
+            var logger = new Mock<ILogger<HttpJeDeclareClient>>();
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
+            });
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+            // Act
+            var result = await jeDeclareClient.CreateCollecteConfigurationAsync(jdcFolderId, releve, bankCode, isPartner, ebicsCardId, destinationTool);
+            // Assert
+            Assert.Equal("destinataireIdT", result.Destinataire.Id);
+        }
+
+        [Fact]
+        public async Task CreateCollecteConfigurationAsync_WithNullDestinationTool_UsesDefaultLoopValue()
+        {
+            // Arrange
+            var destinataire = new Destinataire()
+            {
+                Id = "destinataireIdT",
+            };
+            var rib = new Rib()
+            {
+                Id = "1234",
+                Libelle = "libelleM",
+                CiviliteTitulaire = "Mme",
+                NomTitulaire = "nomTitulaireT",
+                PrenomTitulaire = "prenomTitulaireM",
+                Etablissement = "30003",
+                Guichet = "03558",
+                NumCompte = "00020006536",
+                Cle = "41",
+            };
+            var card = new Carte()
+            {
+                Id = "carteIdT",
+                Statut = "statutT",
+                CodeBanque = "codeBanqueT",
+                NomConfig = "nomConfigT",
+                UserId = "userIdT",
+                PartnerId = "partnerIdT",
+                EmailResponsable = "emailResponsableT",
+                FileFormat = "formatT",
+                CarteEBICs = "carteEbicsT",
+            };
+            var periodicite = new Periodicite()
+            {
+                Id = "periodiciteIdT",
+            };
+            var releve = new Releve()
+            {
+                Id = "67890",
+                Etat = "etatT",
+                TypeLiaison = "typeLiaisonT",
+                CauseRejet = "causeRejetT",
+                Destinataire = destinataire,
+                Rib = rib,
+                Card = card,
+                Periodicite = periodicite,
+                DateReprise = "dateT",
+            };
+            var jdcFolderId = "12345";
+            var bankCode = "BANK123";
+            var isPartner = true;
+            var ebicsCardId = "EBICS123";
+            var expectedResponse = new Releve()
+            {
+                Id = "67890",
+                Etat = "etatT",
+                TypeLiaison = "typeLiaisonT",
+                CauseRejet = "causeRejetT",
+                Destinataire = destinataire,
+                Rib = rib,
+                Card = card,
+                Periodicite = periodicite,
+                DateReprise = "dateT",
+            };
+            var httpResponse = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.Created,
+                Content = new StringContent(expectedResponse.Serialize()),
+            };
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpResponse);
+            var httpClient = new Mock<IHttpClient>();
+            httpClient.Setup(c => c.PostAsync(It.IsAny<string>(), It.IsAny<HttpContent>()))
+                .ReturnsAsync(httpResponse);
+            var factory = new Mock<IJeDeclareClientFactory>();
+            factory.Setup(f => f.Create(true)).Returns(httpClient.Object);
+            var logger = new Mock<ILogger<HttpJeDeclareClient>>();
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
+            });
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+            // Act
+            var result = await jeDeclareClient.CreateCollecteConfigurationAsync(jdcFolderId, releve, bankCode, isPartner, ebicsCardId);
+            // Assert
+            Assert.Equal("destinataireIdT", result.Destinataire.Id);
+        }
+
+        [Fact]
+        public async Task CreateCollecteConfigurationAsync_HandlesJdconError()
+        {
+            // Arrange
+            var destinataire = new Destinataire()
+            {
+                Id = "destinataireIdT",
+            };
+            var rib = new Rib()
+            {
+                Id = "1234",
+                Libelle = "libelleM",
+                CiviliteTitulaire = "Mme",
+                NomTitulaire = "nomTitulaireT",
+                PrenomTitulaire = "prenomTitulaireM",
+                Etablissement = "30003",
+                Guichet = "03558",
+                NumCompte = "00020006536",
+                Cle = "41",
+            };
+            var card = new Carte()
+            {
+                Id = "carteIdT",
+                Statut = "statutT",
+                CodeBanque = "codeBanqueT",
+                NomConfig = "nomConfigT",
+                UserId = "userIdT",
+                PartnerId = "partnerIdT",
+                EmailResponsable = "emailResponsableT",
+                FileFormat = "formatT",
+                CarteEBICs = "carteEbicsT",
+            };
+            var periodicite = new Periodicite()
+            {
+                Id = "periodiciteIdT",
+            };
+            var releve = new Releve()
+            {
+                Id = "67890",
+                Etat = "etatT",
+                TypeLiaison = "typeLiaisonT",
+                CauseRejet = "causeRejetT",
+                Destinataire = destinataire,
+                Rib = rib,
+                Card = card,
+                Periodicite = periodicite,
+                DateReprise = "dateT",
+            };
+            var jdcFolderId = "12345";
+            var bankCode = "BANK123";
+            var isPartner = true;
+            var ebicsCardId = "EBICS123";
+            var destinationTool = "INVALID_TOOL";
+            var httpResponse = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                Content = new StringContent("Error message"),
+            };
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpResponse);
+            var httpClient = new Mock<IHttpClient>();
+            httpClient.Setup(c => c.PostAsync(It.IsAny<string>(), It.IsAny<HttpContent>()))
+                .ReturnsAsync(httpResponse);
+            var factory = new Mock<IJeDeclareClientFactory>();
+            factory.Setup(f => f.Create(true)).Returns(httpClient.Object);
+            var logger = new Mock<ILogger<HttpJeDeclareClient>>();
+            var options = Options.Create(new JeDeclareOptions()
+            {
+                JdcCompteId = "19581575",
+                BaseUri = new Uri("http://example.com"),
+                Login = "yourLogin",
+                Password = "yourPassword",
+                HistoryDateEnabledBanks = "HistoryDateEnabledBanks",
+            });
+            var jeDeclareClient = new HttpJeDeclareClient(logger.Object, factory.Object, options);
+            // Act & Assert
+            await Assert.ThrowsAsync<JeDeclareApiException>(() =>
+                jeDeclareClient.CreateCollecteConfigurationAsync(jdcFolderId, releve, bankCode, isPartner, ebicsCardId, destinationTool));
+        }
+
 
         private static T DeserializeXml<T>(string xml)
         {

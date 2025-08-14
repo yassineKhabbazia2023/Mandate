@@ -8,6 +8,7 @@
 	[CheckDigits] CHAR(2) NOT NULL, 
 	[LinkType] INT NULL, 
 	[RejectReason] NVARCHAR(100) NULL,
+	[DestinationTool] NVARCHAR(100) NULL,
 	CreatedById INT NULL,
 
     CONSTRAINT [PK_Collection] PRIMARY KEY ([Id]),

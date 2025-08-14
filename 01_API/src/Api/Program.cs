@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
 using KPMG.Pulse.Back.Accounting.Mandate.Application;
+using KPMG.Pulse.Back.Accounting.Mandate.Application.BusinessHelpers;
 using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
 using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
 using KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation;
@@ -98,6 +99,10 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
                 opt.MandateUploadedToEmail = builder.Configuration["MandateUploadedToEmail"]!;
                 opt.MandateUploadedCcEmails = string.IsNullOrEmpty(uploadedCCEmails) ? new List<string>() : uploadedCCEmails.Split(";").ToList();
             });
+
+            builder.Services.Configure<MandateCreationOptions>(
+                builder.Configuration.GetSection("MandateCreationOptions"));
+
             builder.Services.AddMandateAdapters();
             builder.Services.AddNotificationsApi(option => option.BaseUrl = builder.Configuration["MANDATE_NOTIFICATION_V2_API_URL"]);
             builder.Services.AddRequestTimeouts(options =>

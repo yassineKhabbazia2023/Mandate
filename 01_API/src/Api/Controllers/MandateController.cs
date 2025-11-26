@@ -76,7 +76,6 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
             [FromQuery] int contactId)
         {
             var correlationId = "0";
-
             if (contactId == default)
             {
                 this.logger.LogError("contactId is required - {correlationId} - {functionName}", correlationId, nameof(this.CreateMandateAsync));
@@ -158,6 +157,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         public async Task<IActionResult> DownloadUnsignedAsync([FromRoute] string mandateId)
         {
             var correlationId = "0"; // TODO
+
             try
             {
                 // Assuming you have your file data as byte[]

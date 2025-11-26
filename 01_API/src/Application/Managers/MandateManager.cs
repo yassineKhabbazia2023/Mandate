@@ -1,19 +1,21 @@
 ﻿// <copyright file="MandateManager.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
+using Pulse.ExceptionMiddleware.Exceptions;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("KPMG.Pulse.Back.Accounting.Mandate.Application.Tests")]
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
+    using global::Pulse.Back.Accounting.Mandate.Application;
+    using global::Pulse.Back.Accounting.Mandate.Application.Exceptions;
     using KPMG.Pulse.Back.Accounting.Mandate.Application.BusinessHelpers;
     using KPMG.Pulse.Back.Accounting.Mandate.Application.Interfaces;
     using KPMG.Pulse.Back.Accounting.Mandate.Models;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
-    using System.ComponentModel;
 
     public class MandateManager : IMandateManager
     {
@@ -48,6 +50,12 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
         public async Task<Guid> CreateMandateAsync(CollectionCreationCommand mandateCreation, int contactId)
         {
+            if (Enum.TryParse<BankCodeNotAuthorized>(mandateCreation.Bban.BankCode, out var bankCode)
+                && Enum.IsDefined(typeof(BankCodeNotAuthorized), bankCode))
+            {
+               throw new BadRequestException(Errors.NotAuthorizedBankCode, string.Format(Errors.NotAuthorizedBankCodeMessage, mandateCreation.Bban.BankCode));
+            }
+
             var company = await this.databaseService.GetCompanyByErpIdAsync(mandateCreation.ErpId, contactId);
             string destinationToolId = string.Empty;
 

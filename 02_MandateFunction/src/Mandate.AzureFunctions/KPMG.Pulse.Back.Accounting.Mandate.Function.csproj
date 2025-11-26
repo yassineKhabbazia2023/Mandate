@@ -13,7 +13,7 @@
 		<PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.21.0" />
 		<PackageReference Include="Kpmg.Constellation.Net.Http" Version="1.73.4-develop" />
 		<PackageReference Include="KPMG.Pulse.Back.Accounting.Mandate.Client.Http" Version="1.73.6-develop" />
-		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
+		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.23.0" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.1.2" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.1.0" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="1.2.1" />

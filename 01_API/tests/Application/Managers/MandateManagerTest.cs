@@ -4,6 +4,7 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
 {
+    using global::Pulse.ExceptionMiddleware.Exceptions;
     using KPMG.Pulse.Back.Accounting.Mandate.Application.BusinessHelpers;
     using KPMG.Pulse.Back.Accounting.Mandate.Application.Interfaces;
     using KPMG.Pulse.Back.Accounting.Mandate.Models;
@@ -628,7 +629,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             var signature = new Mandate.Signatory("M", "marwen", "elleuch", "maroo@email.com");
             var adresse = new Mandate.Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
             int collaboratorId = 2342;
-           
+
 
             var mandateCreation = new Mandate.CollectionCreationCommand(
                 "1234567890",
@@ -701,6 +702,119 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application.Tests.Managers
             this._mockDatabaseService.Verify(x => x.GetBankByCodeAsync(mandateCreation.Bban.BankCode), Times.Once);
             this._mockDatabaseService.Verify(x => x.CreateCollectionAsync(mandateCreation.Bban, company.Id, collaboratorId, expectedDestinationTool), Times.Once);
             this._mockEventManager.Verify(x => x.PublishCreateMandateAsync(It.IsAny<MandateCreationMessage>(), It.IsAny<string?>()), Times.Once);
+        }
+        [Fact]
+        public async Task CreateMandateAsync_BnpReunionBankCode_30004_ThrowsCodeEtablissementNotAuthorized()
+        {
+            // Arrange
+            var rib = new Bban(
+                "30004",
+                "54321",
+                "12345678901",
+                "01",
+                "ribId",
+                new Bank("30004", "name", "group", "cardId", new BankAgreement(Mandate.JdcPartnership.Partner))
+            );
+
+            var signature = new Signatory("M", "marwen", "elleuch", "maroo@email.com");
+            var adresse = new Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+            int collaboratorId = 2342;
+
+            var mandateCreation = new CollectionCreationCommand("1234567890", signature, adresse, rib);
+
+            var mandateManager = new MandateManager(
+                this._mockDatabaseService.Object,
+                this._mockJeDeclareService.Object,
+                this._mockAsposeHelper.Object,
+                null!,
+                this._emailOptions,
+                this._mockLogger.Object,
+                this._mockEventManager.Object,
+                _mandateCreationOptions
+            );
+
+            // Act
+            Func<Task> action = () => mandateManager.CreateMandateAsync(mandateCreation, collaboratorId);
+
+            // Assert
+            await action.Should().ThrowExactlyAsync<BadRequestException>()
+                    .WithMessage("La banque avec le code '30004'*fr-mesmandats@rydge.fr*");
+
+        }
+        [Fact]
+        public async Task CreateMandateAsync_BnpReunionBankCode_30003_ThrowsCodeEtablissementNotAuthorized()
+        {
+            // Arrange
+            var rib = new Bban(
+                "30004",
+                "54321",
+                "12345678901",
+                "01",
+                "ribId",
+                new Bank("30003", "name", "group", "cardId", new BankAgreement(Mandate.JdcPartnership.Partner))
+            );
+
+            var signature = new Signatory("M", "marwen", "elleuch", "maroo@email.com");
+            var adresse = new Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+            int collaboratorId = 2342;
+
+            var mandateCreation = new CollectionCreationCommand("1234567890", signature, adresse, rib);
+
+            var mandateManager = new MandateManager(
+                this._mockDatabaseService.Object,
+                this._mockJeDeclareService.Object,
+                this._mockAsposeHelper.Object,
+                null!,
+                this._emailOptions,
+                this._mockLogger.Object,
+                this._mockEventManager.Object,
+                _mandateCreationOptions
+            );
+
+            // Act
+            Func<Task> action = () => mandateManager.CreateMandateAsync(mandateCreation, collaboratorId);
+
+            // Assert
+            await action.Should().ThrowExactlyAsync<BadRequestException>()
+                    .WithMessage("La banque avec le code '30004'*fr-mesmandats@rydge.fr*");
+
+        }
+        [Fact]
+        public async Task CreateMandateAsync_SocieteGeneraleBankCode_ThrowsCodeEtablissementNotAuthorized()
+        {
+            // Arrange
+            var rib = new Bban(
+                "41919",
+                "54321",
+                "12345678901",
+                "01",
+                "ribId",
+                new Bank("41919", "name", "group", "cardId", new BankAgreement(Mandate.JdcPartnership.Partner))
+            );
+
+            var signature = new Signatory("M", "marwen", "elleuch", "maroo@email.com");
+            var adresse = new Address("LE ROUSSEL", "complements", "63520", "DOMAIZE", "France");
+            int collaboratorId = 2342;
+
+            var mandateCreation = new CollectionCreationCommand("1234567890", signature, adresse, rib);
+
+            var mandateManager = new MandateManager(
+                this._mockDatabaseService.Object,
+                this._mockJeDeclareService.Object,
+                this._mockAsposeHelper.Object,
+                null!,
+                this._emailOptions,
+                this._mockLogger.Object,
+                this._mockEventManager.Object,
+                _mandateCreationOptions
+            );
+
+            // Act
+            Func<Task> action = () => mandateManager.CreateMandateAsync(mandateCreation, collaboratorId);
+
+            // Assert
+            await action.Should().ThrowExactlyAsync<BadRequestException>()
+                .WithMessage("La banque avec le code '41919'*fr-mesmandats@rydge.fr*");
         }
 
         [Fact]

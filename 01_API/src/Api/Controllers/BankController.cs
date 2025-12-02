@@ -1,9 +1,11 @@
 ﻿// <copyright file="BankController.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
-
+using Pulse.ExceptionMiddleware.Exceptions;
+using Pulse.ExceptionMiddleware.Model;
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
+
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Client;
     using KPMG.Pulse.Back.Accounting.Mandate.Sql;
@@ -30,23 +32,13 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BankDetail))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponse))]
         public async Task<IActionResult> GetBankDetailsAsync([FromRoute] string bankCode)
         {
             string correlationId = "0"; // TODO
-            try
-            {
-                var result = await this.bankManager.GetByCodeAsync(bankCode).ConfigureAwait(false);
-                return this.Ok(result.ToBankDetail());
-            }
-            catch (Mandate.CustomBankCodeNotFoundException ex)
-            {
-                return this.NotFound(new Error("BankCodeNotFound", correlationId, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError(ex, "MandateAPI - {correlationId} - {functionName}", correlationId, nameof(this.GetBankDetailsAsync));
-                throw;
-            }
+
+            var result = await this.bankManager.GetByCodeAsync(bankCode).ConfigureAwait(false);
+            return this.Ok(result.ToBankDetail());
         }
 
         [HttpGet("check-bban-validity")]

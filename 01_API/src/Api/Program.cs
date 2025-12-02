@@ -14,6 +14,7 @@ using Mandate.Messaging;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
+using Pulse.Back.ExceptionMiddleware;
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 {
@@ -132,6 +133,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
 
             app.UseHttpsRedirection();
 
+            app.UseExceptionMiddleware();
             app.UseDefaultFiles();
             app.UseStaticFiles();
 

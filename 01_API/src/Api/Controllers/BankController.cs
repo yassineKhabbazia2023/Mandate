@@ -12,18 +12,25 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
+    /// <summary>
+    /// Controller providing bank-related operations.
+    /// </summary>
     [ApiController]
     [Route("api/bank")]
     [AllowAnonymous]
     public class BankController : ControllerBase
     {
-        private readonly ILogger<BankController> logger;
         private readonly IBbanManager bbanManager;
         private readonly IBankManager bankManager;
 
-        public BankController(ILogger<BankController> logger, IBbanManager bbanManager, IBankManager bankManager)
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BankController"/> class.
+        /// </summary>
+        /// <param name="bbanManager">Service used to manage BBAN operations.</param>
+        /// <param name="bankManager">Service used to retrieve bank information.</param>
+        public BankController( IBbanManager bbanManager, IBankManager bankManager)
         {
-            this.logger = logger;
             this.bbanManager = bbanManager;
             this.bankManager = bankManager;
         }
@@ -35,8 +42,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponse))]
         public async Task<IActionResult> GetBankDetailsAsync([FromRoute] string bankCode)
         {
-            string correlationId = "0"; // TODO
-
+     
             var result = await this.bankManager.GetByCodeAsync(bankCode).ConfigureAwait(false);
             return this.Ok(result.ToBankDetail());
         }

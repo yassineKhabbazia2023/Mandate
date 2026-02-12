@@ -4,7 +4,7 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
 {
-    using Aspose.Pdf.Operators;
+
     using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
     using KPMG.Pulse.Back.Accounting.Mandate.Application;
     using KPMG.Pulse.Back.Accounting.Mandate.Models;
@@ -23,7 +23,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
         : SqlServerTestBase
     {
         private readonly Mock<IJeDeclareService> _mockJeDeclareService;
-        private readonly Mock<IAsposeHelper> _mockAsposeHelper;
+        private readonly Mock<IPdfHelper> _mockPdfHelper;
         private readonly IOptions<MandateEmailOptions> _emailOptions;
         private readonly Mock<ILogger<MandateManager>> _mockMandateLogger;
 
@@ -31,7 +31,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             : base(sqlServerFixture)
         {
             _mockJeDeclareService = new Mock<IJeDeclareService>(MockBehavior.Strict);
-            _mockAsposeHelper = new Mock<IAsposeHelper>(MockBehavior.Strict);
+            _mockPdfHelper = new Mock<IPdfHelper>(MockBehavior.Strict);
             _emailOptions = Options.Create(new MandateEmailOptions
             {
                 MandateCancellationSubject = "Your Cancellation Subject",

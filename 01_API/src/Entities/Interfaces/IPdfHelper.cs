@@ -1,10 +1,10 @@
-﻿// <copyright file="IAsposeHelper.cs" company="KPMG">
+// <copyright file="IPdfHelper.cs" company="KPMG">
 // Copyright (c) KPMG. All rights reserved.
 // </copyright>
 
 namespace KPMG.Pulse.Back.Accounting.Mandate
 {
-    public interface IAsposeHelper
+    public interface IPdfHelper
     {
         Task<byte[]> GeneratePdfFromTemplateAsync(Collection source);
     }

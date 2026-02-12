@@ -21,7 +21,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
     {
         private readonly IDatabaseService databaseService;
         private readonly IJeDeclareService jeDeclareService;
-        private readonly IAsposeHelper asposeHelper;
+        private readonly IPdfHelper pdfHelper;
         private readonly INotificationsService notificationsService;
         private readonly IOptions<MandateEmailOptions> options;
         private readonly ILogger<MandateManager> logger;
@@ -31,7 +31,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         public MandateManager(
             IDatabaseService databaseService,
             IJeDeclareService jeDeclareService,
-            IAsposeHelper asposeHelper,
+            IPdfHelper pdfHelper,
             INotificationsService notificationsService,
             IOptions<MandateEmailOptions> options,
             ILogger<MandateManager> logger,
@@ -40,7 +40,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
         {
             this.databaseService = databaseService;
             this.jeDeclareService = jeDeclareService;
-            this.asposeHelper = asposeHelper;
+            this.pdfHelper = pdfHelper;
             this.notificationsService = notificationsService;
             this.options = options ?? throw new ArgumentNullException(nameof(options));
             this.logger = logger;
@@ -269,7 +269,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
         private async Task<byte[]> GeneratePdfForNonPartner(Collection collection)
         {
-            return await this.asposeHelper.GeneratePdfFromTemplateAsync(collection);
+            return await this.pdfHelper.GeneratePdfFromTemplateAsync(collection);
         }
 
         private static bool ShouldIncludeDestinationTool(string? destinationToolName, List<DestinationTool> configuredDestinationTools)

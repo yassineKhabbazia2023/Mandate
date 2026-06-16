@@ -9,9 +9,13 @@ parameters:
   type: boolean
   default: true
 - name: deployToItg
+  type: string
   displayName: 'Déployer sur ITG'
-  type: boolean
-  default: false
+  values:
+  - no
+  - itg01
+  - itg02
+  default: 'itg01'
 
 
 resources:

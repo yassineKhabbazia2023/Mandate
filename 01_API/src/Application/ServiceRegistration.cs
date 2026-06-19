@@ -6,6 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 {
     using KPMG.Pulse.Back.Accounting.Mandate.Application.Interfaces;
     using KPMG.Pulse.Back.Accounting.Mandate.Application.Managers;
+    using KPMG.Pulse.Back.Accounting.Mandate.Application.Strategies;
     using Microsoft.Extensions.DependencyInjection;
 
     public static class ServiceRegistration
@@ -28,6 +29,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             services.AddScoped<IPdfHelper, PdfHelper>();
             services.AddScoped<IGuidGenerator, GuidGenerator>();
             services.AddScoped<IEventManager, EventManager>();
+            services.AddScoped<IPaymentPreferencesService, PaymentPreferencesService>();
+            services.AddScoped<IPaymentPreferenceStrategy, OtherPaymentPreferenceStrategy>();
 
             return services;
         }

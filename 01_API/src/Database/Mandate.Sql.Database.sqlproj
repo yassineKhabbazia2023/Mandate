@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Build Include="Security\Schemas\Mandate.sql" />
+    <Build Include="Security\Schemas\Onboarding.sql" />
     <Build Include="Tables\Collection.sql" />
     <Build Include="Tables\RefBank.sql" />
     <Build Include="Tables\Company.sql" />
@@ -80,5 +81,6 @@
     <Build Include="Tables\MandateLog.sql" />
     <PostDeploy Include="PostDeployment\AddCreationInprogressStatus.sql" />
     <Build Include="Tables\MandateCreationLogMessage.sql" />
+    <Build Include="Tables\PaymentPreferences.sql" />
   </ItemGroup>
 </Project>

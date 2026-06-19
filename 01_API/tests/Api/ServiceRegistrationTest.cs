@@ -4,6 +4,7 @@
 
 using KPMG.Pulse.Back.Accounting.Mandate.Adapters;
 using KPMG.Pulse.Back.Accounting.Mandate.Application;
+using KPMG.Pulse.Back.Accounting.Mandate.Application.Interfaces;
 using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client;
 using KPMG.Pulse.Back.Accounting.Mandate.JeDeclare.Client.Http;
 using KPMG.Pulse.Back.Accounting.Mandate.Notifications;
@@ -70,7 +71,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var sp = sc.BuildServiceProvider();
 
             // Make sure we don't forget services ; exclude services from Microsoft (IOption, ...)
-            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(18);
+            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(21);
 
             // Test all services ; number of tests below should match the number of services above
             sp.GetService<IBankManager>().Should().NotBeNull();
@@ -84,6 +85,9 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             sp.GetService<IDatabaseService>().Should().NotBeNull();
             sp.GetService<IJeDeclareService>().Should().NotBeNull();
             sp.GetService<IMandateRepository>().Should().NotBeNull();
+            sp.GetService<IPaymentPreferencesService>().Should().NotBeNull();
+            sp.GetService<IPaymentPreferenceStrategy>().Should().NotBeNull();
+            sp.GetService<IPaymentPreferenceRepository>().Should().NotBeNull();
             sp.GetService<IJeDeclareClientFactory>().Should().NotBeNull();
             sp.GetService<IJeDeclareClient>().Should().NotBeNull();
             sp.GetService<INotificationsService>().Should().NotBeNull();

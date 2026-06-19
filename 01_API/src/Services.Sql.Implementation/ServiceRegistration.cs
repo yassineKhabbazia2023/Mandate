@@ -24,6 +24,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                                 errorNumbersToAdd: null);
                         }));
             services.AddScoped<IMandateRepository, SqlMandateRepository>();
+            services.AddScoped<IPaymentPreferenceRepository, PaymentPreferenceRepository>();
         }
     }
 }

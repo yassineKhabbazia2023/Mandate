@@ -43,6 +43,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
         public DbSet<MandateCreationLogMessageDb> MandateCreationLogMessage { get; set; } = null!;
 
+        public DbSet<PaymentPreferenceDb> PaymentPreferences { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -182,6 +184,17 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 .HasOne<CollaboratorDb>()
                 .WithMany()
                 .HasForeignKey(m => m.CreatedById);
+
+            modelBuilder.Entity<PaymentPreferenceDb>().ToTable("PaymentPreferences", "Onboarding");
+            modelBuilder.Entity<PaymentPreferenceDb>().HasKey(preference => preference.Id);
+            modelBuilder.Entity<PaymentPreferenceDb>().Property(preference => preference.PaymentType).IsRequired(false);
+            modelBuilder.Entity<PaymentPreferenceDb>().Property(preference => preference.CreatedAt).IsRequired();
+            modelBuilder.Entity<PaymentPreferenceDb>().Property(preference => preference.CreatedBy).HasMaxLength(255).IsRequired();
+            modelBuilder.Entity<PaymentPreferenceDb>()
+                .HasOne(preference => preference.Account)
+                .WithMany()
+                .HasForeignKey(preference => preference.AccountId)
+                .IsRequired();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

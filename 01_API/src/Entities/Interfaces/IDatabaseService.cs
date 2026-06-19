@@ -65,5 +65,26 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         Task<Guid> GetCollectionIfAlreadyExistingInIncidentStatus(string bankCode, string branchCode, string accountNumber, string erpId);
 
         Task SaveMandateCreationLogMessageAsync(MandateCreationLogMessage mandateCreationLogMessage);
+
+        /// <summary>
+        /// Gets whether the account exists.
+        /// </summary>
+        /// <param name="accountId">The account identifier.</param>
+        /// <returns>True when the account exists; otherwise false.</returns>
+        Task<bool> AccountExistsAsync(int accountId);
+
+        /// <summary>
+        /// Gets the latest payment preference for an account.
+        /// </summary>
+        /// <param name="accountId">The account identifier.</param>
+        /// <returns>The payment preference, or null when none exists.</returns>
+        Task<PaymentPreference?> GetPaymentPreferenceByAccountIdAsync(int accountId);
+
+        /// <summary>
+        /// Saves the account payment preference.
+        /// </summary>
+        /// <param name="paymentPreference">The payment preference to save.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task SavePaymentPreferenceAsync(PaymentPreference paymentPreference);
     }
 }

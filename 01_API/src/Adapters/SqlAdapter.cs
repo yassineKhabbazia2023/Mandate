@@ -9,10 +9,24 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
     public class SqlAdapter : IDatabaseService
     {
         private readonly Sql.IMandateRepository mandateRepository;
+        private readonly Sql.IPaymentPreferenceRepository? paymentPreferenceRepository;
 
         public SqlAdapter(Sql.IMandateRepository mandateRepository)
         {
             this.mandateRepository = mandateRepository;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlAdapter"/> class with payment preference support.
+        /// </summary>
+        /// <param name="mandateRepository">The mandate repository.</param>
+        /// <param name="paymentPreferenceRepository">The payment preference repository.</param>
+        public SqlAdapter(
+            Sql.IMandateRepository mandateRepository,
+            Sql.IPaymentPreferenceRepository paymentPreferenceRepository)
+            : this(mandateRepository)
+        {
+            this.paymentPreferenceRepository = paymentPreferenceRepository;
         }
 
         public async Task<Guid> GetCollectionIfAlreadyExistingInIncidentStatus(string bankCode, string branchCode, string accountNumber, string erpId)
@@ -222,6 +236,51 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             var messageDb = mandateCreationLogMessage.ToMandateCreationLogMessageDB();
             await this.mandateRepository.SaveMandateCreationLogMessageAsync(messageDb);
+        }
+
+        /// <inheritdoc />
+        public async Task<bool> AccountExistsAsync(int accountId)
+        {
+            return await this.GetPaymentPreferenceRepository().AccountExistsAsync(accountId);
+        }
+
+        /// <inheritdoc />
+        public async Task<PaymentPreference?> GetPaymentPreferenceByAccountIdAsync(int accountId)
+        {
+            var preference = await this.GetPaymentPreferenceRepository().GetByAccountIdAsync(accountId);
+            return preference is null
+                ? null
+                : new PaymentPreference(
+                    preference.Id,
+                    preference.AccountId,
+                    preference.PaymentType,
+                    preference.CreatedAt,
+                    preference.CreatedBy);
+        }
+
+        /// <inheritdoc />
+        public async Task SavePaymentPreferenceAsync(PaymentPreference paymentPreference)
+        {
+            ArgumentNullException.ThrowIfNull(paymentPreference);
+
+            await this.GetPaymentPreferenceRepository().SaveAsync(new Sql.PaymentPreferenceDb
+            {
+                Id = paymentPreference.Id,
+                AccountId = paymentPreference.AccountId,
+                PaymentType = paymentPreference.PaymentType,
+                CreatedAt = paymentPreference.CreatedAt,
+                CreatedBy = paymentPreference.CreatedBy
+            });
+        }
+
+        /// <summary>
+        /// Gets the configured payment preference repository.
+        /// </summary>
+        /// <returns>The payment preference repository.</returns>
+        private Sql.IPaymentPreferenceRepository GetPaymentPreferenceRepository()
+        {
+            return this.paymentPreferenceRepository
+                ?? throw new InvalidOperationException("Payment preference repository is not configured.");
         }
 
         private async Task<Status?> InnerCreateStatusAsync(Guid collectionId, int statusCode, string? errorMessage = null)

@@ -98,6 +98,7 @@ public class SqlServerFixture : IAsyncLifetime
             DELETE Mandate.RefBank
             DELETE Mandate.RefPdfTemplate
             DELETE Mandate.RefStatusCode
+            DELETE Onboarding.PaymentPreferences
             DELETE Mandate.Company
             DELETE Mandate.Collaborator
 ";

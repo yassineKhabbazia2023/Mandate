@@ -89,18 +89,19 @@ public class SqlServerFixture : IAsyncLifetime
     {
         using var command = _connection.CreateCommand();
         command.CommandText = @"
-            DELETE Mandate.JeDeclareFolder
-            DELETE Mandate.JeDeclareCollection
-            DELETE Mandate.CompanyCollaborator
-            DELETE Mandate.Status
-            DELETE Mandate.Personal
-            DELETE Mandate.Collection
-            DELETE Mandate.RefBank
-            DELETE Mandate.RefPdfTemplate
-            DELETE Mandate.RefStatusCode
-            DELETE Onboarding.PaymentPreferences
-            DELETE Mandate.Company
-            DELETE Mandate.Collaborator
+            DELETE FROM Onboarding.SepaMandates
+            DELETE FROM Onboarding.PaymentPreferences
+            DELETE FROM Mandate.JeDeclareFolder
+            DELETE FROM Mandate.JeDeclareCollection
+            DELETE FROM Mandate.CompanyCollaborator
+            DELETE FROM Mandate.Status
+            DELETE FROM Mandate.Personal
+            DELETE FROM Mandate.Collection
+            DELETE FROM Mandate.RefBank
+            DELETE FROM Mandate.RefPdfTemplate
+            DELETE FROM Mandate.RefStatusCode
+            DELETE FROM Mandate.Company
+            DELETE FROM Mandate.Collaborator
 ";
         command.ExecuteNonQuery();
     }

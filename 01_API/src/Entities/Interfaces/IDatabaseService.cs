@@ -86,5 +86,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate
         /// <param name="paymentPreference">The payment preference to save.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         Task SavePaymentPreferenceAsync(PaymentPreference paymentPreference);
+
+        /// <summary>
+        /// Saves a SEPA mandate and the corresponding payment preference in one transaction.
+        /// </summary>
+        /// <param name="sepaMandate">The SEPA mandate to save.</param>
+        /// <param name="paymentPreference">The payment preference to save.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task SaveSepaMandateWithPaymentPreferenceAsync(
+            SepaMandate sepaMandate,
+            PaymentPreference paymentPreference);
+
     }
 }

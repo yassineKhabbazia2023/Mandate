@@ -10,6 +10,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
     {
         private readonly Sql.IMandateRepository mandateRepository;
         private readonly Sql.IPaymentPreferenceRepository? paymentPreferenceRepository;
+        private readonly Sql.ISepaMandateRepository? sepaMandateRepository;
 
         public SqlAdapter(Sql.IMandateRepository mandateRepository)
         {
@@ -27,6 +28,21 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             : this(mandateRepository)
         {
             this.paymentPreferenceRepository = paymentPreferenceRepository;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlAdapter"/> class with payment preference and SEPA mandate support.
+        /// </summary>
+        /// <param name="mandateRepository">The mandate repository.</param>
+        /// <param name="paymentPreferenceRepository">The payment preference repository.</param>
+        /// <param name="sepaMandateRepository">The SEPA mandate repository.</param>
+        public SqlAdapter(
+            Sql.IMandateRepository mandateRepository,
+            Sql.IPaymentPreferenceRepository paymentPreferenceRepository,
+            Sql.ISepaMandateRepository sepaMandateRepository)
+            : this(mandateRepository, paymentPreferenceRepository)
+        {
+            this.sepaMandateRepository = sepaMandateRepository;
         }
 
         public async Task<Guid> GetCollectionIfAlreadyExistingInIncidentStatus(string bankCode, string branchCode, string accountNumber, string erpId)
@@ -273,6 +289,42 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             });
         }
 
+        /// <inheritdoc />
+        public async Task SaveSepaMandateWithPaymentPreferenceAsync(
+            SepaMandate sepaMandate,
+            PaymentPreference paymentPreference)
+        {
+            ArgumentNullException.ThrowIfNull(sepaMandate);
+            ArgumentNullException.ThrowIfNull(paymentPreference);
+
+            await this.GetSepaMandateRepository().SaveWithPaymentPreferenceAsync(
+                new Sql.SepaMandateDb
+                {
+                    Id = sepaMandate.Id,
+                    AccountId = sepaMandate.AccountId,
+                    RibDocumentId = sepaMandate.DocumentId,
+                    AccountHolder = sepaMandate.AccountHolder,
+                    Iban = sepaMandate.Iban,
+                    Bic = sepaMandate.Bic,
+                    Address = sepaMandate.Address,
+                    SignatureRequestId = sepaMandate.SignatureRequestId,
+                    SignatureUrl = sepaMandate.SignatureUrl,
+                    SignatureStatus = (int)sepaMandate.SignatureStatus,
+                    IsSentToAkuiteo = sepaMandate.IsSentToAkuiteo,
+                    SentToAkuiteoAt = sepaMandate.SentToAkuiteoAt,
+                    CreatedAt = sepaMandate.CreatedAt,
+                    CreatedBy = sepaMandate.CreatedBy
+                },
+                new Sql.PaymentPreferenceDb
+                {
+                    Id = paymentPreference.Id,
+                    AccountId = paymentPreference.AccountId,
+                    PaymentType = paymentPreference.PaymentType,
+                    CreatedAt = paymentPreference.CreatedAt,
+                    CreatedBy = paymentPreference.CreatedBy
+                });
+        }
+
         /// <summary>
         /// Gets the configured payment preference repository.
         /// </summary>
@@ -281,6 +333,16 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
         {
             return this.paymentPreferenceRepository
                 ?? throw new InvalidOperationException("Payment preference repository is not configured.");
+        }
+
+        /// <summary>
+        /// Gets the configured SEPA mandate repository.
+        /// </summary>
+        /// <returns>The SEPA mandate repository.</returns>
+        private Sql.ISepaMandateRepository GetSepaMandateRepository()
+        {
+            return this.sepaMandateRepository
+                ?? throw new InvalidOperationException("SEPA mandate repository is not configured.");
         }
 
         private async Task<Status?> InnerCreateStatusAsync(Guid collectionId, int statusCode, string? errorMessage = null)

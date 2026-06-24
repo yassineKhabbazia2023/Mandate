@@ -26,11 +26,15 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             services.AddScoped<ICompanyManager, CompanyManager>();
             services.AddScoped<IFakeDataManager, FakeDataManager>();
             services.AddScoped<IPdfTextReplacer, PdfSharpTextReplacer>();
+            services.AddScoped<IPdfFormFieldFiller, BusinessHelpers.PdfSharpFormFieldFiller>();
             services.AddScoped<IPdfHelper, PdfHelper>();
+            services.AddScoped<ISepaMandateTemplateProvider, BusinessHelpers.SepaMandateTemplateProvider>();
+            services.AddScoped<ISepaMandatePdfGenerator, BusinessHelpers.SepaMandatePdfGenerator>();
             services.AddScoped<IGuidGenerator, GuidGenerator>();
             services.AddScoped<IEventManager, EventManager>();
             services.AddScoped<IPaymentPreferencesService, PaymentPreferencesService>();
             services.AddScoped<IPaymentPreferenceStrategy, OtherPaymentPreferenceStrategy>();
+            services.AddScoped<IPaymentPreferenceStrategy, SepaPaymentPreferenceStrategy>();
 
             return services;
         }

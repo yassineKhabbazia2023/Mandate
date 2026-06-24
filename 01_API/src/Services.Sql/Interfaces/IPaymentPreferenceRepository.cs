@@ -17,6 +17,13 @@ public interface IPaymentPreferenceRepository
     Task<bool> AccountExistsAsync(int accountId);
 
     /// <summary>
+    /// Gets the account number for the account.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <returns>The account number, or null when it is not configured.</returns>
+    Task<string?> GetAccountNumberAsync(int accountId);
+
+    /// <summary>
     /// Gets the latest payment preference for an account.
     /// </summary>
     /// <param name="accountId">The account identifier.</param>

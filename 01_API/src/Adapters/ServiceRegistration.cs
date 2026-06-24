@@ -4,6 +4,7 @@
 
 namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
 {
+    using KPMG.Pulse.Back.Accounting.Mandate.Application.Interfaces;
     using Microsoft.Extensions.DependencyInjection;
 
     public static class ServiceRegistration
@@ -16,6 +17,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             }
 
             services.AddScoped<IDatabaseService, SqlAdapter>();
+            services.AddScoped<IPaymentPreferenceStore, PaymentPreferencesSqlAdapter>();
+            services.AddScoped<ISepaMandateStore, PaymentPreferencesSqlAdapter>();
             services.AddScoped<IJeDeclareService, JeDeclareAdapter>();
             services.AddScoped<INotificationsService, NotificationsAdapter>();
 

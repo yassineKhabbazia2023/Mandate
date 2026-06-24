@@ -13,6 +13,9 @@
 		<EmbeddedResource Include="Arial.ttf">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</EmbeddedResource>
+		<Content Include="Templates\RYDGE CONSEIL - Mandat de prelevement.pdf">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 
 	<ItemGroup>

@@ -19,6 +19,16 @@ public class PaymentPreferenceRepository(MandateContext context) : IPaymentPrefe
     }
 
     /// <inheritdoc />
+    public async Task<string?> GetAccountNumberAsync(int accountId)
+    {
+        return await context.Company
+            .AsNoTracking()
+            .Where(account => account.Id == accountId)
+            .Select(account => account.ErpId)
+            .FirstOrDefaultAsync();
+    }
+
+    /// <inheritdoc />
     public async Task<PaymentPreferenceDb?> GetByAccountIdAsync(int accountId)
     {
         return await context.PaymentPreferences

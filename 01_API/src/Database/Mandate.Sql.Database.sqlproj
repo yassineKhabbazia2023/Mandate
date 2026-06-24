@@ -82,5 +82,6 @@
     <PostDeploy Include="PostDeployment\AddCreationInprogressStatus.sql" />
     <Build Include="Tables\MandateCreationLogMessage.sql" />
     <Build Include="Tables\PaymentPreferences.sql" />
+    <Build Include="Tables\SepaMandates.sql" />
   </ItemGroup>
 </Project>

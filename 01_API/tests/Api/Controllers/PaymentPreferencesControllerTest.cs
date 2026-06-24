@@ -6,6 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests.Controllers;
 
 using KPMG.Pulse.Back.Accounting.Mandate.Application;
 using KPMG.Pulse.Back.Accounting.Mandate.Application.Interfaces;
+using KPMG.Pulse.Back.Accounting.Mandate.Application.Models;
 using KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -138,6 +139,93 @@ public sealed class PaymentPreferencesControllerTest
     }
 
     /// <summary>
+    /// Verifies that POST SEPA returns the generated signature URL.
+    /// </summary>
+    [Fact]
+    public async Task SetSepaAsync_WhenGenerated_ReturnsSignatureUrl()
+    {
+        var request = CreateSepaRequest();
+        var service = new Mock<IPaymentPreferencesService>();
+        service
+            .Setup(candidate => candidate.SetSepaAsync(
+                42,
+                It.Is<SepaPaymentPreferenceCommand>(command =>
+                    command.DocumentId == request.DocumentId
+                    && command.AccountHolder == request.AccountHolder
+                    && command.Address == request.Address
+                    && command.AddressLine2 == request.AddressLine2
+                    && command.City == request.City
+                    && command.Country == request.Country
+                    && command.PostalCode == request.PostalCode
+                    && command.Iban == request.Iban
+                    && command.Bic == request.Bic
+                    && command.Recipient.Email == request.RecipientEmail
+                    && command.Recipient.FirstName == request.RecipientFirstName
+                    && command.Recipient.LastName == request.RecipientLastName)))
+            .ReturnsAsync(new SepaPaymentPreferenceResult(true, "https://signature.test"));
+        var controller = new PaymentPreferencesController(service.Object);
+
+        var result = await controller.SetSepaAsync(42, request);
+
+        var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ok.Value.Should().BeOfType<SepaPaymentPreferenceResponse>()
+            .Which.SignatureUrl.Should().Be("https://signature.test");
+    }
+
+    /// <summary>
+    /// Verifies that POST SEPA returns not found when the account is missing.
+    /// </summary>
+    [Fact]
+    public async Task SetSepaAsync_WhenAccountIsMissing_ReturnsNotFound()
+    {
+        var service = new Mock<IPaymentPreferencesService>();
+        service
+            .Setup(candidate => candidate.SetSepaAsync(42, It.IsAny<SepaPaymentPreferenceCommand>()))
+            .ReturnsAsync(new SepaPaymentPreferenceResult(false, null));
+        var controller = new PaymentPreferencesController(service.Object);
+
+        var result = await controller.SetSepaAsync(42, CreateSepaRequest());
+
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
+    /// <summary>
+    /// Verifies that POST SEPA rejects invalid account identifiers before calling the service.
+    /// </summary>
+    [Fact]
+    public async Task SetSepaAsync_WhenAccountIdIsInvalid_ReturnsNotFound()
+    {
+        var service = new Mock<IPaymentPreferencesService>();
+        var controller = new PaymentPreferencesController(service.Object);
+
+        var result = await controller.SetSepaAsync(0, CreateSepaRequest());
+
+        result.Should().BeOfType<NotFoundResult>();
+        service.Verify(
+            candidate => candidate.SetSepaAsync(
+                It.IsAny<int>(),
+                It.IsAny<SepaPaymentPreferenceCommand>()),
+            Times.Never);
+    }
+
+    /// <summary>
+    /// Verifies that POST SEPA exposes IBAN validation failures as validation problems.
+    /// </summary>
+    [Fact]
+    public async Task SetSepaAsync_WhenServiceRejectsIban_ReturnsValidationProblem()
+    {
+        var service = new Mock<IPaymentPreferencesService>();
+        service
+            .Setup(candidate => candidate.SetSepaAsync(42, It.IsAny<SepaPaymentPreferenceCommand>()))
+            .ThrowsAsync(new ArgumentException("A valid French IBAN is required.", "iban"));
+        var controller = new PaymentPreferencesController(service.Object);
+
+        var result = await controller.SetSepaAsync(42, CreateSepaRequest());
+
+        result.Should().BeOfType<ObjectResult>().Which.Value.Should().BeOfType<ValidationProblemDetails>();
+    }
+
+    /// <summary>
     /// Verifies that DELETE returns no content when reset succeeds.
     /// </summary>
     [Fact]
@@ -165,5 +253,28 @@ public sealed class PaymentPreferencesControllerTest
         var result = await controller.ResetAsync(42);
 
         result.Should().BeOfType<NotFoundResult>();
+    }
+
+    /// <summary>
+    /// Creates a valid SEPA request.
+    /// </summary>
+    /// <returns>The request.</returns>
+    private static SepaPaymentPreferenceRequest CreateSepaRequest()
+    {
+        return new SepaPaymentPreferenceRequest
+        {
+            DocumentId = 123,
+            AccountHolder = "Jean Dupont",
+            Address = "10 rue de Paris",
+            AddressLine2 = "Batiment A",
+            City = "Paris",
+            Country = "France",
+            PostalCode = "75008",
+            Iban = "FR7630006000011234567890189",
+            Bic = "AGRIFRPP",
+            RecipientEmail = "jean.dupont@test.fr",
+            RecipientFirstName = "Jean",
+            RecipientLastName = "Dupont"
+        };
     }
 }

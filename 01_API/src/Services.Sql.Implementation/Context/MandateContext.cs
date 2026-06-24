@@ -45,6 +45,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
 
         public DbSet<PaymentPreferenceDb> PaymentPreferences { get; set; } = null!;
 
+        public DbSet<SepaMandateDb> SepaMandates { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -194,6 +196,26 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
                 .HasOne(preference => preference.Account)
                 .WithMany()
                 .HasForeignKey(preference => preference.AccountId)
+                .IsRequired();
+
+            modelBuilder.Entity<SepaMandateDb>().ToTable("SepaMandates", "Onboarding");
+            modelBuilder.Entity<SepaMandateDb>().HasKey(mandate => mandate.Id);
+            modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.AccountHolder).HasMaxLength(255).IsUnicode(true).IsRequired();
+            modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.Address).HasMaxLength(500).IsUnicode(true).IsRequired();
+            modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.Iban).HasMaxLength(34).IsUnicode(false).IsRequired();
+            modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.Bic).HasMaxLength(11).IsUnicode(false).IsRequired();
+            modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.RibDocumentId).IsRequired();
+            modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.SignatureRequestId).HasMaxLength(100).IsUnicode(false).IsRequired(false);
+            modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.SignatureUrl).HasMaxLength(2048).IsUnicode(true).IsRequired(false);
+            modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.SignatureStatus).IsRequired().HasDefaultValue(0);
+            modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.IsSentToAkuiteo).IsRequired().HasDefaultValue(false);
+            modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.SentToAkuiteoAt).IsRequired(false);
+            modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.CreatedAt).IsRequired();
+            modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.CreatedBy).HasMaxLength(255).IsUnicode(false).IsRequired();
+            modelBuilder.Entity<SepaMandateDb>()
+                .HasOne(mandate => mandate.Account)
+                .WithMany()
+                .HasForeignKey(mandate => mandate.AccountId)
                 .IsRequired();
         }
 

@@ -346,6 +346,37 @@ public sealed class PaymentPreferencesControllerTest
     }
 
     /// <summary>
+    /// Verifies that the signed mandate document identifier is returned when available.
+    /// </summary>
+    [Fact]
+    public async Task GetSignedMandateDocumentIdAsync_WhenAvailable_ReturnsDocumentId()
+    {
+        var service = new Mock<IPaymentPreferencesService>();
+        service.Setup(candidate => candidate.GetSignedMandateDocumentIdAsync(42)).ReturnsAsync("456");
+        var controller = new PaymentPreferencesController(service.Object);
+
+        var result = await controller.GetSignedMandateDocumentIdAsync(42);
+
+        var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ok.Value.Should().Be("456");
+    }
+
+    /// <summary>
+    /// Verifies that the signed mandate document identifier endpoint returns not found when unavailable.
+    /// </summary>
+    [Fact]
+    public async Task GetSignedMandateDocumentIdAsync_WhenUnavailable_ReturnsNotFound()
+    {
+        var service = new Mock<IPaymentPreferencesService>();
+        service.Setup(candidate => candidate.GetSignedMandateDocumentIdAsync(42)).ReturnsAsync((string?)null);
+        var controller = new PaymentPreferencesController(service.Object);
+
+        var result = await controller.GetSignedMandateDocumentIdAsync(42);
+
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
+    /// <summary>
     /// Creates a valid SEPA request.
     /// </summary>
     /// <returns>The request.</returns>

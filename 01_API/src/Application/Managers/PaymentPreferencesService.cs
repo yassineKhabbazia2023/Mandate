@@ -79,6 +79,36 @@ public sealed class PaymentPreferencesService(
     }
 
     /// <inheritdoc />
+    public async Task<string?> GetSignedMandateDocumentIdAsync(int accountId)
+    {
+        if (!await paymentPreferenceStore.AccountExistsAsync(accountId))
+        {
+            logger.LogWarning("Signed mandate document identifier requested for unknown account {AccountId}", accountId);
+            return null;
+        }
+
+        var mandate = await sepaMandateStore.GetLatestByAccountIdAsync(accountId);
+        if (mandate is null)
+        {
+            logger.LogWarning("Signed mandate document identifier requested for account {AccountId} without SEPA mandate", accountId);
+            return null;
+        }
+
+        if (mandate.SignatureStatus != SepaMandateSignatureStatus.Signed)
+        {
+            logger.LogWarning(
+                "Signed mandate document identifier requested for account {AccountId} while mandate {SepaMandateId} is not signed",
+                accountId,
+                mandate.Id);
+            return null;
+        }
+
+        return string.IsNullOrWhiteSpace(mandate.SignedMandateDocumentId)
+            ? null
+            : mandate.SignedMandateDocumentId;
+    }
+
+    /// <inheritdoc />
     public async Task<bool> SetOtherAsync(int accountId, string createdBy)
     {
         if (!await paymentPreferenceStore.AccountExistsAsync(accountId))

@@ -514,6 +514,24 @@ public sealed class PaymentPreferencesServiceTest
     }
 
     /// <summary>
+    /// Verifies that saving the signed mandate document identifier returns false when the SEPA mandate store rejects the update.
+    /// </summary>
+    [Fact]
+    public async Task SaveSignedMandateDocumentIdAsync_WhenStoreReturnsFalse_ReturnsFalse()
+    {
+        var paymentPreferenceStore = new Mock<IPaymentPreferenceStore>();
+        var sepaMandateStore = new Mock<ISepaMandateStore>();
+        paymentPreferenceStore.Setup(candidate => candidate.AccountExistsAsync(42)).ReturnsAsync(true);
+        sepaMandateStore.Setup(candidate => candidate.SaveSignedMandateDocumentIdAsync(42, "456")).ReturnsAsync(false);
+        var service = CreateService(paymentPreferenceStore.Object, sepaMandateStore.Object, Mock.Of<ISepaMandatePdfGenerator>(), Mock.Of<IGetAcceptClient>());
+
+        var result = await service.SaveSignedMandateDocumentIdAsync(42, "456");
+
+        result.Should().BeFalse();
+        sepaMandateStore.Verify(candidate => candidate.SaveSignedMandateDocumentIdAsync(42, "456"), Times.Once);
+    }
+
+    /// <summary>
     /// Verifies that the SEPA read strategy returns MANDATE_SEPA without GetAccept calls when the mandate is already signed and sent.
     /// </summary>
     [Fact]
@@ -786,6 +804,119 @@ public sealed class PaymentPreferencesServiceTest
     }
 
     /// <summary>
+    /// Verifies that the saved Prospect document identifier is returned only for signed SEPA mandates.
+    /// </summary>
+    [Fact]
+    public async Task GetSignedMandateDocumentIdAsync_WhenMandateIsSignedAndDocumentIdExists_ReturnsDocumentId()
+    {
+        var paymentPreferenceStore = new Mock<IPaymentPreferenceStore>();
+        var sepaMandateStore = new Mock<ISepaMandateStore>();
+        paymentPreferenceStore.Setup(store => store.AccountExistsAsync(42)).ReturnsAsync(true);
+        sepaMandateStore
+            .Setup(store => store.GetLatestByAccountIdAsync(42))
+            .ReturnsAsync(CreateSepaMandate(SepaMandateSignatureStatus.Signed, signedMandateDocumentId: "456"));
+        var service = CreateService(
+            paymentPreferenceStore.Object,
+            sepaMandateStore.Object,
+            Mock.Of<ISepaMandatePdfGenerator>(),
+            Mock.Of<IGetAcceptClient>());
+
+        var result = await service.GetSignedMandateDocumentIdAsync(42);
+
+        result.Should().Be("456");
+    }
+
+    /// <summary>
+    /// Verifies that unsigned SEPA mandates do not expose a signed mandate document identifier.
+    /// </summary>
+    [Fact]
+    public async Task GetSignedMandateDocumentIdAsync_WhenMandateIsNotSigned_ReturnsNull()
+    {
+        var paymentPreferenceStore = new Mock<IPaymentPreferenceStore>();
+        var sepaMandateStore = new Mock<ISepaMandateStore>();
+        paymentPreferenceStore.Setup(store => store.AccountExistsAsync(42)).ReturnsAsync(true);
+        sepaMandateStore
+            .Setup(store => store.GetLatestByAccountIdAsync(42))
+            .ReturnsAsync(CreateSepaMandate(SepaMandateSignatureStatus.Sent, signedMandateDocumentId: "456"));
+        var service = CreateService(
+            paymentPreferenceStore.Object,
+            sepaMandateStore.Object,
+            Mock.Of<ISepaMandatePdfGenerator>(),
+            Mock.Of<IGetAcceptClient>());
+
+        var result = await service.GetSignedMandateDocumentIdAsync(42);
+
+        result.Should().BeNull();
+    }
+
+    /// <summary>
+    /// Verifies that the signed mandate document identifier is not requested when the account does not exist.
+    /// </summary>
+    [Fact]
+    public async Task GetSignedMandateDocumentIdAsync_WhenAccountDoesNotExist_ReturnsNull()
+    {
+        var paymentPreferenceStore = new Mock<IPaymentPreferenceStore>();
+        var sepaMandateStore = new Mock<ISepaMandateStore>();
+        paymentPreferenceStore.Setup(store => store.AccountExistsAsync(42)).ReturnsAsync(false);
+        var service = CreateService(
+            paymentPreferenceStore.Object,
+            sepaMandateStore.Object,
+            Mock.Of<ISepaMandatePdfGenerator>(),
+            Mock.Of<IGetAcceptClient>());
+
+        var result = await service.GetSignedMandateDocumentIdAsync(42);
+
+        result.Should().BeNull();
+        sepaMandateStore.Verify(store => store.GetLatestByAccountIdAsync(It.IsAny<int>()), Times.Never);
+    }
+
+    /// <summary>
+    /// Verifies that no signed mandate document identifier is returned when the account has no SEPA mandate.
+    /// </summary>
+    [Fact]
+    public async Task GetSignedMandateDocumentIdAsync_WhenMandateDoesNotExist_ReturnsNull()
+    {
+        var paymentPreferenceStore = new Mock<IPaymentPreferenceStore>();
+        var sepaMandateStore = new Mock<ISepaMandateStore>();
+        paymentPreferenceStore.Setup(store => store.AccountExistsAsync(42)).ReturnsAsync(true);
+        sepaMandateStore
+            .Setup(store => store.GetLatestByAccountIdAsync(42))
+            .ReturnsAsync((SepaMandate?)null);
+        var service = CreateService(
+            paymentPreferenceStore.Object,
+            sepaMandateStore.Object,
+            Mock.Of<ISepaMandatePdfGenerator>(),
+            Mock.Of<IGetAcceptClient>());
+
+        var result = await service.GetSignedMandateDocumentIdAsync(42);
+
+        result.Should().BeNull();
+    }
+
+    /// <summary>
+    /// Verifies that a signed SEPA mandate without a saved Prospect document identifier is not exposed.
+    /// </summary>
+    [Fact]
+    public async Task GetSignedMandateDocumentIdAsync_WhenMandateIsSignedWithoutDocumentId_ReturnsNull()
+    {
+        var paymentPreferenceStore = new Mock<IPaymentPreferenceStore>();
+        var sepaMandateStore = new Mock<ISepaMandateStore>();
+        paymentPreferenceStore.Setup(store => store.AccountExistsAsync(42)).ReturnsAsync(true);
+        sepaMandateStore
+            .Setup(store => store.GetLatestByAccountIdAsync(42))
+            .ReturnsAsync(CreateSepaMandate(SepaMandateSignatureStatus.Signed, signedMandateDocumentId: " "));
+        var service = CreateService(
+            paymentPreferenceStore.Object,
+            sepaMandateStore.Object,
+            Mock.Of<ISepaMandatePdfGenerator>(),
+            Mock.Of<IGetAcceptClient>());
+
+        var result = await service.GetSignedMandateDocumentIdAsync(42);
+
+        result.Should().BeNull();
+    }
+
+    /// <summary>
     /// Verifies the GetAccept status field mapping used by SEPA synchronization.
     /// </summary>
     [Theory]
@@ -906,7 +1037,8 @@ public sealed class PaymentPreferencesServiceTest
     private static SepaMandate CreateSepaMandate(
         SepaMandateSignatureStatus signatureStatus,
         bool isSentToAkuiteo = false,
-        string? signatureRequestId = "doc-123")
+        string? signatureRequestId = "doc-123",
+        string? signedMandateDocumentId = null)
     {
         return new SepaMandate(
             5,
@@ -922,7 +1054,8 @@ public sealed class PaymentPreferencesServiceTest
             isSentToAkuiteo,
             isSentToAkuiteo ? DateTime.UtcNow : null,
             DateTime.UtcNow,
-            "user@test.fr");
+            "user@test.fr",
+            signedMandateDocumentId);
     }
 }
 

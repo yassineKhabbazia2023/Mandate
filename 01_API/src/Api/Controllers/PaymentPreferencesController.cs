@@ -95,6 +95,27 @@ public sealed class PaymentPreferencesController(
     }
 
     /// <summary>
+    /// Gets the uploaded signed mandate Prospect document identifier for the latest signed SEPA mandate.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <returns>200 with the Prospect document identifier, or 404 when the signed mandate is unavailable.</returns>
+    [HttpGet("sepa/signed-mandate-document-id")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetSignedMandateDocumentIdAsync(int accountId)
+    {
+        if (accountId <= 0)
+        {
+            return NotFound();
+        }
+
+        var documentId = await paymentPreferencesService.GetSignedMandateDocumentIdAsync(accountId);
+        return string.IsNullOrWhiteSpace(documentId)
+            ? NotFound()
+            : Ok(documentId);
+    }
+
+    /// <summary>
     /// Sets the account payment preference to OTHER.
     /// </summary>
     /// <param name="accountId">The account identifier.</param>

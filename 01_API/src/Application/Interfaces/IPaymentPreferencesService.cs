@@ -34,6 +34,13 @@ public interface IPaymentPreferencesService
     Task<bool> SaveSignedMandateDocumentIdAsync(int accountId, string signedMandateDocumentId);
 
     /// <summary>
+    /// Gets the uploaded signed mandate Prospect document identifier for a signed SEPA mandate.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <returns>The signed mandate Prospect document identifier, or <c>null</c> when unavailable.</returns>
+    Task<string?> GetSignedMandateDocumentIdAsync(int accountId);
+
+    /// <summary>
     /// Sets the account payment preference to OTHER.
     /// </summary>
     /// <param name="accountId">The account identifier.</param>

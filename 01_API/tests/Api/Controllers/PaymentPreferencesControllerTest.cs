@@ -78,6 +78,36 @@ public sealed class PaymentPreferencesControllerTest
     }
 
     /// <summary>
+    /// Verifies that GET carries signed mandate metadata for Gateway internal orchestration.
+    /// </summary>
+    [Fact]
+    public async Task GetAsync_WhenSignedMandateContentExists_ReturnsInternalSignedMandateFields()
+    {
+        var service = new Mock<IPaymentPreferencesService>();
+        service
+            .Setup(candidate => candidate.GetAsync(42))
+            .ReturnsAsync(new PaymentPreferenceResult(
+                true,
+                PaymentPreferenceType.MandateSepa,
+                42,
+                123,
+                [1, 2, 3],
+                "application/pdf",
+                "signed.pdf"));
+        var controller = new PaymentPreferencesController(service.Object);
+
+        var result = await controller.GetAsync(42);
+
+        var response = result.Should().BeOfType<OkObjectResult>().Subject.Value.Should().BeOfType<PaymentPreferenceResponse>().Subject;
+        response.PaymentType.Should().Be("MANDATE_SEPA");
+        response.AccountId.Should().Be(42);
+        response.RibDocumentId.Should().Be(123);
+        response.SignedMandatePdfBase64.Should().Be(Convert.ToBase64String([1, 2, 3]));
+        response.SignedMandateContentType.Should().Be("application/pdf");
+        response.SignedMandateFileName.Should().Be("signed.pdf");
+    }
+
+    /// <summary>
     /// Verifies that GET returns null when no payment preference is selected.
     /// </summary>
     [Fact]
@@ -251,6 +281,66 @@ public sealed class PaymentPreferencesControllerTest
         var controller = new PaymentPreferencesController(service.Object);
 
         var result = await controller.ResetAsync(42);
+
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
+    /// <summary>
+    /// Verifies that mark-sent-to-akuiteo returns no content when the mandate is updated.
+    /// </summary>
+    [Fact]
+    public async Task MarkSentToAkuiteoAsync_WhenMarked_ReturnsNoContent()
+    {
+        var service = new Mock<IPaymentPreferencesService>();
+        service.Setup(candidate => candidate.MarkSentToAkuiteoAsync(42)).ReturnsAsync(true);
+        var controller = new PaymentPreferencesController(service.Object);
+
+        var result = await controller.MarkSentToAkuiteoAsync(42);
+
+        result.Should().BeOfType<NoContentResult>();
+    }
+
+    /// <summary>
+    /// Verifies that mark-sent-to-akuiteo returns not found when no mandate is updated.
+    /// </summary>
+    [Fact]
+    public async Task MarkSentToAkuiteoAsync_WhenNotMarked_ReturnsNotFound()
+    {
+        var service = new Mock<IPaymentPreferencesService>();
+        service.Setup(candidate => candidate.MarkSentToAkuiteoAsync(42)).ReturnsAsync(false);
+        var controller = new PaymentPreferencesController(service.Object);
+
+        var result = await controller.MarkSentToAkuiteoAsync(42);
+
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
+    /// <summary>
+    /// Verifies that saving the signed mandate document identifier returns no content when the mandate is updated.
+    /// </summary>
+    [Fact]
+    public async Task SaveSignedMandateDocumentIdAsync_WhenSaved_ReturnsNoContent()
+    {
+        var service = new Mock<IPaymentPreferencesService>();
+        service.Setup(candidate => candidate.SaveSignedMandateDocumentIdAsync(42, "456")).ReturnsAsync(true);
+        var controller = new PaymentPreferencesController(service.Object);
+
+        var result = await controller.SaveSignedMandateDocumentIdAsync(42, "456");
+
+        result.Should().BeOfType<NoContentResult>();
+    }
+
+    /// <summary>
+    /// Verifies that saving the signed mandate document identifier returns not found when no mandate is updated.
+    /// </summary>
+    [Fact]
+    public async Task SaveSignedMandateDocumentIdAsync_WhenNotSaved_ReturnsNotFound()
+    {
+        var service = new Mock<IPaymentPreferencesService>();
+        service.Setup(candidate => candidate.SaveSignedMandateDocumentIdAsync(42, "456")).ReturnsAsync(false);
+        var controller = new PaymentPreferencesController(service.Object);
+
+        var result = await controller.SaveSignedMandateDocumentIdAsync(42, "456");
 
         result.Should().BeOfType<NotFoundResult>();
     }

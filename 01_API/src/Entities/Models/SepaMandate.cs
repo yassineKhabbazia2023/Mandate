@@ -26,6 +26,7 @@ public sealed class SepaMandate
     /// <param name="sentToAkuiteoAt">The date when the mandate was sent to Akuiteo.</param>
     /// <param name="createdAt">The creation date.</param>
     /// <param name="createdBy">The creator.</param>
+    /// <param name="signedMandateDocumentId">The uploaded signed mandate Prospect document identifier.</param>
     public SepaMandate(
         int id,
         int accountId,
@@ -40,7 +41,8 @@ public sealed class SepaMandate
         bool isSentToAkuiteo,
         DateTime? sentToAkuiteoAt,
         DateTime createdAt,
-        string createdBy)
+        string createdBy,
+        string? signedMandateDocumentId = null)
     {
         this.Id = id;
         this.AccountId = accountId;
@@ -56,6 +58,7 @@ public sealed class SepaMandate
         this.SentToAkuiteoAt = sentToAkuiteoAt;
         this.CreatedAt = createdAt;
         this.CreatedBy = createdBy;
+        this.SignedMandateDocumentId = signedMandateDocumentId;
     }
 
     /// <summary>
@@ -117,6 +120,11 @@ public sealed class SepaMandate
     /// Gets the date when the mandate was sent to Akuiteo.
     /// </summary>
     public DateTime? SentToAkuiteoAt { get; }
+
+    /// <summary>
+    /// Gets the uploaded signed mandate Prospect document identifier.
+    /// </summary>
+    public string? SignedMandateDocumentId { get; }
 
     /// <summary>
     /// Gets the creation date.

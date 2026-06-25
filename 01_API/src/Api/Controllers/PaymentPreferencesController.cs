@@ -41,8 +41,57 @@ public sealed class PaymentPreferencesController(
 
         return Ok(new PaymentPreferenceResponse
         {
-            PaymentType = ToContractValue(result.PaymentType)
+            PaymentType = ToContractValue(result.PaymentType),
+            AccountId = result.AccountId,
+            RibDocumentId = result.RibDocumentId,
+            SignedMandatePdfBase64 = result.SignedMandatePdf is null
+                ? null
+                : Convert.ToBase64String(result.SignedMandatePdf),
+            SignedMandateContentType = result.SignedMandateContentType,
+            SignedMandateFileName = result.SignedMandateFileName,
+            SignedMandateDocumentId = result.SignedMandateDocumentId
         });
+    }
+
+    /// <summary>
+    /// Marks the latest account SEPA mandate as sent to Akuiteo after Gateway uploaded the documents.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <returns>204 when updated, or 404 when the account or SEPA mandate is not found.</returns>
+    [HttpPost("mark-sent-to-akuiteo")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> MarkSentToAkuiteoAsync(int accountId)
+    {
+        if (accountId <= 0)
+        {
+            return NotFound();
+        }
+
+        var marked = await paymentPreferencesService.MarkSentToAkuiteoAsync(accountId);
+        return marked ? NoContent() : NotFound();
+    }
+
+    /// <summary>
+    /// Saves the uploaded signed mandate Prospect document identifier.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <param name="signedMandateDocumentId">The uploaded signed mandate Prospect document identifier.</param>
+    /// <returns>204 when updated, or 404 when the account or SEPA mandate is not found.</returns>
+    [HttpPost("signed-mandate-document-id")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SaveSignedMandateDocumentIdAsync(
+        int accountId,
+        [FromQuery] string signedMandateDocumentId)
+    {
+        if (accountId <= 0 || string.IsNullOrWhiteSpace(signedMandateDocumentId))
+        {
+            return NotFound();
+        }
+
+        var saved = await paymentPreferencesService.SaveSignedMandateDocumentIdAsync(accountId, signedMandateDocumentId);
+        return saved ? NoContent() : NotFound();
     }
 
     /// <summary>

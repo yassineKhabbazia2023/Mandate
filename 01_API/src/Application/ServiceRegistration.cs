@@ -35,6 +35,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             services.AddScoped<IPaymentPreferencesService, PaymentPreferencesService>();
             services.AddScoped<IPaymentPreferenceStrategy, OtherPaymentPreferenceStrategy>();
             services.AddScoped<IPaymentPreferenceStrategy, SepaPaymentPreferenceStrategy>();
+            services.AddScoped<IPaymentPreferenceReadStrategy, DefaultPaymentPreferenceReadStrategy>();
+            services.AddScoped<IPaymentPreferenceReadStrategy, SepaSynchronizationPaymentPreferenceReadStrategy>();
 
             return services;
         }

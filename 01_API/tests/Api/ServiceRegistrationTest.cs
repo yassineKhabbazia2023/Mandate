@@ -73,7 +73,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             var sp = sc.BuildServiceProvider();
 
             // Make sure we don't forget services ; exclude services from Microsoft (IOption, ...)
-            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(29);
+            sc.Count(s => s.ServiceType.FullName?.StartsWith("KPMG") ?? false).Should().Be(31);
 
             // Test all services ; number of tests below should match the number of services above
             sp.GetService<IBankManager>().Should().NotBeNull();
@@ -94,6 +94,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
             sp.GetService<IGetAcceptClient>().Should().NotBeNull();
             sp.GetService<IPaymentPreferenceStrategy>().Should().NotBeNull();
             sp.GetServices<IPaymentPreferenceStrategy>().Should().HaveCount(2);
+            sp.GetService<IPaymentPreferenceReadStrategy>().Should().NotBeNull();
+            sp.GetServices<IPaymentPreferenceReadStrategy>().Should().HaveCount(2);
             sp.GetService<ISepaMandateTemplateProvider>().Should().NotBeNull();
             sp.GetService<ISepaMandatePdfGenerator>().Should().NotBeNull();
             sp.GetService<IPaymentPreferenceRepository>().Should().NotBeNull();
@@ -163,6 +165,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.Tests
                 GetAcceptMandateSignatureRequest request)
             {
                 return Task.FromResult(new GetAcceptMandateSignatureResponse("document-id", "https://signature"));
+            }
+
+            /// <inheritdoc />
+            public Task<GetAcceptDocumentStatusResponse> GetDocumentStatusAsync(string signatureRequestId)
+            {
+                return Task.FromResult(new GetAcceptDocumentStatusResponse("sent", null));
+            }
+
+            /// <inheritdoc />
+            public Task<GetAcceptSignedDocument> DownloadSignedDocumentAsync(string signedDocumentUrl)
+            {
+                return Task.FromResult(new GetAcceptSignedDocument([1], "application/pdf", "signed.pdf"));
             }
         }
     }

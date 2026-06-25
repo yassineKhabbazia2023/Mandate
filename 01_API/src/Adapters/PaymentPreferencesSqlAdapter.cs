@@ -17,6 +17,13 @@ public sealed class PaymentPreferencesSqlAdapter(
     ISepaMandateRepository sepaMandateRepository) : IPaymentPreferenceStore, ISepaMandateStore
 {
     /// <inheritdoc />
+    public async Task<SepaMandate?> GetLatestByAccountIdAsync(int accountId)
+    {
+        var mandate = await sepaMandateRepository.GetLatestByAccountIdAsync(accountId);
+        return mandate is null ? null : MapSepaMandate(mandate);
+    }
+
+    /// <inheritdoc />
     public async Task<bool> AccountExistsAsync(int accountId)
     {
         return await paymentPreferenceRepository.AccountExistsAsync(accountId);
@@ -54,6 +61,24 @@ public sealed class PaymentPreferencesSqlAdapter(
         await sepaMandateRepository.SaveWithPaymentPreferenceAsync(
             MapSepaMandate(sepaMandate),
             MapPaymentPreference(paymentPreference));
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateSignatureStatusAsync(int sepaMandateId, SepaMandateSignatureStatus signatureStatus)
+    {
+        await sepaMandateRepository.UpdateSignatureStatusAsync(sepaMandateId, (int)signatureStatus);
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> MarkSentToAkuiteoAsync(int accountId, DateTime sentAt)
+    {
+        return await sepaMandateRepository.MarkSentToAkuiteoAsync(accountId, sentAt);
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> SaveSignedMandateDocumentIdAsync(int accountId, string signedMandateDocumentId)
+    {
+        return await sepaMandateRepository.SaveSignedMandateDocumentIdAsync(accountId, signedMandateDocumentId);
     }
 
     /// <summary>
@@ -109,8 +134,34 @@ public sealed class PaymentPreferencesSqlAdapter(
             SignatureStatus = (int)sepaMandate.SignatureStatus,
             IsSentToAkuiteo = sepaMandate.IsSentToAkuiteo,
             SentToAkuiteoAt = sepaMandate.SentToAkuiteoAt,
+            SignedMandateDocumentId = sepaMandate.SignedMandateDocumentId,
             CreatedAt = sepaMandate.CreatedAt,
             CreatedBy = sepaMandate.CreatedBy
         };
+    }
+
+    /// <summary>
+    /// Maps a database SEPA mandate to the domain model.
+    /// </summary>
+    /// <param name="sepaMandate">The database SEPA mandate.</param>
+    /// <returns>The domain SEPA mandate.</returns>
+    private static SepaMandate MapSepaMandate(SepaMandateDb sepaMandate)
+    {
+        return new SepaMandate(
+            sepaMandate.Id,
+            sepaMandate.AccountId,
+            sepaMandate.RibDocumentId,
+            sepaMandate.AccountHolder,
+            sepaMandate.Iban,
+            sepaMandate.Bic,
+            sepaMandate.Address,
+            sepaMandate.SignatureRequestId,
+            sepaMandate.SignatureUrl,
+            (SepaMandateSignatureStatus)sepaMandate.SignatureStatus,
+            sepaMandate.IsSentToAkuiteo,
+            sepaMandate.SentToAkuiteoAt,
+            sepaMandate.CreatedAt,
+            sepaMandate.CreatedBy,
+            sepaMandate.SignedMandateDocumentId);
     }
 }

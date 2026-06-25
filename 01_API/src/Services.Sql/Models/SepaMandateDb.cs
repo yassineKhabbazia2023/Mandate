@@ -70,6 +70,11 @@ public class SepaMandateDb
     public DateTime? SentToAkuiteoAt { get; set; }
 
     /// <summary>
+    /// Gets or sets the uploaded signed mandate Prospect document identifier.
+    /// </summary>
+    public string? SignedMandateDocumentId { get; set; }
+
+    /// <summary>
     /// Gets or sets the creation date.
     /// </summary>
     public DateTime CreatedAt { get; set; }

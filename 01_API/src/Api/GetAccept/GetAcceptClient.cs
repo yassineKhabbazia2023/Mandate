@@ -19,6 +19,10 @@ public sealed class GetAcceptClient(
 {
     private const string DocumentType = "other";
     private const string SignerRole = "signer";
+    private static readonly TimeSpan AccessTokenRefreshSkew = TimeSpan.FromMinutes(1);
+    private readonly SemaphoreSlim authenticationLock = new(1, 1);
+    private string? accessToken;
+    private DateTimeOffset accessTokenExpiresAt;
 
     /// <inheritdoc />
     public async Task<GetAcceptMandateSignatureResponse> SendMandateForSignatureAsync(
@@ -33,24 +37,111 @@ public sealed class GetAcceptClient(
         return new GetAcceptMandateSignatureResponse(document.Id, signatureUrl);
     }
 
+    /// <inheritdoc />
+    public async Task<GetAcceptDocumentStatusResponse> GetDocumentStatusAsync(string signatureRequestId)
+    {
+        if (string.IsNullOrWhiteSpace(signatureRequestId))
+        {
+            throw new ArgumentException("The GetAccept signature request identifier is required.", nameof(signatureRequestId));
+        }
+
+        var accessToken = await AuthenticateAsync();
+        using var httpRequest = new HttpRequestMessage(
+            HttpMethod.Get,
+            $"v1/documents/{Uri.EscapeDataString(signatureRequestId)}");
+        httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        using var response = await httpClient.SendAsync(httpRequest);
+        response.EnsureSuccessStatusCode();
+
+        var document = await response.Content.ReadFromJsonAsync<GetAcceptDocumentStatusPayload>()
+            ?? throw new InvalidOperationException("GetAccept document status response was empty.");
+
+        return new GetAcceptDocumentStatusResponse(document.Status, document.DownloadUrl);
+    }
+
+    /// <inheritdoc />
+    public async Task<GetAcceptSignedDocument> DownloadSignedDocumentAsync(string signedDocumentUrl)
+    {
+        if (string.IsNullOrWhiteSpace(signedDocumentUrl))
+        {
+            throw new ArgumentException("The GetAccept signed document URL is required.", nameof(signedDocumentUrl));
+        }
+
+        using var httpRequest = new HttpRequestMessage(HttpMethod.Get, signedDocumentUrl);
+        if (RequiresGetAcceptAuthorization(signedDocumentUrl))
+        {
+            var bearerToken = await AuthenticateAsync();
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
+        }
+
+        using var response = await httpClient.SendAsync(httpRequest);
+        response.EnsureSuccessStatusCode();
+
+        var content = await response.Content.ReadAsByteArrayAsync();
+        var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/pdf";
+        var fileName = response.Content.Headers.ContentDisposition?.FileNameStar
+            ?? response.Content.Headers.ContentDisposition?.FileName?.Trim('"')
+            ?? "mandate-sepa-signed.pdf";
+
+        return new GetAcceptSignedDocument(content, contentType, fileName);
+    }
+
     private async Task<string> AuthenticateAsync()
     {
         EnsureConfigured();
 
-        using var response = await httpClient.PostAsJsonAsync(
-            "v1/auth",
-            new GetAcceptAuthRequest(options.Value.Email, options.Value.Password));
-
-        response.EnsureSuccessStatusCode();
-        var auth = await response.Content.ReadFromJsonAsync<GetAcceptAuthResponse>()
-            ?? throw new InvalidOperationException("GetAccept authentication response was empty.");
-
-        if (string.IsNullOrWhiteSpace(auth.AccessToken))
+        if (HasValidAccessToken())
         {
-            throw new InvalidOperationException("GetAccept authentication response did not include an access token.");
+            return accessToken!;
         }
 
-        return auth.AccessToken;
+        await authenticationLock.WaitAsync();
+        try
+        {
+            if (HasValidAccessToken())
+            {
+                return accessToken!;
+            }
+
+            using var response = await httpClient.PostAsJsonAsync(
+                "v1/auth",
+                new GetAcceptAuthRequest(options.Value.Email, options.Value.Password));
+
+            response.EnsureSuccessStatusCode();
+            var auth = await response.Content.ReadFromJsonAsync<GetAcceptAuthResponse>()
+                ?? throw new InvalidOperationException("GetAccept authentication response was empty.");
+
+            if (string.IsNullOrWhiteSpace(auth.AccessToken))
+            {
+                throw new InvalidOperationException("GetAccept authentication response did not include an access token.");
+            }
+
+            accessToken = auth.AccessToken;
+            accessTokenExpiresAt = DateTimeOffset.UtcNow.AddSeconds(auth.ExpiresIn);
+            return accessToken;
+        }
+        finally
+        {
+            authenticationLock.Release();
+        }
+    }
+
+    private bool HasValidAccessToken()
+    {
+        return !string.IsNullOrWhiteSpace(accessToken)
+            && accessTokenExpiresAt > DateTimeOffset.UtcNow.Add(AccessTokenRefreshSkew);
+    }
+
+    private bool RequiresGetAcceptAuthorization(string signedDocumentUrl)
+    {
+        if (!Uri.TryCreate(signedDocumentUrl, UriKind.Absolute, out var downloadUri))
+        {
+            return true;
+        }
+
+        return httpClient.BaseAddress is null
+            || string.Equals(downloadUri.Host, httpClient.BaseAddress.Host, StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task<GetAcceptDocumentResponse> CreateDocumentAsync(
@@ -72,6 +163,7 @@ public sealed class GetAcceptClient(
                         request.Recipient.FirstName,
                         request.Recipient.LastName,
                         SignerRole,
+                        false,
                         false)
                 ]))
         };
@@ -151,10 +243,15 @@ public sealed class GetAcceptClient(
         [property: JsonPropertyName("first_name")] string FirstName,
         [property: JsonPropertyName("last_name")] string LastName,
         [property: JsonPropertyName("role")] string Role,
-        [property: JsonPropertyName("verify_sms_sign")] bool VerifySmsSign = false);
+        [property: JsonPropertyName("verify_sms_sign")] bool VerifySmsSign = false,
+        [property: JsonPropertyName("verify_sms_open")] bool VerifySmsOpen = false);
 
     private sealed record GetAcceptDocumentResponse(
         [property: JsonPropertyName("id")] string Id);
+
+    private sealed record GetAcceptDocumentStatusPayload(
+        [property: JsonPropertyName("status")] string? Status,
+        [property: JsonPropertyName("download_url")] string? DownloadUrl);
 
     private sealed record GetAcceptRecipientsResponse(
         [property: JsonPropertyName("recipients")] IReadOnlyCollection<GetAcceptRecipientResponse> Recipients);

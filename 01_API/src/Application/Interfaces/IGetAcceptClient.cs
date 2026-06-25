@@ -18,4 +18,18 @@ public interface IGetAcceptClient
     /// <returns>The signature response.</returns>
     Task<GetAcceptMandateSignatureResponse> SendMandateForSignatureAsync(
         GetAcceptMandateSignatureRequest request);
+
+    /// <summary>
+    /// Gets the current GetAccept document status through <c>GET /v1/documents/{signatureRequestId}</c>.
+    /// </summary>
+    /// <param name="signatureRequestId">The GetAccept document identifier.</param>
+    /// <returns>The document status response.</returns>
+    Task<GetAcceptDocumentStatusResponse> GetDocumentStatusAsync(string signatureRequestId);
+
+    /// <summary>
+    /// Downloads the signed mandate PDF from the GetAccept signed document URL.
+    /// </summary>
+    /// <param name="signedDocumentUrl">The signed document URL returned by GetAccept.</param>
+    /// <returns>The signed document content.</returns>
+    Task<GetAcceptSignedDocument> DownloadSignedDocumentAsync(string signedDocumentUrl);
 }

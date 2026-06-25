@@ -15,6 +15,7 @@ public sealed class PaymentPreferencesService(
     ISepaMandatePdfGenerator sepaMandatePdfGenerator,
     IGetAcceptClient getAcceptClient,
     IEnumerable<IPaymentPreferenceStrategy> strategies,
+    IEnumerable<IPaymentPreferenceReadStrategy> readStrategies,
     ILogger<PaymentPreferencesService> logger) : IPaymentPreferencesService
 {
     /// <inheritdoc />
@@ -27,7 +28,54 @@ public sealed class PaymentPreferencesService(
         }
 
         var preference = await paymentPreferenceStore.GetByAccountIdAsync(accountId);
-        return new PaymentPreferenceResult(true, MapPaymentType(preference?.PaymentType));
+        var paymentType = MapPaymentType(preference?.PaymentType);
+        var readStrategy = ResolveReadStrategy(paymentType);
+        return await readStrategy.GetAsync(accountId, preference);
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> MarkSentToAkuiteoAsync(int accountId)
+    {
+        if (!await paymentPreferenceStore.AccountExistsAsync(accountId))
+        {
+            logger.LogWarning("Mark sent to Akuiteo requested for unknown account {AccountId}", accountId);
+            return false;
+        }
+
+        var marked = await sepaMandateStore.MarkSentToAkuiteoAsync(accountId, DateTime.UtcNow);
+        if (marked)
+        {
+            logger.LogInformation("Marked SEPA mandate as sent to Akuiteo for account {AccountId}", accountId);
+        }
+
+        return marked;
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> SaveSignedMandateDocumentIdAsync(int accountId, string signedMandateDocumentId)
+    {
+        if (string.IsNullOrWhiteSpace(signedMandateDocumentId))
+        {
+            logger.LogWarning("Signed mandate document identifier save requested without document identifier for account {AccountId}", accountId);
+            return false;
+        }
+
+        if (!await paymentPreferenceStore.AccountExistsAsync(accountId))
+        {
+            logger.LogWarning("Signed mandate document identifier save requested for unknown account {AccountId}", accountId);
+            return false;
+        }
+
+        var saved = await sepaMandateStore.SaveSignedMandateDocumentIdAsync(accountId, signedMandateDocumentId);
+        if (saved)
+        {
+            logger.LogInformation(
+                "Saved signed mandate document identifier {SignedMandateDocumentId} for account {AccountId}",
+                signedMandateDocumentId,
+                accountId);
+        }
+
+        return saved;
     }
 
     /// <inheritdoc />
@@ -45,6 +93,7 @@ public sealed class PaymentPreferencesService(
 
         await paymentPrefrenceStrategy.ApplyAsync(preference);
         await paymentPreferenceStore.SaveAsync(preference);
+        logger.LogInformation("Saved payment preference OTHER for account {AccountId}", accountId);
         return true;
     }
 
@@ -102,6 +151,10 @@ public sealed class PaymentPreferencesService(
             createdBy: command.Recipient.Email);
 
         await sepaMandateStore.SaveWithPaymentPreferenceAsync(sepaMandate, preference);
+        logger.LogInformation(
+            "Saved SEPA payment preference for account {AccountId} with signature request {SignatureRequestId}",
+            accountId,
+            signature.SignatureRequestId);
         return new SepaPaymentPreferenceResult(true, signature.SignatureUrl);
     }
 
@@ -123,12 +176,18 @@ public sealed class PaymentPreferencesService(
 
         preference.ResetPaymentType();
         await paymentPreferenceStore.SaveAsync(preference);
+        logger.LogInformation("Reset payment preference for account {AccountId}", accountId);
         return true;
     }
 
     private IPaymentPreferenceStrategy ResolveStrategy(PaymentPreferenceType paymentType)
     {
         return strategies.Single(strategy => strategy.PaymentType == paymentType);
+    }
+
+    private IPaymentPreferenceReadStrategy ResolveReadStrategy(PaymentPreferenceType? paymentType)
+    {
+        return readStrategies.Single(strategy => strategy.Supports(paymentType));
     }
 
     private static PaymentPreferenceType? MapPaymentType(int? paymentType)

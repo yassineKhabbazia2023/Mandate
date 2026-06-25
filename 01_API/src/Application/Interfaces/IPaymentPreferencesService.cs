@@ -19,6 +19,21 @@ public interface IPaymentPreferencesService
     Task<PaymentPreferenceResult> GetAsync(int accountId);
 
     /// <summary>
+    /// Marks the latest account SEPA mandate as sent to Akuiteo.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <returns><c>true</c> when a SEPA mandate was updated; otherwise, <c>false</c>.</returns>
+    Task<bool> MarkSentToAkuiteoAsync(int accountId);
+
+    /// <summary>
+    /// Saves the uploaded signed mandate Prospect document identifier.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <param name="signedMandateDocumentId">The uploaded signed mandate Prospect document identifier.</param>
+    /// <returns><c>true</c> when a SEPA mandate was updated; otherwise, <c>false</c>.</returns>
+    Task<bool> SaveSignedMandateDocumentIdAsync(int accountId, string signedMandateDocumentId);
+
+    /// <summary>
     /// Sets the account payment preference to OTHER.
     /// </summary>
     /// <param name="accountId">The account identifier.</param>

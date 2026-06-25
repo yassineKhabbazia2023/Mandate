@@ -28,6 +28,21 @@ public sealed class PaymentPreferencesSqlAdapterTest
     }
 
     /// <summary>
+    /// Verifies that account number retrieval is delegated to the payment preference repository.
+    /// </summary>
+    [Fact]
+    public async Task GetAccountNumberAsync_WhenRepositoryReturnsValue_ReturnsValue()
+    {
+        var repository = new Mock<IPaymentPreferenceRepository>();
+        repository.Setup(candidate => candidate.GetAccountNumberAsync(42)).ReturnsAsync("1001102412");
+        var adapter = CreateAdapter(repository.Object);
+
+        var result = await adapter.GetAccountNumberAsync(42);
+
+        result.Should().Be("1001102412");
+    }
+
+    /// <summary>
     /// Verifies that a missing payment preference maps to null.
     /// </summary>
     [Fact]

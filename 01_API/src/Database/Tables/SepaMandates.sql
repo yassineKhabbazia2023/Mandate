@@ -11,6 +11,7 @@ CREATE TABLE [Onboarding].[SepaMandates] (
     [SignatureStatus] INT NOT NULL CONSTRAINT [DF_SepaMandates_SignatureStatus] DEFAULT 0,
     [IsSentToAkuiteo] BIT NOT NULL CONSTRAINT [DF_SepaMandates_IsSentToAkuiteo] DEFAULT 0,
     [SentToAkuiteoAt] DATETIME2 NULL,
+    [SignedMandateDocumentId] NVARCHAR(100) NULL,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] VARCHAR(255) NOT NULL,
 

@@ -9,4 +9,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application;
 /// </summary>
 /// <param name="AccountFound">A value indicating whether the account exists.</param>
 /// <param name="PaymentType">The selected payment type, or null when not selected yet.</param>
-public sealed record PaymentPreferenceResult(bool AccountFound, PaymentPreferenceType? PaymentType);
+/// <param name="AccountId">The account identifier when the result carries a signed mandate to upload.</param>
+/// <param name="RibDocumentId">The Prospect RIB document identifier to upload with the signed mandate.</param>
+/// <param name="SignedMandatePdf">The signed mandate PDF bytes when the signature was synchronized as signed.</param>
+/// <param name="SignedMandateContentType">The signed mandate PDF content type.</param>
+/// <param name="SignedMandateFileName">The signed mandate PDF file name.</param>
+/// <param name="SignedMandateDocumentId">The Prospect document identifier when the signed mandate was already persisted.</param>
+public sealed record PaymentPreferenceResult(
+    bool AccountFound,
+    PaymentPreferenceType? PaymentType,
+    int? AccountId = null,
+    int? RibDocumentId = null,
+    byte[]? SignedMandatePdf = null,
+    string? SignedMandateContentType = null,
+    string? SignedMandateFileName = null,
+    string? SignedMandateDocumentId = null);

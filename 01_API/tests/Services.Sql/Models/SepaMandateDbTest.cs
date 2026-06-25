@@ -17,7 +17,7 @@ public sealed class SepaMandateDbTest
     {
         var entity = new SepaMandateDb();
 
-        entity.GetType().GetProperties().Length.Should().Be(15);
+        entity.GetType().GetProperties().Length.Should().Be(16);
         entity.Id.Should().Be(0);
         entity.AccountId.Should().Be(0);
         entity.AccountHolder.Should().BeNull();
@@ -30,6 +30,7 @@ public sealed class SepaMandateDbTest
         entity.SignatureStatus.Should().Be(0);
         entity.IsSentToAkuiteo.Should().BeFalse();
         entity.SentToAkuiteoAt.Should().BeNull();
+        entity.SignedMandateDocumentId.Should().BeNull();
         entity.CreatedAt.Should().Be(default);
         entity.CreatedBy.Should().BeNull();
         entity.Account.Should().BeNull();
@@ -59,6 +60,7 @@ public sealed class SepaMandateDbTest
             SignatureStatus = 3,
             IsSentToAkuiteo = true,
             SentToAkuiteoAt = sentToAkuiteoAt,
+            SignedMandateDocumentId = "456",
             CreatedAt = createdAt,
             CreatedBy = "user@test.fr",
             Account = account
@@ -76,6 +78,7 @@ public sealed class SepaMandateDbTest
         entity.SignatureStatus.Should().Be(3);
         entity.IsSentToAkuiteo.Should().BeTrue();
         entity.SentToAkuiteoAt.Should().Be(sentToAkuiteoAt);
+        entity.SignedMandateDocumentId.Should().Be("456");
         entity.CreatedAt.Should().Be(createdAt);
         entity.CreatedBy.Should().Be("user@test.fr");
         entity.Account.Should().BeSameAs(account);

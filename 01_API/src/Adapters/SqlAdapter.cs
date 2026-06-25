@@ -312,6 +312,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
                     SignatureStatus = (int)sepaMandate.SignatureStatus,
                     IsSentToAkuiteo = sepaMandate.IsSentToAkuiteo,
                     SentToAkuiteoAt = sepaMandate.SentToAkuiteoAt,
+                    SignedMandateDocumentId = sepaMandate.SignedMandateDocumentId,
                     CreatedAt = sepaMandate.CreatedAt,
                     CreatedBy = sepaMandate.CreatedBy
                 },

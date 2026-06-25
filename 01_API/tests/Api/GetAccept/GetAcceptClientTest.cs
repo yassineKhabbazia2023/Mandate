@@ -288,6 +288,270 @@ public sealed class GetAcceptClientTest
             .WithMessage("GetAccept recipients response was empty.");
     }
 
+    /// <summary>
+    /// Verifies that document status retrieval authenticates and maps the payload.
+    /// </summary>
+    [Fact]
+    public async Task GetDocumentStatusAsync_WhenResponseIsValid_ReturnsStatusAndDownloadUrl()
+    {
+        var handler = new RecordingHandler(
+            request =>
+            {
+                if (request.RequestUri!.PathAndQuery == "/v1/auth")
+                {
+                    return JsonResponse("""{"access_token":"token-123","expires_in":3600}""");
+                }
+
+                if (request.RequestUri!.PathAndQuery == "/v1/documents/doc-123")
+                {
+                    return JsonResponse("""{"status":"signed","download_url":"https://download.test/signed.pdf"}""");
+                }
+
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            });
+        var client = CreateClient(handler);
+
+        var result = await client.GetDocumentStatusAsync("doc-123");
+
+        result.Status.Should().Be("signed");
+        result.SignedDocumentUrl.Should().Be("https://download.test/signed.pdf");
+        handler.Requests.Should().HaveCount(2);
+        handler.Requests[1].Authorization!.Scheme.Should().Be("Bearer");
+        handler.Requests[1].Authorization!.Parameter.Should().Be("token-123");
+        handler.Requests[1].RequestUri!.PathAndQuery.Should().Be("/v1/documents/doc-123");
+    }
+
+    /// <summary>
+    /// Verifies that an empty document status payload fails explicitly.
+    /// </summary>
+    [Fact]
+    public async Task GetDocumentStatusAsync_WhenResponseIsNull_Throws()
+    {
+        var handler = new RecordingHandler(
+            request =>
+            {
+                if (request.RequestUri!.PathAndQuery == "/v1/auth")
+                {
+                    return JsonResponse("""{"access_token":"token-123","expires_in":3600}""");
+                }
+
+                if (request.RequestUri!.PathAndQuery == "/v1/documents/doc-123")
+                {
+                    return JsonResponse("null");
+                }
+
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            });
+        var client = CreateClient(handler);
+
+        var act = () => client.GetDocumentStatusAsync("doc-123");
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("GetAccept document status response was empty.");
+    }
+
+    /// <summary>
+    /// Verifies that a missing signature request identifier is rejected.
+    /// </summary>
+    [Fact]
+    public async Task GetDocumentStatusAsync_WhenSignatureRequestIdIsMissing_Throws()
+    {
+        var client = CreateClient(new RecordingHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)));
+
+        var act = () => client.GetDocumentStatusAsync(string.Empty);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("The GetAccept signature request identifier is required.*");
+    }
+
+    /// <summary>
+    /// Verifies that non-success document status responses bubble up as HTTP failures.
+    /// </summary>
+    [Fact]
+    public async Task GetDocumentStatusAsync_WhenGetAcceptReturnsNonSuccess_Throws()
+    {
+        var handler = new RecordingHandler(
+            request => request.RequestUri!.PathAndQuery == "/v1/auth"
+                ? JsonResponse("""{"access_token":"token-123","expires_in":3600}""")
+                : new HttpResponseMessage(HttpStatusCode.BadGateway));
+        var client = CreateClient(handler);
+
+        var act = () => client.GetDocumentStatusAsync("doc-123");
+
+        await act.Should().ThrowAsync<HttpRequestException>();
+    }
+
+    /// <summary>
+    /// Verifies that signed document download does not authenticate again for pre-signed external URLs and preserves response metadata.
+    /// </summary>
+    [Fact]
+    public async Task DownloadSignedDocumentAsync_WhenResponseIsPresignedExternalUrl_ReturnsContentMetadataWithoutAuthorizationHeader()
+    {
+        var handler = new RecordingHandler(
+            request =>
+            {
+                if (request.RequestUri!.AbsoluteUri == "https://download.test/signed.pdf")
+                {
+                    return new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new ByteArrayContent([1, 2, 3])
+                        {
+                            Headers =
+                            {
+                                ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf"),
+                                ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                                {
+                                    FileNameStar = "signed-file.pdf"
+                                }
+                            }
+                        }
+                    };
+                }
+
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            });
+        var client = CreateClient(handler);
+
+        var result = await client.DownloadSignedDocumentAsync("https://download.test/signed.pdf");
+
+        result.Content.Should().Equal([1, 2, 3]);
+        result.ContentType.Should().Be("application/pdf");
+        result.FileName.Should().Be("signed-file.pdf");
+        handler.Requests.Should().ContainSingle();
+        handler.Requests[0].Authorization.Should().BeNull();
+        handler.Requests[0].RequestUri!.AbsoluteUri.Should().Be("https://download.test/signed.pdf");
+    }
+
+    /// <summary>
+    /// Verifies that signed document download falls back to default metadata when headers are absent.
+    /// </summary>
+    [Fact]
+    public async Task DownloadSignedDocumentAsync_WhenResponseHeadersAreMissing_UsesDefaults()
+    {
+        var handler = new RecordingHandler(
+            _ => new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent([4, 5, 6])
+            });
+        var client = CreateClient(handler);
+
+        var result = await client.DownloadSignedDocumentAsync("https://download.test/no-headers");
+
+        result.Content.Should().Equal([4, 5, 6]);
+        result.ContentType.Should().Be("application/pdf");
+        result.FileName.Should().Be("mandate-sepa-signed.pdf");
+        handler.Requests.Should().ContainSingle();
+        handler.Requests[0].Authorization.Should().BeNull();
+    }
+
+    /// <summary>
+    /// Verifies that a missing signed document URL is rejected.
+    /// </summary>
+    [Fact]
+    public async Task DownloadSignedDocumentAsync_WhenSignedDocumentUrlIsMissing_Throws()
+    {
+        var client = CreateClient(new RecordingHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)));
+
+        var act = () => client.DownloadSignedDocumentAsync(string.Empty);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("The GetAccept signed document URL is required.*");
+    }
+
+    /// <summary>
+    /// Verifies that non-success signed document responses bubble up as HTTP failures.
+    /// </summary>
+    [Fact]
+    public async Task DownloadSignedDocumentAsync_WhenGetAcceptReturnsNonSuccess_Throws()
+    {
+        var handler = new RecordingHandler(
+            _ => new HttpResponseMessage(HttpStatusCode.BadGateway));
+        var client = CreateClient(handler);
+
+        var act = () => client.DownloadSignedDocumentAsync("https://download.test/signed.pdf");
+
+        await act.Should().ThrowAsync<HttpRequestException>();
+    }
+
+    /// <summary>
+    /// Verifies that signed document download authenticates for GetAccept-hosted URLs.
+    /// </summary>
+    [Fact]
+    public async Task DownloadSignedDocumentAsync_WhenResponseIsHostedByGetAccept_UsesAuthorizationHeader()
+    {
+        var handler = new RecordingHandler(
+            request =>
+            {
+                if (request.RequestUri!.PathAndQuery == "/v1/auth")
+                {
+                    return JsonResponse("""{"access_token":"token-123","expires_in":3600}""");
+                }
+
+                if (request.RequestUri!.AbsoluteUri == "https://api.getaccept.test/v1/documents/doc-123/download")
+                {
+                    return new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new ByteArrayContent([7, 8, 9])
+                    };
+                }
+
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            });
+        var client = CreateClient(handler);
+
+        var result = await client.DownloadSignedDocumentAsync("https://api.getaccept.test/v1/documents/doc-123/download");
+
+        result.Content.Should().Equal([7, 8, 9]);
+        handler.Requests.Should().HaveCount(2);
+        handler.Requests[1].Authorization!.Scheme.Should().Be("Bearer");
+        handler.Requests[1].Authorization!.Parameter.Should().Be("token-123");
+    }
+
+    /// <summary>
+    /// Verifies that the authenticated token is reused across sequential GetAccept calls on the same client instance.
+    /// </summary>
+    [Fact]
+    public async Task GetAcceptClient_WhenSeveralOperationsRunSequentially_ReusesAuthenticationToken()
+    {
+        var handler = new RecordingHandler(
+            request =>
+            {
+                if (request.RequestUri!.PathAndQuery == "/v1/auth")
+                {
+                    return JsonResponse("""{"access_token":"token-123","expires_in":3600}""");
+                }
+
+                if (request.RequestUri!.PathAndQuery == "/v1/documents/doc-123")
+                {
+                    return JsonResponse("""{"status":"signed","download_url":"https://download.test/signed.pdf"}""");
+                }
+
+                if (request.RequestUri!.AbsoluteUri == "https://download.test/signed.pdf")
+                {
+                    return new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new ByteArrayContent([1, 2, 3])
+                    };
+                }
+
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            });
+        var client = CreateClient(handler);
+
+        var status = await client.GetDocumentStatusAsync("doc-123");
+        var document = await client.DownloadSignedDocumentAsync(status.SignedDocumentUrl!);
+
+        status.Status.Should().Be("signed");
+        document.Content.Should().Equal([1, 2, 3]);
+        handler.Requests.Should().HaveCount(3);
+        handler.Requests.Count(request => request.RequestUri.PathAndQuery == "/v1/auth").Should().Be(1);
+        handler.Requests[1].RequestUri!.PathAndQuery.Should().Be("/v1/documents/doc-123");
+        handler.Requests[1].Authorization!.Scheme.Should().Be("Bearer");
+        handler.Requests[1].Authorization!.Parameter.Should().Be("token-123");
+        handler.Requests[2].RequestUri!.AbsoluteUri.Should().Be("https://download.test/signed.pdf");
+        handler.Requests[2].Authorization.Should().BeNull();
+    }
+
     private static GetAcceptClient CreateClient(RecordingHandler handler)
     {
         var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.getaccept.test/") };

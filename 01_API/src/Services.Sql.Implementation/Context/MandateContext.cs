@@ -210,6 +210,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Sql.Implementation
             modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.SignatureStatus).IsRequired().HasDefaultValue(0);
             modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.IsSentToAkuiteo).IsRequired().HasDefaultValue(false);
             modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.SentToAkuiteoAt).IsRequired(false);
+            modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.SignedMandateDocumentId).HasMaxLength(100).IsUnicode(true).IsRequired(false);
             modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.CreatedAt).IsRequired();
             modelBuilder.Entity<SepaMandateDb>().Property(mandate => mandate.CreatedBy).HasMaxLength(255).IsUnicode(false).IsRequired();
             modelBuilder.Entity<SepaMandateDb>()

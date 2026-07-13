@@ -54,4 +54,25 @@ public class PaymentPreferenceRepository(MandateContext context) : IPaymentPrefe
 
         await context.SaveChangesAsync();
     }
+
+    /// <inheritdoc />
+    public async Task<int> CleanupOnboardingDataAsync(int accountId)
+    {
+        var strategy = context.Database.CreateExecutionStrategy();
+
+        return await strategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await context.Database.BeginTransactionAsync();
+
+            var deletedSepaMandates = await context.SepaMandates
+                .Where(mandate => mandate.AccountId == accountId)
+                .ExecuteDeleteAsync();
+            var deletedPaymentPreferences = await context.PaymentPreferences
+                .Where(preference => preference.AccountId == accountId)
+                .ExecuteDeleteAsync();
+
+            await transaction.CommitAsync();
+            return deletedSepaMandates + deletedPaymentPreferences;
+        });
+    }
 }

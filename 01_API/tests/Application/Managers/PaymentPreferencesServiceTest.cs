@@ -941,6 +941,44 @@ public sealed class PaymentPreferencesServiceTest
         result.Should().Be(expected);
     }
 
+    #region CleanupAsync
+
+    /// <summary>
+    /// Verifies that cleanup deletes onboarding mandate preference data when the account exists.
+    /// </summary>
+    [Fact]
+    public async Task CleanupAsync_WhenAccountExists_CleansPreferenceData()
+    {
+        var paymentPreferenceStore = new Mock<IPaymentPreferenceStore>();
+        var cleanupStore = new Mock<IPaymentPreferenceCleanupStore>();
+        paymentPreferenceStore.Setup(candidate => candidate.AccountExistsAsync(42)).ReturnsAsync(true);
+        cleanupStore.Setup(candidate => candidate.CleanupAsync(42)).ReturnsAsync(2);
+        var service = CreateService(paymentPreferenceStore.Object, cleanupStore.Object);
+
+        var result = await service.CleanupAsync(42);
+
+        result.Should().BeTrue();
+        cleanupStore.Verify(candidate => candidate.CleanupAsync(42), Times.Once);
+    }
+
+    /// <summary>
+    /// Verifies that cleanup returns false when the account does not exist.
+    /// </summary>
+    [Fact]
+    public async Task CleanupAsync_WhenAccountDoesNotExist_ReturnsFalse()
+    {
+        var paymentPreferenceStore = new Mock<IPaymentPreferenceStore>();
+        var cleanupStore = new Mock<IPaymentPreferenceCleanupStore>(MockBehavior.Strict);
+        paymentPreferenceStore.Setup(candidate => candidate.AccountExistsAsync(42)).ReturnsAsync(false);
+        var service = CreateService(paymentPreferenceStore.Object, cleanupStore.Object);
+
+        var result = await service.CleanupAsync(42);
+
+        result.Should().BeFalse();
+    }
+
+    #endregion
+
     /// <summary>
     /// Creates a payment preferences service.
     /// </summary>
@@ -948,8 +986,22 @@ public sealed class PaymentPreferencesServiceTest
     /// <returns>The service.</returns>
     private static PaymentPreferencesService CreateService(IPaymentPreferenceStore paymentPreferenceStore)
     {
+        return CreateService(paymentPreferenceStore, Mock.Of<IPaymentPreferenceCleanupStore>());
+    }
+
+    /// <summary>
+    /// Creates a payment preferences service.
+    /// </summary>
+    /// <param name="paymentPreferenceStore">The payment preference store.</param>
+    /// <param name="paymentPreferenceCleanupStore">The payment preference cleanup store.</param>
+    /// <returns>The service.</returns>
+    private static PaymentPreferencesService CreateService(
+        IPaymentPreferenceStore paymentPreferenceStore,
+        IPaymentPreferenceCleanupStore paymentPreferenceCleanupStore)
+    {
         return new PaymentPreferencesService(
             paymentPreferenceStore,
+            paymentPreferenceCleanupStore,
             Mock.Of<ISepaMandateStore>(),
             Mock.Of<ISepaMandatePdfGenerator>(),
             Mock.Of<IGetAcceptClient>(),
@@ -974,6 +1026,7 @@ public sealed class PaymentPreferencesServiceTest
     {
         return new PaymentPreferencesService(
             paymentPreferenceStore,
+            Mock.Of<IPaymentPreferenceCleanupStore>(),
             sepaMandateStore,
             pdfGenerator,
             getAcceptClient,
@@ -1002,6 +1055,7 @@ public sealed class PaymentPreferencesServiceTest
     {
         return new PaymentPreferencesService(
             paymentPreferenceStore,
+            Mock.Of<IPaymentPreferenceCleanupStore>(),
             sepaMandateStore,
             pdfGenerator,
             getAcceptClient,

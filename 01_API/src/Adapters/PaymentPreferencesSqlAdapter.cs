@@ -14,7 +14,7 @@ using KPMG.Pulse.Back.Accounting.Mandate.Sql;
 /// <param name="sepaMandateRepository">The SEPA mandate repository.</param>
 public sealed class PaymentPreferencesSqlAdapter(
     IPaymentPreferenceRepository paymentPreferenceRepository,
-    ISepaMandateRepository sepaMandateRepository) : IPaymentPreferenceStore, ISepaMandateStore
+    ISepaMandateRepository sepaMandateRepository) : IPaymentPreferenceStore, ISepaMandateStore, IPaymentPreferenceCleanupStore
 {
     /// <inheritdoc />
     public async Task<SepaMandate?> GetLatestByAccountIdAsync(int accountId)
@@ -79,6 +79,12 @@ public sealed class PaymentPreferencesSqlAdapter(
     public async Task<bool> SaveSignedMandateDocumentIdAsync(int accountId, string signedMandateDocumentId)
     {
         return await sepaMandateRepository.SaveSignedMandateDocumentIdAsync(accountId, signedMandateDocumentId);
+    }
+
+    /// <inheritdoc />
+    public async Task<int> CleanupAsync(int accountId)
+    {
+        return await paymentPreferenceRepository.CleanupOnboardingDataAsync(accountId);
     }
 
     /// <summary>

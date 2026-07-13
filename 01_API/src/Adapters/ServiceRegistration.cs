@@ -19,6 +19,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Adapters
             services.AddScoped<IDatabaseService, SqlAdapter>();
             services.AddScoped<IPaymentPreferenceStore, PaymentPreferencesSqlAdapter>();
             services.AddScoped<ISepaMandateStore, PaymentPreferencesSqlAdapter>();
+            services.AddScoped<IPaymentPreferenceCleanupStore, PaymentPreferencesSqlAdapter>();
             services.AddScoped<IJeDeclareService, JeDeclareAdapter>();
             services.AddScoped<INotificationsService, NotificationsAdapter>();
 

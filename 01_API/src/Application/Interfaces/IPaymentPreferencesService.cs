@@ -64,4 +64,11 @@ public interface IPaymentPreferencesService
     /// <param name="accountId">The account identifier.</param>
     /// <returns>True when the account and payment preference exist and the preference was reset; otherwise false.</returns>
     Task<bool> ResetAsync(int accountId);
+
+    /// <summary>
+    /// Deletes onboarding mandate preferences for an account.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <returns>True when the account exists and cleanup was applied; otherwise false.</returns>
+    Task<bool> CleanupAsync(int accountId);
 }

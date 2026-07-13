@@ -217,6 +217,25 @@ public sealed class PaymentPreferencesController(
         return reset ? NoContent() : NotFound();
     }
 
+    /// <summary>
+    /// Deletes onboarding mandate preferences for an account.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <returns>204 when cleaned, or 404 when the account is not found.</returns>
+    [HttpPost("/api/onboarding/{accountId}/cleanup")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CleanupAsync(int accountId)
+    {
+        if (accountId <= 0)
+        {
+            return NotFound();
+        }
+
+        var cleaned = await paymentPreferencesService.CleanupAsync(accountId);
+        return cleaned ? NoContent() : NotFound();
+    }
+
     private static string? ToContractValue(PaymentPreferenceType? paymentType)
     {
         return paymentType switch

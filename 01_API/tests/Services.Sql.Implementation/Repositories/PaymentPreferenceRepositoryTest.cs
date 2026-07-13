@@ -160,6 +160,49 @@ public sealed class PaymentPreferenceRepositoryTest : SqlServerTestBase
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
+    /// <summary>
+    /// Verifies that onboarding cleanup deletes only payment preferences and SEPA mandates for the requested account.
+    /// </summary>
+    [Fact]
+    public async Task CleanupOnboardingDataAsync_WhenRowsExist_DeletesOnlyRequestedAccountRows()
+    {
+        var accountId = 6201105;
+        var otherAccountId = 6201106;
+        await using var context = new MandateContext(CreateContextOptions());
+        await context.Company.AddRangeAsync(CreateCompany(accountId), CreateCompany(otherAccountId));
+        await context.PaymentPreferences.AddRangeAsync(
+            CreatePaymentPreference(accountId),
+            CreatePaymentPreference(otherAccountId));
+        await context.SepaMandates.AddRangeAsync(
+            CreateSepaMandate(accountId),
+            CreateSepaMandate(otherAccountId));
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+        var repository = new PaymentPreferenceRepository(context);
+
+        var deletedRows = await repository.CleanupOnboardingDataAsync(accountId);
+
+        deletedRows.Should().Be(2);
+        context.PaymentPreferences.Should().ContainSingle(preference => preference.AccountId == otherAccountId);
+        context.PaymentPreferences.Should().NotContain(preference => preference.AccountId == accountId);
+        context.SepaMandates.Should().ContainSingle(mandate => mandate.AccountId == otherAccountId);
+        context.SepaMandates.Should().NotContain(mandate => mandate.AccountId == accountId);
+    }
+
+    /// <summary>
+    /// Verifies that onboarding cleanup is idempotent when no rows exist for the account.
+    /// </summary>
+    [Fact]
+    public async Task CleanupOnboardingDataAsync_WhenNoRowsExist_ReturnsZero()
+    {
+        await using var context = new MandateContext(CreateContextOptions());
+        var repository = new PaymentPreferenceRepository(context);
+
+        var deletedRows = await repository.CleanupOnboardingDataAsync(6201199);
+
+        deletedRows.Should().Be(0);
+    }
+
     private DbContextOptions<MandateContext> CreateContextOptions()
     {
         return new DbContextOptionsBuilder<MandateContext>()
@@ -174,5 +217,45 @@ public sealed class PaymentPreferenceRepositoryTest : SqlServerTestBase
         company.SiretNumber = accountId.ToString();
         company.ErpId = accountId.ToString();
         return company;
+    }
+
+    /// <summary>
+    /// Creates a payment preference row for tests.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <returns>The payment preference row.</returns>
+    private static PaymentPreferenceDb CreatePaymentPreference(int accountId)
+    {
+        return new PaymentPreferenceDb
+        {
+            AccountId = accountId,
+            PaymentType = 2,
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = "user@test.fr"
+        };
+    }
+
+    /// <summary>
+    /// Creates a SEPA mandate row for tests.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <returns>The SEPA mandate row.</returns>
+    private static SepaMandateDb CreateSepaMandate(int accountId)
+    {
+        return new SepaMandateDb
+        {
+            AccountId = accountId,
+            AccountHolder = "Jean Dupont",
+            Address = "10 rue de Paris",
+            Iban = "FR7630006000011234567890189",
+            Bic = "AGRIFRPP",
+            RibDocumentId = 99,
+            SignatureRequestId = "doc-123",
+            SignatureUrl = "https://signature.test",
+            SignatureStatus = 1,
+            IsSentToAkuiteo = false,
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = "user@test.fr"
+        };
     }
 }

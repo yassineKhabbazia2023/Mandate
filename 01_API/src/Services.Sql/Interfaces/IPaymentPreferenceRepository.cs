@@ -36,4 +36,11 @@ public interface IPaymentPreferenceRepository
     /// <param name="preference">The payment preference to save.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     Task SaveAsync(PaymentPreferenceDb preference);
+
+    /// <summary>
+    /// Deletes onboarding payment preferences and SEPA mandates for an account.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <returns>The number of deleted rows.</returns>
+    Task<int> CleanupOnboardingDataAsync(int accountId);
 }

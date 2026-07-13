@@ -126,6 +126,22 @@ public sealed class PaymentPreferencesSqlAdapterTest
     }
 
     /// <summary>
+    /// Verifies that cleanup is delegated to the payment preference repository.
+    /// </summary>
+    [Fact]
+    public async Task CleanupAsync_WhenRepositoryReturnsDeletedRows_ReturnsDeletedRows()
+    {
+        var repository = new Mock<IPaymentPreferenceRepository>();
+        repository.Setup(candidate => candidate.CleanupOnboardingDataAsync(42)).ReturnsAsync(2);
+        var adapter = CreateAdapter(repository.Object);
+
+        var result = await adapter.CleanupAsync(42);
+
+        result.Should().Be(2);
+        repository.Verify(candidate => candidate.CleanupOnboardingDataAsync(42), Times.Once);
+    }
+
+    /// <summary>
     /// Creates the payment preference SQL adapter under test.
     /// </summary>
     /// <param name="repository">The payment preference repository.</param>

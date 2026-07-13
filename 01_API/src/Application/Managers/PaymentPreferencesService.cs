@@ -9,8 +9,17 @@ using KPMG.Pulse.Back.Accounting.Mandate.Application.Models;
 using Microsoft.Extensions.Logging;
 
 /// <inheritdoc />
+/// <param name="paymentPreferenceStore">The payment preference store.</param>
+/// <param name="paymentPreferenceCleanupStore">The payment preference cleanup store.</param>
+/// <param name="sepaMandateStore">The SEPA mandate store.</param>
+/// <param name="sepaMandatePdfGenerator">The SEPA mandate PDF generator.</param>
+/// <param name="getAcceptClient">The GetAccept client.</param>
+/// <param name="strategies">The payment preference write strategies.</param>
+/// <param name="readStrategies">The payment preference read strategies.</param>
+/// <param name="logger">The logger.</param>
 public sealed class PaymentPreferencesService(
     IPaymentPreferenceStore paymentPreferenceStore,
+    IPaymentPreferenceCleanupStore paymentPreferenceCleanupStore,
     ISepaMandateStore sepaMandateStore,
     ISepaMandatePdfGenerator sepaMandatePdfGenerator,
     IGetAcceptClient getAcceptClient,
@@ -207,6 +216,25 @@ public sealed class PaymentPreferencesService(
         preference.ResetPaymentType();
         await paymentPreferenceStore.SaveAsync(preference);
         logger.LogInformation("Reset payment preference for account {AccountId}", accountId);
+        return true;
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> CleanupAsync(int accountId)
+    {
+        logger.LogInformation("Starting Mandate onboarding cleanup for account {AccountId}", accountId);
+
+        if (!await paymentPreferenceStore.AccountExistsAsync(accountId))
+        {
+            logger.LogWarning("Mandate onboarding cleanup requested for unknown account {AccountId}", accountId);
+            return false;
+        }
+
+        var deletedRows = await paymentPreferenceCleanupStore.CleanupAsync(accountId);
+        logger.LogInformation(
+            "Completed Mandate onboarding cleanup for account {AccountId}. DeletedRows: {DeletedRows}",
+            accountId,
+            deletedRows);
         return true;
     }
 

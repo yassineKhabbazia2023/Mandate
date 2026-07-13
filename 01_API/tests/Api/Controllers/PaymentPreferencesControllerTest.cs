@@ -376,6 +376,55 @@ public sealed class PaymentPreferencesControllerTest
         result.Should().BeOfType<NotFoundResult>();
     }
 
+    #region CleanupAsync
+
+    /// <summary>
+    /// Verifies that cleanup returns not found when the account identifier is invalid.
+    /// </summary>
+    [Fact]
+    public async Task CleanupAsync_WhenAccountIdIsInvalid_ReturnsNotFound()
+    {
+        var service = new Mock<IPaymentPreferencesService>();
+        var controller = new PaymentPreferencesController(service.Object);
+
+        var result = await controller.CleanupAsync(0);
+
+        result.Should().BeOfType<NotFoundResult>();
+        service.Verify(candidate => candidate.CleanupAsync(It.IsAny<int>()), Times.Never);
+    }
+
+    /// <summary>
+    /// Verifies that cleanup returns no content when Mandate cleanup succeeds.
+    /// </summary>
+    [Fact]
+    public async Task CleanupAsync_WhenCleaned_ReturnsNoContent()
+    {
+        var service = new Mock<IPaymentPreferencesService>();
+        service.Setup(candidate => candidate.CleanupAsync(42)).ReturnsAsync(true);
+        var controller = new PaymentPreferencesController(service.Object);
+
+        var result = await controller.CleanupAsync(42);
+
+        result.Should().BeOfType<NoContentResult>();
+    }
+
+    /// <summary>
+    /// Verifies that cleanup returns not found when the account is unknown.
+    /// </summary>
+    [Fact]
+    public async Task CleanupAsync_WhenAccountIsUnknown_ReturnsNotFound()
+    {
+        var service = new Mock<IPaymentPreferencesService>();
+        service.Setup(candidate => candidate.CleanupAsync(42)).ReturnsAsync(false);
+        var controller = new PaymentPreferencesController(service.Object);
+
+        var result = await controller.CleanupAsync(42);
+
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
+    #endregion
+
     /// <summary>
     /// Creates a valid SEPA request.
     /// </summary>

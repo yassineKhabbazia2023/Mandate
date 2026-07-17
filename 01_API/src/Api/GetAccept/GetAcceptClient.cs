@@ -6,6 +6,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.GetAccept;
 
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using KPMG.Pulse.Back.Accounting.Mandate.Application.Interfaces;
 using KPMG.Pulse.Back.Accounting.Mandate.Application.Models;
@@ -20,6 +21,7 @@ public sealed class GetAcceptClient(
     private const string DocumentType = "other";
     private const string SignerRole = "signer";
     private static readonly TimeSpan AccessTokenRefreshSkew = TimeSpan.FromMinutes(1);
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private readonly SemaphoreSlim authenticationLock = new(1, 1);
     private string? accessToken;
     private DateTimeOffset accessTokenExpiresAt;
@@ -185,31 +187,66 @@ public sealed class GetAcceptClient(
 
     private async Task<string> GetSignatureUrlAsync(string documentId, string accessToken)
     {
-        using var httpRequest = new HttpRequestMessage(
-            HttpMethod.Get,
-            $"v1/documents/{Uri.EscapeDataString(documentId)}/recipients");
-        httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        var maxAttempts = Math.Max(1, options.Value.SignatureUrlMaxAttempts);
+        var retryDelay = TimeSpan.FromMilliseconds(Math.Max(0, options.Value.SignatureUrlRetryDelayMilliseconds));
 
-        using var response = await httpClient.SendAsync(httpRequest);
-        response.EnsureSuccessStatusCode();
-
-        var recipientsResponse = await response.Content.ReadFromJsonAsync<GetAcceptRecipientsResponse>()
-            ?? throw new InvalidOperationException("GetAccept recipients response was empty.");
-
-        var signatureUrl = recipientsResponse.Recipients
-            .Where(recipient => string.Equals(recipient.Role, SignerRole, StringComparison.OrdinalIgnoreCase))
-            .Select(recipient => recipient.DocumentUrl)
-            .FirstOrDefault(candidate => !string.IsNullOrWhiteSpace(candidate));
-
-        if (string.IsNullOrWhiteSpace(signatureUrl))
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
         {
-            logger.LogError(
-                "GetAccept recipients response for document {DocumentId} did not contain a signer document URL",
-                documentId);
-            throw new InvalidOperationException("GetAccept recipients response did not include a signer document URL.");
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                $"v1/documents/{Uri.EscapeDataString(documentId)}/recipients");
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using var response = await httpClient.SendAsync(httpRequest);
+            response.EnsureSuccessStatusCode();
+
+            var recipientsPayload = await response.Content.ReadAsStringAsync();
+            var recipientsResponse = JsonSerializer.Deserialize<GetAcceptRecipientsResponse>(recipientsPayload, JsonOptions)
+                ?? throw new InvalidOperationException("GetAccept recipients response was empty.");
+
+            if (logger.IsEnabled(LogLevel.Debug))
+            {
+                var diagnosticPayload = JsonSerializer.Serialize(
+                    new
+                    {
+                        Recipients = recipientsResponse.Recipients.Select(recipient => new
+                        {
+                            recipient.Role,
+                            recipient.Status,
+                            HasDocumentUrl = !string.IsNullOrWhiteSpace(recipient.DocumentUrl)
+                        })
+                    },
+                    JsonOptions);
+
+                logger.LogDebug(
+                    "GetAccept recipients diagnostic for document {DocumentId} on attempt {Attempt}/{MaxAttempts}. Payload: {RecipientsPayload}",
+                    documentId,
+                    attempt,
+                    maxAttempts,
+                    diagnosticPayload);
+            }
+
+            var signatureUrl = recipientsResponse.Recipients
+                .Where(recipient => string.Equals(recipient.Role, SignerRole, StringComparison.OrdinalIgnoreCase))
+                .Select(recipient => recipient.DocumentUrl)
+                .FirstOrDefault(candidate => !string.IsNullOrWhiteSpace(candidate));
+
+            if (!string.IsNullOrWhiteSpace(signatureUrl))
+            {
+                return signatureUrl;
+            }
+
+            if (attempt < maxAttempts)
+            {
+                await Task.Delay(retryDelay);
+            }
         }
 
-        return signatureUrl;
+        logger.LogError(
+            "GetAccept recipients response for document {DocumentId} did not contain a signer document URL after {MaxAttempts} attempts.",
+            documentId,
+            maxAttempts);
+        throw new InvalidOperationException("GetAccept recipients response did not include a signer document URL.");
     }
 
     private void EnsureConfigured()
@@ -258,5 +295,6 @@ public sealed class GetAcceptClient(
 
     private sealed record GetAcceptRecipientResponse(
         [property: JsonPropertyName("role")] string Role,
+        [property: JsonPropertyName("status")] string? Status,
         [property: JsonPropertyName("document_url")] string? DocumentUrl);
 }

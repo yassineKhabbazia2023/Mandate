@@ -8,6 +8,7 @@ using System.Net;
 using System.Text.Json;
 using KPMG.Pulse.Back.Accounting.Mandate.Application.Models;
 using KPMG.Pulse.Back.Accounting.Mandate.AspNetCore.GetAccept;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -74,6 +75,74 @@ public sealed class GetAcceptClientTest
     }
 
     /// <summary>
+    /// Verifies that recipient retrieval is retried until GetAccept returns the signer document URL.
+    /// </summary>
+    [Fact]
+    public async Task SendMandateForSignatureAsync_WhenSignerUrlBecomesAvailable_ReturnsSignatureUrl()
+    {
+        const string pendingPayload = """{"recipients":[{"role":"signer","status":"added","email":"jean.dupont@test.fr","document_url":""}]}""";
+        const string readyPayload = """{"recipients":[{"role":"signer","status":"sent","email":"jean.dupont@test.fr","document_url":"https://signature.test"}]}""";
+        const string pendingDiagnosticPayload = """{"recipients":[{"role":"signer","status":"added","hasDocumentUrl":false}]}""";
+        const string readyDiagnosticPayload = """{"recipients":[{"role":"signer","status":"sent","hasDocumentUrl":true}]}""";
+        var recipientsAttempts = 0;
+        var handler = new RecordingHandler(
+            request =>
+            {
+                if (request.RequestUri!.PathAndQuery == "/v1/auth")
+                {
+                    return JsonResponse("""{"access_token":"token-123","expires_in":3600}""");
+                }
+
+                if (request.RequestUri!.PathAndQuery == "/v1/documents")
+                {
+                    return JsonResponse("""{"id":"doc-123"}""");
+                }
+
+                if (request.RequestUri!.PathAndQuery == "/v1/documents/doc-123/recipients")
+                {
+                    recipientsAttempts++;
+                    return JsonResponse(recipientsAttempts == 1 ? pendingPayload : readyPayload);
+                }
+
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            });
+        var logger = new Mock<ILogger<GetAcceptClient>>();
+        logger.Setup(candidate => candidate.IsEnabled(LogLevel.Debug)).Returns(true);
+        var client = CreateClient(handler, logger.Object, signatureUrlMaxAttempts: 3);
+
+        var result = await client.SendMandateForSignatureAsync(new GetAcceptMandateSignatureRequest(
+            [1, 2, 3],
+            "mandat.pdf",
+            new SepaRecipient("jean.dupont@test.fr", "Jean", "Dupont")));
+
+        result.SignatureRequestId.Should().Be("doc-123");
+        result.SignatureUrl.Should().Be("https://signature.test");
+        recipientsAttempts.Should().Be(2);
+        logger.Verify(candidate => candidate.Log(
+            LogLevel.Debug,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((state, _) => state.ToString()!.Contains(pendingDiagnosticPayload, StringComparison.Ordinal)),
+            null,
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+        logger.Verify(candidate => candidate.Log(
+            LogLevel.Debug,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((state, _) => state.ToString()!.Contains(readyDiagnosticPayload, StringComparison.Ordinal)),
+            null,
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+        logger.Verify(candidate => candidate.Log(
+            It.IsAny<LogLevel>(),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((state, _) => state.ToString()!.Contains("jean.dupont@test.fr", StringComparison.Ordinal)
+                || state.ToString()!.Contains("https://signature.test", StringComparison.Ordinal)),
+            It.IsAny<Exception?>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Never);
+    }
+
+    /// <summary>
     /// Verifies that GetAccept credentials are required before any HTTP call.
     /// </summary>
     [Fact]
@@ -102,6 +171,8 @@ public sealed class GetAcceptClientTest
     [Fact]
     public async Task SendMandateForSignatureAsync_WhenSignerUrlIsMissing_Throws()
     {
+        const string recipientsPayload = """{"recipients":[{"role":"viewer","status":"sent","email":"viewer@test.fr","document_url":"https://viewer.test"}]}""";
+        const string diagnosticPayload = """{"recipients":[{"role":"viewer","status":"sent","hasDocumentUrl":true}]}""";
         var handler = new RecordingHandler(
             request =>
             {
@@ -117,12 +188,14 @@ public sealed class GetAcceptClientTest
 
                 if (request.RequestUri!.PathAndQuery == "/v1/documents/doc-123/recipients")
                 {
-                    return JsonResponse("""{"recipients":[{"role":"viewer","document_url":"https://viewer.test"}]}""");
+                    return JsonResponse(recipientsPayload);
                 }
 
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
             });
-        var client = CreateClient(handler);
+        var logger = new Mock<ILogger<GetAcceptClient>>();
+        logger.Setup(candidate => candidate.IsEnabled(LogLevel.Debug)).Returns(true);
+        var client = CreateClient(handler, logger.Object, signatureUrlMaxAttempts: 3);
 
         var act = () => client.SendMandateForSignatureAsync(new GetAcceptMandateSignatureRequest(
             [1, 2, 3],
@@ -131,6 +204,31 @@ public sealed class GetAcceptClientTest
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("GetAccept recipients response did not include a signer document URL.");
+        handler.Requests.Count(request => request.RequestUri.PathAndQuery == "/v1/documents/doc-123/recipients")
+            .Should().Be(3);
+        logger.Verify(candidate => candidate.Log(
+            LogLevel.Debug,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((state, _) => state.ToString()!.Contains(diagnosticPayload, StringComparison.Ordinal)),
+            null,
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Exactly(3));
+        logger.Verify(candidate => candidate.Log(
+            LogLevel.Error,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((state, _) => state.ToString() ==
+                "GetAccept recipients response for document doc-123 did not contain a signer document URL after 3 attempts."),
+            null,
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+        logger.Verify(candidate => candidate.Log(
+            It.IsAny<LogLevel>(),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((state, _) => state.ToString()!.Contains("viewer@test.fr", StringComparison.Ordinal)
+                || state.ToString()!.Contains("https://viewer.test", StringComparison.Ordinal)),
+            It.IsAny<Exception?>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Never);
     }
 
     /// <summary>
@@ -552,7 +650,11 @@ public sealed class GetAcceptClientTest
         handler.Requests[2].Authorization.Should().BeNull();
     }
 
-    private static GetAcceptClient CreateClient(RecordingHandler handler)
+    private static GetAcceptClient CreateClient(
+        RecordingHandler handler,
+        ILogger<GetAcceptClient>? logger = null,
+        int signatureUrlMaxAttempts = 1,
+        int signatureUrlRetryDelayMilliseconds = 0)
     {
         var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.getaccept.test/") };
         return new GetAcceptClient(
@@ -561,9 +663,11 @@ public sealed class GetAcceptClientTest
             {
                 BaseUrl = "https://api.getaccept.test/",
                 Email = "sender@test.fr",
-                Password = "password"
+                Password = "password",
+                SignatureUrlMaxAttempts = signatureUrlMaxAttempts,
+                SignatureUrlRetryDelayMilliseconds = signatureUrlRetryDelayMilliseconds
             }),
-            NullLogger<GetAcceptClient>.Instance);
+            logger ?? NullLogger<GetAcceptClient>.Instance);
     }
 
     private static HttpResponseMessage JsonResponse(string json)

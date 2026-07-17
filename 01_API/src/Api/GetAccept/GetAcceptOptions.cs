@@ -23,4 +23,14 @@ public sealed class GetAcceptOptions
     /// Gets or sets the GetAccept account password.
     /// </summary>
     public string Password { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the maximum number of attempts used to retrieve the recipient signature URL.
+    /// </summary>
+    public int SignatureUrlMaxAttempts { get; set; } = 10;
+
+    /// <summary>
+    /// Gets or sets the delay in milliseconds between recipient signature URL retrieval attempts.
+    /// </summary>
+    public int SignatureUrlRetryDelayMilliseconds { get; set; } = 500;
 }

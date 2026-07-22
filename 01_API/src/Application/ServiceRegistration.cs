@@ -32,6 +32,7 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
             services.AddScoped<ISepaMandatePdfGenerator, BusinessHelpers.SepaMandatePdfGenerator>();
             services.AddScoped<IGuidGenerator, GuidGenerator>();
             services.AddScoped<IEventManager, EventManager>();
+            services.AddScoped<IBankDetailsExtractionService, BankDetailsExtractionService>();
             services.AddScoped<IPaymentPreferencesService, PaymentPreferencesService>();
             services.AddScoped<IPaymentPreferenceStrategy, OtherPaymentPreferenceStrategy>();
             services.AddScoped<IPaymentPreferenceStrategy, SepaPaymentPreferenceStrategy>();

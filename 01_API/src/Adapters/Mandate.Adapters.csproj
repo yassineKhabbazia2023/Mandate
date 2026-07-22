@@ -12,7 +12,7 @@
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.ApplicationInsights" Version="2.23.0" />
 	  <PackageReference Include="Pulse.Back.Notifications.Commons" Version="1.0.0.4" />
-	  <PackageReference Include="System.Formats.Asn1" Version="10.0.9" />
+	  <PackageReference Include="System.Formats.Asn1" Version="10.0.10" />
 	  <PackageReference Include="System.Text.Json" Version="9.0.0" />
 	</ItemGroup>
 

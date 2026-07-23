@@ -15,6 +15,8 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application;
 /// <param name="SignedMandateContentType">The signed mandate PDF content type.</param>
 /// <param name="SignedMandateFileName">The signed mandate PDF file name.</param>
 /// <param name="SignedMandateDocumentId">The Prospect document identifier when the signed mandate was already persisted.</param>
+/// <param name="Iban">The persisted IBAN when a signed mandate is ready for Akuiteo finalization.</param>
+/// <param name="Bic">The persisted BIC when a signed mandate is ready for Akuiteo finalization.</param>
 public sealed record PaymentPreferenceResult(
     bool AccountFound,
     PaymentPreferenceType? PaymentType,
@@ -23,4 +25,6 @@ public sealed record PaymentPreferenceResult(
     byte[]? SignedMandatePdf = null,
     string? SignedMandateContentType = null,
     string? SignedMandateFileName = null,
-    string? SignedMandateDocumentId = null);
+    string? SignedMandateDocumentId = null,
+    string? Iban = null,
+    string? Bic = null);

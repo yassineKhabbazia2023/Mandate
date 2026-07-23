@@ -582,6 +582,8 @@ public sealed class PaymentPreferencesServiceTest
         result.AccountId.Should().Be(42);
         result.RibDocumentId.Should().Be(123);
         result.SignedMandatePdf.Should().Equal([1, 2, 3]);
+        result.Iban.Should().Be("FR7630006000011234567890189");
+        result.Bic.Should().Be("AGRIFRPP");
         sepaMandateStore.Verify(store => store.UpdateSignatureStatusAsync(It.IsAny<int>(), It.IsAny<SepaMandateSignatureStatus>()), Times.Never);
         getAcceptClient.Verify(client => client.GetDocumentStatusAsync("doc-123"), Times.Once);
         getAcceptClient.Verify(client => client.DownloadSignedDocumentAsync("https://download.test/signed.pdf"), Times.Once);
@@ -687,6 +689,8 @@ public sealed class PaymentPreferencesServiceTest
         result.SignedMandatePdf.Should().Equal([1, 2, 3]);
         result.SignedMandateContentType.Should().Be("application/pdf");
         result.SignedMandateFileName.Should().Be("signed.pdf");
+        result.Iban.Should().Be("FR7630006000011234567890189");
+        result.Bic.Should().Be("AGRIFRPP");
         sepaMandateStore.Verify(store => store.UpdateSignatureStatusAsync(5, SepaMandateSignatureStatus.Signed), Times.Once);
     }
 

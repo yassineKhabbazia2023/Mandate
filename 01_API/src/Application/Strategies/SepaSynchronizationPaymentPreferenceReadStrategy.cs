@@ -118,7 +118,9 @@ public sealed class SepaSynchronizationPaymentPreferenceReadStrategy(
             signedDocument.Content,
             signedDocument.ContentType,
             signedDocument.FileName,
-            mandate.SignedMandateDocumentId);
+            mandate.SignedMandateDocumentId,
+            mandate.Iban,
+            mandate.Bic);
     }
 
     /// <summary>

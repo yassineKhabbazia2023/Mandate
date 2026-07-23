@@ -49,12 +49,14 @@ public sealed class PaymentPreferencesController(
                 : Convert.ToBase64String(result.SignedMandatePdf),
             SignedMandateContentType = result.SignedMandateContentType,
             SignedMandateFileName = result.SignedMandateFileName,
-            SignedMandateDocumentId = result.SignedMandateDocumentId
+            SignedMandateDocumentId = result.SignedMandateDocumentId,
+            Iban = result.Iban,
+            Bic = result.Bic
         });
     }
 
     /// <summary>
-    /// Marks the latest account SEPA mandate as sent to Akuiteo after Gateway uploaded the documents.
+    /// Marks the latest account SEPA mandate as sent after Gateway completed the Akuiteo finalization.
     /// </summary>
     /// <param name="accountId">The account identifier.</param>
     /// <returns>204 when updated, or 404 when the account or SEPA mandate is not found.</returns>

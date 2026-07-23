@@ -43,4 +43,15 @@ public sealed class PaymentPreferenceResponse
     /// Gets or sets the Prospect document identifier when the signed mandate was already persisted.
     /// </summary>
     public string? SignedMandateDocumentId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the persisted IBAN when the signed mandate is ready for Akuiteo finalization.
+    /// </summary>
+    public string? Iban { get; set; }
+
+    /// <summary>
+    /// Gets or sets the persisted BIC when the signed mandate is ready for Akuiteo finalization.
+    /// </summary>
+    public string? Bic { get; set; }
+
 }

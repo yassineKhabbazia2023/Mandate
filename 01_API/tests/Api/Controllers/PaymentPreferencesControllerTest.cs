@@ -91,9 +91,12 @@ public sealed class PaymentPreferencesControllerTest
                 PaymentPreferenceType.MandateSepa,
                 42,
                 123,
-                [1, 2, 3],
-                "application/pdf",
-                "signed.pdf"));
+                 [1, 2, 3],
+                 "application/pdf",
+                 "signed.pdf",
+                 null,
+                 "FR7630006000011234567890189",
+                 "AGRIFRPP"));
         var controller = new PaymentPreferencesController(service.Object);
 
         var result = await controller.GetAsync(42);
@@ -105,6 +108,8 @@ public sealed class PaymentPreferencesControllerTest
         response.SignedMandatePdfBase64.Should().Be(Convert.ToBase64String([1, 2, 3]));
         response.SignedMandateContentType.Should().Be("application/pdf");
         response.SignedMandateFileName.Should().Be("signed.pdf");
+        response.Iban.Should().Be("FR7630006000011234567890189");
+        response.Bic.Should().Be("AGRIFRPP");
     }
 
     /// <summary>

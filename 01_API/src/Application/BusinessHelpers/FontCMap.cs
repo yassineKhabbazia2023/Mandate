@@ -24,8 +24,18 @@ namespace KPMG.Pulse.Back.Accounting.Mandate.Application
 
         public static Dictionary<string, FontCMap> ParsePageFonts(PdfPage page)
         {
+            return ParseFonts(page);
+        }
+
+        /// <summary>
+        /// Parses the fonts declared by a PDF page or form appearance resource dictionary.
+        /// </summary>
+        /// <param name="resourceOwner">The PDF dictionary that owns the resources.</param>
+        /// <returns>The character maps indexed by PDF font resource name.</returns>
+        public static Dictionary<string, FontCMap> ParseFonts(PdfDictionary resourceOwner)
+        {
             var result = new Dictionary<string, FontCMap>();
-            var resources = page.Elements.GetDictionary("/Resources");
+            var resources = resourceOwner.Elements.GetDictionary("/Resources");
             var fonts = resources?.Elements.GetDictionary("/Font");
             if (fonts == null)
             {

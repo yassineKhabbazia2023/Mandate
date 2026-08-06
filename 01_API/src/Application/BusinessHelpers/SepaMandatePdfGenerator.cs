@@ -33,12 +33,12 @@ public sealed class SepaMandatePdfGenerator(
         return
         [
             new Replacement("{ACCOUNTNUMBER}", data.AccountNumber),
-            new Replacement("{RAISON_SOCIALE}", data.AccountHolder),
-            new Replacement("{ADRESSE}", data.Address),
+            new Replacement("{RAISON_SOCIALE}", data.AccountHolder.ToUpperInvariant()),
+            new Replacement("{ADRESSE}", data.Address.ToUpperInvariant()),
             new Replacement("{ADRESSE2}", data.AddressLine2 ?? string.Empty),
-            new Replacement("{CP}", data.PostalCode ?? string.Empty),
-            new Replacement("{VILLE}", data.City ?? string.Empty),
-            new Replacement("{PAYS}", data.Country ?? string.Empty),
+            new Replacement("{CP}", (data.PostalCode ?? string.Empty).ToUpperInvariant()),
+            new Replacement("{VILLE}", (data.City ?? string.Empty).ToUpperInvariant()),
+            new Replacement("{PAYS}", (data.Country ?? string.Empty).ToUpperInvariant()),
             new Replacement("{DATE1}", DateTime.Today.ToString("dd/MM/yyyy", CultureInfo.GetCultureInfo("fr-FR"))),
             new Replacement("{CODE_BANK}", bankDetails.BankCode),
             new Replacement("{COMPTE}", data.Iban),

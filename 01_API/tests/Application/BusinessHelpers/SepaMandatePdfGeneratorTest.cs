@@ -34,13 +34,13 @@ public sealed class SepaMandatePdfGeneratorTest
         var generator = new SepaMandatePdfGenerator(templateProvider.Object, pdfFormFieldFiller.Object);
 
         var result = await generator.GenerateAsync(new SepaMandatePdfData(
-            "Jean Dupont",
+            "Cabinet Étoile",
             "1001102412",
-            "10 rue de Paris",
-            "Batiment A",
-            "Paris",
+            "10 rue de l'Église",
+            "Bâtiment A",
+            "Lyon",
             "France",
-            "75008",
+            "fr-75008",
             "FR76 3000 6000 0112 3456 7890 189",
             "AGRIFRPP"));
 
@@ -49,12 +49,12 @@ public sealed class SepaMandatePdfGeneratorTest
         var capturedReplacements = replacements!;
         capturedReplacements.Should().HaveCount(12);
         capturedReplacements.Single(replacement => replacement.WildCard == "{ACCOUNTNUMBER}").Value.Should().Be("1001102412");
-        capturedReplacements.Single(replacement => replacement.WildCard == "{RAISON_SOCIALE}").Value.Should().Be("Jean Dupont");
-        capturedReplacements.Single(replacement => replacement.WildCard == "{ADRESSE}").Value.Should().Be("10 rue de Paris");
-        capturedReplacements.Single(replacement => replacement.WildCard == "{ADRESSE2}").Value.Should().Be("Batiment A");
-        capturedReplacements.Single(replacement => replacement.WildCard == "{CP}").Value.Should().Be("75008");
-        capturedReplacements.Single(replacement => replacement.WildCard == "{VILLE}").Value.Should().Be("Paris");
-        capturedReplacements.Single(replacement => replacement.WildCard == "{PAYS}").Value.Should().Be("France");
+        capturedReplacements.Single(replacement => replacement.WildCard == "{RAISON_SOCIALE}").Value.Should().Be("CABINET ÉTOILE");
+        capturedReplacements.Single(replacement => replacement.WildCard == "{ADRESSE}").Value.Should().Be("10 RUE DE L'ÉGLISE");
+        capturedReplacements.Single(replacement => replacement.WildCard == "{ADRESSE2}").Value.Should().Be("Bâtiment A");
+        capturedReplacements.Single(replacement => replacement.WildCard == "{CP}").Value.Should().Be("FR-75008");
+        capturedReplacements.Single(replacement => replacement.WildCard == "{VILLE}").Value.Should().Be("LYON");
+        capturedReplacements.Single(replacement => replacement.WildCard == "{PAYS}").Value.Should().Be("FRANCE");
         capturedReplacements.Single(replacement => replacement.WildCard == "{DATE1}").Value.Should().Be(DateTime.Today.ToString("dd/MM/yyyy"));
         capturedReplacements.Single(replacement => replacement.WildCard == "{CODE_BANK}").Value.Should().Be("30006");
         capturedReplacements.Single(replacement => replacement.WildCard == "{COMPTE}").Value.Should().Be("FR76 3000 6000 0112 3456 7890 189");

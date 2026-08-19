@@ -16,3 +16,4 @@ extends:
     srcPath: 01_API/src/Api/Mandate.AspNetCore.csproj
     testsPath: 01_API/tests/**/*.csproj
     name: mandate
+    dotnetVersion: 10.x

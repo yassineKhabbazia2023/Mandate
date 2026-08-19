@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<IsPackable>false</IsPackable>
@@ -11,9 +11,9 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.ApplicationInsights" Version="2.23.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.11" />
 		<PackageReference Include="Microsoft.SqlServer.DacFx" Version="162.2.111" />
-		<PackageReference Include="System.Formats.Asn1" Version="10.0.10" />
+		<PackageReference Include="System.Formats.Asn1" Version="10.0.11" />
 		<PackageReference Include="System.IO.Packaging" Version="8.0.1" />
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
 	</ItemGroup>
@@ -21,7 +21,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Tools\Mandate.Tools.Tests.csproj" />
 		<ProjectReference Include="..\..\src\Services.Sql.Implementation\Mandate.Sql.Implementation.csproj" />
-		<ProjectReference Include="..\..\src\Database\Mandate.Sql.Database.sqlproj" />
+		<ProjectReference Include="..\..\src\Database\Mandate.Sql.Database.sqlproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
 	</ItemGroup>
 
 	<ItemGroup>

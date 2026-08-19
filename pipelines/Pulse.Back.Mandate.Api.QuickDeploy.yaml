@@ -30,3 +30,4 @@ extends:
     name: mandate
     appType: webApp
     id: '01'
+    dotnetVersion: 10.x

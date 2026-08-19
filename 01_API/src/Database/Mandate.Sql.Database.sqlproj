@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
-  <Sdk Name="Microsoft.Build.Sql" Version="0.1.14-preview" />
+  <Sdk Name="Microsoft.Build.Sql" Version="2.2.0" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -23,6 +23,7 @@
     <IncludeCompositeObjects>True</IncludeCompositeObjects>
     <TargetDatabaseSet>True</TargetDatabaseSet>
     <DefaultSchema>Mandate</DefaultSchema>
+    <EnableDefaultSqlItems>false</EnableDefaultSqlItems>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -84,4 +85,13 @@
     <Build Include="Tables\PaymentPreferences.sql" />
     <Build Include="Tables\SepaMandates.sql" />
   </ItemGroup>
+
+  <!--
+    Microsoft.Build.Sql 2.x always imports Microsoft.NET.Sdk.targets, which requires a prior NuGet restore
+    (obj\project.assets.json). Pipelines that build this project via the classic MSBuild@1 task (msbuild.exe,
+    no explicit restore step) fail with NETSDK1004 without this. Self-restore if the assets file is missing.
+  -->
+  <Target Name="EnsureNuGetRestore" BeforeTargets="ResolvePackageAssets" Condition="!Exists('$(MSBuildProjectDirectory)\obj\project.assets.json')">
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="Restore" Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+  </Target>
 </Project>

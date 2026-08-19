@@ -17,3 +17,4 @@ extends:
     testsPath: 02_MandateFunction/tests/**/*.csproj
     name: 'mdtFunction'
     sonarExclusions: '**/Program.cs , 01_API/**'
+    dotnetVersion: 10.x

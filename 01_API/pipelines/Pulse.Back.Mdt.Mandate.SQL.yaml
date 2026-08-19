@@ -39,4 +39,4 @@ extends:
       id: '01'
       name: 'Global'
       path: 01_API\src\Database\Mandate.Sql.Database.sqlproj
-    dotnetcore: 8.x
+    dotnetcore: 10.x

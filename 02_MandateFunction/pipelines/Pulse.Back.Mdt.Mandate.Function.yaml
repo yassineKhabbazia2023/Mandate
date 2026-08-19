@@ -35,4 +35,4 @@ extends:
       type: 'functionApp' 
       tests: |
           02_MandateFunction\tests\**\*.csproj
-    dotnetcore: 8.x
+    dotnetcore: 10.x

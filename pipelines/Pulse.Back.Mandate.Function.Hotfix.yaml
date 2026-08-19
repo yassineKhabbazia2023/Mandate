@@ -18,3 +18,4 @@ extends:
     name: mdtFunction
     appType: functionApp
     id: '02'
+    dotnetVersion: 10.x

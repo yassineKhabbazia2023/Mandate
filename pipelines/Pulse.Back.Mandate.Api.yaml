@@ -33,4 +33,4 @@ extends:
       name: 'mandate'
       path: 01_API\src\Api\Mandate.AspNetCore.csproj
       type: 'webApp' 
-    dotnetcore: 8.x
+    dotnetcore: 10.x
